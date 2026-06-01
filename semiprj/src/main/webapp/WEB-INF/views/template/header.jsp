@@ -16,7 +16,7 @@
     <!-- 디자인을 작성하기 위한 영역 -->
     <link rel="stylesheet" type="text/css" href="/css/commons.css">
     <style>
-        div { box-shadow: 0 0 0 1px gray ;}
+        /* div { box-shadow: 0 0 0 1px gray ;} */
     </style>
 </head>
 <body>
@@ -31,14 +31,14 @@
 					</a>
                 </div>
                 <div class="w-80 flex-area flex-center">
-				<c:if test="${sessionScope.loginId == null || sessionScope.loginLevel == null}">
+				<c:if test="${sessionScope.loginId == null || sessionScope.loginRole == null}">
 					<jsp:include page="/WEB-INF/views/template/menu_normal.jsp"></jsp:include>
 				</c:if>     
-				<c:if test="${sessionScope.loginId != null && sessionScope.loginLevel != null}">
-					<c:if test="${sessionScope.loginLevel != '마스터'}">
+				<c:if test="${sessionScope.loginId != null && sessionScope.loginRole != null}">
+					<c:if test="${sessionScope.loginRole != '관리자'}">
 						<jsp:include page="/WEB-INF/views/template/menu_member.jsp"></jsp:include>
 					</c:if>
-					<c:if test="${sessionScope.loginLevel == '마스터'}">
+					<c:if test="${sessionScope.loginRole == '관리자'}">
 						<jsp:include page="/WEB-INF/views/template/menu_admin.jsp"></jsp:include>
 					</c:if>
 				</c:if>

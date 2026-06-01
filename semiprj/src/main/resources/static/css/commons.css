@@ -430,6 +430,7 @@ a.btn {
 }
 /* (7) 좌우 분리를 위한 .divider 생성 */
 .menu > .divider {
+	width : 0px;
     flex-grow: 1;
 }
 /* (8) 메뉴, 항목, 링크의 디자인 변경 */

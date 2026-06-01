@@ -81,7 +81,7 @@
 	</c:if>
 
 	<li>
-	    <a href="#">
+	    <a href="/emp/logout">
 	        <span>로그아웃</span>
 	    </a>
 	</li>

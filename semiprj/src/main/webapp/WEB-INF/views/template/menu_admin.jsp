@@ -36,14 +36,22 @@
 	</li>
 	<li>
 	    <a href="#">
-	        <span>쪽지관리</span>
+	        <span>기타관리</span>
 	    </a>
+	     <ul>
+            <li>
+                <a href="#">
+                    <span>자리가 모자라서 일정/쪽지 일단 임시로 합쳐뒀어요</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <span>어떻게할지 고민해봅시다</span>
+                </a>
+            </li>
+        </ul>
 	</li>
-	<li>
-	    <a href="#">
-	        <span>일정관리</span>
-	    </a>
-	</li>
+
 
 	<li class="divider"></li>
 	
@@ -73,7 +81,7 @@
 	</c:if>
 
 	<li>
-	    <a href="#">
+	    <a href="/emp/logout">
 	        <span>로그아웃</span>
 	    </a>
 	</li>

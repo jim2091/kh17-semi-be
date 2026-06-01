@@ -59,7 +59,7 @@
 	    </a>
 	</li>
 	<li>
-	    <a href="#">
+	    <a href="/emp/login">
 	        <span>로그인</span>
 	    </a>
 	</li>
