@@ -109,6 +109,11 @@
 		    <version>1.22.2</version>
 		    <scope>compile</scope>
 		</dependency>
+		<dependency>
+			<groupId>com.kh</groupId>
+			<artifactId>spring09integrate</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 
 	<build>
