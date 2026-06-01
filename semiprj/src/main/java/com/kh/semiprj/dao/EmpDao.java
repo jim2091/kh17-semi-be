@@ -25,4 +25,29 @@ public class EmpDao {
 		return list.isEmpty() ? null : list.get(0);
 	}
 	
+	public void insertFromAdmin(EmpDto empDto) {
+		String sql = "insert into emp("
+					+ "emp_no, emp_id, emp_pw, emp_name, "
+					+ "emp_birth, emp_level, emp_position, "
+					+ "emp_dept, emp_hire_date, emp_mentor) "
+					+ "values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+		Object[] params = {
+				empDto.getEmpNo(), empDto.getEmpId(), empDto.getEmpPw(), 
+				empDto.getEmpName(), empDto.getEmpBirth(), empDto.getEmpLevel(), 
+				empDto.getEmpPosition(), empDto.getEmpDept(), empDto.getEmphireDate(), 
+				empDto.getEmpMentor() 
+		};
+		
+		jdbcTemplate.update(sql, params);
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 }
