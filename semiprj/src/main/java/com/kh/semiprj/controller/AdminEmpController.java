@@ -11,7 +11,7 @@ import com.kh.semiprj.dao.EmpDao;
 import com.kh.semiprj.dto.EmpDto;
 
 @Controller
-@RequestMapping("/admin/emp")
+@RequestMapping("/admin")
 public class AdminEmpController {
 	
 	@Autowired
@@ -19,7 +19,7 @@ public class AdminEmpController {
 	
 	@GetMapping("/register")
 	public String register() {
-		return "admin/emp/register";
+		return "admin/register";
 	}
 	
 	@PostMapping("/register")
