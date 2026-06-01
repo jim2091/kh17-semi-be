@@ -19,7 +19,7 @@ public class EmpDao {
 	private EmpMapper empMapper;
 	
 	public EmpDto selectOne(String empId) {
-		String sql = "select * from emp_test where emp_id = ?";
+		String sql = "select * from emp where emp_id = ?";
 		Object[] params = { empId };
 		List<EmpDto> list = jdbcTemplate.query(sql, empMapper, params);
 		return list.isEmpty() ? null : list.get(0);

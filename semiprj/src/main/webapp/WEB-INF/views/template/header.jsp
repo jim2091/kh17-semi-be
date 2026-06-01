@@ -93,6 +93,7 @@
                             <h3>
                             	${sessionScope.loginId}님<br>
                             	(${sessionScope.loginRole})
+                            	${loginUser.empDept}
                             </h3>
                         </div>
                         
