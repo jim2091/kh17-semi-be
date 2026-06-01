@@ -5,7 +5,7 @@
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
     
 <!-- 디자인을 불러오는 코드 -->   
-<link rel="stylesheet" href="/css/commons.css" type="text/css">
+<link rel="stylesheet" href="/css/commons_semi.css" type="text/css">
 
 				</div>
 	        </div>

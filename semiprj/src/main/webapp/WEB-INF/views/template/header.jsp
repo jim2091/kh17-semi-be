@@ -14,7 +14,7 @@
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
 
     <!-- 디자인을 작성하기 위한 영역 -->
-    <link rel="stylesheet" type="text/css" href="/css/commons.css">
+    <link rel="stylesheet" type="text/css" href="/css/commons_semi.css">
     <style>
         /* div { box-shadow: 0 0 0 1px gray ;} */
     </style>
@@ -101,3 +101,5 @@
                         
                     </div>
 					<jsp:include page="/WEB-INF/views/template/side_home.jsp"></jsp:include>
+					
+                <div class="w-200 flex-fill">
