@@ -5,53 +5,63 @@
 <ul class="menu">
 	<li>
 	    <a href="/">
-	        <i class="fa-solid fa-house"></i>
 	        <span>홈</span>
 	    </a>
 	</li>
 	<li>
 	    <a href="#">
-	        <i class="fa-solid fa-database"></i>
-	        <span>데이터</span>
+	        <span>전자결재</span>
 		</a>
         <!-- 하위 메뉴 -->
         <ul>
             <li>
-                <a href="/country/list">
-                    <i class="fa-solid fa-flag"></i>
-                    <span>국가정보</span>
+                <a href="#">
+                    <span>내 문서함</span>
                 </a>
             </li>
             <li>
-                <a href="/lecture/list">
-                    <i class="fa-solid fa-chalkboard-user"></i>
-                    <span>강좌정보</span>
+                <a href="#">
+                    <span>결재 문서함</span>
                 </a>
             </li>
         </ul>
 	</li>
 	<li>
-	    <a href="/board/list">
-	        <i class="fa-solid fa-comments"></i>
+	    <a href="#">
 	        <span>게시판</span>
+		</a>
+	</li>
+	<li>
+	    <a href="#">
+	        <span>직원목록</span>
 	    </a>
 	</li>
-	
-	<li class="divider"></li>
-	
 	<li>
-	    <a href="/member/login">
-	        <i class="fa-solid fa-right-to-bracket"></i>
+	    <a href="#">
+	        <span>부서목록</span>
+	    </a>
+	</li>
+	<li>
+	    <a href="#">
+	        <span>근태관리</span>
+	    </a>
+	</li>
+	<li>
+	    <a href="#">
+	        <span>일정</span>
+	    </a>
+	</li>
+
+	<li class="divider"></li>
+	<li style="width: 50px;">
+	    <a href="#">
+	        <i class="fa-solid fa-paper-plane"></i>
+	    </a>
+	</li>
+	<li>
+	    <a href="#">
 	        <span>로그인</span>
 	    </a>
-	    <!-- 하위메뉴 -->
-        <ul>
-            <li>
-                <a href="/member/join">
-                    <i class="fa-solid fa-user-plus"></i>
-                    <span>회원가입</span>
-                </a>
-            </li>
-        </ul>
-    </li>
+	</li>
+
 </ul>

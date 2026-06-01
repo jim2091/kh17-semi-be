@@ -16,7 +16,7 @@
     <!-- 디자인을 작성하기 위한 영역 -->
     <link rel="stylesheet" type="text/css" href="/css/commons.css">
     <style>
-        /* div { box-shadow: 0 0 0 1px gray ;} */
+        div { box-shadow: 0 0 0 1px gray ;}
     </style>
 </head>
 <body>
@@ -25,24 +25,12 @@
         <div class="flex-area flex-vertical">
             <!-- 헤더 영역 -->
             <div class="flex-area">
-                <div class="w-25 flex-area flex-center">
+                <div class="w-20 flex-area flex-center">
                     <a href="https://kh-academy.co.kr/main/main.kh">
 						<img src="/images/logo.svg" style="width: 200px">
 					</a>
                 </div>
-                <div class="w-50 flex-area flex-center">
-                    <h1>KH정보교육원 스프링개발자 수업자료</h1>
-                </div>
-                <div class="w-25 flex-area flex-center">
-                    <div class="center">
-                        <h2 class="mt-0 mb-0">24시간상담</h2>
-                        <div>1588-0000</div>                        
-                    </div>
-                </div>
-            </div>
-
-            <!-- 메뉴 -->
-            <div>
+                <div class="w-80 flex-area flex-center">
 				<c:if test="${sessionScope.loginId == null || sessionScope.loginLevel == null}">
 					<jsp:include page="/WEB-INF/views/template/menu_normal.jsp"></jsp:include>
 				</c:if>     
@@ -54,7 +42,10 @@
 						<jsp:include page="/WEB-INF/views/template/menu_admin.jsp"></jsp:include>
 					</c:if>
 				</c:if>
+           		</div>
             </div>
+
+
 
             <!-- 사이드바 및 컨텐츠 -->
             <div style="min-height: 450px;" class="flex-area">

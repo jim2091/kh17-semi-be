@@ -408,7 +408,7 @@ a.btn {
 }
 /* (4) 모든 메뉴에 폭과 여백 지정 */
 .menu li {
-    width: 150px;
+    width: 100px;
     font-size: 20px;
     font-weight: bold;
     padding: 0.5em;
@@ -430,15 +430,12 @@ a.btn {
 }
 /* (7) 좌우 분리를 위한 .divider 생성 */
 .menu > .divider {
-    width: 0px !important;
-    margin-left: auto !important;
-    margin-right: auto !important;
+    flex-grow: 1;
 }
 /* (8) 메뉴, 항목, 링크의 디자인 변경 */
 .menu, 
 .menu ul {
-    background-color: #2d3436;
-    color: white;
+    background-color: none;
 }
 .menu a {
     color: inherit;
