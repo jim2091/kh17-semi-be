@@ -42,7 +42,7 @@ public class EmpController {
 		
 		//session에 로그인 되었음을 표시
 		session.setAttribute("loginId", findEmpDto.getEmpId());
-		session.setAttribute("loginRole", findEmpDto.getEmpRole());
+		session.setAttribute("loginRole", findEmpDto.getEmpLevel());
 		
 		return "redirect:/";
 	}
@@ -50,9 +50,33 @@ public class EmpController {
 	@RequestMapping("/logout")
 	public String logout(HttpSession session) {
 		session.removeAttribute("loginId");
-		session.removeAttribute("loginRole");
+		session.removeAttribute("loginLevel");
 		
 		return "redirect:/";
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 }
