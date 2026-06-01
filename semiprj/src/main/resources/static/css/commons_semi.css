@@ -511,3 +511,8 @@ a.btn {
 	border-radius :10px;
 	padding: 0.1em;
 }
+.content-cell {
+	box-shadow: 0 0 2px 1px gray;
+	border-radius :10px;
+	padding: 0.1em;
+}

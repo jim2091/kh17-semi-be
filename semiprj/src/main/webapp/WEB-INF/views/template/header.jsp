@@ -48,9 +48,9 @@
 
 
             <!-- 사이드바 및 컨텐츠 -->
-            <div style="min-height: 450px;" class="flex-area">
-                <div class="w-200">
-                    <div class="container w-100 side-area">
+            <div style="min-height: 600px;" class="flex-area">
+                <div class="w-200 flex-area flex-vertical">
+                    <div class="container w-100 side-area cell">
                     
                     	<c:if test="${sessionScope.loginId == null || sessionScope.loginRole == null}">
                         <!-- 비회원 상태 -->
