@@ -24,40 +24,42 @@
     </script>
 </head>
 <body>
+<form action="./register" method="post" autocomplete="off">
+
     <div class="container w-600 mt-50 mb-50">
         <div class="cell center">
             <h1>사원등록페이지</h1>
         </div>
         <div class="cell">
             <label>사원번호<i class="fa-solid fa-asterisk red"></i></label>
-            <input type="text">
+            <input type="text" name="empNo">
         </div>
         <div class="cell">
             <label>사원아이디<i class="fa-solid fa-asterisk red"></i></label>
-            <input type="text">
+            <input type="text" name="empId">
         </div>
         <div class="cell">
             <label>사원비밀번호<i class="fa-solid fa-asterisk red"></i></label>
-            <input type="text">
+            <input type="text" name="empPw">
         </div>
         <div class="cell">
             <label>사원실명<i class="fa-solid fa-asterisk red"></i></label>
-            <input type="text">
+            <input type="text" name="empName">
         </div>
         <div class="cell">
             <label>사원생년월일<i class="fa-solid fa-asterisk red"></i></label>
-            <input type="text">
+            <input type="text" name="empBirth">
         </div>
         <div class="cell">
             <label>사원권한<i class="fa-solid fa-asterisk red"></i></label>
-            <select>
+            <select name="empLevel">
                 <option>사용자</option>
                 <option>관리자</option>
             </select>
         </div>
         <div class="cell">
             <label>사원직위<i class="fa-solid fa-asterisk red"></i></label>
-            <select>
+            <select name="empPosition">
                 <option>사원</option>
                 <option>선임</option>
                 <option>주임</option>
@@ -76,7 +78,7 @@
         </div>
         <div class="cell">
             <label>사원부서</label>
-            <select>
+            <select name="empDept">
                 <option>영업</option>
                 <option>관리</option>
                 <option>감사</option>
@@ -84,11 +86,11 @@
         </div>
         <div class="cell">
             <label>사원입사일</label>
-            <input type="date">
+            <input type="date" name="empHireDate">
         </div>
         <div class="cell">
             <label>사원담당사수</label>
-            <input type="text">
+            <input type="text" name="empMentor">
         </div>
         <div class="cell right">
             <button type="submit" class="btn btn-positive"><i class="fa-solid fa-user-plus"></i>
@@ -99,6 +101,7 @@
             </button>
         </div>
     </div>
+    </form>
 </body>
 </html>
 
