@@ -38,7 +38,7 @@
 	    </a>
 	</li>
 	<li>
-	    <a href="#">
+	    <a href="/dept/list">
 	        <span>부서목록</span>
 	    </a>
 	</li>
