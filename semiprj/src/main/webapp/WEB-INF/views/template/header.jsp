@@ -48,7 +48,7 @@
 
 
             <!-- 사이드바 및 컨텐츠 -->
-            <div style="min-height: 600px;" class="flex-area">
+            <div style="min-height: 600px;" class="flex-area mt-20">
                 <div class="w-200 flex-area flex-vertical">
                     <div class="container w-100 side-area cell">
                     
@@ -74,7 +74,7 @@
                         <!-- 회원 상태 -->
                         <c:if test="${sessionScope.loginId != null && sessionScope.loginRole != null}">
                         
-                        <c:if test="${sessionScope.loginRole != '관리자'}">
+
                         <div class="cell center">
                             <!-- 이미지와 글자를 겹쳐서 배치하기 위해 영역을 설정하고 내부에 요소 배치 -->
                             <div class="image-hover image-circle image-shadow"
@@ -88,7 +88,6 @@
                                 </div>
                             </div>
                         </div>
-                        </c:if>
                         
                         <div class="cell center">
                             <h3>
