@@ -36,7 +36,7 @@
 				</c:if>     
 				<c:if test="${sessionScope.loginId != null && sessionScope.loginRole != null}">
 					<c:if test="${sessionScope.loginRole != '관리자'}">
-						<jsp:include page="/WEB-INF/views/template/menu_member.jsp"></jsp:include>
+						<jsp:include page="/WEB-INF/views/template/menu_emp.jsp"></jsp:include>
 					</c:if>
 					<c:if test="${sessionScope.loginRole == '관리자'}">
 						<jsp:include page="/WEB-INF/views/template/menu_admin.jsp"></jsp:include>
@@ -50,21 +50,21 @@
             <!-- 사이드바 및 컨텐츠 -->
             <div style="min-height: 450px;" class="flex-area">
                 <div class="w-200">
-                    <div class="container w-100">
+                    <div class="container w-100 side-area">
                     
-                    	<c:if test="${sessionScope.loginId == null || sessionScope.loginLevel == null}">
+                    	<c:if test="${sessionScope.loginId == null || sessionScope.loginRole == null}">
                         <!-- 비회원 상태 -->
                         <div class="cell center">
                             <h3>비회원 상태</h3>
                         </div>
                         <div class="cell center">
-                            <a href="/member/login">
+                            <a href="/emp/login">
                                 <i class="fa-solid fa-right-to-bracket"></i>
                                 <span>로그인</span>
                             </a>
                         </div>
                         <div class="cell center">
-                            <a href="/member/join">
+                            <a href="/emp/join">
                                 <i class="fa-solid fa-user-plus"></i>
                                 <span>회원가입</span>
                             </a>
@@ -72,22 +72,16 @@
                         </c:if>
 
                         <!-- 회원 상태 -->
-                        <c:if test="${sessionScope.loginId != null && sessionScope.loginLevel != null}">
-                        <div class="cell center">
-                            <h3>
-                            	${sessionScope.loginId}님<br>
-                            	(${sessionScope.loginLevel})
-                            </h3>
-                        </div>
+                        <c:if test="${sessionScope.loginId != null && sessionScope.loginRole != null}">
                         
-                        <c:if test="${sessionScope.loginLevel != '마스터'}">
+                        <c:if test="${sessionScope.loginRole != '관리자'}">
                         <div class="cell center">
                             <!-- 이미지와 글자를 겹쳐서 배치하기 위해 영역을 설정하고 내부에 요소 배치 -->
                             <div class="image-hover image-circle image-shadow"
                                     style="width: 150px; margin: 0 auto;">
-                                <img src="/member/profile?memberId=${sessionScope.loginId}">
+                                <img src="/emp/profile?empId=${sessionScope.loginId}">
                                 <div class="content">
-                                    <a href="/member/mypage" class="white">
+                                    <a href="/emp/mypage" class="white">
                                         <i class="fa-solid fa-user"></i>
                                         <span>내 정보 보기</span>
                                     </a>
@@ -96,8 +90,14 @@
                         </div>
                         </c:if>
                         
+                        <div class="cell center">
+                            <h3>
+                            	${sessionScope.loginId}님<br>
+                            	(${sessionScope.loginRole})
+                            </h3>
+                        </div>
+                        
                         </c:if>
                         
                     </div>
-                </div>
-                <div class="w-200 flex-fill">
+					<jsp:include page="/WEB-INF/views/template/side_home.jsp"></jsp:include>

@@ -506,3 +506,8 @@ a.btn {
     /* display: flex; */
     opacity: 1;
 }
+.side-area {
+	box-shadow: 0 0 2px 1px gray;
+	border-radius :10px;
+	padding: 0.1em;
+}
