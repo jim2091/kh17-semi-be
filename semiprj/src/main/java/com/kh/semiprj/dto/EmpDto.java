@@ -21,7 +21,7 @@ public class EmpDto {
 	private String empDept;
 	private String empApprovalStatus;
 	private String empUseYn;
-	private Timestamp emphireDate;
+	private Timestamp empHireDate;
 	private Timestamp empRetiredDate;
 	private Timestamp empCreateAt;
 	private String empMentor;
