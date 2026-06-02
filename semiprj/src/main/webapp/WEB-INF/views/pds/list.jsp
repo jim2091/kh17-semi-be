@@ -1,92 +1,87 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
 
-<div class="container w-900 mt-50 mb-50">
-	<!-- 페이지 제목 -->
-    <div class="cell center">
-        <h1 class="mt-0 mb-0">사내 게시판</h1>
+<div class="container w-950 mt-50 mb-50">
+    <div class="cell center mb-0">
+        <h1 class="mb-0">자료실</h1>
+    </div>
+    <div class="cell center mt-0">
+        타인에 대한 무분별한 비방글은 예고 없이 삭제될 수 있습니다
     </div>
     
-    <!-- 경고문 -->
-    <div class="cell center mt-10">
-    	<i class="fa-solid fa-circle-exclamation red"></i>
-        <span>타인에 대한 무분별한 비방글은 예고 없이 삭제될 수 있습니다.</span>
-    </div>
-    
-    <!-- 검색창 -->
-    <div class="cell center">
-	<form action="./list" method="get">
-		<select name="column" class="field">
-			<option value="pds_title" ${param.column == 'board_title' ? 'selected':''}>제목</option>
-			<option value="pds_writer" ${param.column == 'board_writer' ? 'selected':''}>작성자</option>
-		</select>
-		<input type="text" name="keyword" class="field" placeholder="검색어" value="${param.keyword}">
-		<button type="submit" class="btn btn-positive">
-			<i class="fa-solid fa-magnifying-glass"></i>
-			<span>검색</span>
-		</button>
-	</form>
-	</div>
-    
-    <!-- 글쓰기 버튼 -->
     <div class="cell right">
+    	<!-- 글쓰기 버튼 -->
 		<c:if test="${sessionScope.loginId != null}">
-			<a href="./write" class="btn btn-neutral">글쓰기<i class="fa-solid fa-pencil"></i></a>
+			<a href="./write" class="btn btn-neutral">글쓰기</a>
 		</c:if>
     </div>
-    
-    <!-- 게시글 목록 -->
+    <div class="cell right">
+        ${pageVO.beginRownum}-${pageVO.endRownum} / 총 ${pageVO.count}개의 글
+    </div>
     <div class="cell">
-    	<tabel class="table">
-    		<thead>
-    			<tr>
-    				<th>번호</th>
-    				<th>종류</th>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>번호</th>
                     <th class="w-40">제목</th>
                     <th>작성자</th>
-                    <th>조회수</th>
                     <th>작성일</th>
-				</tr>
-			</thead>
-			<tbody>
+                    <th>조회수</th>
+                </tr>
+            </thead>
+            <tbody>
+            	<!-- 일반 게시글 -->
+				<!-- varStatus를 쓰면 반복문의 상태를 알 수 있다(index, count, first, last) -->
 				<c:forEach var="pdsDto" items="${list}" varStatus="stat">
-					<!-- 게시글 번호 -->
+				<tr>
 					<td>${pdsDto.pdsNo}</td>
-					<!-- 게시글 제목 -->
 					<td align="left">
-						<a href="./detail?pdsNo=${pdsDto.pdsNo}&page=${pageVO.page}&${pageVO.searchParams}" class="link">${pdsDto.pdsTitle}</a>
-						<!-- 조회 수 -->
-						<c:if test="${pdsDto.pdsreadcount > 0}">[${pdsDto.pdsReadcount}]</c:if>
+					
+						<!-- 게시글 제목 -->
+						<a href="./detail?pdsNo=${pdsDto.pdsNo}&page=${pageVO.page}&${pageVO.searchParams}" class="link">
+						${pdsDto.pdsTitle}
+						</a>
 					</td>
-					<!-- 게시글 작성자 -->
 					<td>
 						<c:if test="${pdsDto.pdsWriter == null}">
-							(퇴사한 사용자)
+							(탈퇴한사용자)
 						</c:if>
 						<c:if test="${pdsDto.pdsWriter != null}">
-							<!-- 링크 누르면 사원 상세 정보 페이지로 이동 -->
-							<a href="#=${pdsDto.pdsWriter}">
+							<!-- 누르면 이동하도록 링크 구현 -->
+							<a href="/member/detail?memberId=${pdsDto.pdsWriter}">
 								${pdsDto.pdsWriter}
 							</a>
 						</c:if>
 					</td>
-					<!-- 게시글 조회수 -->
-					<td>${pdsDto.pdsReadcount}</td>
-					<!-- 게시글 작성일 -->
 					<td>${pdsDto.getPdsWtimeString()}</td>
+					<td>${pdsDto.pdsReadcount}</td>
 				</tr>
 				</c:forEach>
             </tbody>
         </table>
     </div>
     
-	<!-- 페이지네이션 -->
-    <div class="cell mt-50">
-		<jsp:include page="/WEB-INF/views/template/pagination2.jsp"></jsp:include>
+    <!-- 페이지네이션 -->
+    <div class="cell mt-40">
+		<jsp:include page="/WEB-INF/views/template/pagination.jsp"></jsp:include>
+    </div>
+    <div class="cell center">
+        <!-- 검색창 -->
+		<form action="./list" method="get">
+			<select name="column" class="field">
+				<option value="pds_title" ${param.column == 'pds_title' ? 'selected':''}>제목</option>
+				<option value="pds_writer" ${param.column == 'pds_writer' ? 'selected':''}>작성자</option>
+			</select>
+			<input type="text" name="keyword" class="field" placeholder="검색어" value="${param.keyword}">
+			<button type="submit" class="btn btn-positive">
+				<i class="fa-solid fa-magnifying-glass"></i>
+				<span>검색</span>
+			</button>
+		</form>
     </div>
 </div>
 

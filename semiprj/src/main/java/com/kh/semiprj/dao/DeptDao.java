@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import com.kh.semiprj.dto.DeptDto;
 import com.kh.semiprj.mapper.DeptMapper;
-import com.kh.spring09.vo.PageVO;
+import com.kh.semiprj.vo.PageVO;
 
 @Repository
 public class DeptDao {

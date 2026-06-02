@@ -22,7 +22,6 @@
     <!-- jQuery CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     
-    <script src="/js/checkbox.js"></script>
 </head>
 <body>
     <!-- 메인 컨테이너1 + 내부영역4 -->
