@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import com.kh.semiprj.dto.EmpDto;
 import com.kh.semiprj.mapper.EmpMapper;
+import com.kh.spring09.dto.MemberDto;
 
 @Repository
 public class EmpDao {
@@ -115,7 +116,13 @@ public class EmpDao {
 		return jdbcTemplate.query(sql, empMapper);
 	}
 	
-	
+	public boolean updateEmpPw(EmpDto empDto) {
+		String sql = "update emp "
+				+ "set emp_pw= ?, emp_pw_change=systimestamp "
+				+ "where emp_id = ?";
+		Object[] params = {empDto.getEmpPw(), empDto.getEmpId()};
+		return jdbcTemplate.update(sql, params)>0;
+	}
 	
 	
 	

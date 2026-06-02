@@ -28,10 +28,13 @@
  		<li>입사일 : ${empDto.empHireDate} </li>
  		<li>최종 비밀번호 변경일 : <fmt:formatDate value = "${empDto.empPwChange}" pattern="y년 M월 d일 E a h시 m분"/></li>
  </ul>
+ 
 
 		
 	<button type="submit">수정하기</button>
 	<a href="./list">목록으로</a>
+	<a href="./password">비밀번호 변경하기</a>
+	
 </form>
 
 

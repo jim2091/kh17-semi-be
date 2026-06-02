@@ -128,9 +128,26 @@ public class EmpController {
 	 
 	
 	
+	@GetMapping("/password")
+	public String password() {
+		return "emp/password";
+	}
 	
-	
-	
+	@PostMapping("/password")
+	public String password(@RequestParam String originPw, @RequestParam String changePw, 
+									HttpSession session) {
+		if(originPw.equals(changePw)) return "redirect:./password?error";
+		
+		String loginId = (String) session.getAttribute("loginId");
+		EmpDto empDto = empDao.selectOne(loginId);
+		
+		if(!empDto.getEmpPw().equals(originPw)) {
+			return "redirect:./password?error";
+		}
+		empDto.setEmpPw(changePw);
+		empDao.updateEmpPw(empDto);
+		return "redirect:./mypage";	
+	}
 	
 	
 	
