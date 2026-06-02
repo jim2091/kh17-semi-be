@@ -15,7 +15,7 @@
     
     <!-- 경고문 -->
     <div class="cell center mt-10">
-    	<i class="fa-solid fa-circle-exclamation red"></i>
+    	<i class="fa-solid fa-circle-exclamation fa-fade red"></i>
         <span>타인에 대한 무분별한 비방글은 예고 없이 삭제될 수 있습니다.</span>
     </div>
     
@@ -82,7 +82,7 @@
 						<c:if test="${boardDto.boardWriter != null}">
 							<!-- 링크 누르면 사원 상세 정보 페이지로 이동 -->
 							<a href="./detail?empId=${boardDto.boardWriter}">
-								${boardDto.boardWriter}
+								${boardDto.empName}
 							</a>
 						</c:if>
 					</td>

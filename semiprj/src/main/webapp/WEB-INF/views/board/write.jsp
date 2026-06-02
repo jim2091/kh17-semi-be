@@ -90,7 +90,7 @@ $(function(){
     });
     
     //(4) 내용
-    $("[name=boardContent]").on("input", function(){
+    $("[name=boardContent]").on("input blur", function(){
     	var size = $(this).val().length;
     	if(size > 1000) {
     		var origin = $(this).val();
