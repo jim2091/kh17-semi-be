@@ -67,7 +67,7 @@ public class BoardDao {
 	}
 	
 	//(2-3) 추천수 증가
-	public boolean updateBoardLikecount(int boardNo) {
+	public boolean updateBoardLikecount(long boardNo) {
 		String sql = "update board set board_likecount = ("
 						+ "select count(*) from board_like where board_no = ?"
 					+ ") where board_no = ?";

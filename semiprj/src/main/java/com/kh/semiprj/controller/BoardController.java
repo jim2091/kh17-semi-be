@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.kh.semiprj.dao.BoardDao;
 import com.kh.semiprj.dao.EmpDao;
 import com.kh.semiprj.dto.BoardDto;
+import com.kh.semiprj.dto.EmpDto;
 import com.kh.semiprj.exception.GetOutException;
 import com.kh.semiprj.exception.TargetNotfoundException;
 import com.kh.semiprj.vo.PageVO;
@@ -34,22 +35,24 @@ public class BoardController {
 	public String write() {
 		return "board/write";
 	}
-	@PostMapping("write") 
+	@PostMapping("/write") 
 	public String write(@ModelAttribute BoardDto boardDto, HttpSession session){
 		//(1) 작성자 아이디 추출
-		String empId = (String)session.getAttribute("empId");
+		String loginId = (String)session.getAttribute("loginId");
+		EmpDto empDto = empDao.selectOne(loginId);
 		//(2) 게시글 종류가 '공지'라면 작성자가 '관리자'인지 확인
 		if(boardDto.getBoardHead() != null && boardDto.getBoardHead().equals("공지")) {
-			String empLevel = (String) session.getAttribute("empLevel");
-			if(!empLevel.equals("관리자")) {
+			String loginRole = (String) session.getAttribute("loginRole");
+			if(!loginRole.equals("관리자")) {
 				throw new GetOutException();
 			}
 		}
 		//(3) 게시글 번호 생성
 		long boardNo = boardDao.sequence();
 		//(4) 새글/답글 계산하고 글 등록
-	    boardDto.setBoardWriter(empId);
+	    boardDto.setBoardWriter(empDto.getEmpNo());
 	    boardDto.setBoardNo(boardNo);
+	    
 	    if(boardDto.getBoardParent() == null) {
 	    	boardDto.setBoardGroup(boardNo);
 	    }
@@ -82,7 +85,21 @@ public class BoardController {
 		return "board/list";
 	}
 	
-	//3. 게시글 수정 매핑
+	//3. 게시글 상세 매핑
+	@RequestMapping("/detail")
+	public String detail(Model model, @RequestParam long boardNo) {
+		BoardDto boardDto = boardDao.selectOne(boardNo);
+		if(boardDto == null) throw new TargetNotfoundException("존재하지 않는 게시글입니다.");
+		model.addAttribute("boardDto", boardDto);
+		
+		//이전 글과 다음 글을 조회하여 첨부
+		model.addAttribute("prevBoardDto", boardDao.selectPreviousOne(boardNo));
+		model.addAttribute("nextBoardDto", boardDao.selectNextOne(boardNo));
+		
+		return "board/detail";
+	}
+	
+	//4. 게시글 수정 매핑
 	@GetMapping("/edit")
 	public String edit(@RequestParam long boardNo, Model model) {
 		BoardDto boardDto = boardDao.selectOne(boardNo);
@@ -95,19 +112,19 @@ public class BoardController {
 	public String edit(@ModelAttribute BoardDto boardDto, HttpSession session) {
 		//(2) 게시글 종류가 '공지'라면 작성자가 '관리자'인지 확인
 		if(boardDto.getBoardHead() != null && boardDto.getBoardHead().equals("공지")) {
-			String empLevel = (String) session.getAttribute("empLevel");
-			if(!empLevel.equals("관리자")) {
+			String loginRole = (String) session.getAttribute("loginRole");
+			if(!loginRole.equals("관리자")) {
 				throw new GetOutException();
 			}
 		}
 	    BoardDto findBoardDto = boardDao.selectOne(boardDto.getBoardNo());
 	    if(findBoardDto == null) throw new TargetNotfoundException("존재하지 않는 게시글입니다.");
 		boardDao.update(boardDto);
-		//(5) 수정한 게시글 상세 페이지로 리다이렉트
+		//(3) 수정한 게시글 상세 페이지로 리다이렉트
 		return "redirect:./detail?boardNo=" + boardDto.getBoardNo();
 	}
 	
-	//4. 게시글 삭제 매핑
+	//5. 게시글 삭제 매핑
 	@RequestMapping("/delete")
 	public String delete(@RequestParam long boardNo) {
 		BoardDto boardDto = boardDao.selectOne(boardNo);

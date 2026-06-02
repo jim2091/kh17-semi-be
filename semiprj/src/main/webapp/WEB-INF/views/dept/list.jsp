@@ -16,7 +16,9 @@
         <form action="./list">
             <select name="column" class="field">
                 <option value="dept_name" ${param.column == "dept_name" ? "selected" : ""}>부서명</option>
+                <option value="dept_category" ${param.column == "dept_category" ? "selected" : ""}>부서카테고리</option>
                 <option value="dept_id" ${param.column == "dept_id" ? "selected" : ""}>부서코드</option>
+                
             </select>
             <input type="text" name="keyword" placeholder="검색어 입력"
                       class="field" value="${param.keyword}">
@@ -27,10 +29,10 @@
         </form>
     </div>
 
-    <!-- 신규 등록 버튼 (오른쪽 정렬) -->
+    
     <div class="flex-fill right">
-	    <c:if test="${sessionScope.loginUser.empLevel == '관리자' }">
-	        <a href="./insert" class="btn btn-neutral">신규 등록하기</a>
+	    <c:if test="${loginRole != null && loginRole == '관리자'}">
+	        <a href="./insert" class="btn btn-positive">신규 등록하기</a>
         </c:if>
     </div>
 </div>
@@ -61,6 +63,10 @@
 			</c:forEach>
 		</tbody>
 	</table>
-</div>
+	</div> 
+    <div class="cell center">
+   		<jsp:include page="/WEB-INF/views/template/pagination.jsp"></jsp:include>
+	</div>
+
 </div>
 <jsp:include page="/WEB-INF/views/template/footer.jsp"></jsp:include>

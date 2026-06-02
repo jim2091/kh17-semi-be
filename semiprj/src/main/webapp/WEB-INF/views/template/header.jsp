@@ -83,7 +83,7 @@
                             <!-- 이미지와 글자를 겹쳐서 배치하기 위해 영역을 설정하고 내부에 요소 배치 -->
                             <div class="image-hover image-circle image-shadow"
                                     style="width: 150px; margin: 0 auto;">
-                                <img src="/emp/profile?empId=${sessionScope.loginId}">
+                                <%-- <img src="/emp/profile?empId=${sessionScope.loginId}"> --%>
                                 <div class="content">
                                     <a href="/emp/mypage" class="white">
                                         <i class="fa-solid fa-user"></i>

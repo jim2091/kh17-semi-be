@@ -70,3 +70,4 @@ public class PageVO {
 		return getEndBlock() + 1;
 	}
 }
+
