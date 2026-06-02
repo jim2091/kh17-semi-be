@@ -26,12 +26,10 @@
 		<div class="flex-area" style="align-items:end">
 			<div>
 				<h1 class="mt-0 mb-0">
-					<!-- 게시글 종류 -->
+					<!-- 게시글 종류, 제목 -->
 					<div class="cell">
-						<span class="badge silver me-10">${boardDto.boardHead}</span> 
+						<span class="badge silver me-10">${boardDto.boardHead}</span> ${boardDto.boardTitle}
 					</div>
-					<!-- 게시글 제목 -->
-					${boardDto.boardTitle}
 				</h1>
 			</div>
 			<div class="ms-40">

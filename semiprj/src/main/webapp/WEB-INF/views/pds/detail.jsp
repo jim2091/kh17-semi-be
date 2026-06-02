@@ -1,0 +1,83 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+
+<jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
+
+<style>
+	.badge {
+	padding:0.2em;
+	border:1px solid gray;
+	border-radius:0.2em;
+	}
+	.badge.blue { border-color: #0984e3 !important; }
+	.badge.silver { border-color: #BDC3C7 !important; }
+</style>
+
+<!-- 좋아요 토글 자바스크립트 -->
+<script type="text/javascript">
+</script>
+
+<div class="container w-800 mt-50 mb-50">
+	<div class="cell">
+		<div class="flex-area" style="align-items:end">
+			<div>
+				<h1 class="mt-0 mb-0">
+					<!-- 게시글 제목 -->
+					${pdsDto.pdsTitle}
+				</h1>
+			</div>
+			<div class="ms-40">
+				<!-- 게시글 작성자 -->
+				<c:if test="${pdsDto.pdsWriter == null}">
+					(퇴사한 사용자)
+				</c:if>
+				<c:if test="${pdsDto.pdsWriter != null}">
+					<!-- 링크 누르면 사원 상세 정보 페이지로 이동 -->
+					<a href="#=${pdsDto.pdsWriter}" class="link">
+						${pdsDto.pdsWriter}
+					</a>
+				</c:if>
+			</div>
+		</div>
+	</div>
+	
+	<div class="cell mt-20 flex-area">
+		<div><fmt:formatDate value="${pdsDto.pdsWtime}" pattern="yyyy-MM-dd HH:mm"></fmt:formatDate></div>
+		<div class="ms-20">조회수 ${pdsDto.pdsReadcount}</div>
+	</div>
+	
+	<hr>
+	
+	<!-- 게시글 본문 -->
+	<div class="cell" style="min-height:300px">
+		<pre>${pdsDto.pdsContent}</pre>
+	</div>
+	
+	<hr class="mt-20">
+	
+	<!-- 이전글/다음글 -->
+	<div class="cell">
+		<span class="badge blue me-10">이전글</span> 
+		<a href="./detail?boardNo=${prevBoardDto.boardNo}" class="link">${prevBoardDto.boardTitle}</a>	
+	</div>
+	<div class="cell">
+		<span class="badge blue me-10">다음글</span>
+		<a href="./detail?boardNo=${nextBoardDto.boardNo}" class="link">${nextBoardDto.boardTitle}</a>	
+	</div>
+	
+	<hr class="mb-20">
+	
+	<!-- 버튼 -->
+	<div class="cell right">
+		<a class="btn btn-negative" href="./edit?boardNo=${boardDto.boardNo}">수정하기</a>
+		<a class="btn btn-negative" href="./delete?boardNo=${boardDto.boardNo}">삭제하기</a>
+		
+		<a class="btn btn-neutral" href="./list">목록으로</a>
+	</div>
+</div>
+
+<jsp:include page="/WEB-INF/views/template/footer.jsp"></jsp:include>

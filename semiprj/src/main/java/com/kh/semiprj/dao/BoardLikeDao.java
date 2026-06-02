@@ -10,25 +10,25 @@ public class BoardLikeDao {
 	private JdbcTemplate jdbcTemplate;
 	
 	//등록(= 좋아요 설정)
-	public void insert(String empId, int boardNo) {
-		String sql = "insert into board_like(emp_id, board_no) values(?, ?)";
-		Object[] params = {empId, boardNo};
+	public void insert(String empNo, long boardNo) {
+		String sql = "insert into board_like(emp_no, board_no) values(?, ?)";
+		Object[] params = {empNo, boardNo};
 		jdbcTemplate.update(sql, params);
 	}
 	//삭제(= 좋아요 해제)
-	public boolean delete(String empId, int boardNo) {
-		String sql = "delete board_like where emp_id=? and board_no=?";
-		Object[] params = {empId, boardNo};
+	public boolean delete(String empNo, long boardNo) {
+		String sql = "delete board_like where emp_no=? and board_no=?";
+		Object[] params = {empNo, boardNo};
 		return jdbcTemplate.update(sql, params) > 0;
 	}
-	//검사(좋아요 여부)
-	public boolean check(String memberId, int boardNo) {
-		String sql = "select count(*) from board_like where member_id=? and board_no=?";
-		Object[] params = {memberId, boardNo};
+	//검사(= 좋아요 여부)
+	public boolean check(String empNo, long boardNo) {
+		String sql = "select count(*) from board_like where emp_no=? and board_no=?";
+		Object[] params = {empNo, boardNo};
 		return jdbcTemplate.queryForObject(sql, int.class, params) > 0;
 	}
-	//개수(좋아요 개수)
-	public int count(int boardNo) {
+	//개수(= 좋아요 개수)
+	public int count(long boardNo) {
 		String sql = "select count(*) from board_like where board_no=?";
 		Object[] params = {boardNo};
 		return jdbcTemplate.queryForObject(sql, int.class, params);
