@@ -23,6 +23,18 @@
 	    <a href="/admin/list">
 	        <span>직원관리</span>
 	    </a>
+	    <ul>
+            <li>
+                <a href="/admin/register">
+                    <span>사원등록</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <span>대기사원목록</span>
+                </a>
+            </li>
+        </ul>
 	</li>
 	<li>
 	    <a href="/dept/list">

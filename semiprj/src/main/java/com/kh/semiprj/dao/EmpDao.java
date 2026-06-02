@@ -98,8 +98,17 @@ public class EmpDao {
 	}
 	
 	
-	
-	
+	//사용자가 변경해야할 정보 : 생년월일, 이메일(인증까지),연락처, 주소
+	public boolean updateByUser(EmpDto empDto) {
+		String sql = "update emp "
+				+ "set emp_birth=?, emp_email=?, emp_contact=?, "
+				+ "emp_post=?, emp_address1=?, emp_address2=? ";
+		Object[] params = {empDto.getEmpBirth(), empDto.getEmpEmail(), 
+				empDto.getEmpContact(), empDto.getEmpPost(), 
+				empDto.getEmpAddress1(), empDto.getEmpAddress2() 
+				};
+		return jdbcTemplate.update(sql, params)>0;
+	}
 	
 	
 	
