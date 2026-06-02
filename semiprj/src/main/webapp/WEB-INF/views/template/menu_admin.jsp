@@ -20,7 +20,7 @@
 		</a>
 	</li>
 	<li>
-	    <a href="#">
+	    <a href="/admin/list">
 	        <span>직원관리</span>
 	    </a>
 	</li>

@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 public class EmpDto {
-	private int empNo;
+	private String empNo;
 	private String empId;
 	private String empPw;
 	private String empName;
@@ -21,7 +21,7 @@ public class EmpDto {
 	private String empDept;
 	private String empApprovalStatus;
 	private String empUseYn;
-	private Timestamp emphireDate;
+	private Timestamp empHireDate;
 	private Timestamp empRetiredDate;
 	private Timestamp empCreateAt;
 	private String empMentor;

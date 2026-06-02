@@ -14,7 +14,7 @@ public class EmpMapper implements RowMapper<EmpDto>{
 	public EmpDto mapRow(ResultSet rs, int rowNum) throws SQLException {
 		EmpDto empDto = new EmpDto();
 		
-		empDto.setEmpNo(rs.getInt("emp_no"));
+		empDto.setEmpNo(rs.getString("emp_no"));
 		empDto.setEmpId(rs.getString("emp_id"));
 		empDto.setEmpPw(rs.getString("emp_pw"));
 		empDto.setEmpName(rs.getString("emp_name"));
@@ -29,7 +29,7 @@ public class EmpMapper implements RowMapper<EmpDto>{
 		empDto.setEmpDept(rs.getString("emp_dept"));
 		empDto.setEmpApprovalStatus(rs.getString("emp_approval_status"));
 		empDto.setEmpUseYn(rs.getString("emp_use_yn"));
-		empDto.setEmphireDate(rs.getTimestamp("emp_hire_date"));
+		empDto.setEmpHireDate(rs.getTimestamp("emp_hire_date"));
 		empDto.setEmpRetiredDate(rs.getTimestamp("emp_retired_date"));
 		empDto.setEmpCreateAt(rs.getTimestamp("emp_create_at"));
 		empDto.setEmpMentor(rs.getString("emp_mentor"));
