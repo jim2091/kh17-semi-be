@@ -13,7 +13,7 @@
         <table class="table table-vertical">
             <tbody>
                 <tr>
-                    <th class="w-200">코드</th>
+                    <th class="w-200">부서코드</th>
                     <td>${deptDto.deptId}</td>
                 </tr>
                 <tr>

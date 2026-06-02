@@ -23,7 +23,25 @@ public class BoardDto {
 	private Long boardParent;
 	private long boardDepth;
 	
-	//가상의 Getter : 오늘 작성한 글은 시간만, 이전에 작성한 글은 날짜만 반환
+	//게시글 소유자(사원 아이디)
+	private String empId;
+	public String getEmpId() {
+		return empId;
+	}
+	public void setEmpId(String empId) {
+		this.empId = empId;
+	}
+	
+	//게시글 작성자(사원명)
+	private String empName;
+	public String getEmpName() {
+		return empName;
+	}
+	public void setEmpName(String empName) {
+		this.empName = empName;
+	}
+	
+	//게시글 작성일
 	public String getBoardWtimeString() {
 		LocalDateTime current = LocalDateTime.now();
 		LocalDateTime writeTime = boardWtime.toLocalDateTime();

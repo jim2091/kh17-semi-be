@@ -51,8 +51,7 @@ public class BoardController {
 		long boardNo = boardDao.sequence();
 		//(4) 새글/답글 계산하고 글 등록
 	    boardDto.setBoardWriter(empDto.getEmpNo());
-	    boardDto.setBoardNo(boardNo);
-	    
+	    boardDto.setBoardNo(boardNo);  
 	    if(boardDto.getBoardParent() == null) {
 	    	boardDto.setBoardGroup(boardNo);
 	    }
@@ -71,7 +70,25 @@ public class BoardController {
 	public String list(Model model, @ModelAttribute PageVO pageVO) {
 		//(1) 목록 조회
 		List<BoardDto> noticeList = boardDao.selectNoticeList();
+		for(BoardDto boardDto : noticeList) {
+			EmpDto empDto = empDao.selectOneByDetail(boardDto.getBoardWriter());
+			if(empDto != null) {
+				boardDto.setEmpName(empDto.getEmpName());
+			}
+			else {
+				boardDto.setEmpName("(퇴사한 사용자)");
+			}
+		}
 		List<BoardDto> boardList = boardDao.selectList(pageVO);
+		for(BoardDto boardDto : boardList) {
+			EmpDto empDto = empDao.selectOneByDetail(boardDto.getBoardWriter());
+			if(empDto != null) {
+				boardDto.setEmpName(empDto.getEmpName());
+			}
+			else {
+				boardDto.setEmpName("(퇴사한 사용자)");
+			}
+		}
 		List<BoardDto> list = new ArrayList<>();
 		list.addAll(noticeList);
 		list.addAll(boardList);
@@ -90,6 +107,14 @@ public class BoardController {
 	public String detail(Model model, @RequestParam long boardNo) {
 		BoardDto boardDto = boardDao.selectOne(boardNo);
 		if(boardDto == null) throw new TargetNotfoundException("존재하지 않는 게시글입니다.");
+		EmpDto empDto = empDao.selectOneByDetail(boardDto.getBoardWriter());
+		if(empDto != null) {
+			boardDto.setEmpName(empDto.getEmpName());
+			boardDto.setEmpId(empDto.getEmpId());
+		}
+		else {
+			boardDto.setEmpName("(퇴사한 사용자)");
+		}
 		model.addAttribute("boardDto", boardDto);
 		
 		//이전 글과 다음 글을 조회하여 첨부

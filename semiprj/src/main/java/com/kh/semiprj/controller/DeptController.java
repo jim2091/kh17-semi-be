@@ -14,12 +14,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.kh.semiprj.dao.DeptDao;
 import com.kh.semiprj.dto.DeptDto;
-import com.kh.semiprj.dto.EmpDto;
 import com.kh.semiprj.exception.TargetNotfoundException;
 import com.kh.semiprj.exception.WhoAreYouException;
 import com.kh.semiprj.vo.PageVO;
 
-import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/dept")
@@ -45,13 +44,11 @@ public class DeptController {
 		return "dept/list";
 	}
 	
-	
-	
 	//등록
 	@GetMapping("/insert")
-	public String insert(HttpServletRequest request ) {
-		EmpDto loginUser = (EmpDto) request.getAttribute("loginUser");
-		if(loginUser == null || !loginUser.getEmpLevel().equals("관리자")){
+	public String insert(HttpSession session ) {
+		String loginRole =  (String)session.getAttribute("loginRole");
+		if(loginRole == null || !loginRole.equals("관리자")){
 			throw new WhoAreYouException("관리자 권한이 필요한 기능입니다.");
 		}
 		
@@ -72,11 +69,45 @@ public class DeptController {
 	@RequestMapping("/detail")
 	public String detail(@RequestParam int deptId, Model model) {
 		DeptDto deptDto = deptDao.selectOne(deptId);
-		if(deptDto == null)
+		if(deptDto == null) {
 			throw new TargetNotfoundException("존재하지 않는 부서 정보");
+		}
 			model.addAttribute("deptDto",deptDto);
 			
 			return "dept/detail";
 	}
+	//수정
+	@GetMapping("/edit")
+	public String edit(@RequestParam int deptId, Model model, HttpSession session) {
+		String loginRole = (String)session.getAttribute("loginRole");
+		if(loginRole == null || !loginRole.equals("관리자")) {
+			throw new WhoAreYouException("관리자 권한이 필요합니다.");
+		}
+		
+		DeptDto deptDto = deptDao.selectOne(deptId);
+		
+		if(deptDto == null) throw new TargetNotfoundException("존재하지 않은 부서");
+		
+		model.addAttribute("deptDto",deptDto);
+		return "dept/edit";
+	}
+	@PostMapping("/edit")
+	public String edit(@ModelAttribute DeptDto deptDto,HttpSession session) {
+		String loginRole = (String) session.getAttribute("loginRole");
+		if(loginRole == null|| !loginRole.equals("관리자")) {
+			throw new WhoAreYouException("관리자권한이 필요한 기능입니다.");
+		}
+		deptDao.update(deptDto);
+		return "redirect:./detail?deptId="+deptDto.getDeptId();
+	}
 	
 }
+
+
+
+
+
+
+
+
+
