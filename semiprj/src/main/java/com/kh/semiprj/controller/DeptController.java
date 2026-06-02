@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.kh.semiprj.dao.DeptDao;
 import com.kh.semiprj.dto.DeptDto;
 import com.kh.semiprj.dto.EmpDto;
-import com.kh.spring09.exception.WhoAreYouException;
+import com.kh.semiprj.exception.WhoAreYouException;
 
 import jakarta.servlet.http.HttpSession;
 

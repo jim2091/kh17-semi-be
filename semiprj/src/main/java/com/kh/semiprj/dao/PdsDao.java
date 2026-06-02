@@ -8,7 +8,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import com.kh.semiprj.dto.PdsDto;
-import com.kh.semiprj.mapper.DeptMapper;
 import com.kh.semiprj.mapper.EmpMapper;
 import com.kh.semiprj.mapper.PdsMapper;
 import com.kh.semiprj.vo.PageVO;
@@ -23,7 +22,7 @@ public class PdsDao {
 	@Autowired
 	private EmpMapper empMapper;
 
-	private Set<String> allowList = Set.of("pds_title", "pds_writer", "pds_content");
+	private Set<String> allowList = Set.of("pds_title", "pds_writer");
 	//등록
 	
 	//시퀀스 생성
@@ -34,12 +33,12 @@ public class PdsDao {
 	public void insert(PdsDto pdsDto) {
 		String sql = "insert into pds("
 						+ "pds_no, pds_writer, pds_title, "
-						+ "pds_content, pds_wtime, pds_readcount"
-					+ ") values(?, ?, ?, ?, ?, ?)";
+						+ "pds_content, pds_readcount"
+					+ ") values(?, ?, ?, ?, ?)";
 		Object[] params = {
 				pdsDto.getPdsNo(), pdsDto.getPdsWriter(),
 				pdsDto.getPdsTitle(), pdsDto.getPdsContent(),
-				pdsDto.getPdsWtime(), pdsDto.getPdsReadcount()
+				pdsDto.getPdsReadcount()
 		};
 		jdbcTemplate.update(sql, params);
 	}
@@ -92,9 +91,9 @@ public class PdsDao {
 
 		String sql = "select * from ("
 				+ "select rownum rn, TMP.* from ("
-					+ "select * from board_list "
+					+ "select * from pds_list "
 					+ "where instr("+pageVO.getColumn()+", ?) > 0 "
-					+ "order by board_no desc"
+					+ "order by pds_no desc"
 				+ ") TMP"
 			+ ") where rn between ? and ?";
 		Object[] params = {pageVO.getKeyword(), pageVO.getBeginRownum(), pageVO.getEndRownum()};
