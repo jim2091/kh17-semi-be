@@ -19,7 +19,7 @@ public class EmpHistoryDao {
 	private EmpHistoryMapper empHistoryMapper;
 
 	
-	public List<EmpHistoryDto> selectList(int empHistoryOrigin, int beginRow, int endRow){
+	public List<EmpHistoryDto> selectList(String empHistoryOrigin, int beginRow, int endRow){
 		String sql = "select * from ("
 						+ "select rownum RN, TMP.* from ("
 							+ "select * from emp_history "

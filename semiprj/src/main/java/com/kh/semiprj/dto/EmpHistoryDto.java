@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 public class EmpHistoryDto {
 	private int empHistoryNo;
-	private int empHistoryOrigin;
+	private String empHistoryOrigin;
 	private Timestamp empHistoryTime;
 	private String empHistoryAddress;
 	private String empHistoryAgent;

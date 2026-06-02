@@ -1,5 +1,6 @@
 package com.kh.semiprj.controller;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +53,7 @@ public class AdminEmpController {
 		return "admin/list";
 	}
 	@RequestMapping("/detail")
-	public String detail(@RequestParam int empNo, Model model) {
+	public String detail(@RequestParam String empNo, Model model) {
 		EmpDto empDto = empDao.selectOneByDetail(empNo);
 		model.addAttribute("empDto", empDto);
 		
@@ -63,22 +64,68 @@ public class AdminEmpController {
 		return "admin/detail";
 	}
 	@GetMapping("/edit")
-	public String edit(@RequestParam int empNo, Model model) {
+	public String edit(@RequestParam String empNo, Model model) {
 		EmpDto empDto = empDao.selectOneByDetail(empNo);
 		//if(empDto == null) throw new TargetNotfoundException("대상이 존재하지 않습니다");
 		model.addAttribute("empDto", empDto);
 		return "admin/edit";
 	}
+	/*
+	 * @PostMapping("/edit") public String edit(@ModelAttribute EmpDto empDto) {
+	 * //EmpDto findEmpDto = empDao.selectOneByDetail(empDto.getEmpNo());
+	 * //if(findEmpDto == null) throw new TargetNotfoundException("존재하지 않는 회원");
+	 * if(empDto.getEmpRetiredDate() == null ) { empDto.setEmpRetiredDate(null); }
+	 * 
+	 * empDao.updateByMaster(empDto); return "redirect:./detail?empNo=" +
+	 * empDto.getEmpNo(); }
+	 */
+	
 	@PostMapping("/edit")
-	public String edit(@ModelAttribute EmpDto empDto) {
-		EmpDto findEmpDto = empDao.selectOneByDetail(empDto.getEmpNo());
-		//if(findEmpDto == null) throw new TargetNotfoundException("존재하지 않는 회원");
+	public String edit(
+		@RequestParam(required = false) String empHireDate, 
+	    @RequestParam(required = false) String empRetiredDate,
+	    @ModelAttribute EmpDto empDto
+	) {
 		
-		empDao.updateByMaster(empDto);
-		return "redirect:./detail?empNo=" + empDto.getEmpNo();
+		if(empHireDate != null && !empHireDate.isBlank()) {
+	        empDto.setEmpHireDate(
+	            Timestamp.valueOf(empHireDate + " 00:00:00")
+	        );
+	    }
+	    else {
+	        empDto.setEmpHireDate(null);
+	    }
+		
+	    if(empRetiredDate != null && !empRetiredDate.isBlank()) {
+	        empDto.setEmpRetiredDate(
+	            Timestamp.valueOf(empRetiredDate + " 00:00:00")
+	        );
+	    }
+	    else {
+	        empDto.setEmpRetiredDate(null);
+	    }
+
+	    empDao.updateByMaster(empDto);
+
+	    return "redirect:./detail?empNo=" + empDto.getEmpNo();
 	}
 	
-	
+	@RequestMapping("/useYn")
+	public String useYn(@RequestParam String empNo) {
+		EmpDto empDto = empDao.selectOneByDetail(empNo);
+		//if(empDto == null) throw new TargetNotfoundException("존재하지 않는 회원");
+		System.out.println(empDto.getEmpUseYn());
+		System.out.println(empDto.getEmpUseYn().equals("N"));
+		
+		if(empDto.getEmpUseYn().equals("N")) {
+			empDao.useY(empNo);
+		}
+		else {
+			empDao.useN(empNo);
+		}
+		System.out.println("현재값 = " + empDto.getEmpUseYn());
+		return "redirect:./edit?empNo="+empNo;
+	}
 	
 	
 	

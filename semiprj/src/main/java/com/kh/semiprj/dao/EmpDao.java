@@ -30,7 +30,7 @@ public class EmpDao {
 		return list.isEmpty() ? null : list.get(0);
 	}
 	
-	public EmpDto selectOneByDetail(int empNo) {
+	public EmpDto selectOneByDetail(String empNo) {
 		String sql = "select * from emp where emp_no = ?";
 		Object[] params = { empNo };
 		List<EmpDto> list = jdbcTemplate.query(sql, empMapper, params);
@@ -77,16 +77,25 @@ public class EmpDao {
 		String sql = "update emp "
 				+ "set emp_level=?, emp_dept=?, emp_position=?, "
 				+ "emp_mentor=?, emp_use_yn=?, emp_hire_date=?, "
-				+ "emp_retired_date=? ";
+				+ "emp_retired_date=? where emp_no = ?";
 		Object[] params = {empDto.getEmpLevel(), empDto.getEmpDept(), 
 				empDto.getEmpPosition(), empDto.getEmpMentor(), 
 				empDto.getEmpUseYn(), empDto.getEmpHireDate(), 
-				empDto.getEmpRetiredDate() 
+				empDto.getEmpRetiredDate(), empDto.getEmpNo()
 				};
 		return jdbcTemplate.update(sql, params)>0;
 	}
-	
-	
+	public void useN(String empNo) {//사원 비활성화 
+		 String sql = "update emp set emp_use_yn = 'N' where emp_no = ?";
+		 Object[] params = {empNo};
+		    jdbcTemplate.update(sql, params);
+	}
+
+	public void useY(String empNo) {//사원 활성화
+		 String sql = "update emp set emp_use_yn = 'Y' where emp_no = ?";
+		 Object[] params = {empNo};
+		 jdbcTemplate.update(sql, params);
+	}
 	
 	
 	
