@@ -7,7 +7,9 @@
 <title>테스트</title>
 </head>
 <body>
-    <table border="1">
+    <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+
+<table border="1">
     <thead>
         <tr>
             <th>근무일</th>
