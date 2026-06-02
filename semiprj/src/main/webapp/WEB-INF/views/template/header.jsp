@@ -22,7 +22,6 @@
     <!-- jQuery CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     
-    <script src="/js/checkbox.js"></script>
 </head>
 <body>
     <!-- 메인 컨테이너1 + 내부영역4 -->
@@ -68,12 +67,12 @@
                                 <span>로그인</span>
                             </a>
                         </div>
-                        <div class="cell center">
+                        <!-- <div class="cell center">
                             <a href="/emp/join">
                                 <i class="fa-solid fa-user-plus"></i>
                                 <span>회원가입</span>
                             </a>
-                        </div>
+                        </div> -->
                         </c:if>
 
                         <!-- 회원 상태 -->
@@ -84,7 +83,7 @@
                             <!-- 이미지와 글자를 겹쳐서 배치하기 위해 영역을 설정하고 내부에 요소 배치 -->
                             <div class="image-hover image-circle image-shadow"
                                     style="width: 150px; margin: 0 auto;">
-                                <img src="/emp/profile?empId=${sessionScope.loginId}">
+                                <%-- <img src="/emp/profile?empId=${sessionScope.loginId}"> --%>
                                 <div class="content">
                                     <a href="/emp/mypage" class="white">
                                         <i class="fa-solid fa-user"></i>

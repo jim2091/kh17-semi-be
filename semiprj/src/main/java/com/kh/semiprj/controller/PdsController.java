@@ -13,10 +13,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.kh.semiprj.dao.EmpDao;
 import com.kh.semiprj.dao.PdsDao;
+import com.kh.semiprj.dto.EmpDto;
 import com.kh.semiprj.dto.PdsDto;
 import com.kh.semiprj.exception.GetOutException;
+import com.kh.semiprj.exception.TargetNotfoundException;
 import com.kh.semiprj.vo.PageVO;
-import com.kh.spring09.exception.TargetNotfoundException;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -38,18 +39,32 @@ public class PdsController {
 		String loginId = (String)session.getAttribute("loginId");
 		String loginRole = (String)session.getAttribute("loginRole");
 		
+		EmpDto empDto = empDao.selectOne(loginId);
+		
 		//자료글은 관리자만 작성 가능
 		if (!loginRole.equals("관리자")) {
 			throw new GetOutException();
 		}
 		
 		long pdsNo = pdsDao.sequence();
-		//작성자는 사원번호가 아닌 이름으로 아니 이 경우는 관리자라고 써줘야하나?ㅇㅇ
-		pdsDto.setPdsWriter(loginRole);
+
+		pdsDto.setPdsWriter(empDto.getEmpNo());
 		pdsDto.setPdsNo(pdsNo);
 		pdsDao.insert(pdsDto);
 		System.out.println("test");
 		return "redirect:./detail?pdsNo=" + pdsNo;
+	}
+	//상세
+	@RequestMapping("/detail")
+	public String detail(@RequestParam long pdsNo, Model model) {
+		PdsDto pdsDto = pdsDao.selectOne(pdsNo);
+		if (pdsDto == null) throw new TargetNotfoundException("존재하지 않는 게시글");
+		model.addAttribute("pdsDto", pdsDto);
+		
+		model.addAttribute("prevPdsDto", pdsDao.selectPreviousOne(pdsNo));
+		model.addAttribute("nextPdsDto", pdsDao.selectNextOne(pdsNo));
+		
+		return "pds/detail";
 	}
 	
 	//목록

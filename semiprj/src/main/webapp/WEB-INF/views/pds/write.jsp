@@ -49,7 +49,6 @@ $(function(){
 
 	$(".form-check").on("submit", function(){
         $(this).find("input[name], textarea[name]").trigger("blur");
-        console.log(document.querySelector(".form-check").action);
         return state.ok();
     });
 	

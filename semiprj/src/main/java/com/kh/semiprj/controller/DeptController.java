@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.kh.semiprj.dao.DeptDao;
 import com.kh.semiprj.dto.DeptDto;
-import com.kh.spring09.exception.TargetNotfoundException;
-import com.kh.spring09.exception.WhoAreYouException;
-import com.kh.spring09.vo.PageVO;
+import com.kh.semiprj.exception.TargetNotfoundException;
+import com.kh.semiprj.exception.WhoAreYouException;
+import com.kh.semiprj.vo.PageVO;
 
 import jakarta.servlet.http.HttpSession;
 

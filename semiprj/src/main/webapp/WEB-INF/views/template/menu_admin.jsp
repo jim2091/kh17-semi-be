@@ -20,9 +20,21 @@
 		</a>
 	</li>
 	<li>
-	    <a href="#">
+	    <a href="/admin/list">
 	        <span>직원관리</span>
 	    </a>
+	    <ul>
+            <li>
+                <a href="/admin/register">
+                    <span>사원등록</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin/waitingList">
+                    <span>대기사원목록</span>
+                </a>
+            </li>
+        </ul>
 	</li>
 	<li>
 	    <a href="/dept/list">
@@ -30,7 +42,7 @@
 	    </a>
 	</li>
 	<li>
-	    <a href="#">
+	    <a href="/attn/list">
 	        <span>근태관리</span>
 	    </a>
 	</li>
