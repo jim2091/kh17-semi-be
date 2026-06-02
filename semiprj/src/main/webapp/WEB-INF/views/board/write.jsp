@@ -5,6 +5,46 @@
 
 <jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
 
+<style>
+	.field ~ .success-feedback {
+	    color: #0984e3;
+	    display: none;
+	}
+	.field ~ .fail-feedback {
+	    color: #d63031;
+	    display: none;
+	}
+	.field.success ~ .success-feedback {
+	    display: block;
+	}
+	.field.fail ~ .fail-feedback {
+	    display: block;
+	}
+	.field {
+	    background-size: 1em;
+	    background-repeat: no-repeat;
+	    background-position-x: right 0.5em;
+	    background-position-y: center;
+	    padding-right: 2em;
+	}
+	select.field {
+	    background-position-x: right 1em;
+	}
+	.field.success {
+	    background-image: url("https://cdn.jsdelivr.net/gh/honglahyun/cdn/valid.png");
+	    border-color: #0984e3;
+	}
+	.field.fail {
+	    background-image: url("https://cdn.jsdelivr.net/gh/honglahyun/cdn/invalid.png");
+	    border-color: #d63031;
+	}
+	.radio-wrapper {
+    	border: none !important;
+    	background-image: none !important;
+    	padding-right: 0;
+	}
+</style>
+
 <script type="text/javascript">
 $(function(){
     //1. 상태 객체
@@ -30,13 +70,14 @@ $(function(){
         }
     	var valid = title.length > 0;
     	$(this).removeClass("success fail").addClass(valid ? "success" : "fail");
+    	console.log("sadf")
     	state.boardTitleValid = valid;
     });
     
     //(2) 종류
     $("[name=boardHead]").on("input", function(){
     	var regex = /^(공지|자유|정보|질문)$/;
-    	var valid = regex.test($(this).val());
+    	var valid = regex.test($(this).val()) && $(this).val() !== "";
         $(this).removeClass("success fail").addClass(valid ? "success" : "fail");
         state.boardHeadValid = valid;
     });
@@ -44,11 +85,12 @@ $(function(){
     //(3) 유형
     $("input[name=boardType]").on("input", function(){
     	var valid = $("input[name=boardType]:checked").length > 0;
-        state.boardTypeValid = valid;
+    	$(".radio-wrapper").removeClass("success fail").addClass(valid ? "success" : "fail");
+    	state.boardTypeValid = valid;
     });
     
     //(4) 내용
-    $("[name=boardContent]").on("blur", function(){
+    $("[name=boardContent]").on("input", function(){
     	var size = $(this).val().length;
     	if(size > 1000) {
     		var origin = $(this).val();
@@ -68,6 +110,7 @@ $(function(){
     $(".form-check").on("submit", function(){
         $(this).find("select[name]").trigger("input");
         $(this).find("input[name], textarea[name]").trigger("blur");
+        state.boardTypeValid = $("input[name=boardType]:checked").length > 0;
         return state.ok();
     });
 });
@@ -81,7 +124,7 @@ $(function(){
 
 	<div class="container w-800 mt-50 mb-50">
 		<!-- 페이지 제목 -->
-		<div class="cell">
+		<div class="cell center">
 			<c:if test="${param.boardParent == null}">
 				<h1 class="mt-0 mb-0">신규 글 작성</h1>
 			</c:if>
@@ -91,7 +134,7 @@ $(function(){
 		</div>
 		
 		<!-- 경고문 -->
-		<div class="cell">
+		<div class="cell center mt-10">
 			<i class="fa-solid fa-circle-exclamation red"></i>
 			타인에 대한 무분별한 비방글은 경고 없이 삭제될 수 있습니다.
 		</div>
@@ -99,7 +142,7 @@ $(function(){
 		<!-- 제목 입력창 -->
 		<div class="cell mt-40">
 			<label>제목 <i class="fa-solid fa-asterisk red"></i></label>
-			<input type="text" name="boardTitle" required class="field w-100">
+			<input type="text" name="boardTitle" class="field w-100">
 			<div class="fail-feedback">[필수] 제목을 입력해주세요.</div>
 		</div>
 		
@@ -122,22 +165,24 @@ $(function(){
 		<!-- 유형 체크박스 -->
 		<div class="cell">
 			<label>유형 <i class="fa-solid fa-asterisk red"></i></label>
-            <label>
-                <input type="radio" name="boardType" value="비밀"> <span>비밀</span>
-			</label>
-			<label>
-                <input type="radio" name="boardType" value="익명"> <span>익명</span>
-			</label>
-			<label>
-                <input type="radio" name="boardType" value="일반" checked> <span>일반</span>
-            </label>
+			<div class="field radio-wrapper">
+	            <label>
+	                <input type="radio" name="boardType" value="비밀"> <span>비밀</span>
+				</label>
+				<label>
+	                <input type="radio" name="boardType" value="익명"> <span>익명</span>
+				</label>
+				<label>
+	                <input type="radio" name="boardType" value="일반" checked> <span>일반</span>
+	            </label>
+            </div>
 			<div class="fail-feedback">[필수] 유형을 선택하세요.</div>
 		</div>
 		
 		<!-- 내용 입력창 -->
 		<div class="cell">
 			<label>내용 <i class="fa-solid fa-asterisk red"></i> </label>
-			<textarea name="boardContent" rows="10" required class="field w-100"></textarea>
+			<textarea name="boardContent" rows="10" class="field w-100"></textarea>
 			<div class="right">
                 <span>0</span> / 1000
             </div>

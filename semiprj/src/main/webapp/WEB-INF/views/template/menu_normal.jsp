@@ -27,7 +27,7 @@
         </ul>
 	</li>
 	<li>
-	    <a href="#">
+	    <a href="/board/list">
 	        <span>게시판</span>
 		</a>
 	</li>
