@@ -91,9 +91,9 @@
                         
                         <div class="cell center">
                             <h3>
-                            	${sessionScope.loginId}님<br>
-                            	(${sessionScope.loginRole})
-                            	${loginUser.empDept}
+                            	${loginUser.empDept}<br>
+                            	${loginUser.empName}/${loginUser.empPosition}
+
                             </h3>
                         </div>
                         
