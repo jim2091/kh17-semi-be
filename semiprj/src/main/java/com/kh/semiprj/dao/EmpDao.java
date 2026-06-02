@@ -9,7 +9,6 @@ import org.springframework.stereotype.Repository;
 
 import com.kh.semiprj.dto.EmpDto;
 import com.kh.semiprj.mapper.EmpMapper;
-import com.kh.spring09.dto.MemberDto;
 
 @Repository
 public class EmpDao {
