@@ -30,6 +30,14 @@ public class EmpDao {
 		return list.isEmpty() ? null : list.get(0);
 	}
 	
+	public EmpDto selectOneByDetail(int empNo) {
+		String sql = "select * from emp where emp_no = ?";
+		Object[] params = { empNo };
+		List<EmpDto> list = jdbcTemplate.query(sql, empMapper, params);
+		return list.isEmpty() ? null : list.get(0);
+	}
+	
+	
 	public void insertFromAdmin(EmpDto empDto) {
 		String sql = "insert into emp("
 					+ "emp_no, emp_id, emp_pw, emp_name, "
@@ -63,6 +71,37 @@ public class EmpDao {
 		Object[] params = {keyword};
 		return jdbcTemplate.query(sql, empMapper, params);
 	}
+	
+	//관리자가 사원정보에서 수정해야할 부분 - 사원권한,사원부서,사원직위,사원담당사수,사원활성화,사원입사일,사원퇴사일
+	public boolean updateByMaster(EmpDto empDto) {
+		String sql = "update emp "
+				+ "set emp_level=?, emp_dept=?, emp_position=?, "
+				+ "emp_mentor=?, emp_use_yn=?, emp_hire_date=?, "
+				+ "emp_retired_date=? ";
+		Object[] params = {empDto.getEmpLevel(), empDto.getEmpDept(), 
+				empDto.getEmpPosition(), empDto.getEmpMentor(), 
+				empDto.getEmpUseYn(), empDto.getEmpHireDate(), 
+				empDto.getEmpRetiredDate() 
+				};
+		return jdbcTemplate.update(sql, params)>0;
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	

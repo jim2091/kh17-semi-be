@@ -12,7 +12,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.kh.semiprj.dao.EmpDao;
+import com.kh.semiprj.dao.EmpHistoryDao;
 import com.kh.semiprj.dto.EmpDto;
+import com.kh.semiprj.dto.EmpHistoryDto;
 
 @Controller
 @RequestMapping("/admin")
@@ -20,6 +22,9 @@ public class AdminEmpController {
 	
 	@Autowired
 	private EmpDao empDao;
+	
+	@Autowired
+	private EmpHistoryDao empHistoryDao;
 	
 	@GetMapping("/register")
 	public String register() {
@@ -45,6 +50,32 @@ public class AdminEmpController {
 		model.addAttribute("list", list);
 		
 		return "admin/list";
+	}
+	@RequestMapping("/detail")
+	public String detail(@RequestParam int empNo, Model model) {
+		EmpDto empDto = empDao.selectOneByDetail(empNo);
+		model.addAttribute("empDto", empDto);
+		
+		List<EmpHistoryDto> loginHistory = 
+				empHistoryDao.selectList(empNo, 1, 10);
+		model.addAttribute("loginHistory", loginHistory);
+		
+		return "admin/detail";
+	}
+	@GetMapping("/edit")
+	public String edit(@RequestParam int empNo, Model model) {
+		EmpDto empDto = empDao.selectOneByDetail(empNo);
+		//if(empDto == null) throw new TargetNotfoundException("대상이 존재하지 않습니다");
+		model.addAttribute("empDto", empDto);
+		return "admin/edit";
+	}
+	@PostMapping("/edit")
+	public String edit(@ModelAttribute EmpDto empDto) {
+		EmpDto findEmpDto = empDao.selectOneByDetail(empDto.getEmpNo());
+		//if(findEmpDto == null) throw new TargetNotfoundException("존재하지 않는 회원");
+		
+		empDao.updateByMaster(empDto);
+		return "redirect:./detail?empNo=" + empDto.getEmpNo();
 	}
 	
 	

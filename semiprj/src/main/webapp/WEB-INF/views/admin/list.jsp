@@ -6,6 +6,10 @@
 
 <h1>사원 검색</h1>
 
+<div class="cell right">
+	<a href="./register">사원등록하기</a>
+</div>
+
 <form action="./list" method="get">
 	<select name="column">
 		<option value="emp_no" ${param.column == "emp_no" ? "selected" : ""}>사원번호</option>
@@ -47,7 +51,7 @@
 						<td>${empDto.empMentor}</td>
 						<td>${empDto.empHireDate}</td>
 						<%-- <td><fmt:formatDate value = "${empDto.empHireDate}" pattern="yyyy-MM-dd E a h시 m분"/></td> --%>
-						<td><a href="#"><button>상세조회</button></a></td>
+						<td><a href="./detail?empNo=${empDto.empNo}"><button>상세조회</button></a></td>
 				</tr>
 			</c:forEach>
 		</tbody>
