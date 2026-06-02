@@ -55,7 +55,7 @@ public class EmpDao {
 	}
 	
 	public List<EmpDto> selectList(){
-		String sql = "select * from emp order by emp_no asc";
+		String sql = "select * from emp where emp_approval_status= 'Y' order by emp_no asc";
 		return jdbcTemplate.query(sql, empMapper);
 	}
 	
@@ -86,24 +86,42 @@ public class EmpDao {
 		return jdbcTemplate.update(sql, params)>0;
 	}
 	public void useN(String empNo) {//사원 비활성화 
-		 String sql = "update emp set emp_use_yn = 'N' where emp_no = ?";
+		 String sql = "update emp set emp_use_yn = 'N', emp_approval_status = 'N' where emp_no = ?";
 		 Object[] params = {empNo};
 		    jdbcTemplate.update(sql, params);
 	}
 
 	public void useY(String empNo) {//사원 활성화
-		 String sql = "update emp set emp_use_yn = 'Y' where emp_no = ?";
+		 String sql = "update emp set emp_use_yn = 'Y', emp_approval_status= 'Y' where emp_no = ?";
 		 Object[] params = {empNo};
 		 jdbcTemplate.update(sql, params);
 	}
 	
 	
+	//사용자가 변경해야할 정보 : 생년월일, 이메일(인증까지),연락처, 주소
+	public boolean updateByUser(EmpDto empDto) {
+		String sql = "update emp "
+				+ "set emp_birth=?, emp_email=?, emp_contact=?, "
+				+ "emp_post=?, emp_address1=?, emp_address2=? ";
+		Object[] params = {empDto.getEmpBirth(), empDto.getEmpEmail(), 
+				empDto.getEmpContact(), empDto.getEmpPost(), 
+				empDto.getEmpAddress1(), empDto.getEmpAddress2() 
+				};
+		return jdbcTemplate.update(sql, params)>0;
+	}
 	
+	public List<EmpDto> selectListForWaiting(){
+		String sql = "select * from emp where emp_approval_status = 'N' order by emp_no asc";
+		return jdbcTemplate.query(sql, empMapper);
+	}
 	
-	
-	
-	
-	
+	public boolean updateEmpPw(EmpDto empDto) {
+		String sql = "update emp "
+				+ "set emp_pw= ?, emp_pw_change=systimestamp "
+				+ "where emp_id = ?";
+		Object[] params = {empDto.getEmpPw(), empDto.getEmpId()};
+		return jdbcTemplate.update(sql, params)>0;
+	}
 	
 	
 	

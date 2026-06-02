@@ -67,12 +67,12 @@
                                 <span>로그인</span>
                             </a>
                         </div>
-                        <div class="cell center">
+                        <!-- <div class="cell center">
                             <a href="/emp/join">
                                 <i class="fa-solid fa-user-plus"></i>
                                 <span>회원가입</span>
                             </a>
-                        </div>
+                        </div> -->
                         </c:if>
 
                         <!-- 회원 상태 -->
