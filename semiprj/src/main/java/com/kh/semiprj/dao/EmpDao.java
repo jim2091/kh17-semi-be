@@ -37,7 +37,6 @@ public class EmpDao {
 		return list.isEmpty() ? null : list.get(0);
 	}
 	
-	
 	public void insertFromAdmin(EmpDto empDto) {
 		String sql = "insert into emp("
 					+ "emp_no, emp_id, emp_pw, emp_name, "

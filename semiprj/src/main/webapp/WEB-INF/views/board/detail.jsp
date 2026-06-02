@@ -8,6 +8,24 @@
 <jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
 
 <style>
+	.reply-viewer, .reply-editor {
+		display:flex;
+		padding:15px;
+		box-shadow: 0 0 0 1px lightgray;
+	}
+	.reply-viewer > .profile-wrapper,
+	.reply-editor > .profile-wrapper {
+		width:100px;
+	}
+	.reply-viewer > .profile-wrapper > img,
+	.reply-editor > .profile-wrapper > img {
+		width:100%;
+		aspect-ratio:1/1;
+	}
+	.reply-viewer > .content-wrapper,
+	.reply-editor > .content-wrapper {
+		flex-grow: 1;
+	}
 	.badge {
 	padding:0.2em;
 	border:1px solid gray;
@@ -17,9 +35,41 @@
 	.badge.silver { border-color: #BDC3C7 !important; }
 </style>
 
-<!-- 좋아요 토글 자바스크립트 -->
+<!-- 좋아요 처리 관련 자바스크립트 -->
+<c:if test="${sessionScope.loginId != null}">
 <script type="text/javascript">
+	$(function(){
+		//(1) 좋아요 상태와 개수를 알아내기
+		var params = new URLSearchParams(window.location.search);
+		var boardNo = params.get("boardNo");
+		$.ajax({
+			url: "/rest/board/like-check",
+			method: "post",
+			data: { boardNo : boardNo },
+			success: function(response){
+				$(".fa-heart").removeClass("fa-regular fa-solid")
+					.addClass(response.action ? "fa-solid" : "fa-regular");
+				$(".fa-heart").next(".heart-count").text(response.count);
+			}
+		});
+		//(2) 하트 클릭시 토글이 발생하도록 처리
+		var params = new URLSearchParams(window.location.search);
+		var boardNo = params.get("boardNo");
+		$(".fa-heart").on("click", function(){
+			$.ajax({
+				url:"/rest/board/like-action",
+				method:"post",
+				data:{boardNo : boardNo},
+				success:function(response){
+					$(".fa-heart").removeClass("fa-regular fa-solid")
+						.addClass(response.action ? "fa-solid" : "fa-regular");
+					$(".fa-heart").next(".heart-count").text(response.count);
+				}
+			});
+		});
+	});
 </script>
+</c:if>
 
 <div class="container w-800 mt-50 mb-50">
 	<div class="cell">
@@ -40,7 +90,7 @@
 				<c:if test="${boardDto.boardWriter != null}">
 					<!-- 링크 누르면 사원 상세 정보 페이지로 이동 -->
 					<a href="#=${boardDto.boardWriter}" class="link">
-						${boardDto.boardWriter}
+						${boardDto.empName}
 					</a>
 				</c:if>
 			</div>
@@ -51,6 +101,13 @@
 		<div><fmt:formatDate value="${boardDto.boardWtime}" pattern="yyyy-MM-dd HH:mm"></fmt:formatDate></div>
 		<div class="ms-20">조회수 ${boardDto.boardReadcount}</div>
 	</div>
+			<div class="cell right">
+			<!-- 작성자와 로그인 한 아이디가 같은 경우 보이는 버튼 -->
+			<c:if test="${boardDto.empId != null && boardDto.empId == sessionScope.loginId}">
+			<a class="btn btn-negative" href="./edit?boardNo=${boardDto.boardNo}">수정하기</a>
+			<a class="btn btn-negative" href="./delete?boardNo=${boardDto.boardNo}">삭제하기</a>
+			</c:if>
+		</div>
 	
 	<hr>
 	
@@ -112,13 +169,6 @@
 			<a class="btn btn-positive" href="./write">글쓰기</a>
 			<a class="btn btn-positive" href="./write?boardParent=${boardDto.boardNo}">답글쓰기</a>
 		</c:if>
-		
-		<!-- 작성자와 로그인 한 아이디가 같은 경우 보이는 버튼 -->
-		<c:if test="${boardDto.boardWriter != null && boardDto.boardWriter == sessionScope.loginId}">
-		<a class="btn btn-negative" href="./edit?boardNo=${boardDto.boardNo}">수정하기</a>
-		<a class="btn btn-negative" href="./delete?boardNo=${boardDto.boardNo}">삭제하기</a>
-		</c:if>
-		
 		<a class="btn btn-neutral" href="./list">목록으로</a>
 	</div>
 </div>

@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.kh.semiprj.dao.BoardDao;
 import com.kh.semiprj.dao.BoardLikeDao;
+import com.kh.semiprj.dao.EmpDao;
+import com.kh.semiprj.dto.EmpDto;
 import com.kh.semiprj.vo.LikeVO;
 
 import jakarta.servlet.http.HttpSession;
@@ -20,12 +22,16 @@ public class BoardRestController {
 	private BoardDao boardDao;
 	@Autowired
 	private BoardLikeDao boardLikeDao;
+	@Autowired
+	private EmpDao empDao;
 	
 	//(1) 최초 접속 시 좋아요 여부와 현재 글의 좋아요 개수를 구해주는 매핑
 	@PostMapping("/like-check")
 	public LikeVO likeCheck(@RequestParam long boardNo, HttpSession session) {
 		String loginId = (String)session.getAttribute("loginId");
-		boolean action = boardLikeDao.check(loginId, boardNo);
+	    EmpDto empDto = empDao.selectOne(loginId);
+	    String empNo = empDto.getEmpNo();
+	    boolean action = boardLikeDao.check(empNo, boardNo);
 		int count = boardLikeDao.count(boardNo);
 		return LikeVO.builder().action(action).count(count).build();
 	}
@@ -34,12 +40,14 @@ public class BoardRestController {
 	@PostMapping("/like-action")
 	public LikeVO likeAction(@RequestParam long boardNo, HttpSession session) {
 		String loginId = (String)session.getAttribute("loginId");
-		boolean current = boardLikeDao.check(loginId, boardNo);
+		EmpDto empDto = empDao.selectOne(loginId);
+		String empNo = empDto.getEmpNo();
+		boolean current = boardLikeDao.check(empNo, boardNo);
 		if(current) {//좋아요 설정한 적이 있으면
-			boardLikeDao.delete(loginId, boardNo);//좋아요 해제
+			boardLikeDao.delete(empNo, boardNo);//좋아요 해제
 		}
 		else {
-			boardLikeDao.insert(loginId, boardNo);//좋아요 설정
+			boardLikeDao.insert(empNo, boardNo);//좋아요 설정
 		}
 		int count = boardLikeDao.count(boardNo);
 		
