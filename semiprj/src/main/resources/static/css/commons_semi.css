@@ -560,3 +560,20 @@ select.field {
 	border-radius :10px;
 	padding: 0.1em;
 }
+/* 자료게시판 content아래 때문에 추가한 부분 */
+.justify {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.field ~ .justify .fail-feedback {
+    color: #d63031;
+    display: none;
+}
+
+.field.fail ~ .justify .fail-feedback {
+    display: block;
+}
+.field.fail.no-icon {
+    background-image: none;
+}
