@@ -55,7 +55,7 @@ public class EmpDao {
 	}
 	
 	public List<EmpDto> selectList(){
-		String sql = "select * from emp order by emp_no asc";
+		String sql = "select * from emp where emp_approval_status= 'Y' order by emp_no asc";
 		return jdbcTemplate.query(sql, empMapper);
 	}
 	
@@ -86,13 +86,13 @@ public class EmpDao {
 		return jdbcTemplate.update(sql, params)>0;
 	}
 	public void useN(String empNo) {//사원 비활성화 
-		 String sql = "update emp set emp_use_yn = 'N' where emp_no = ?";
+		 String sql = "update emp set emp_use_yn = 'N', emp_approval_status = 'N' where emp_no = ?";
 		 Object[] params = {empNo};
 		    jdbcTemplate.update(sql, params);
 	}
 
 	public void useY(String empNo) {//사원 활성화
-		 String sql = "update emp set emp_use_yn = 'Y' where emp_no = ?";
+		 String sql = "update emp set emp_use_yn = 'Y', emp_approval_status= 'Y' where emp_no = ?";
 		 Object[] params = {empNo};
 		 jdbcTemplate.update(sql, params);
 	}
@@ -110,7 +110,10 @@ public class EmpDao {
 		return jdbcTemplate.update(sql, params)>0;
 	}
 	
-	
+	public List<EmpDto> selectListForWaiting(){
+		String sql = "select * from emp where emp_approval_status = 'N' order by emp_no asc";
+		return jdbcTemplate.query(sql, empMapper);
+	}
 	
 	
 	

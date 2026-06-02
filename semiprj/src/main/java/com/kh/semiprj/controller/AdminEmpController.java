@@ -128,9 +128,30 @@ public class AdminEmpController {
 	}
 	
 	
+	@RequestMapping("/waitingList")
+	public String waitingList(Model model) {
+		
+		List<EmpDto> list = empDao.selectListForWaiting();
+		model.addAttribute("list", list);
+		
+		return "admin/waiting_list";
+		
+	}
 	
-	
-	
+	@RequestMapping("/approval")
+	public String approval(@RequestParam String empNo) {
+		
+		EmpDto empDto = empDao.selectOneByDetail(empNo);
+		
+		if(empDto.getEmpApprovalStatus().equals("N")) {
+			empDao.useY(empNo);
+		}
+		else {
+			empDao.useN(empNo);
+		}
+		
+		return "redirect:./waitingList";
+	}
 	
 	
 	

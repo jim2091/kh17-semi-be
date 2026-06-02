@@ -30,7 +30,7 @@
                 </a>
             </li>
             <li>
-                <a href="#">
+                <a href="/admin/waitingList">
                     <span>대기사원목록</span>
                 </a>
             </li>
