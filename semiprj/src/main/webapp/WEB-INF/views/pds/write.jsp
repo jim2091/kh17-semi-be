@@ -7,7 +7,7 @@
 <script type="text/javascript">
 
 $(function(){
-	
+
 	var state = {
 		pdsTitleValid : false,
 		pdsContentValid : false,
@@ -18,17 +18,18 @@ $(function(){
 		}
 	};
 	
-	$("name=pdsTitle").on("blur", function(){
+	$("[name=pdsTitle]").on("blur", function(){
 		var title = $(this).val();
 		if(title.length > 100) {
 			title = title.substring(0, 100)
 			$(this).val(title);
 		}
+		console.log("출력");
 		var valid = title.length > 0;
 		$(this).removeClass("success fail").addClass(valid ? "success" : "fail");
 		state.pdsTitleValid = valid;
 	});
-	$("name=pdsContent").on("blur", function(){
+	$("[name=pdsContent]").on("blur", function(){
 		var content = $(this).val();
 		if(content.length > 100) {
 			content = content.substring(0, 1000)
@@ -71,11 +72,14 @@ $(function(){
 		<!-- 내용 입력창 -->
 		<div class="cell">
 			<label>내용 <i class="fa-solid fa-asterisk red"></i> </label>
-			<textarea name="pdsContent" rows="10" required class="field w-100"></textarea>
-			<div class="right">
-                <span>0</span> / 1000
+			<textarea name="pdsContent" rows="10" required class="field w-100 no-icon"></textarea>
+			<div class="justify">
+				<span class="fail-feedback">[필수] 내용을 입력하세요.</span>
+                <span>
+                	<span>0</span> / 1000
+                </span>
             </div>
-            <div class="fail-feedback">[필수] 내용을 입력하세요.</div>
+            
 		</div>
 	
 		<!-- 목록/등록 버튼 -->
