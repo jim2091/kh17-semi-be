@@ -43,7 +43,7 @@
     
     <!-- 게시글 목록 -->
     <div class="cell">
-    	<tabel class="table">
+    	<table class="table">
     		<thead>
     			<tr>
     				<th>번호</th>
@@ -81,7 +81,7 @@
 						</c:if>
 						<c:if test="${boardDto.boardWriter != null}">
 							<!-- 링크 누르면 사원 상세 정보 페이지로 이동 -->
-							<a href="#=${boardDto.boardWriter}">
+							<a href="./detail?empId=${boardDto.boardWriter}">
 								${boardDto.boardWriter}
 							</a>
 						</c:if>
