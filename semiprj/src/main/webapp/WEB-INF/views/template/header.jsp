@@ -18,6 +18,11 @@
     <style>
         /* div { box-shadow: 0 0 0 1px gray ;} */
     </style>
+    
+    <!-- jQuery CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    
+    <script src="/js/checkbox.js"></script>
 </head>
 <body>
     <!-- 메인 컨테이너1 + 내부영역4 -->
@@ -91,9 +96,9 @@
                         
                         <div class="cell center">
                             <h3>
-                            	${sessionScope.loginId}님<br>
-                            	(${sessionScope.loginRole})
-                            	${loginUser.empDept}
+                            	${loginUser.empDept}<br>
+                            	${loginUser.empName}/${loginUser.empPosition}
+
                             </h3>
                         </div>
                         
