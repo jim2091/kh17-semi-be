@@ -48,7 +48,7 @@ public class PdsController {
 		pdsDto.setPdsWriter(loginRole);
 		pdsDto.setPdsNo(pdsNo);
 		pdsDao.insert(pdsDto);
-		
+		System.out.println("test");
 		return "redirect:./detail?pdsNo=" + pdsNo;
 	}
 	

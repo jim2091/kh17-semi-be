@@ -24,23 +24,32 @@ $(function(){
 			title = title.substring(0, 100)
 			$(this).val(title);
 		}
-		console.log("출력");
 		var valid = title.length > 0;
-		$(this).removeClass("success fail").addClass(valid ? "success" : "fail");
+		if(!valid){
+			$(this).addClass("fail");
+		} else{
+			$(this).removeClass("fail");
+		}
 		state.pdsTitleValid = valid;
 	});
 	$("[name=pdsContent]").on("blur", function(){
 		var content = $(this).val();
-		if(content.length > 100) {
+		if(content.length > 1000) {
 			content = content.substring(0, 1000)
 			$(this).val(content);
 		}
 		var valid = content.length > 0;
-		$(this).removeClass("success fail").addClass(valid ? "success" : "fail");
+		if(!valid){
+			$(this).addClass("fail");
+		} else{
+			$(this).removeClass("fail");
+		}
 		state.pdsContentValid = valid;
 	});
-    $(".form-check").on("submit", function(){
+
+	$(".form-check").on("submit", function(){
         $(this).find("input[name], textarea[name]").trigger("blur");
+        console.log(document.querySelector(".form-check").action);
         return state.ok();
     });
 	
