@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import com.kh.semiprj.dto.DeptDto;
 import com.kh.semiprj.mapper.DeptMapper;
+import com.kh.spring09.dto.BookDto;
 import com.kh.spring09.vo.PageVO;
 
 @Repository
@@ -61,11 +62,11 @@ public class DeptDao {
         return jdbcTemplate.queryForObject(sql, int.class);
     }
     
-    // 등록 메소드 완성
+    // 등록
     public void insert(DeptDto deptDto) {
         String sql = "insert into dept( "
-                + "dept_id, dept_category, dept_name " 
-                + ") values (?, ?, ?)";
+                + "dept_category, dept_head_id ,dept_name, dept_content " 
+                + ") values (?, ?, ?, ?)";
         
         Object[] params = {
             deptDto.getDeptId(),
@@ -75,15 +76,28 @@ public class DeptDao {
         jdbcTemplate.update(sql, params); 
     }
     
-    // 상세조회 메소드
+    // 상세조회
     public DeptDto selectOne(int deptId) {
         String sql = "select * from dept where dept_id = ?";
         Object[] params = { deptId };
         List<DeptDto> list = jdbcTemplate.query(sql, deptMapper, params);
         return list.isEmpty() ? null : list.get(0);
     }
+	//수정
+	public boolean update(DeptDto deptDto) {
+		String sql = "update dept "
+					+ "set dept_category=?, dept_name=?,"
+						+ "dept_head_id=?, dept_content=?"
+					+ "where dept_id=?";
+		Object[] params = {
+			deptDto.getDeptCategory(),deptDto.getDeptName(),
+			deptDto.getDeptHeadId(),deptDto.getDeptContent(),
+			deptDto.getDeptId()
+		};
+		return jdbcTemplate.update(sql, params) > 0;
+	}
     
-    //페이징 메소드
+    //페이징
     public int count(PageVO pageVO) {
         if (pageVO.isList()) { // 일반 목록일 때의 전체 개수
             String sql = "select count(*) from dept";
@@ -99,4 +113,5 @@ public class DeptDao {
         Object[] params = { pageVO.getKeyword() };
         return jdbcTemplate.queryForObject(sql, int.class, params);
     }
+    
 }
