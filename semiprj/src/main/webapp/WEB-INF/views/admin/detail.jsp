@@ -19,12 +19,15 @@
  		<li>주소 : [${empDto.empPost}]  ${empDto.empAddress1}  ${empDto.empAddress2}</li>
  		<li>권한 : ${empDto.empLevel}</li>
  		<li>활성화여부 : ${empDto.empUseYn}</li>
- 		<li>입사일 :${empDto.empHireDate}</li>
- 		<li>퇴사일 :${empDto.empRetiredDate}</li>
- 		<li>등록일 :${empDto.empCreateAt}</li>
+ 		<li>입사일 :<fmt:formatDate value = "${empDto.empHireDate}" pattern="yyyy-MM-dd"/></li>
+ 		<li>퇴사일 :<fmt:formatDate value = "${empDto.empRetiredDate}" pattern="yyyy-MM-dd"/></li>
+ 		<li>등록일 :<fmt:formatDate value = "${empDto.empCreateAt}" pattern="yyyy-MM-dd"/></li>
  		<li>최종 비밀번호 변경일 :${empDto.empPwChange}</li>
  </ul>
-<h2><a href="./edit?empNo=${empDto.empNo}">사원정보수정</a></h2>
+<h2><a href="./edit?empNo=${empDto.empNo}">사원정보수정</a>
+<a href="./list">목록으로</a>
+</h2>
+
 
 <br><br>
  	<h1>	[최근 로그인 이력 ] </h1>

@@ -82,31 +82,31 @@ public class AdminEmpController {
 	
 	@PostMapping("/edit")
 	public String edit(
-		@RequestParam(required = false) String empHireDate, 
-	    @RequestParam(required = false) String empRetiredDate,
+		@RequestParam(required = false) String hireDateStr, 
+	    @RequestParam(required = false) String retiredDateStr,
 	    @ModelAttribute EmpDto empDto
 	) {
 		
-		if(empHireDate != null && !empHireDate.isBlank()) {
+		if(hireDateStr != null && !hireDateStr.isBlank()) {
 	        empDto.setEmpHireDate(
-	            Timestamp.valueOf(empHireDate + " 00:00:00")
+	            Timestamp.valueOf(hireDateStr + " 00:00:00")
 	        );
 	    }
 	    else {
 	        empDto.setEmpHireDate(null);
 	    }
 		
-	    if(empRetiredDate != null && !empRetiredDate.isBlank()) {
+	    if(retiredDateStr != null && !retiredDateStr.isBlank()) {
 	        empDto.setEmpRetiredDate(
-	            Timestamp.valueOf(empRetiredDate + " 00:00:00")
+	            Timestamp.valueOf(retiredDateStr + " 00:00:00")
 	        );
 	    }
 	    else {
 	        empDto.setEmpRetiredDate(null);
 	    }
+	    System.out.println(empDto);
 
 	    empDao.updateByMaster(empDto);
-
 	    return "redirect:./detail?empNo=" + empDto.getEmpNo();
 	}
 	

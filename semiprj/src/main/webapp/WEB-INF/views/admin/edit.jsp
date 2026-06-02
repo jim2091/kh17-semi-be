@@ -8,6 +8,7 @@
 
 
 <form action="./edit" method="post" autocomplete="off">
+<input type="hidden" name="empNo" value="${empDto.empNo}">
 <ul>
  		<li>사원번호 : ${empDto.empNo}</li>
  		<li>사원실명 : ${empDto.empName}</li>
@@ -43,15 +44,15 @@
  				  ${empDto.empUseYn == 'Y' ? '비활성화하기' : '활성화하기'}
  				</a>
  		</li>
- 		<li>입사일 : <input type="date" name="empHireDate" value="${empDto.empHireDate}"> </li>
- 		<li>퇴사일 : <input type="date" name="empRetiredDate" value="${empDto.empRetiredDate}"></li>
- 		<li>등록일 : <fmt:formatDate value = "${empDto.empCreateAt}" pattern="y년 M월 d일"/></li>
+ 		<li>입사일 : <input type="date" name="hireDateStr" value="${hireDate}"> </li>
+ 		<li>퇴사일 : <input type="date" name="retiredDateStr" value="${retiredDate}"></li>
+ 		<li>등록일 : <fmt:formatDate value = "${empDto.empCreateAt}" pattern="yyyy-MM-dd"/></li>
  		<li>최종 비밀번호 변경일 : <fmt:formatDate value = "${empDto.empPwChange}" pattern="y년 M월 d일 E a h시 m분"/></li>
  </ul>
 
 		
 	<button type="submit">수정하기</button>
-	<a href="./list">돌아가기</a>
+	<a href="./list">목록으로</a>
 </form>
 
 
