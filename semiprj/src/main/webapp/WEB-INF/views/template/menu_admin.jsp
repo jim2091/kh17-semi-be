@@ -30,7 +30,7 @@
 	    </a>
 	</li>
 	<li>
-	    <a href="#">
+	    <a href="/attn/list">
 	        <span>근태관리</span>
 	    </a>
 	</li>
