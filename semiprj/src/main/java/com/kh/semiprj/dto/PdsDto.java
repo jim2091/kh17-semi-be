@@ -1,12 +1,15 @@
 package com.kh.semiprj.dto;
 
+import java.sql.Timestamp;
+
 import lombok.Data;
 
 @Data
 public class PdsDto {
-	private int pdsNo;
+	private long pdsNo;
 	private String pdsWriter;
 	private String pdsTitle;
-	private int pdsDownloadCount;
+	private long pdsReadcount;
 	private String pdsContent;
+	private Timestamp pdsWtime;
 }
