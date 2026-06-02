@@ -5,7 +5,81 @@
 
 <jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
 
-<form action=".edit" method="post" enctype="multipart/form-data" autocomplete="off"  class="form-check">
+<script type="text/javascript">
+$(function(){
+    //1. 상태 객체
+    var state = {
+   		boardTitleValid : false,
+   		boardHeadValid : false,
+   		boardTypeValid : false,
+   		boardContentValid : false,
+   		ok : function(){
+               return Object.values(this)
+                       .filter(v => typeof v === "boolean")
+                       .every(v => v === true);
+   		}
+    };
+    
+    //2. 개별 입력값 검사
+    //(1) 제목
+    $("[name=boardTitle]").on("blur", function(){
+    	var title = $(this).val();
+    	if(title.length > 100) {
+    		title = title.substring(0,100);
+            $(this).val(title);
+        }
+    	var valid = title.length > 0;
+    	$(this).removeClass("success fail").addClass(valid ? "success" : "fail");
+    	state.boardTitleValid = valid;
+    });
+    
+    //(2) 종류
+    $("[name=boardHead]").on("input", function(){
+    	var regex = /^(공지|자유|정보|질문)$/;
+    	var valid = regex.test($(this).val());
+        $(this).removeClass("success fail").addClass(valid ? "success" : "fail");
+        state.boardHeadValid = valid;
+    });
+    
+    //(3) 유형
+    $("input[name=boardType]").on("input", function(){
+    	var valid = $("input[name=boardType]:checked").length > 0;
+        state.boardTypeValid = valid;
+    });
+    
+    //(4) 내용
+    $("[name=boardContent]").on("blur", function(){
+    	var size = $(this).val().length;
+    	if(size > 1000) {
+    		var origin = $(this).val();
+            var cut = origin.substring(0, 1000);
+            $(this).val(cut);
+            size = 1000;
+        }
+    	var span = $(this).next(".right").children("span");
+        span.text(size);
+        span.toggleClass("red", size >= 1000);
+    	var valid = size > 0;
+    	$(this).removeClass("success fail").addClass(valid ? "success" : "fail");
+    	state.boardContentValid = valid;
+    });
+    
+    //3. 폼 검사
+    $(".form-check").on("submit", function(){
+        $(this).find("select[name]").trigger("input");
+        $(this).find("input[name], textarea[name]").trigger("blur");
+        return state.ok();
+    });
+    
+	// 수정 페이지 진입 시 기존 값 검증
+    $("[name=boardTitle]").trigger("blur");
+    $("[name=boardContent]").trigger("blur");
+    $("[name=boardHead]").trigger("input");
+    $("input[name=boardType]:checked").trigger("input");
+});
+</script>
+
+<form action="./edit" method="post" enctype="multipart/form-data" autocomplete="off"  class="form-check">
 	<!-- 기본키(번호, boardNo)를 숨김 첨부 -->
 	<input type="hidden" name="boardNo" value="${boardDto.boardNo}">
 
@@ -22,9 +96,9 @@
 		</div>
 
 		<!-- 제목 입력창 -->
-		<div class="cell mt-50">
+		<div class="cell mt-40">
 			<label>제목 <i class="fa-solid fa-asterisk red"></i></label>
-			<input type="text" name="boardTitle" class="field w-100">
+			<input type="text" name="boardTitle" value="${boardDto.boardTitle}" maxlength="100" class="field w-100">
 			<div class="fail-feedback">[필수] 제목을 입력해주세요.</div>
 		</div>
 
@@ -47,13 +121,28 @@
 		<!-- 유형 체크박스 -->
 		<div class="cell">
 			<label>유형 <i class="fa-solid fa-asterisk red"></i></label>
-			
+			<label>
+                <input type="radio" name="boardType" value="비밀"
+                	${boardDto.boardType == '비밀' ? 'checked' : ''}> 
+                <span>비밀</span>
+			</label>
+			<label>
+                <input type="radio" name="boardType" value="익명"
+                	${boardDto.boardType == '익명' ? 'checked' : ''}> 
+                <span>익명</span>
+			</label>
+			<label>
+                <input type="radio" name="boardType" value="일반" 
+                	${boardDto.boardType == '일반' ? 'checked' : ''}> 
+                <span>일반</span>
+            </label>
+			<div class="fail-feedback">[필수] 유형을 선택하세요.</div>
 		</div>
 		
 		<!-- 내용 입력창 -->
 		<div class="cell">
             <label>내용 <i class="fa-solid fa-asterisk red"></i></label>
-            <textarea name="boardContent" rows="10" class="field w-100"></textarea>
+            <textarea name="boardContent" rows="10" class="field w-100" maxlength="1000">${boardDto.boardContent}</textarea>
             <div class="right">
                 <span>0</span> / 1000
             </div>

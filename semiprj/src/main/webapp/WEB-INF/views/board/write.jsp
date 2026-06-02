@@ -104,12 +104,12 @@ $(function(){
 		</div>
 		
 		<!-- 종류 드롭박스 -->
-		<div class="cell mb-0">
+		<div class="cell">
 			<label>종류 <i class="fa-solid fa-asterisk red"></i></label>
 			<select name="boardHead" class="field w-100">
 				<option value="">-- 선택하세요 --</option>
 				<!-- (*) 공지는 관리자에게만 보임 -->
-				<c:if test="${sessionScope.loginLevel == '관리자'}">
+				<c:if test="${sessionScope.empLevel == '관리자'}">
 					<option>공지</option>
 				</c:if>
 				<option>자유</option>

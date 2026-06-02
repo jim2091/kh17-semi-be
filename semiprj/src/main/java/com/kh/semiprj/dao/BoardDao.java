@@ -48,7 +48,7 @@ public class BoardDao {
 	public boolean update(BoardDto boardDto) {
 		String sql = "update board set "
 						+ "board_title = ?, board_content = ?, "
-						+ "board_head = ?, board_Type = ? "
+						+ "board_head = ?, board_type = ? "
 					+ "where board_no = ?";
 		Object[] params = {
 				boardDto.getBoardTitle(), boardDto.getBoardContent(), 
@@ -63,7 +63,7 @@ public class BoardDao {
 						+ "board_readcount = board_readcount + 1 "
 					+ "where board_no = ?";
 		Object[] params = {boardNo};
-		return jdbcTemplate.update(sql, boardNo) > 0;
+		return jdbcTemplate.update(sql, params) > 0;
 	}
 	
 	//(2-3) 추천수 증가
