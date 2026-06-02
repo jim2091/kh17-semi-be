@@ -21,6 +21,7 @@ public class DeptMapper implements RowMapper<DeptDto>{
 		deptDto.setDeptName(rs.getString("dept_name"));
 		deptDto.setDeptYn(rs.getString("dept_yn"));
 		deptDto.setDeptCreateAt(rs.getTimestamp("dept_create_at"));
+		deptDto.setDeptContent(rs.getString("dept_content"));
 		
 		return deptDto;
 	}
