@@ -101,6 +101,24 @@ public class DeptController {
 		return "redirect:./detail?deptId="+deptDto.getDeptId();
 	}
 	
+	@RequestMapping("/block")
+	public String block(@RequestParam int deptId, HttpSession session) {
+		String loginRole = (String) session.getAttribute("loginRole");
+		if(loginRole == null || !loginRole.equals("관리자")) {
+			throw new WhoAreYouException("관리자 권한이 필요합니다.");
+		}		
+		DeptDto deptDto = deptDao.selectOne(deptId);
+		if(deptDto == null) {
+			throw new TargetNotfoundException("존재하지 않는 부서입니다.");
+		}
+			
+		String current = deptDto.getDeptYn();
+		String future = current.equals("Y") ? "N" : "Y";
+		deptDto.setDeptYn(future);
+		deptDao.updateDeptYn(deptDto);
+		
+		return "redirect:./detail?deptId="+deptId;
+	}
 }
 
 
