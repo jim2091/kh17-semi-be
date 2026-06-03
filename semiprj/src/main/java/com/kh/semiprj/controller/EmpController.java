@@ -92,7 +92,7 @@ public class EmpController {
 						@RequestParam(required = false) String keyword, 
 						Model model) {
 		/* System.out.println("list 실행"); */
-		List<EmpDto> list = empDao.selectList(column, keyword);
+		List<EmpDto> list = empDao.selectListByUser(column, keyword);
 		
 		model.addAttribute("list", list);
 		

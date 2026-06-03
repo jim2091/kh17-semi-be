@@ -53,19 +53,41 @@ public class EmpDao {
 		jdbcTemplate.update(sql, params);
 	}
 	
-	public List<EmpDto> selectList(){
-		String sql = "select * from emp where emp_approval_status= 'Y' order by emp_no asc";
+	public List<EmpDto> selectListByUser(){
+		String sql = "select * from emp where emp_approval_status= 'Y' "
+				+ "and emp_level != '관리자' "
+				+ "order by emp_no asc";
 		return jdbcTemplate.query(sql, empMapper);
 	}
 	
-	public List<EmpDto> selectList(String column, String keyword){ 
-		if(column == null || keyword == null) return selectList();
-		if(column.isEmpty()||keyword.isEmpty()) return selectList();
+	public List<EmpDto> selectListByUser(String column, String keyword){ 
+		if(column == null || keyword == null) return selectListByUser();
+		if(column.isEmpty()||keyword.isEmpty()) return selectListByUser();
 		
 
 		if(!allowColumns.contains(column)) return List.of();
 		String sql = "select * from emp "
 				+ "where instr( "+column+", ?) >0 and emp_level != '관리자' "
+						+ "and emp_approval_status= 'Y' "
+						+ "order by "+column+" asc, emp_no asc";
+		Object[] params = {keyword};
+		return jdbcTemplate.query(sql, empMapper, params);
+	}
+	public List<EmpDto> selectListByAdmin(){
+		String sql = "select * from emp where emp_approval_status= 'Y' "
+				+ "order by emp_no asc";
+		return jdbcTemplate.query(sql, empMapper);
+	}
+	
+	public List<EmpDto> selectListByAdmin(String column, String keyword){ 
+		if(column == null || keyword == null) return selectListByAdmin();
+		if(column.isEmpty()||keyword.isEmpty()) return selectListByAdmin();
+		
+
+		if(!allowColumns.contains(column)) return List.of();
+		String sql = "select * from emp "
+				+ "where instr( "+column+", ?) >0 "
+						+ "and emp_approval_status= 'Y' "
 						+ "order by "+column+" asc, emp_no asc";
 		Object[] params = {keyword};
 		return jdbcTemplate.query(sql, empMapper, params);
