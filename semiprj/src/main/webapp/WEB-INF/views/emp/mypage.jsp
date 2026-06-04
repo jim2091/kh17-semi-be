@@ -57,6 +57,7 @@
 <div class="container w-80">
 	<div class="center">
 		<h1>최근 로그인 이력</h1>
+		<a href = "./history?empNo=${empDto.empNo}">더보기</a>
 	</div>
 	<div class="cell">
  		<table class="table table-stripe">
