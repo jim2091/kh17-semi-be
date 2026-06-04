@@ -15,4 +15,21 @@ public class ReplyDto {
 	private String replyContent;
 	private Timestamp replyWtime;
 	private Timestamp replyEtime;
+
+	//댓글 작성자(사원 아이디, 사원 이름)
+	private String empId;
+	public String getEmpId() {
+		return empId;
+	}
+	public void setEmpId(String empId) {
+		this.empId = empId;
+	}
+	
+	private String empName;
+	public String getEmpName() {
+		return empName;
+	}
+	public void setEmpName(String empName) {
+		this.empName = empName;
+	}
 }
