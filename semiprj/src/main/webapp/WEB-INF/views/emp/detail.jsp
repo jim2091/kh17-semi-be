@@ -3,6 +3,8 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
+<jsp:include page="/WEB-INF/views/template/side_home.jsp"></jsp:include>
+
 
 <h1>[${empDto.empName}]사원 상세 정보</h1>
 <img src="./profile?empNo=${empDto.empNo}" width="100"><br>
@@ -20,7 +22,9 @@
  		<li>입사일 :<fmt:formatDate value = "${empDto.empHireDate}" pattern="yyyy-MM-dd"/></li>
 </ul>
 <h2>
-
+<c:if test="${sessionScope.loginNo != null && sessionScope.loginNo == empDto.empNo}">
+<a href="./edit?empNo=${empDto.empNo}">내정보수정</a>
+</c:if>
 <a href="./list">목록으로</a>
 </h2>
 
