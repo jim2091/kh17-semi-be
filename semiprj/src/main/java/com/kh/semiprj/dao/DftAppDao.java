@@ -1,0 +1,6 @@
+package com.kh.semiprj.dao;
+
+
+public class DftAppDao {
+
+}

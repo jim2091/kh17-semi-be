@@ -35,6 +35,10 @@ public class AppDao {
 		return jdbcTemplate.query(sql, appMapper, params);
 	}
 	
+	
+	//등록 할 때 생각해야할 점 : 품의서, 휴가신청서, 업무기안서 를 세개의 테이블로 나눠서 진행할 때, 어떤 sql 구문을 써야 하는가
+	
+	
 	//등록
 	public void insert(AppDto appDto) {
 		String sql = "insert into app (app_id, app_req_id, app_title, app_content, app_status, app_save_yn)"

@@ -13,7 +13,10 @@ public class DftAppMapper implements RowMapper<DftAppDto>{
 
 	@Override
 	public DftAppDto mapRow(ResultSet rs, int rowNum) throws SQLException {
-		return null;
+		DftAppDto dftAppDto = new DftAppDto();
+		dftAppDto.setAppId(rs.getInt("app_id"));
+		dftAppDto.setDftDate(rs.getTimestamp("dft_date"));
+		return dftAppDto;
 	}
 
 }
