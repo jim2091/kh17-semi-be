@@ -34,6 +34,11 @@
 	}
 	.badge.blue { border-color: #0984e3 !important; }
 	.badge.silver { border-color: #BDC3C7 !important; }
+	.edited-tag {
+	    color: gray;
+	    font-size: 12px;
+	    margin-left: 5px;
+	}
 </style>
 
 <!-- 게시글 삭제 시 한번 더 물어보는 확인창 -->
@@ -111,6 +116,13 @@ $(function(){
 					
 						var wtime = moment(response[i].replyWtime).fromNow();
 						$(html).find(".reply-wtime").text(wtime);
+						
+						<!-- 수정됨 표시 -->
+						if(response[i].replyEtime != null){
+						    $(html).find(".reply-wtime").append(
+						        " <span class='edited-tag' style='color:gray; font-size:12px;'>(수정됨)</span>"
+						    );
+						}
 						
 						//(1) owner가 false면 수정/삭제 버튼 영역을 지움
 						if(response[i].owner == false) {
@@ -230,6 +242,7 @@ $(function(){
 			<div class="mt-20 flex-area">
 				<div class="w-50">
 					<span class="gray reply-wtime">yyyy-MM-dd HH:mm</span>
+					<span class="edited-tag"></span>
 				</div>
 				<div class="button-wrapper right w-50">
 					<i class="fa-solid fa-edit orange btn-reply-edit"></i>

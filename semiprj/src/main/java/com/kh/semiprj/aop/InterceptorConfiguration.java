@@ -52,6 +52,6 @@ public class InterceptorConfiguration implements WebMvcConfigurer{
 				"/admin/detail"
 				,"/admin/edit"
 				);
-		
+				
 	}
 }

@@ -136,7 +136,7 @@ $(function(){
 		
 		<!-- 경고문 -->
 		<div class="cell center mt-10">
-			<i class="fa-solid fa-circle-exclamation red"></i>
+			<i class="fa-solid fa-circle-exclamation fa-fade red"></i>
 			타인에 대한 무분별한 비방글은 경고 없이 삭제될 수 있습니다.
 		</div>
 	
