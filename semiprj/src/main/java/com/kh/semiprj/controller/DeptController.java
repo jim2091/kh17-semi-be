@@ -27,8 +27,6 @@ import jakarta.servlet.http.HttpSession;
 public class DeptController {
 	@Autowired
 	private DeptDao deptDao;
-	
-	// 💡 [수정] 변수명 첫 글자를 소문자로 올바르게 교정했습니다.
 	@Autowired
 	private DeptCategoryDao deptCategoryDao;
 
@@ -87,10 +85,13 @@ public class DeptController {
 	@RequestMapping("/detail")
 	public String detail(@RequestParam int deptId, Model model) {
 		DeptDto deptDto = deptDao.selectOne(deptId);
+		DeptCategoryDto deptCategoryDto = 
+				deptCategoryDao.selectOne(deptDto.getDeptCategory());
 		if(deptDto == null) {
 			throw new TargetNotfoundException("존재하지 않는 부서 정보");
 		}
 		model.addAttribute("deptDto",deptDto);
+		model.addAttribute("deptCategoryDto", deptCategoryDto);
 		
 		return "dept/detail";
 	}
