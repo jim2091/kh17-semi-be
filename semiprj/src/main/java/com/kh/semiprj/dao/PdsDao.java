@@ -7,7 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import com.kh.semiprj.dto.AttachDto;
 import com.kh.semiprj.dto.PdsDto;
+import com.kh.semiprj.mapper.AttachMapper;
 import com.kh.semiprj.mapper.EmpMapper;
 import com.kh.semiprj.mapper.PdsMapper;
 import com.kh.semiprj.vo.PageVO;
@@ -21,14 +23,16 @@ public class PdsDao {
 	private PdsMapper pdsMapper;
 	@Autowired
 	private EmpMapper empMapper;
+	@Autowired
+	private AttachMapper attachMapper;
 
 	private Set<String> allowList = Set.of("pds_title", "pds_writer");
 	//등록
 	
 	//시퀀스 생성
-	public Long sequence() {
+	public int sequence() {
 		String sql = "select pds_seq.nextval from dual";
-		return jdbcTemplate.queryForObject(sql, long.class);
+		return jdbcTemplate.queryForObject(sql, int.class);
 	}
 	public void insert(PdsDto pdsDto) {
 		String sql = "insert into pds("
@@ -54,7 +58,7 @@ public class PdsDao {
 		return jdbcTemplate.update(sql, params) > 0;
 	}
 	//조쇠수 증가
-	public boolean updatePdsReadcount(long pdsNo) {
+	public boolean updatePdsReadcount(int pdsNo) {
 		String sql = "update pds set "
 						+ "pds_readcount = pds_readcount + 1"
 					+ "where pds_no = ?";
@@ -64,7 +68,7 @@ public class PdsDao {
 	
 	
 	//삭제
-	public boolean delete(long pdsNo) {
+	public boolean delete(int pdsNo) {
 		String sql = "delete from pds where pds_no = ?";
 		Object[] params = { pdsNo };
 		return jdbcTemplate.update(sql, params) > 0;
@@ -115,13 +119,13 @@ public class PdsDao {
 	}
 	
 	//상세 조회
-	public PdsDto selectOne(long pdsNo) {
+	public PdsDto selectOne(int pdsNo) {
 		String sql = "select * from pds where pds_no = ?";
 		Object[] params = { pdsNo };
 		List<PdsDto> list = jdbcTemplate.query(sql, pdsMapper, params);
 		return list.isEmpty() ? null : list.get(0);
 	}
-	public PdsDto selectPreviousOne(long pdsNo) {
+	public PdsDto selectPreviousOne(int pdsNo) {
 		String sql = "select * from pds "
 				+ "where pds_no = ("
 				+ "select max(pds_no) from pds "
@@ -130,7 +134,7 @@ public class PdsDao {
 		List<PdsDto> list = jdbcTemplate.query(sql, pdsMapper, params);
 		return list.isEmpty() ? null : list.get(0);
 	}
-	public PdsDto selectNextOne(long pdsNo) {
+	public PdsDto selectNextOne(int pdsNo) {
 		String sql = "select * from pds "
 				+ "where pds_no = ("
 				+ "select min(pds_no) from pds "
@@ -140,4 +144,19 @@ public class PdsDao {
 		return list.isEmpty() ? null : list.get(0);
 	
 	}
+	
+	public void connect(int pdsNo, int attachNo) {
+		String sql = "insert into pds_files(pds_no, attach_no) values(?, ?)";
+		Object[] params = { pdsNo, attachNo };
+		jdbcTemplate.update(sql, params);
+	}
+	
+	public List<AttachDto> searchFiles(int pdsNo) {
+		String sql = "select attach.* from attach join pds_files "
+						+ "on attach.attach_no = pds_files.attach_no where pds_files.pds_no = ?";
+		Object[] params = { pdsNo };
+		return jdbcTemplate.query(sql, attachMapper, params);
+	}
+	
+	
 }

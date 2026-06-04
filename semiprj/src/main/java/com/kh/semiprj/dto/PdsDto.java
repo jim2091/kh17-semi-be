@@ -9,7 +9,7 @@ import lombok.Data;
 
 @Data
 public class PdsDto {
-	private long pdsNo;
+	private int pdsNo;
 	private String pdsWriter;
 	private String pdsTitle;
 	private long pdsReadcount;

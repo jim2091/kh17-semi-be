@@ -31,6 +31,13 @@
 	    <a href="/board/list">
 	        <span>게시판</span>
 		</a>
+        <ul>
+            <li>
+                <a href="/pds/list">
+                    <span>게시판</span>
+                </a>
+            </li>
+        </ul>
 	</li>
 	<li>
 	    <a href="/emp/list">

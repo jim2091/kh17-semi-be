@@ -17,6 +17,6 @@ public class AttachMapper implements RowMapper<AttachDto>{
 		attachDto.setAttachName(rs.getString("attach_name"));
 		attachDto.setAttachType(rs.getString("attach_type"));
 		attachDto.setAttachSize(rs.getLong("attach_size"));
-		return null;
+		return attachDto;
 	}
 }
