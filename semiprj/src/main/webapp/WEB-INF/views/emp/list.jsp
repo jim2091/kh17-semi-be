@@ -4,28 +4,30 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
 
-<h1>사원 검색</h1>
+<div class="container w-80">
+	<div class="center">
+		<h1>사원 목록 및 검색</h1>
+	</div>
+    <div class="cell">
+		<form action="./list" method="get">
+			<select name="column" class="field">
+				<option value="emp_id" ${param.column == "emp_id" ? "selected" : ""}>사원아이디</option>
+				<option value="emp_name" ${param.column == "emp_name" ? "selected" : ""}>사원실명</option>
+				<option value="emp_dept" ${param.column == "emp_dept" ? "selected" : ""}>부서</option>
+				<option value="emp_position" ${param.column == "emp_position" ? "selected" : ""}>직위</option>
+			</select>
+			<input type="text" name="keyword" placeholder="검색어 입력" 
+								class="field" value="${param.keyword}">
+			<button type="submit" class="btn btn-positive">
+				<i class="fa-solid fa-magnifying-glass"></i> 
+				<span>검색</span>
+			</button>
+		</form>
+	</div>
 
-<div class="cell right">
-	<a href="./register">사원등록하기</a>
-</div>
 
-<form action="./list" method="get">
-	<select name="column">
-		<option value="emp_id" ${param.column == "emp_id" ? "selected" : ""}>사원아이디</option>
-		<option value="emp_name" ${param.column == "emp_name" ? "selected" : ""}>사원실명</option>
-		<option value="emp_dept" ${param.column == "emp_dept" ? "selected" : ""}>부서</option>
-		<option value="emp_position" ${param.column == "emp_position" ? "selected" : ""}>직위</option>
-	</select>
-<input type="text" name="keyword" placeholder="검색어 입력" 
-							value="${param.keyword}" required>
-<button>검색<i class="fa-solid fa-magnifying-glass"></i> </button>
-</form>
-<%-- <c:if test="${param.column != null && param.keyword != null}"> --%>
-
-
-
-<table border="1" width="850">
+	<div class="cell">
+		<table class="table table-stripe">
 		<thead>
 				<tr align="center">
 						<th>사원실명</th>
@@ -46,13 +48,15 @@
 						<td>${empDto.empPosition}</td>
 						<td>${empDto.empMentor}</td>
 						<td>${empDto.empHireDate}</td>
-						<%-- <td><fmt:formatDate value = "${empDto.empHireDate}" pattern="yyyy-MM-dd E a h시 m분"/></td> --%>
 						<td><a href="./detail?empNo=${empDto.empNo}"><button>상세조회</button></a></td>
 				</tr>
 			</c:forEach>
 		</tbody>
-</table>
-<%-- </c:if> --%>
-
+	</table>
+	</div> 
+    	<div class="cell center">
+   		<jsp:include page="/WEB-INF/views/template/pagination.jsp"></jsp:include>
+		</div>
+	</div>
 
 <jsp:include page="/WEB-INF/views/template/footer.jsp"></jsp:include>

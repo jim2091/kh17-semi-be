@@ -115,4 +115,11 @@ public class DeptDao {
         return jdbcTemplate.queryForObject(sql, int.class, params);
     }
     
+    //활성화 토글
+    public boolean updateDeptYn(DeptDto deptDto) {
+    	String sql = "update dept set dept_yn=? where dept_id=?";
+    	Object[] params = {deptDto.getDeptYn(), deptDto.getDeptId()};
+    	return jdbcTemplate.update(sql,params)>0;
+    }
+    
 }

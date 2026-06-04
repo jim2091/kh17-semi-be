@@ -53,19 +53,41 @@ public class EmpDao {
 		jdbcTemplate.update(sql, params);
 	}
 	
-	public List<EmpDto> selectList(){
-		String sql = "select * from emp where emp_approval_status= 'Y' order by emp_no asc";
+	public List<EmpDto> selectListByUser(){
+		String sql = "select * from emp where emp_approval_status= 'Y' "
+				+ "and emp_level != '관리자' "
+				+ "order by emp_no asc";
 		return jdbcTemplate.query(sql, empMapper);
 	}
 	
-	public List<EmpDto> selectList(String column, String keyword){ 
-		if(column == null || keyword == null) return selectList();
-		if(column.isEmpty()||keyword.isEmpty()) return selectList();
+	public List<EmpDto> selectListByUser(String column, String keyword){ 
+		if(column == null || keyword == null) return selectListByUser();
+		if(column.isEmpty()||keyword.isEmpty()) return selectListByUser();
 		
 
 		if(!allowColumns.contains(column)) return List.of();
 		String sql = "select * from emp "
 				+ "where instr( "+column+", ?) >0 and emp_level != '관리자' "
+						+ "and emp_approval_status= 'Y' "
+						+ "order by "+column+" asc, emp_no asc";
+		Object[] params = {keyword};
+		return jdbcTemplate.query(sql, empMapper, params);
+	}
+	public List<EmpDto> selectListByAdmin(){
+		String sql = "select * from emp where emp_approval_status= 'Y' "
+				+ "order by emp_no asc";
+		return jdbcTemplate.query(sql, empMapper);
+	}
+	
+	public List<EmpDto> selectListByAdmin(String column, String keyword){ 
+		if(column == null || keyword == null) return selectListByAdmin();
+		if(column.isEmpty()||keyword.isEmpty()) return selectListByAdmin();
+		
+
+		if(!allowColumns.contains(column)) return List.of();
+		String sql = "select * from emp "
+				+ "where instr( "+column+", ?) >0 "
+						+ "and emp_approval_status= 'Y' "
 						+ "order by "+column+" asc, emp_no asc";
 		Object[] params = {keyword};
 		return jdbcTemplate.query(sql, empMapper, params);
@@ -101,10 +123,11 @@ public class EmpDao {
 	public boolean updateByUser(EmpDto empDto) {
 		String sql = "update emp "
 				+ "set emp_birth=?, emp_email=?, emp_contact=?, "
-				+ "emp_post=?, emp_address1=?, emp_address2=? ";
+				+ "emp_post=?, emp_address1=?, emp_address2=? where emp_no = ?";
 		Object[] params = {empDto.getEmpBirth(), empDto.getEmpEmail(), 
 				empDto.getEmpContact(), empDto.getEmpPost(), 
-				empDto.getEmpAddress1(), empDto.getEmpAddress2() 
+				empDto.getEmpAddress1(), empDto.getEmpAddress2(), 
+				empDto.getEmpNo() 
 				};
 		return jdbcTemplate.update(sql, params)>0;
 	}
@@ -122,8 +145,20 @@ public class EmpDao {
 		return jdbcTemplate.update(sql, params)>0;
 	}
 	
+	public void connect(String empNo, int attachNo) {
+		String sql = "insert into emp_profile(emp_no, attach_no) values(?, ?)";
+		Object[] params = {empNo, attachNo};
+		jdbcTemplate.update(sql, params);
+		}
 	
-	
+	public int searchProfile(String empNo) {
+		String sql = "select attach_no from ("
+				+ "select attach_no from emp_profile where emp_no = ? order by attach_no desc) "
+				+ "where rownum = 1";
+		Object[] params = {empNo};
+		
+		return jdbcTemplate.queryForObject(sql, int.class, params);
+	}
 	
 	
 	

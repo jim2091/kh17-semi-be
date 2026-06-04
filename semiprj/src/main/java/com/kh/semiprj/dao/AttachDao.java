@@ -23,7 +23,7 @@ public class AttachDao {
 	}
 	
 	public void insert(AttachDto attachDto) {
-		String sql = "insert int attach("
+		String sql = "insert into attach("
 						+ "attach_no, attach_name, "
 						+ "attach_type, attach_size"
 					+ ") values(?, ?, ?, ?)";

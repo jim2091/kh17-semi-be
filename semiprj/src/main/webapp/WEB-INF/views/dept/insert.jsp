@@ -1,85 +1,86 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
     
-    <!-- 아이콘 -->
-    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
 
-    <!-- 디자인을 작성하기 위한 영역 -->
-    <link rel="stylesheet" type="text/css" href="../css/commons.css">
-    <style>
-        div { box-shadow: 0 0 0 1px #cccccc;}
-    </style>
+<link rel="stylesheet" type="text/css" href="../css/commons.css">
+<style>
+    div { box-shadow: 0 0 0 1px #cccccc;}
+</style>
 
-    <!-- jQuery CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <script src="./preview.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="./preview.js"></script>
 
-   
 <jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
 
 <script>
-        $(function(){
-            //상태 객체
-            var state = {
-                deptCategoryValid : false,
-                deptNameValid : false,
-                deptHeadIdValid : false,
-                deptContentValid : true,
-                ok : function() {
-                    return Object.values(this)
-                            .filter(v => typeof v === "boolean")
-                            .every(v => v === true);
-                            
-                }
-            };
+    $(function(){
+        // 상태 객체
+        var state = {
+            deptCategoryValid : false,
+            deptNameValid : false,
+            deptHeadIdValid : false,
+            deptContentValid : true, // 선택 항목이므로 true 시작
+            ok : function() {
+                return Object.values(this)
+                        .filter(v => typeof v === "boolean")
+                        .every(v => v === true);
+            }
+        };
 
-            //개별 입력창 검사
-            $("[name=deptCategory]").on("input", function(){
-                var regex = /^(영업|관리|감사)$/;
-                var valid = regex.test($(this).val());
-                $(this).removeClass("success fail").addClass(valid ? "success" : "fail");
-                state.deptCategoryValid = valid;
-            });
-            $("[name=deptName]").on("blur", function(){
-                var valid = $(this).val().length > 0;
-                $(this).removeClass("success fail").addClass(valid ? "success" : "fail");
-                state.deptNameValid = valid;
-            });
-            $("[name=deptHeadId]").on("blur", function(){
-                var value = $(this).val();
-                var valid = value.length > 0 && parseInt(value) > 0;
-                $(this).removeClass("success fail").addClass(valid ? "success" : "fail");
-                state.deptHeadIdValid = valid;
-            });
-            $("[name=deptContent]").on("blur", function(){
-                var valid = $(this).val().length >= 0;
-                if(len > 0) {
-                    $(this).removeClass("success fail").addClass("success");
-                } else {
-                    $(this).removeClass("success fail");
-                }
-                state.deptContentValid = valid;
-            });
-			//숫자 검사
-            $("[inputmode=numeric]").on("input", function(){
-                var regex = /[^0-9]+/g;
-                var replacement = $(this).val().replace(regex, "");
-                $(this).val(replacement);
-            });
-            
-            //폼 검사
-            $(".form-check").on("submit", function(){
-                //화면 처리(이벤트 트리거)
-                $(this).find("select[name]").trigger("input");
-                $(this).find("input[name], textarea[name]").trigger("blur");
-
-                return state.ok();//state.ok() 상태에 따라 전송해!
-            });
-            
+        // 개별 입력창 검사
+        $("[name=deptCategory]").on("input", function(){
+            var regex = /^(영업|관리|감사)$/;
+            var valid = regex.test($(this).val());
+            $(this).removeClass("success fail").addClass(valid ? "success" : "fail");
+            state.deptCategoryValid = valid;
         });
-    </script>
-<form action="" method="post" autocomplete="off" class="form-check">
+        
+        $("[name=deptName]").on("blur", function(){
+            var valid = $(this).val().length > 0;
+            $(this).removeClass("success fail").addClass(valid ? "success" : "fail");
+            state.deptNameValid = valid;
+        });
+        
+        $("[name=deptHeadId]").on("blur", function(){
+            var value = $(this).val();
+            var valid = value.length > 0 && parseInt(value) > 0;
+            $(this).removeClass("success fail").addClass(valid ? "success" : "fail");
+            state.deptHeadIdValid = valid;
+        });
+        
+        // 업무내용 (선택 항목 테두리 UI 버그 수정본 반영)
+        $("[name=deptContent]").on("blur", function(){
+            var len = $(this).val().length; // 💡 오타 수정 (len 변수 선언)
+            var valid = len >= 0; 
+            
+            if(len > 0) {
+                $(this).removeClass("success fail").addClass("success");
+            } else {
+                $(this).removeClass("success fail"); // 빈 칸일 땐 테두리 색상 안 뜨게 처리
+            }
+            state.deptContentValid = valid;
+        });
 
+        // 숫자 검사
+        $("[inputmode=numeric]").on("input", function(){
+            var regex = /[^0-9]+/g;
+            var replacement = $(this).val().replace(regex, "");
+            $(this).val(replacement);
+        });
+        
+        // 폼 검사
+        $(".form-check").on("submit", function(){
+            $(this).find("select[name]").trigger("input");
+            $(this).find("input[name], textarea[name]").trigger("blur");
+
+            return state.ok();
+        });
+        
+    });
+</script>
+
+<form action="" method="post" autocomplete="off" class="form-check">
     <div class="container w-600 mt-50 mb-50">
         <div class="cell center">
             <h1>부서 정보 등록</h1>
@@ -119,11 +120,7 @@
         <div class="cell mt-50">
             <button type="submit" class="btn btn-positive w-100">등록하기</button>
         </div>
-
-
     </div>
-
-    </form>
-
+</form>
 
 <jsp:include page="/WEB-INF/views/template/footer.jsp"></jsp:include>

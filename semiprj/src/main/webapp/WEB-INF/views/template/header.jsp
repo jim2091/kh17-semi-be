@@ -73,12 +73,6 @@
                                 <span>로그인</span>
                             </a>
                         </div>
-                        <!-- <div class="cell center">
-                            <a href="/emp/join">
-                                <i class="fa-solid fa-user-plus"></i>
-                                <span>회원가입</span>
-                            </a>
-                        </div> -->
                         </c:if>
 
                         <!-- 회원 상태 -->
@@ -110,6 +104,3 @@
                         </c:if>
                         
                     </div>
-					<jsp:include page="/WEB-INF/views/template/side_home.jsp"></jsp:include>
-					
-                <div class="w-200 flex-fill">

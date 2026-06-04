@@ -4,26 +4,7 @@
 <jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
     
     
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>사원등록</title>
-    <link rel="icon" href="/kh.png" type="image/jpeg">
-    <link rel="stylesheet" 
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
-        type="text/css">
-    <link rel="stylesheet" href="../css/commons.css" type="text/css">
-    <style>
-      
-    </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <script>
-
-    </script>
-</head>
-<body>
+<div class="container w-80">
 <form action="./register" method="post" autocomplete="off">
 
     <div class="container w-600 mt-50 mb-50">
@@ -32,34 +13,34 @@
         </div>
         <div class="cell">
             <label>사원번호<i class="fa-solid fa-asterisk red"></i></label>
-            <input type="text" name="empNo">
+            <input type="text" name="empNo" class="field w-100">
         </div>
         <div class="cell">
             <label>사원아이디<i class="fa-solid fa-asterisk red"></i></label>
-            <input type="text" name="empId">
+            <input type="text" name="empId" class="field w-100">
         </div>
         <div class="cell">
             <label>사원비밀번호<i class="fa-solid fa-asterisk red"></i></label>
-            <input type="text" name="empPw">
+            <input type="text" name="empPw" class="field w-100">
         </div>
         <div class="cell">
             <label>사원실명<i class="fa-solid fa-asterisk red"></i></label>
-            <input type="text" name="empName">
+            <input type="text" name="empName" class="field w-100">
         </div>
         <div class="cell">
             <label>사원생년월일<i class="fa-solid fa-asterisk red"></i></label>
-            <input type="text" name="empBirth">
+            <input type="text" name="empBirth" class="field w-100">
         </div>
         <div class="cell">
             <label>사원권한<i class="fa-solid fa-asterisk red"></i></label>
-            <select name="empLevel">
+            <select name="empLevel" class="field w-100">
                 <option>사용자</option>
                 <option>관리자</option>
             </select>
         </div>
         <div class="cell">
             <label>사원직위<i class="fa-solid fa-asterisk red"></i></label>
-            <select name="empPosition">
+            <select name="empPosition" class="field w-100">
                 <option>사원</option>
                 <option>선임</option>
                 <option>주임</option>
@@ -78,7 +59,7 @@
         </div>
         <div class="cell">
             <label>사원부서</label>
-            <select name="empDept">
+            <select name="empDept" class="field w-100">
                 <option>영업</option>
                 <option>관리</option>
                 <option>감사</option>
@@ -86,11 +67,11 @@
         </div>
         <div class="cell">
             <label>사원입사일</label>
-            <input type="date" name="empHireDate">
+            <input type="date" name="empHireDate" class="field w-100">
         </div>
         <div class="cell">
             <label>사원담당사수</label>
-            <input type="text" name="empMentor">
+            <input type="text" name="empMentor" class="field w-100">
         </div>
         <div class="cell right">
             <button type="submit" class="btn btn-positive"><i class="fa-solid fa-user-plus"></i>
@@ -101,10 +82,8 @@
             </button>
         </div>
     </div>
-    </form>
-</body>
-</html>
-
+</form>
+</div>
 
 
 
