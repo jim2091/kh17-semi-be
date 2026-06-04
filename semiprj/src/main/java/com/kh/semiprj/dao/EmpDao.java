@@ -37,6 +37,19 @@ public class EmpDao {
 		return list.isEmpty() ? null : list.get(0);
 	}
 	
+	public EmpDto selectOneforFindId(String empEmail, String empName) {
+		String sql = "select * from emp where emp_email=? and emp_Name=?";
+		Object[] params = { empEmail, empName };
+		List<EmpDto> list = jdbcTemplate.query(sql, empMapper, params);
+		return list.isEmpty() ? null : list.get(0);
+	}
+	
+	public String selectIdByEmail(String empEmail) {
+		String sql = "select emp_id from emp where emp_email = ?";
+		Object[] params = { empEmail };
+		return jdbcTemplate.queryForObject(sql, String.class, params);
+	}
+	
 	public void insertFromAdmin(EmpDto empDto) {
 		String sql = "insert into emp("
 					+ "emp_no, emp_id, emp_pw, emp_name, "
