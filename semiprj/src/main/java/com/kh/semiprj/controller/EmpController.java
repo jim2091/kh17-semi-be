@@ -98,7 +98,6 @@ public class EmpController {
 	public String list(@RequestParam(required = false) String column, 
 						@RequestParam(required = false) String keyword, 
 						Model model) {
-		/* System.out.println("list 실행"); */
 		List<EmpDto> list = empDao.selectListByUser(column, keyword);
 		
 		model.addAttribute("list", list);
@@ -122,21 +121,20 @@ public class EmpController {
 	@GetMapping("/edit")
 	public String edit(@RequestParam String empNo, Model model) {
 		EmpDto empDto = empDao.selectOneByDetail(empNo);
-		//if(empDto == null) throw new TargetNotfoundException("대상이 존재하지 않습니다");
+		if(empDto == null) throw new TargetNotfoundException("대상이 존재하지 않습니다");
 		model.addAttribute("empDto", empDto);
+//		System.out.println(empDto);
 		return "emp/edit";
 	}
 	
 	@PostMapping("/edit") 
 	public String edit(@ModelAttribute EmpDto empDto, 
 				@RequestParam MultipartFile attach) throws IllegalStateException, IOException {
-	    //EmpDto findEmpDto = empDao.selectOneByDetail(empDto.getEmpNo());
-	    //if(findEmpDto == null) throw new TargetNotfoundException("존재하지 않는 회원");
+	    EmpDto findEmpDto = empDao.selectOneByDetail(empDto.getEmpNo());
+	    if(findEmpDto == null) throw new TargetNotfoundException("존재하지 않는 회원");
 	    
 	  
 	    empDao.updateByUser(empDto); 
-	    
-//	    EmpDto findEmpDto = new EmpDto();
 	    
 	    String empNo = empDto.getEmpNo();
 	    
@@ -152,7 +150,7 @@ public class EmpController {
 			empDao.connect(empNo, attachNo);
 		}
 	    
-	    return "redirect:./detail?empNo=" + empDto.getEmpNo(); 
+	    return "redirect:./mypage"; 
 	}
 	 
 	
@@ -181,7 +179,7 @@ public class EmpController {
 	public String profile(@RequestParam String empNo) {
 		try {
 			int attachNo = empDao.searchProfile(empNo);
-			System.out.println("attachNo = " + attachNo);
+//			System.out.println("attachNo = " + attachNo);
 			return "redirect:/download/modern?attachNo=" + attachNo;
 		}
 		catch(Exception e ){
