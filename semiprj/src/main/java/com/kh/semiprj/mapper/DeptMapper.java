@@ -16,7 +16,7 @@ public class DeptMapper implements RowMapper<DeptDto>{
 		DeptDto deptDto = new DeptDto();
 		
 		deptDto.setDeptId(rs.getInt("dept_id"));
-		deptDto.setDeptCategory(rs.getString("dept_category"));
+		deptDto.setDeptCategory(rs.getInt("dept_category"));
 		deptDto.setDeptHeadId(rs.getString("dept_head_id"));
 		deptDto.setDeptName(rs.getString("dept_name"));
 		deptDto.setDeptYn(rs.getString("dept_yn"));

@@ -11,7 +11,6 @@ import jakarta.servlet.http.HttpSession;
 
 @Service
 public class EmpOnlyInterceptor implements HandlerInterceptor{
-
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
 			throws Exception {
@@ -22,11 +21,6 @@ public class EmpOnlyInterceptor implements HandlerInterceptor{
 		if(loginId == null || loginRole == null || loginNo == null) {
 			throw new WhoAreYouException();
 		}
-		
-		
-		
-		return true;
-				
+		return true;		
 	}
-
 }

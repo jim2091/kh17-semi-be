@@ -10,17 +10,17 @@ public class BoardReadDao {
 	private JdbcTemplate jdbcTemplate;
 	
 	//등록 메소드
-	public void insert(String empId, long boardNo) {
-		String sql = "insert into board_read(emp_id, board_no) values(?, ?)";
-		Object[] params = {empId, boardNo};
+	public void insert(String empNo, long boardNo) {
+		String sql = "insert into board_read(emp_no, board_no) values(?, ?)";
+		Object[] params = {empNo, boardNo};
 		jdbcTemplate.update(sql,params);
 	}
 	
 	//카운트 메소드
-	public int count(String empId, long boardNo) {
-		String sql = "select count(*) fromg board_read "
-					+ "where emp_id = ? and board_no = ?";
-		Object[] params = {empId, boardNo};
+	public int count(String empNo, long boardNo) {
+		String sql = "select count(*) from board_read "
+					+ "where emp_no = ? and board_no = ?";
+		Object[] params = {empNo, boardNo};
 		return jdbcTemplate.queryForObject(sql, int.class, params);
 	}
 }
