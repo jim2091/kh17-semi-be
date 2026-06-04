@@ -17,4 +17,5 @@ public class ReplyVO {
 	private Timestamp replyEtime;
 	private boolean writer;
 	private boolean owner;
+	private String empName;
 }

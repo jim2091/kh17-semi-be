@@ -9,9 +9,20 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class InterceptorConfiguration implements WebMvcConfigurer{
 	@Autowired
 	private HomeInterceptors homeInterceptors;
+	@Autowired
+	private BoardOwnerInterceptor boardOwnerInterceptor;
+	@Autowired
+	private EmpOnlyInterceptor empOnlyInterceptor;
+	@Autowired
+	private MasterOnlyInterceptor masterOnlyInterceptor;
+	@Autowired
+	private BoardReadInterceptor boardReadInterceptor;
+	@Autowired
+	private ReplyOwnerInterceptor replyOwnerInterceptor;
 	
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
 		registry.addInterceptor(homeInterceptors).addPathPatterns("/**");
+
 	}
 }

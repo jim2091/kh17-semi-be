@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.kh.semiprj.dao.BoardDao;
+import com.kh.semiprj.dao.BoardReadDao;
 import com.kh.semiprj.dao.EmpDao;
 import com.kh.semiprj.dto.BoardDto;
 import com.kh.semiprj.dto.EmpDto;
@@ -29,6 +30,8 @@ public class BoardController {
 	private BoardDao boardDao;
 	@Autowired
 	private EmpDao empDao;
+	@Autowired
+	private BoardReadDao boardReadDao;
 	
 	//1. 게시글 등록 매핑
 	@GetMapping("/write")
@@ -104,9 +107,21 @@ public class BoardController {
 	
 	//3. 게시글 상세 매핑
 	@RequestMapping("/detail")
-	public String detail(Model model, @RequestParam long boardNo) {
+	public String detail(Model model, @RequestParam long boardNo, HttpSession session) {
+		boardDao.updateBoardReadcount(boardNo);
 		BoardDto boardDto = boardDao.selectOne(boardNo);
 		if(boardDto == null) throw new TargetNotfoundException("존재하지 않는 게시글입니다.");
+		
+		if("비밀".equals(boardDto.getBoardType())) {
+			String loginRole = (String)session.getAttribute("loginRole");
+			String loginId = (String)session.getAttribute("loginId");
+			EmpDto loginEmpDto = empDao.selectOne(loginId);
+			boolean isAdmin = "관리자".equals(loginRole);
+			boolean isWriter = loginEmpDto.getEmpNo().equals(boardDto.getBoardWriter());
+			if(!isAdmin && !isWriter) {
+				throw new GetOutException();
+			}
+		}
 		EmpDto empDto = empDao.selectOneByDetail(boardDto.getBoardWriter());
 		if(empDto != null) {
 			boardDto.setEmpName(empDto.getEmpName());
