@@ -6,6 +6,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
+<jsp:include page="/WEB-INF/views/template/side_home.jsp"></jsp:include>
 
 <div class="container w-900 mt-50 mb-50">
 	<!-- 페이지 제목 -->
@@ -40,6 +41,11 @@
 		<c:if test="${sessionScope.loginId != null}">
 			<a href="./write" class="btn btn-neutral">글쓰기<i class="fa-solid fa-pencil"></i></a>
 		</c:if>
+    </div>
+    
+    <!-- 총 게시글 수 -->
+	<div class="cell right">
+        ${pageVO.beginRownum}-${pageVO.endRownum} / 총 ${pageVO.count}개의 글
     </div>
     
     <!-- 게시글 목록 -->
