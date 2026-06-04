@@ -25,5 +25,3 @@ public class AttnMapper implements RowMapper<AttnDto>{
 	}
 	
 }
-
-
