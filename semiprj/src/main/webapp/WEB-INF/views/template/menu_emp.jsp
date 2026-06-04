@@ -34,7 +34,7 @@
         <ul>
             <li>
                 <a href="/pds/list">
-                    <span>게시판</span>
+                    <span>자료실</span>
                 </a>
             </li>
         </ul>
