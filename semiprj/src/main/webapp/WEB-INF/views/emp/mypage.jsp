@@ -10,7 +10,7 @@
             <h1>[${empDto.empName}]사원 상세 정보</h1>
         </div>
         <div class="cell">
-            <img src="/emp/profile?empNo=${empDto.empNo}" width="100">
+            <img src="./profile?empNo=${empDto.empNo}" width="100">
         </div>
         
         <div class="cell">
