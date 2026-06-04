@@ -46,7 +46,7 @@ public class AdminEmpController {
 						@RequestParam(required = false) String keyword, 
 						Model model) {
 		/* System.out.println("list 실행"); */
-		List<EmpDto> list = empDao.selectList(column, keyword);
+		List<EmpDto> list = empDao.selectListByAdmin(column, keyword);
 		
 		model.addAttribute("list", list);
 		
