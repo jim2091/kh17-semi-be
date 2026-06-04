@@ -15,13 +15,16 @@ public class InterceptorConfiguration implements WebMvcConfigurer{
 	@Autowired
 	private EmpOnlyInterceptor empOnlyInterceptor;
 	@Autowired
+	private MasterDenyInterceptor masterDenyInterceptor;
+	@Autowired
 	private MasterOnlyInterceptor masterOnlyInterceptor;
 	@Autowired
 	private BoardReadInterceptor boardReadInterceptor;
 	@Autowired
 	private ReplyOwnerInterceptor replyOwnerInterceptor;
-	private PdsReadInterceptor pdsReadInterceptor;
 	@Autowired
+	private PdsReadInterceptor pdsReadInterceptor;
+
 
     InterceptorConfiguration(PdsReadInterceptor pdsReadInterceptor) {
         this.pdsReadInterceptor = pdsReadInterceptor;
@@ -41,8 +44,14 @@ public class InterceptorConfiguration implements WebMvcConfigurer{
 				"/emp/**"
 				,"/admin/**"
 				)
-				.excludePathPatterns(//비로그인도 접근 가능
+				.excludePathPatterns(
 						"/emp/login"
 						);
+		registry.addInterceptor(masterOnlyInterceptor).addPathPatterns("/admin/**");
+		registry.addInterceptor(masterDenyInterceptor).addPathPatterns(
+				"/admin/detail"
+				,"/admin/edit"
+				);
+				
 	}
 }

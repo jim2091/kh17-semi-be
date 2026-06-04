@@ -19,6 +19,7 @@ import com.kh.semiprj.dto.EmpDto;
 import com.kh.semiprj.dto.EmpHistoryDto;
 import com.kh.semiprj.exception.TargetNotfoundException;
 import com.kh.semiprj.service.AttachService;
+import com.kh.semiprj.vo.HistoryPageVO;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -186,6 +187,26 @@ public class EmpController {
 			e.printStackTrace();
 			return "redirect:/images/no_image.png";
 		}
+	}
+	@RequestMapping("/history")
+	public String history(HttpSession session, 
+								@ModelAttribute HistoryPageVO historyPageVO,
+								Model model) {
+		String loginNo = (String) session.getAttribute("loginNo");
+//		System.out.println(empDao.selectOneByDetail(loginNo));
+//		System.out.println(historyPageVO);
+		EmpDto empDto = empDao.selectOneByDetail(loginNo);
+		if(empDto == null) throw new TargetNotfoundException("대상이 존재하지 않습니다");
+		model.addAttribute("empDto", empDto);
+		
+		List<EmpHistoryDto> loginhistory = 
+				empHistoryDao.selectList(loginNo, historyPageVO);
+//		System.out.println(loginhistory);
+		model.addAttribute("loginhistory", loginhistory);
+		int count = empHistoryDao.count(loginNo, historyPageVO);
+		historyPageVO.setCount(count);
+		model.addAttribute("historyPageVO", historyPageVO);
+		return "emp/history";
 	}
 	
 	
