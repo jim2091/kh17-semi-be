@@ -40,6 +40,9 @@ public class InterceptorConfiguration implements WebMvcConfigurer{
 		registry.addInterceptor(empOnlyInterceptor).addPathPatterns(
 				"/emp/**"
 				,"/admin/**"
-				);
+				)
+				.excludePathPatterns(//비로그인도 접근 가능
+						"/emp/login"
+						);
 	}
 }
