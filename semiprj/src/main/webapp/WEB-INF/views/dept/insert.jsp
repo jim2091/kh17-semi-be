@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
     
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
 
@@ -13,7 +14,9 @@
 
 <jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
 
+
 <script>
+	
     $(function(){
         // 상태 객체
         var state = {
@@ -30,11 +33,47 @@
 
         // 개별 입력창 검사
         $("[name=deptCategory]").on("input", function(){
-            var regex = /^(영업|관리|감사)$/;
-            var valid = regex.test($(this).val());
+            var value = $(this).val();
+            var valid = $(this).val().length > 0;
+            if(value === 'custom'){
+            	$("#custom-category-area").show();
+            	$("[name=customCategoryName]").focus();
+            	valid = false;
+            }
+            else{
+            	$("#custom-category-area").hide();
+            }
             $(this).removeClass("success fail").addClass(valid ? "success" : "fail");
             state.deptCategoryValid = valid;
         });
+      //카테고리 등록 버튼 클릭 이벤트
+    	$("#btn-add-category").click(function() {
+    		var name = $("[name=customCategoryName]").val();//새 카테고리명
+    		
+    		$.ajax({
+    			url: "../rest/deptCategory/insert",
+    			method : "post",
+    			data: {deptCategoryName : name},
+    			
+    			//성공
+    			success: function(response){
+    				var newCategory = $("<option>").val(response).text(name).prop("selected",true);
+    				$("[name=deptCategory]").append(newCategory);
+    				
+    				$("[name=customCategoryName]").val("");
+    				$("#custom-category-area").hide();
+    				
+    			},
+    			error: function(xhr) {
+                    if(xhr.status === 400) {
+                        alert(xhr.responseText); // "이미 존재하는 카테고리명입니다." 출력
+                        $("[name=customCategoryName]").focus().select();
+                    } else {
+                        alert("시스템 오류가 발생했습니다.");
+                    }
+                }
+    		});
+    	});
         
         $("[name=deptName]").on("blur", function(){
             var valid = $(this).val().length > 0;
@@ -49,15 +88,15 @@
             state.deptHeadIdValid = valid;
         });
         
-        // 업무내용 (선택 항목 테두리 UI 버그 수정본 반영)
+        
         $("[name=deptContent]").on("blur", function(){
-            var len = $(this).val().length; // 💡 오타 수정 (len 변수 선언)
-            var valid = len >= 0; 
+            var value = $(this).val().length; 
+            var valid = value.length >= 0; 
             
             if(len > 0) {
                 $(this).removeClass("success fail").addClass("success");
             } else {
-                $(this).removeClass("success fail"); // 빈 칸일 땐 테두리 색상 안 뜨게 처리
+                $(this).removeClass("success fail"); 
             }
             state.deptContentValid = valid;
         });
@@ -76,6 +115,7 @@
 
             return state.ok();
         });
+      
         
     });
 </script>
@@ -90,10 +130,19 @@
             <label>부서카테고리 <i class="fa-solid fa-asterisk red"></i></label>            
             <select name="deptCategory" class="field w-100">
                 <option value="">선택하세요</option>
-                <option>영업</option>
-                <option>관리</option>
-                <option>감사</option>
+                <c:forEach var = "categoryDto" items="${categoryList}">
+                	<option value= "${categoryDto.deptCategoryNo}">
+                		${categoryDto.deptCategoryName}
+                	</option>
+                </c:forEach>
+                <option value="custom">
+                		새 카테고리 직접 입력
+                </option>
             </select>
+            <div id="custom-category-area" style= "display:none;">
+            	<input type="text" name="customCategoryName" placeholder="새 카태고리명 입력">
+            	<button type="button" id ="btn-add-category">추가하기</button>
+            </div>
             <div class="fail-feedback">필수 항목입니다</div>
         </div>
 
