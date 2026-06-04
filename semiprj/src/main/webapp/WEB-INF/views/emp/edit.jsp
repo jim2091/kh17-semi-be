@@ -7,11 +7,14 @@
 <h1>[${empDto.empName}]사원 정보 수정</h1>
 
 
-<form action="./edit" method="post" autocomplete="off">
-<input type="hidden" name="empNo" value="${empDto.empNo}">
+<form action="./edit" method="post" autocomplete="off" enctype="multipart/form-data">
+	<input type="hidden" name="empNo" value="${empDto.empNo}">
 <ul>
  		<li>사원번호 : ${empDto.empNo}</li>
  		<li>사원실명 : ${empDto.empName}</li>
+ 		<li>사진 <input type="file" name="attach" accept=".png, .jpeg"><br><br>
+	(기존사진)<br>
+		<img src="./profile?empNo=${empDto.empNo}" width="80"><br><br></li>
  		<li>사원부서 : ${empDto.empDept}</li>
  		<li>사원직위 : ${empDto.empPosition}</li>
  		<li>담당사수! : ${empDto.empMentor}</li>

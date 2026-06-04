@@ -51,7 +51,7 @@
  </ul>
 
 		
-	<button type="submit">수정하기</button>
+	<button type="submit">수정완료</button>
 	<a href="./list">목록으로</a>
 </form>
 

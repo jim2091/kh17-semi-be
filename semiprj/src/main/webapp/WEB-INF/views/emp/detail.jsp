@@ -16,7 +16,7 @@
  		<li>이메일주소 : ${empDto.empEmail}</li>
  		<li>연락처 : ${empDto.empContact}</li>
  		<li>입사일 :<fmt:formatDate value = "${empDto.empHireDate}" pattern="yyyy-MM-dd"/></li>
- </ul>
+</ul>
 <h2>
 <a href="./list">목록으로</a>
 </h2>

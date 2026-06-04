@@ -1,5 +1,6 @@
 package com.kh.semiprj.controller;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,11 +11,13 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.kh.semiprj.dao.EmpDao;
 import com.kh.semiprj.dao.EmpHistoryDao;
 import com.kh.semiprj.dto.EmpDto;
 import com.kh.semiprj.dto.EmpHistoryDto;
+import com.kh.semiprj.service.AttachService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -28,6 +31,9 @@ public class EmpController {
 	
 	@Autowired
 	private EmpHistoryDao empHistoryDao;
+	
+	@Autowired
+	private AttachService attachService;
 
 	@GetMapping("/login")
 	public String login() {
@@ -116,12 +122,27 @@ public class EmpController {
 	}
 	
 	@PostMapping("/edit") 
-	public String edit(@ModelAttribute EmpDto empDto) {
+	public String edit(@ModelAttribute EmpDto empDto, 
+				@RequestParam MultipartFile attach) throws IllegalStateException, IOException {
 	    //EmpDto findEmpDto = empDao.selectOneByDetail(empDto.getEmpNo());
 	    //if(findEmpDto == null) throw new TargetNotfoundException("존재하지 않는 회원");
 	    
 	  
 	    empDao.updateByUser(empDto); 
+	    
+//	    EmpDto findEmpDto = new EmpDto();
+	    
+	    String empNo = empDto.getEmpNo();
+	    
+	    if(!attach.isEmpty()) {
+	    	try {
+				int attachNo = empDao.searchFlag(empNo);
+				attachService.delete(attachNo);
+			}catch(Exception e) {}
+	    	
+			int attachNo = attachService.save(attach);
+			empDao.connect(empNo, attachNo);
+		}
 	    
 	    return "redirect:./detail?empNo=" + empDto.getEmpNo(); 
 	}
@@ -148,7 +169,16 @@ public class EmpController {
 		empDao.updateEmpPw(empDto);
 		return "redirect:./mypage";	
 	}
-	
+	@RequestMapping("/profile")
+	public String profile(@RequestParam String empNo) {
+		try {
+			int attachNo = empDao.searchFlag(empNo);
+			return "redirect:/download/modern?attachNo=" + attachNo;
+		}
+		catch(Exception e ){
+			return "redirect:/images/no_image.png";
+		}
+	}
 	
 	
 	
