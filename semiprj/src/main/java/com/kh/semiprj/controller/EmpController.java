@@ -17,6 +17,7 @@ import com.kh.semiprj.dao.EmpDao;
 import com.kh.semiprj.dao.EmpHistoryDao;
 import com.kh.semiprj.dto.EmpDto;
 import com.kh.semiprj.dto.EmpHistoryDto;
+import com.kh.semiprj.exception.TargetNotfoundException;
 import com.kh.semiprj.service.AttachService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -107,6 +108,11 @@ public class EmpController {
 	@RequestMapping("/detail")
 	public String detail(@RequestParam String empNo, Model model) {
 		EmpDto empDto = empDao.selectOneByDetail(empNo);
+		
+		if(empDto == null) {
+			throw new TargetNotfoundException("존재하지 않는 사원");
+		}
+		
 		model.addAttribute("empDto", empDto);
 		
 		
@@ -136,9 +142,11 @@ public class EmpController {
 	    
 	    if(!attach.isEmpty()) {
 	    	try {
-				int attachNo = empDao.searchFlag(empNo);
+				int attachNo = empDao.searchProfile(empNo);
 				attachService.delete(attachNo);
-			}catch(Exception e) {}
+			}catch(Exception e) {
+				 e.printStackTrace();
+			}
 	    	
 			int attachNo = attachService.save(attach);
 			empDao.connect(empNo, attachNo);
@@ -172,10 +180,12 @@ public class EmpController {
 	@RequestMapping("/profile")
 	public String profile(@RequestParam String empNo) {
 		try {
-			int attachNo = empDao.searchFlag(empNo);
+			int attachNo = empDao.searchProfile(empNo);
+			System.out.println("attachNo = " + attachNo);
 			return "redirect:/download/modern?attachNo=" + attachNo;
 		}
 		catch(Exception e ){
+			e.printStackTrace();
 			return "redirect:/images/no_image.png";
 		}
 	}

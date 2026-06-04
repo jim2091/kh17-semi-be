@@ -151,9 +151,12 @@ public class EmpDao {
 		jdbcTemplate.update(sql, params);
 		}
 	
-	public int searchFlag(String empNo) {
-		String sql = "select attach_no from emp_profile where emp_no=?";
+	public int searchProfile(String empNo) {
+		String sql = "select attach_no from ("
+				+ "select attach_no from emp_profile where emp_no = ? order by attach_no desc) "
+				+ "where rownum = 1";
 		Object[] params = {empNo};
+		
 		return jdbcTemplate.queryForObject(sql, int.class, params);
 	}
 	

@@ -9,6 +9,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
@@ -31,6 +32,9 @@ public class FileDownloadController {
 	@Autowired
 	private AttachDao attachDao;
 	
+	@Value("${custom.file.upload-path}")
+	private String uploadPath;
+	
 	@RequestMapping("/legacy")
 	@ResponseBody
 	public void legecy(@RequestParam int attachNo, 
@@ -38,7 +42,8 @@ public class FileDownloadController {
 		AttachDto attachDto = attachDao.selectOne(attachNo);
 		if(attachDto == null) throw new TargetNotfoundException("존재하지 않는 파일");
 		
-		File dir = new File("D:/upload");
+//		File dir = new File("D:/upload");
+		File dir = new File(uploadPath);
 		File target = new File(dir, String.valueOf(attachNo));
 		if(!target.isFile()) throw new TargetNotfoundException("존재하지 않는 파일");
 		
@@ -77,6 +82,14 @@ public class FileDownloadController {
 		byte[] data = FileCopyUtils.copyToByteArray(target);
 		ByteArrayResource resource = new ByteArrayResource(data);
 		
+		System.out.println("attachNo = " + attachNo);
+
+		System.out.println("attachDto = " + attachDto);
+
+		System.out.println("exists = " + target.exists());
+		System.out.println("path = " + target.getAbsolutePath());
+		System.out.println("isFile = " + target.isFile());
+		
 		return ResponseEntity.ok()
 				.contentLength(attachDto.getAttachSize())
 				.header(HttpHeaders.CONTENT_TYPE, attachDto.getAttachTypeString())
@@ -89,6 +102,8 @@ public class FileDownloadController {
 						)
 			.body(resource);
 	}
+	
+
 
 	
 	
