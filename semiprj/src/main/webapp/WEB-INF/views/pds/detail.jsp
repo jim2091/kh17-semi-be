@@ -6,6 +6,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
+<jsp:include page="/WEB-INF/views/template/side_home.jsp"></jsp:include>
 
 <style>
 	.badge {
@@ -59,6 +60,16 @@
 	
 	<hr class="mt-20">
 	
+	<!-- 첨부파일 다운로드 -->
+	<div class="cell mt-20">
+		<h3>첨부파일</h3>
+		<c:forEach var="attachDto" items="${attachList}">
+			<a href="/download/modern?attachNo=${attachDto.attachNo}">
+				${attachDto.attachName}<br>
+			</a>
+		</c:forEach>
+		<hr>
+	</div>
 	<!-- 이전글/다음글 -->
 	<div class="cell">
 		<span class="badge blue me-10">이전글</span> 

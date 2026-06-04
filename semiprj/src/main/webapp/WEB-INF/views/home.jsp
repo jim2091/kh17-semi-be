@@ -2,7 +2,7 @@
     pageEncoding="UTF-8"%>
 
 <jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
-	
+<jsp:include page="/WEB-INF/views/template/side_home.jsp"></jsp:include>
 	<div class="flex-area flex-vertical ms-40 me-40" style="height: 600px">
 		<div class="cell w-100 content-cell">
             공지 및 다양한 알림
