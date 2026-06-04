@@ -46,6 +46,9 @@
 		</c:forEach>
 	</tbody>
 </table>
+	<div class="cell center">
+  		<jsp:include page="/WEB-INF/views/template/pagination.jsp"></jsp:include>
+	</div>
  
 <h2><a href="./list">검색으로 이동</a></h2>
 <jsp:include page="/WEB-INF/views/template/footer.jsp"></jsp:include>

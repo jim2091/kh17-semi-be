@@ -12,6 +12,8 @@ public class InterceptorConfiguration implements WebMvcConfigurer{
 	private HomeInterceptors homeInterceptors;
 	@Autowired
 	private PdsReadInterceptor pdsReadInterceptor;
+	@Autowired
+	private EmpOnlyInterceptor empOnlyInterceptor;
 
     InterceptorConfiguration(PdsReadInterceptor pdsReadInterceptor) {
         this.pdsReadInterceptor = pdsReadInterceptor;
@@ -25,5 +27,10 @@ public class InterceptorConfiguration implements WebMvcConfigurer{
 		//자료실 조회수 증가 인터셉터
 		registry.addInterceptor(pdsReadInterceptor)
 				.addPathPatterns("/pds/detail");
+		
+		registry.addInterceptor(empOnlyInterceptor).addPathPatterns(
+				"/emp/**"
+				,"/admin/**"
+				);
 	}
 }

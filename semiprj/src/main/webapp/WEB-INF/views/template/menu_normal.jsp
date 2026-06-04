@@ -32,7 +32,7 @@
 		</a>
 	</li>
 	<li>
-	    <a href="#">
+	    <a href="/emp/list">
 	        <span>직원목록</span>
 	    </a>
 	</li>
