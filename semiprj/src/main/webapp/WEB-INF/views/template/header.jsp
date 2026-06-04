@@ -18,6 +18,16 @@
     <style>
         /* div { box-shadow: 0 0 0 1px gray ;} */
     </style>
+    
+    <!-- jQuery CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    
+    <!-- lightpick CDN-->
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/locale/ko.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lightpick@1.6.2/lightpick.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/lightpick@1.6.2/css/lightpick.min.css" rel="stylesheet">
+    
 </head>
 <body>
     <!-- 메인 컨테이너1 + 내부영역4 -->
@@ -48,7 +58,7 @@
 
 
             <!-- 사이드바 및 컨텐츠 -->
-            <div style="min-height: 600px;" class="flex-area">
+            <div style="min-height: 600px;" class="flex-area mt-20">
                 <div class="w-200 flex-area flex-vertical">
                     <div class="container w-100 side-area cell">
                     
@@ -63,23 +73,17 @@
                                 <span>로그인</span>
                             </a>
                         </div>
-                        <div class="cell center">
-                            <a href="/emp/join">
-                                <i class="fa-solid fa-user-plus"></i>
-                                <span>회원가입</span>
-                            </a>
-                        </div>
                         </c:if>
 
                         <!-- 회원 상태 -->
                         <c:if test="${sessionScope.loginId != null && sessionScope.loginRole != null}">
                         
-                        <c:if test="${sessionScope.loginRole != '관리자'}">
+
                         <div class="cell center">
                             <!-- 이미지와 글자를 겹쳐서 배치하기 위해 영역을 설정하고 내부에 요소 배치 -->
                             <div class="image-hover image-circle image-shadow"
                                     style="width: 150px; margin: 0 auto;">
-                                <img src="/emp/profile?empId=${sessionScope.loginId}">
+                                <%-- <img src="/emp/profile?empId=${sessionScope.loginId}"> --%>
                                 <div class="content">
                                     <a href="/emp/mypage" class="white">
                                         <i class="fa-solid fa-user"></i>
@@ -88,18 +92,15 @@
                                 </div>
                             </div>
                         </div>
-                        </c:if>
                         
                         <div class="cell center">
                             <h3>
-                            	${sessionScope.loginId}님<br>
-                            	(${sessionScope.loginRole})
+                            	${loginUser.empDept}<br>
+                            	${loginUser.empName}/${loginUser.empPosition}
+
                             </h3>
                         </div>
                         
                         </c:if>
                         
                     </div>
-					<jsp:include page="/WEB-INF/views/template/side_home.jsp"></jsp:include>
-					
-                <div class="w-200 flex-fill">

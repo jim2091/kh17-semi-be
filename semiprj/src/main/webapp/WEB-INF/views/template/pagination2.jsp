@@ -7,21 +7,21 @@
 <h2>
 
 <!-- 이전 -->
-<c:if test="${pageVo.hasPrevious()}">
-<a href="./history?page=${pageVo.getPreviousBlock()}&${pageVo.getSearchParams()}">&lt;</a>
+<c:if test="${pageVO.hasPrevious()}">
+<a href="./history?page=${pageVO.getPreviousBlock()}&${pageVO.getSearchParams()}">&lt;</a>
 </c:if>
 
 <!-- 숫자 --> 
-<c:forEach var="i" begin="${pageVo.getBeginBlock()}" end="${pageVo.getEndBlock()}" step="1">
-	<c:if test="${pageVo.page == i}">${i}</c:if>
-	<c:if test="${pageVo.page != i}">
-		<a href="./history?page=${i}&${pageVo.getSearchParams()}">${i}</a>
+<c:forEach var="i" begin="${pageVO.getBeginBlock()}" end="${pageVO.getEndBlock()}" step="1">
+	<c:if test="${pageVO.page == i}">${i}</c:if>
+	<c:if test="${pageVO.page != i}">
+		<a href="./history?page=${i}&${pageVO.getSearchParams()}">${i}</a>
 	</c:if>
 </c:forEach>
 
 <!-- 다음 -->
-<c:if test="${pageVo.hasNext()}">
-<a href="./history?page=${pageVo.getNextBlock()}&${pageVo.getSearchParams()}">&gt;</a>
+<c:if test="${pageVO.hasNext()}">
+<a href="./history?page=${pageVO.getNextBlock()}&${pageVO.getSearchParams()}">&gt;</a>
 </c:if>
 
 </h2>

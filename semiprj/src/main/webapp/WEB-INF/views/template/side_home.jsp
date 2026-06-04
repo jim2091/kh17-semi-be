@@ -5,3 +5,4 @@
                     	 쪽지함
                     </div>
                 </div>
+				<div class="w-200 flex-fill">

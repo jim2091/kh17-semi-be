@@ -28,17 +28,24 @@
         </ul>
 	</li>
 	<li>
-	    <a href="#">
+	    <a href="/board/list">
 	        <span>게시판</span>
 		</a>
+        <ul>
+            <li>
+                <a href="/pds/list">
+                    <span>자료실</span>
+                </a>
+            </li>
+        </ul>
 	</li>
 	<li>
-	    <a href="#">
+	    <a href="/emp/list">
 	        <span>직원목록</span>
 	    </a>
 	</li>
 	<li>
-	    <a href="#">
+	    <a href="/dept/list">
 	        <span>부서목록</span>
 	    </a>
 	</li>
