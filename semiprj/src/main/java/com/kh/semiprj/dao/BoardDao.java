@@ -21,7 +21,7 @@ public class BoardDao {
 	@Autowired
 	private EmpMapper empMapper;
 	//검색 허용 컬럼
-	private Set<String> allowList = Set.of("board_title", "board_writer", "title_content");
+	private Set<String> allowList = Set.of("board_title", "board_writer", "title_content", "board_head");
 	
 	//1. 등록 메소드
 	public long sequence() {

@@ -54,7 +54,7 @@
     		<thead>
     			<tr>
     				<th>종류</th>
-                    <th class="w-40">제목</th>
+                    <th>제목</th>
                     <th>작성자</th>
                     <th>조회수</th>
                     <th>작성일</th>
@@ -63,8 +63,12 @@
 			<tbody>
 				<c:forEach var="boardDto" items="${list}" varStatus="stat">
 				<tr bgcolor="${stat.index < noticeCount ? '#ffeaa7':''}">
-					<!-- 게시글 종류 -->
-					<td>${boardDto.boardHead}</td>
+					<td>
+						<!-- 게시글 종류를 클릭하면 해당 종류의 게시글만 보이게 -->
+						<a href="./list?column=board_head&keyword=${boardDto.boardHead}" class="link">
+							${boardDto.boardHead}
+						</a>
+					</td>
 					<!-- 게시글 제목 -->
 					<td align="left">
 						<!-- 비밀글인 경우 -->
