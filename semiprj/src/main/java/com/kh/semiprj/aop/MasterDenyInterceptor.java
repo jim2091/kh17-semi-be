@@ -26,7 +26,7 @@ public class MasterDenyInterceptor implements HandlerInterceptor{
 		if(empNo == null) {
 			throw new IllegalArgumentException("잘못된 형식의 요청");
 		}
-		EmpDto empDto = empDao.selectOne(empNo);
+		EmpDto empDto = empDao.selectOneByDetail(empNo);
 		if(empDto == null) {
 			throw new TargetNotfoundException("존재하지 않는 회원");
 		}
