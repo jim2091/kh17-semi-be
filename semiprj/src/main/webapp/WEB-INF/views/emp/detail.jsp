@@ -5,6 +5,8 @@
 <jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
 
 <h1>[${empDto.empName}]사원 상세 정보</h1>
+<img src="./profile?empNo=${empDto.empNo}" width="100"><br>
+ 		사원사진 
 
  <ul>
  		<li>사원번호 : ${empDto.empNo}</li>
@@ -16,8 +18,9 @@
  		<li>이메일주소 : ${empDto.empEmail}</li>
  		<li>연락처 : ${empDto.empContact}</li>
  		<li>입사일 :<fmt:formatDate value = "${empDto.empHireDate}" pattern="yyyy-MM-dd"/></li>
- </ul>
+</ul>
 <h2>
+
 <a href="./list">목록으로</a>
 </h2>
 

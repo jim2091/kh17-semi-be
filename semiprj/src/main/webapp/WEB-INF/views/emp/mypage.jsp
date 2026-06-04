@@ -5,8 +5,10 @@
 <jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
 
 <h1>[${empDto.empName}]님 정보</h1>
-
+<img src="./profile?empNo=${empDto.empNo}" width="100"><br>
+ 		사원사진
  <ul>
+ 		
  		<li>사원실명 : ${empDto.empName}</li>
  		<li>사원아이디 : ${empDto.empId}</li>
  		<li>사원부서 : ${empDto.empDept}</li>

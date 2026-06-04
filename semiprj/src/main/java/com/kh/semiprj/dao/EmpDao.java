@@ -123,10 +123,11 @@ public class EmpDao {
 	public boolean updateByUser(EmpDto empDto) {
 		String sql = "update emp "
 				+ "set emp_birth=?, emp_email=?, emp_contact=?, "
-				+ "emp_post=?, emp_address1=?, emp_address2=? ";
+				+ "emp_post=?, emp_address1=?, emp_address2=? where emp_no = ?";
 		Object[] params = {empDto.getEmpBirth(), empDto.getEmpEmail(), 
 				empDto.getEmpContact(), empDto.getEmpPost(), 
-				empDto.getEmpAddress1(), empDto.getEmpAddress2() 
+				empDto.getEmpAddress1(), empDto.getEmpAddress2(), 
+				empDto.getEmpNo() 
 				};
 		return jdbcTemplate.update(sql, params)>0;
 	}
@@ -144,8 +145,20 @@ public class EmpDao {
 		return jdbcTemplate.update(sql, params)>0;
 	}
 	
+	public void connect(String empNo, int attachNo) {
+		String sql = "insert into emp_profile(emp_no, attach_no) values(?, ?)";
+		Object[] params = {empNo, attachNo};
+		jdbcTemplate.update(sql, params);
+		}
 	
-	
+	public int searchProfile(String empNo) {
+		String sql = "select attach_no from ("
+				+ "select attach_no from emp_profile where emp_no = ? order by attach_no desc) "
+				+ "where rownum = 1";
+		Object[] params = {empNo};
+		
+		return jdbcTemplate.queryForObject(sql, int.class, params);
+	}
 	
 	
 	
