@@ -24,20 +24,11 @@
                 </tr>
                 <tr>
                     <th>부서 이름</th>
-                    <td><strong>${deptDto.deptName}</strong></td>
+                    <td>${deptDto.deptName}</td>
                 </tr>
                 <tr>
                     <th>부서장 (사원번호)</th>
-                    <td>
-                        <c:choose>
-                            <c:when test="${deptDto.deptHeadId != null}">
-                                <span class="blue">${deptDto.deptHeadId}</span>
-                            </c:when>
-                            <c:otherwise>
-                                <span class="gray">(현재 공석)</span>
-                            </c:otherwise>
-                        </c:choose>
-                    </td>
+                    <td>${deptDto.deptHeadId}</td>
                 </tr>
                 <tr>
                     <th>개설일</th>
@@ -48,14 +39,7 @@
                 <tr>
                     <th>주요 업무</th>
                     <td align="left" style="line-height: 1.6; padding: 15px;">
-                        <c:choose>
-                            <c:when test="${deptDto.deptContent != null}">
-                                ${deptDto.deptContent}
-                            </c:when>
-                            <c:otherwise>
-                                <span class="gray">등록된 부서 업무 소개가 없습니다.</span>
-                            </c:otherwise>
-                        </c:choose>
+                    	${deptDto.deptContent}
                     </td>
                 </tr>
                 
@@ -72,20 +56,24 @@
             <i class="fa-solid fa-list"></i>
             <span>목록으로 이동</span>
         </a>
+        <c:if test="${sessionScope.loginRole == '관리자'}">
         <a class="btn btn-positive" href="./insert">
             <i class="fa-solid fa-plus"></i>
             <span>신규 등록하기</span>
         </a>
-        <c:if test="${loginRole != null && loginRole == '관리자'}">
+        </c:if>
+        <c:if test="${sessionScope.loginRole == '관리자'}">
         <a class="btn btn-neutral" href="./edit?deptId=${deptDto.deptId}">
             <i class="fa-solid fa-pen"></i>
             <span>수정하기</span>
         </a>
    		</c:if>
-        <a class="btn btn-negative" href="./delete?deptId=${deptDto.deptId}">
-            <i class="fa-solid fa-trash"></i>
-            <span>삭제하기</span>
+   		<c:if test="${sessionScope.loginRole == '관리자'}">
+        <a class="btn ${deptDto.deptYn == 'Y' ? 'btn-negative' : 'btn-positive' }"
+        	 href="./block?deptId=${deptDto.deptId}">
+			 ${deptDto.deptYn == 'Y' ? '비활성화' : '활성화' }
         </a>
+        </c:if>
     </div>
 </div>
 
