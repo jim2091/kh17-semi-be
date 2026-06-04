@@ -63,7 +63,11 @@ public class AppDao {
 	
 	
 	//삭제
-	
+	public boolean delete(int appId) {
+		String sql = "delete app where app_id=?";
+		Object[] params = { appId };
+		return jdbcTemplate.update(sql, params) > 0;
+	}
 	
 	
 	
