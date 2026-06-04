@@ -13,7 +13,7 @@ public class PdsMapper implements RowMapper<PdsDto>{
 	@Override
 	public PdsDto mapRow(ResultSet rs, int rowNum) throws SQLException {
 		PdsDto pdsDto = new PdsDto();
-		pdsDto.setPdsNo(rs.getLong("pds_no"));
+		pdsDto.setPdsNo(rs.getInt("pds_no"));
 		pdsDto.setPdsTitle(rs.getString("pds_title"));
 		//board_content가 없을 수도 있다고 생각하고 변환 코드를 작성
 		try {

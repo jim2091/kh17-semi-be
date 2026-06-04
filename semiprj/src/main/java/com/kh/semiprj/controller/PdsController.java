@@ -1,5 +1,6 @@
 package com.kh.semiprj.controller;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,13 +11,17 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.kh.semiprj.dao.AttachDao;
 import com.kh.semiprj.dao.EmpDao;
 import com.kh.semiprj.dao.PdsDao;
+import com.kh.semiprj.dto.AttachDto;
 import com.kh.semiprj.dto.EmpDto;
 import com.kh.semiprj.dto.PdsDto;
 import com.kh.semiprj.exception.GetOutException;
 import com.kh.semiprj.exception.TargetNotfoundException;
+import com.kh.semiprj.service.AttachService;
 import com.kh.semiprj.vo.PageVO;
 
 import jakarta.servlet.http.HttpSession;
@@ -28,6 +33,10 @@ public class PdsController {
 	private PdsDao pdsDao;
 	@Autowired
 	private EmpDao empDao;
+	@Autowired
+	private AttachService attachService;
+	@Autowired
+	private AttachDao attachDao;
 	
 	//등록
 	@GetMapping("/write")
@@ -35,7 +44,8 @@ public class PdsController {
 		return "pds/write";
 	}
 	@PostMapping("/write")
-	public String write(@ModelAttribute PdsDto pdsDto, HttpSession session) {
+	public String write(@ModelAttribute PdsDto pdsDto, HttpSession session, 
+						@RequestParam(value = "attach") List<MultipartFile> attachList) throws IllegalStateException, IOException {
 		String loginId = (String)session.getAttribute("loginId");
 		String loginRole = (String)session.getAttribute("loginRole");
 		
@@ -46,17 +56,24 @@ public class PdsController {
 			throw new GetOutException();
 		}
 		
-		long pdsNo = pdsDao.sequence();
+		int pdsNo = pdsDao.sequence();
 
 		pdsDto.setPdsWriter(empDto.getEmpNo());
 		pdsDto.setPdsNo(pdsNo);
 		pdsDao.insert(pdsDto);
-		System.out.println("test");
+		
+		for (MultipartFile attach : attachList) {
+			if (!attach.isEmpty()) {
+				int attachNo = attachService.save(attach);
+				pdsDao.connect(pdsNo, attachNo);
+			}
+		}
+		
 		return "redirect:./detail?pdsNo=" + pdsNo;
 	}
 	//상세
 	@RequestMapping("/detail")
-	public String detail(@RequestParam long pdsNo, Model model) {
+	public String detail(@RequestParam int pdsNo, Model model) {
 		PdsDto pdsDto = pdsDao.selectOne(pdsNo);
 		if (pdsDto == null) throw new TargetNotfoundException("존재하지 않는 게시글");
 		model.addAttribute("pdsDto", pdsDto);
@@ -64,6 +81,8 @@ public class PdsController {
 		model.addAttribute("prevPdsDto", pdsDao.selectPreviousOne(pdsNo));
 		model.addAttribute("nextPdsDto", pdsDao.selectNextOne(pdsNo));
 		
+		List<AttachDto> attachList = pdsDao.searchFiles(pdsNo);
+		model.addAttribute("attachList", attachList);
 		return "pds/detail";
 	}
 	
@@ -80,7 +99,7 @@ public class PdsController {
 	
 	//수정
 	@GetMapping
-	public String edit(@RequestParam long pdsNo, Model model) {
+	public String edit(@RequestParam int pdsNo, Model model) {
 		PdsDto pdsDto = pdsDao.selectOne(pdsNo);
 		
 		if (pdsDto == null) throw new TargetNotfoundException("존재하지 않는 게시글입니다");
@@ -101,7 +120,7 @@ public class PdsController {
 	
 	//삭제
 	@RequestMapping("/delete")
-	public String delete(@RequestParam long pdsNo) {
+	public String delete(@RequestParam int pdsNo) {
 		PdsDto pdsDto = pdsDao.selectOne(pdsNo);
 		if(pdsDto == null) throw new TargetNotfoundException("존재하지 않는 게시글입니다");
 		pdsDao.delete(pdsNo);

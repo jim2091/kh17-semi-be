@@ -1,7 +1,5 @@
 package com.kh.semiprj.controller;
 
-
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -68,43 +66,33 @@ public class FileDownloadController {
 		}
 		stream.close();
 	}
+	
 	@RequestMapping("/modern")
-	public ResponseEntity<ByteArrayResource> modern(@RequestParam int attachNo) throws IOException{
+	public ResponseEntity<ByteArrayResource> download(@RequestParam int attachNo) throws IOException{
 		
 		AttachDto attachDto = attachDao.selectOne(attachNo);
 		if(attachDto == null) throw new TargetNotfoundException("존재하지 않는 파일");
 		
-		File dir = new File("D:/upload");
+		File dir = new File(uploadPath);
 		File target = new File(dir, String.valueOf(attachNo));
 		if(!target.isFile()) throw new TargetNotfoundException("존재하지 않는 파일");
-		
 		
 		byte[] data = FileCopyUtils.copyToByteArray(target);
 		ByteArrayResource resource = new ByteArrayResource(data);
 		
-		System.out.println("attachNo = " + attachNo);
-
-		System.out.println("attachDto = " + attachDto);
-
-		System.out.println("exists = " + target.exists());
-		System.out.println("path = " + target.getAbsolutePath());
-		System.out.println("isFile = " + target.isFile());
-		
 		return ResponseEntity.ok()
 				.contentLength(attachDto.getAttachSize())
-				.header(HttpHeaders.CONTENT_TYPE, attachDto.getAttachTypeString())
+				.header(HttpHeaders.CONTENT_TYPE,  attachDto.getAttachTypeString())
 				.header(HttpHeaders.CONTENT_ENCODING, "UTF-8")
 				.header(HttpHeaders.CONTENT_DISPOSITION, 
-						ContentDisposition
+					ContentDisposition
 						.attachment()
 						.filename(attachDto.getAttachName(), StandardCharsets.UTF_8)
-						.build().toString()
-						)
-			.body(resource);
+						.build()
+						.toString()
+				)
+				.body(resource);
 	}
-	
 
-
-	
 	
 }

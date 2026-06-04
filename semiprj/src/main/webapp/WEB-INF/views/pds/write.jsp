@@ -3,6 +3,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
+<jsp:include page="/WEB-INF/views/template/side_home.jsp"></jsp:include>
 
 <script type="text/javascript">
 
@@ -87,9 +88,12 @@ $(function(){
                 	<span>0</span> / 1000
                 </span>
             </div>
-            
 		</div>
-	
+		<div class="cell">
+            <label>파일 첨부</label>
+            <input type="file" name="attach" class="field w-100" multiple
+            	accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.hwp,.hwpx,.zip">
+        </div>
 		<!-- 목록/등록 버튼 -->
 		<div class="cell mt-50 right">
 			<a href="./list" class="btn btn-neutral">
