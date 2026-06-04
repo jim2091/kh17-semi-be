@@ -10,7 +10,7 @@ public class AttnDto {
 	private Timestamp attnWorkDate;
 	private Timestamp attnInTime;
 	private Timestamp attnOutTime;
-	private int attnWorkTime;
+	private double attnWorkTime;
 	private String attnStatus;
 	private String attnRecord; 
 	

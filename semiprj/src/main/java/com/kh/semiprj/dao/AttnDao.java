@@ -48,4 +48,16 @@ public class AttnDao {
 
         return jdbcTemplate.query(sql, attnMapper, startDate, endDate);
     }
+    public List<AttnDto> selectByDate(String attn_workDate) {
+
+        String sql = """
+            select *
+            from attn
+            where trunc(attn_work_date)
+                  = to_date(?, 'yyyy-mm-dd')
+            order by attn_id
+        """;
+
+        return jdbcTemplate.query(sql, attnMapper, attn_workDate);
+    }
 }
