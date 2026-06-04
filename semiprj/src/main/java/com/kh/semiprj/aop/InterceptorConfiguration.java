@@ -14,6 +14,10 @@ public class InterceptorConfiguration implements WebMvcConfigurer{
 	private PdsReadInterceptor pdsReadInterceptor;
 	@Autowired
 	private EmpOnlyInterceptor empOnlyInterceptor;
+	@Autowired
+	private MasterOnlyInterceptor masterOnlyInteceptor;
+	@Autowired
+	private MasterDenyInterceptor masterDenyInterceptor;
 
     InterceptorConfiguration(PdsReadInterceptor pdsReadInterceptor) {
         this.pdsReadInterceptor = pdsReadInterceptor;
@@ -31,6 +35,15 @@ public class InterceptorConfiguration implements WebMvcConfigurer{
 		registry.addInterceptor(empOnlyInterceptor).addPathPatterns(
 				"/emp/**"
 				,"/admin/**"
+				)
+				.excludePathPatterns(
+						"/emp/login"
+						);
+		registry.addInterceptor(masterOnlyInteceptor).addPathPatterns("/admin/**");
+		registry.addInterceptor(masterDenyInterceptor).addPathPatterns(
+				"/admin/detail"
+				,"/admin/edit"
 				);
+		
 	}
 }
