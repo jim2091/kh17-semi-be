@@ -15,7 +15,7 @@
 	        <form action="./list">
 	            <select name="column" class="field">
 	                <option value="dept_name" ${param.column == "dept_name" ? "selected" : ""}>부서명</option>
-	                <option value="dept_category" ${param.column == "dept_category" ? "selected" : ""}>부서카테고리</option>
+	                <option value="dept_category_name" ${param.column == "dept_category_name" ? "selected" : ""}>부서카테고리</option>
 	                <option value="dept_id" ${param.column == "dept_id" ? "selected" : ""}>부서코드</option>
 	            </select>
 	            <input type="text" name="keyword" placeholder="검색어 입력" class="field" value="${param.keyword}">

@@ -1,17 +1,18 @@
 	package com.kh.semiprj.dao;
 	
 	import java.util.List;
-	import java.util.Set;
-	
-	import org.springframework.beans.factory.annotation.Autowired;
-	import org.springframework.jdbc.core.JdbcTemplate;
-	import org.springframework.stereotype.Repository;
-	
-	import com.kh.semiprj.dto.DeptCategoryDto;
-	import com.kh.semiprj.dto.DeptDto;
-	import com.kh.semiprj.mapper.DeptCategoryMapper;
-	import com.kh.semiprj.mapper.DeptMapper;
-	import com.kh.semiprj.vo.PageVO;
+import java.util.Set;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
+
+import com.kh.semiprj.dto.DeptCategoryDto;
+import com.kh.semiprj.dto.DeptDto;
+import com.kh.semiprj.mapper.DeptCategoryMapper;
+import com.kh.semiprj.mapper.DeptMapper;
+import com.kh.semiprj.mapper.EmpMapper;
+import com.kh.semiprj.vo.PageVO;
 	
 	
 	
@@ -24,6 +25,8 @@
 	    private DeptMapper deptMapper;
 	    @Autowired
 	    private DeptCategoryMapper deptCategoryMapper;
+	    @Autowired
+	    private EmpMapper empMapper;
 	    
 	    //목록
 	    public List<DeptDto> selectList(PageVO pageVO) {
@@ -120,18 +123,26 @@
 	        return jdbcTemplate.queryForObject(sql, int.class, params);
 	    }
 	    
-	    //활성화 토글
+	    //활성화 토글 구현하는 메소드
 	    public boolean updateDeptYn(DeptDto deptDto) {
 	    	String sql = "update dept set dept_yn=? where dept_id=?";
 	    	Object[] params = {deptDto.getDeptYn(), deptDto.getDeptId()};
 	    	return jdbcTemplate.update(sql,params)>0;
 	    }
 	    
-	    //부서 카테고리 등록
+	    //부서 카테고리 목록보여주는 메소드
 	    public List<DeptCategoryDto> selectCategoryList(){
 			String sql = "select * from dept_category_id "
 					+ "order by dept_category_no asc";
 			return jdbcTemplate.query(sql, deptCategoryMapper);
 		}
+	    
+	    //부서 이름 중복확인 메소드
+	    public DeptDto selectOneByDeptName(String deptName) {
+	    	String sql = "select * from dept where dept_name=?";
+	    	Object[]params = {deptName};
+	    	List<DeptDto>list = jdbcTemplate.query(sql,deptMapper,params);	    	
+	    	return list.isEmpty() ? null : list.get(0);
+	    }
 	    
 	}

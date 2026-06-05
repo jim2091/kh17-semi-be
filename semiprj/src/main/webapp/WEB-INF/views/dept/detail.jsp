@@ -5,7 +5,7 @@
 <jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
 <jsp:include page="/WEB-INF/views/template/side_home.jsp"></jsp:include>
 
-<div class="container w-800 mt-50 mb-50">
+<div class="container w-800">
     <div class="cell">
         <h2>부서 상세정보</h2>
     </div>
@@ -19,9 +19,7 @@
                 </tr>
                 <tr>
                     <th>카테고리</th>
-                    <td>
-                        <span>${deptCategoryDto.deptCategoryName}</span>
-                    </td>
+                    <td>${deptCategoryDto.deptCategoryName}</td>
                 </tr>
                 <tr>
                     <th>부서 이름</th>
@@ -29,7 +27,7 @@
                 </tr>
                 <tr>
                     <th>부서장 (사원번호)</th>
-                    <td>${deptDto.deptHeadId}</td>
+                    <td>${empDto.empName}(${deptDto.deptHeadId})</td>
                 </tr>
                 <tr>
                     <th>개설일</th>
@@ -77,5 +75,5 @@
         </c:if>
     </div>
 </div>
-
+</div>
 <jsp:include page="/WEB-INF/views/template/footer.jsp"></jsp:include>

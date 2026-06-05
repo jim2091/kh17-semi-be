@@ -179,6 +179,14 @@ public class EmpDao {
 			return list.isEmpty() ? null : list.get(0);
 	}
 	
+	//부서장 이름을 보여주는 메소드
+    public EmpDto selectOneDeptHeadId(String empNo) {
+    	String sql = "select * from emp where emp_no= ?";
+    	Object[]params = {empNo};
+    	List<EmpDto> list = jdbcTemplate.query(sql, empMapper, params);
+        
+        return list.isEmpty() ? null : list.get(0);
+    }
 	
 	
 	
