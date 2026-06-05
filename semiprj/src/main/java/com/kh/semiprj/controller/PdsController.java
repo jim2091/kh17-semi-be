@@ -76,8 +76,16 @@ public class PdsController {
 	public String detail(@RequestParam int pdsNo, Model model) {
 		PdsDto pdsDto = pdsDao.selectOne(pdsNo);
 		if (pdsDto == null) throw new TargetNotfoundException("존재하지 않는 게시글");
-		model.addAttribute("pdsDto", pdsDto);
+		String empName = empDao.selectNamebyNo(pdsDto.getPdsWriter());
+	
+		if(empName != null) {
+			pdsDto.setEmpName(empName);
+		}
+		else {
+			pdsDto.setEmpName("(퇴사한 사용자)");
+		}
 		
+		model.addAttribute("pdsDto", pdsDto);
 		model.addAttribute("prevPdsDto", pdsDao.selectPreviousOne(pdsNo));
 		model.addAttribute("nextPdsDto", pdsDao.selectNextOne(pdsNo));
 		

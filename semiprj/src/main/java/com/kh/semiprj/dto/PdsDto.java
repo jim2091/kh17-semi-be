@@ -16,6 +16,7 @@ public class PdsDto {
 	private String pdsContent;
 	private Timestamp pdsWtime;
 	
+	private String empName;
 	public String getPdsWtimeString() {
 		//작성일과 현재시각을 LocalDateTime 형태로 불러온다
 		LocalDateTime current = LocalDateTime.now();//현재시각

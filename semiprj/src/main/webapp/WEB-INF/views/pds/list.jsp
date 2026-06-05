@@ -31,6 +31,7 @@ $(function(){
 		<form action="./list" method="get">
 			<select name="column" class="field">
 				<option value="pds_title" ${param.column == 'pds_title' ? 'selected':''}>제목</option>
+				<option value="title_content" ${param.column == 'title_content' ? 'selected':''}>제목+내용</option>
 				<option value="pds_writer" ${param.column == 'pds_writer' ? 'selected':''}>작성자</option>
 			</select>
 			<input type="text" name="keyword" class="field" placeholder="검색어" value="${param.keyword}">
@@ -91,8 +92,8 @@ $(function(){
 							</c:if>
 							<c:if test="${pdsDto.pdsWriter != null}">
 								<!-- 누르면 이동하도록 링크 구현 -->
-								<a href="/member/detail?memberId=${pdsDto.pdsWriter}">
-									${pdsDto.pdsWriter}
+								<a href="/emp/detail?empNo=${pdsDto.pdsWriter}" class="link">
+									${pdsDto.empName}
 								</a>
 							</c:if>
 						</td>
