@@ -5,7 +5,11 @@
 <jsp:include page="/WEB-INF/views/template/side_home.jsp"></jsp:include>    
 
 
-<h1>${message == null ? "존재하지 않는 대상입니다" : message}</h1>
-<a href="/">홈으로</a>
+<div class="container w-400 mt-20 mb-20">
+    <div class="cell center">
+        <h1>${message == null ? "존재하지 않는 대상입니다" : message}</h1>
+    </div>
+    <div class="cell"><a href="/">홈으로</a></div>
+</div>
 
 <jsp:include page="/WEB-INF/views/template/footer.jsp"></jsp:include>

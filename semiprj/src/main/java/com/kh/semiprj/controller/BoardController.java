@@ -15,8 +15,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.kh.semiprj.dao.BoardDao;
 import com.kh.semiprj.dao.BoardReadDao;
 import com.kh.semiprj.dao.EmpDao;
+import com.kh.semiprj.dao.ReplyDao;
 import com.kh.semiprj.dto.BoardDto;
 import com.kh.semiprj.dto.EmpDto;
+import com.kh.semiprj.dto.ReplyDto;
 import com.kh.semiprj.exception.GetOutException;
 import com.kh.semiprj.exception.TargetNotfoundException;
 import com.kh.semiprj.vo.PageVO;
@@ -32,6 +34,8 @@ public class BoardController {
 	private EmpDao empDao;
 	@Autowired
 	private BoardReadDao boardReadDao;
+	@Autowired
+	private ReplyDao replyDao;
 	
 	//1. 게시글 등록 매핑
 	@GetMapping("/write")
@@ -103,6 +107,32 @@ public class BoardController {
 		model.addAttribute("noticeCount", noticeList.size());
 		model.addAttribute("pageVO", pageVO);
 		return "board/list";
+	}
+	
+	//(+추가) 내가 쓴 글 게시글 목록
+	@RequestMapping("/my")
+	public String my(HttpSession session, Model model, @ModelAttribute PageVO pageVO) {
+		String loninNo = (String) session.getAttribute("loginNo");
+		List<BoardDto> list = boardDao.selectMyList(loninNo, pageVO);
+		int count = boardDao.countMyList(loninNo);
+		pageVO.setCount(count);
+		model.addAttribute("list", list);
+		model.addAttribute("pageVO", pageVO);
+
+		return "board/my";
+	}
+	
+	//(+추가) 내가 쓴 댓글 목록
+	@RequestMapping("/myReply")
+	public String myReply(HttpSession session, Model model, @ModelAttribute PageVO pageVO) {
+		String loginNo = (String)session.getAttribute("loginNo");
+		List<ReplyDto> list = replyDao.selectMyList(loginNo, pageVO);
+		int count =replyDao.countMyList(loginNo);
+		pageVO.setCount(count);
+		model.addAttribute("list", list);
+		model.addAttribute("pageVO", pageVO);
+
+		return "board/myReply";
 	}
 	
 	//3. 게시글 상세 매핑

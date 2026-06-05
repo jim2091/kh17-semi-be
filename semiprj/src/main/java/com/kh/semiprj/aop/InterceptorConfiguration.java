@@ -43,6 +43,7 @@ public class InterceptorConfiguration implements WebMvcConfigurer{
 		registry.addInterceptor(empOnlyInterceptor).addPathPatterns(
 				"/emp/**"
 				,"/admin/**"
+				,"/board/**"
 				)
 				.excludePathPatterns(
 						"/emp/login"
@@ -54,11 +55,22 @@ public class InterceptorConfiguration implements WebMvcConfigurer{
 						,"/emp/find_id_complete"
 						,"/emp/find_pw"
 						);
+		
+		//본인 소유의 게시글만 수정, 삭제가 가능하도록 하는 인터셉터
+		registry.addInterceptor(boardOwnerInterceptor)
+		        .addPathPatterns("/board/edit", "/board/delete");
+		
+		//조회수 증가 처리를 하는 인터셉터
+		registry.addInterceptor(boardReadInterceptor)
+				.addPathPatterns("/board/detail");
+		
+		//댓글 소유자만 수정, 삭제가 가능하도록 하는 인터셉터
+		registry.addInterceptor(replyOwnerInterceptor)
+				.addPathPatterns("/rest/reply/edit", "/rest/reply/delete");
 		registry.addInterceptor(masterOnlyInterceptor).addPathPatterns("/admin/**");
 		registry.addInterceptor(masterDenyInterceptor).addPathPatterns(
 				"/admin/detail"
 				,"/admin/edit"
 				);
-				
 	}
 }

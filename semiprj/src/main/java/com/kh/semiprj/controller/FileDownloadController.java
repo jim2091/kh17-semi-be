@@ -56,7 +56,7 @@ public class FileDownloadController {
 		
 		String loginId = (String)session.getAttribute("loginId");
 		EmpDto empDto = empDao.selectOne(loginId);
-		empAttachDao.insert(empDto.getEmpNo(), attachNo);
+		//empAttachDao.insert(empDto.getEmpNo(), attachNo);
 		
 		return ResponseEntity.ok()
 				.contentLength(attachDto.getAttachSize())

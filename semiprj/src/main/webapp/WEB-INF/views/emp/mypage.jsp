@@ -3,14 +3,15 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
-<jsp:include page="/WEB-INF/views/template/side_home.jsp"></jsp:include>
+<jsp:include page="/WEB-INF/views/template/side_user.jsp"></jsp:include>
 
 <div class="container w-600 mt-50 mb-50">
         <div class="cell center">
             <h1>[${empDto.empName}]사원 상세 정보</h1>
         </div>
         <div class="cell">
-            <img src="./profile?empNo=${empDto.empNo}" width="100">
+        	<input type="hidden" name="empNo" value="${empDto.empNo}">
+            <img src="/emp/profile?empNo=${empDto.empNo}" width="100">
         </div>
         
         <div class="cell">

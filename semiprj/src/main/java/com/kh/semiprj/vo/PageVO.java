@@ -9,6 +9,15 @@ public class PageVO {
 	private int page = 1;
 	private int size = 10;
 	private int count;
+	private String boardHead;
+	
+	//홈-사이드 용 게시글 종류 목록
+	public String getBoardHead() {
+	    return boardHead;
+	}
+	public void setBoardHead(String boardHead) {
+	    this.boardHead = boardHead;
+	}
 	
 	//목록인지 검색인지 판정하는 메소드
 	public boolean isList() {

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +19,7 @@ import com.kh.semiprj.dao.ReplyDao;
 import com.kh.semiprj.dto.BoardDto;
 import com.kh.semiprj.dto.EmpDto;
 import com.kh.semiprj.dto.ReplyDto;
+import com.kh.semiprj.vo.PageVO;
 import com.kh.semiprj.vo.ReplyVO;
 
 import jakarta.servlet.http.HttpSession;

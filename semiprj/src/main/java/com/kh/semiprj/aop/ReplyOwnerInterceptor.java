@@ -31,8 +31,8 @@ public class ReplyOwnerInterceptor implements HandlerInterceptor{
 		
 		//(2) 비회원이면 차단
 		HttpSession session = request.getSession();
-		String loginId = (String)session.getAttribute("loginId");
-		if(loginId == null) {
+		String empNo = (String)session.getAttribute("loginNo");
+		if(empNo == null) {
 			throw new WhoAreYouException();
 		}
 		
