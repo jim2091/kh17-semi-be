@@ -15,8 +15,8 @@ public class VacAppMapper implements RowMapper<VacAppDto>{
 	public VacAppDto mapRow(ResultSet rs, int rowNum) throws SQLException {
 		VacAppDto vacAppDto = new VacAppDto();
 		vacAppDto.setAppId(rs.getInt("app_id"));
-		vacAppDto.setVacStartDate(rs.getTimestamp("vac_start_date"));
-		vacAppDto.setVacEndDate(rs.getTimestamp("vac_end_date"));
+		vacAppDto.setVacStartDate(rs.getString("vac_start_date"));
+		vacAppDto.setVacEndDate(rs.getString("vac_end_date"));
 		vacAppDto.setVacType(rs.getString("vac_type"));
 		return vacAppDto;
 	}

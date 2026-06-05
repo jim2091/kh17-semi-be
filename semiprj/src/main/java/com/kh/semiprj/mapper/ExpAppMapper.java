@@ -15,7 +15,7 @@ public class ExpAppMapper implements RowMapper<ExpAppDto>{
 	public ExpAppDto mapRow(ResultSet rs, int rowNum) throws SQLException {
 		ExpAppDto expAppDto = new ExpAppDto();
 		expAppDto.setAppId(rs.getInt("app_id"));
-		expAppDto.setExpDate(rs.getTimestamp("exp_date"));
+		expAppDto.setExpDate(rs.getString("exp_date"));
 		expAppDto.setExpPrice(rs.getInt("exp_price"));
 		expAppDto.setExpHistory(rs.getString("exp_history"));
 		expAppDto.setExpHow(rs.getString("exp_how"));

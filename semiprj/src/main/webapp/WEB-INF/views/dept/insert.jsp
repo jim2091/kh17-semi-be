@@ -5,15 +5,13 @@
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
 
 <link rel="stylesheet" type="text/css" href="../css/commons.css">
-<style>
-    div { box-shadow: 0 0 0 1px #cccccc;}
-</style>
+
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script src="./preview.js"></script>
 
 <jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
-<jsp:include page="/WEB-INF/views/template/side_home.jsp"></jsp:include>
+<jsp:include page="/WEB-INF/views/template/side_dept.jsp"></jsp:include>
 
 
 <script>
@@ -153,7 +151,7 @@
             <label>부서카테고리 <i class="fa-solid fa-asterisk red"></i></label>            
             <select name="deptCategory" class="field w-100">
                 <option value="">선택하세요</option>
-                <c:forEach var = "categoryDto" items="${categoryList}">
+                <c:forEach var = "categoryDto" items="${deptCategoryList}">
                 	<option value= "${categoryDto.deptCategoryNo}">
                 		${categoryDto.deptCategoryName}
                 	</option>

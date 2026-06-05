@@ -530,7 +530,16 @@ a.btn {
 .field.fail ~ .fail-feedback {
     display: block;
 }
-
+.field ~ .fail-feedback > div{
+    display: none;
+}
+.field.fail[data-error="1"] ~ .fail-feedback > div:nth-child(1), 
+.field.fail[data-error="2"] ~ .fail-feedback > div:nth-child(2), 
+.field.fail[data-error="3"] ~ .fail-feedback > div:nth-child(3), 
+.field.fail[data-error="4"] ~ .fail-feedback > div:nth-child(4), 
+.field.fail[data-error="5"] ~ .fail-feedback > div:nth-child(5){
+    display: block;
+}
 .field {
     background-size: 1em;
     background-repeat: no-repeat;
