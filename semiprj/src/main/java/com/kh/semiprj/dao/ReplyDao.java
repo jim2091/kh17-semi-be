@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import com.kh.semiprj.dto.ReplyDto;
 import com.kh.semiprj.mapper.ReplyMapper;
+import com.kh.semiprj.vo.PageVO;
 
 @Repository
 public class ReplyDao {
@@ -59,6 +60,32 @@ public class ReplyDao {
 					+ "order by r.reply_no asc";
 		Object[] params = {replyOrigin};
 	    return jdbcTemplate.query(sql, replyMapper, params);
+	}
+	
+	//(+추가) 내가 쓴 댓글 목록
+	public List<ReplyDto> selectMyList(String replyWriter, PageVO pageVO) {
+		String sql = "select * from ("
+				+ "select rownum RN, TMP.* from ("
+				+ "select r.reply_no, "
+				+ "r.reply_writer, e.emp_name, "
+				+ "r.reply_origin, r.reply_content, "
+				+ "r.reply_wtime, r.reply_etime "
+				+ "from reply r "
+				+ "left outer join emp e "
+				+ "on r.reply_writer = e.emp_no "
+				+ "where r.reply_writer = ? "
+				+ "order by r.reply_no desc"
+				+ ") TMP"
+				+ ") where RN between ? and ?";
+		Object[] params = {replyWriter, pageVO.getBeginRownum(), pageVO.getEndRownum()};
+
+		return jdbcTemplate.query(sql, replyMapper, params);
+	}
+	public int countMyList(String replyWriter) {
+		String sql = "select count(*) from reply "
+				+ "where reply_writer = ?";
+		Object[] params = {replyWriter};
+		return jdbcTemplate.queryForObject(sql, int.class, params);
 	}
 	
 	//댓글 상세 조회 메소드

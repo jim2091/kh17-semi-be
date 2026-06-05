@@ -32,8 +32,8 @@ public class BoardOwnerInterceptor implements HandlerInterceptor{
 		
 		//(2) 로그인 된 사용자가 아니면 차단
 		HttpSession session = request.getSession();
-		String loginId = (String) session.getAttribute("loginId");
-		if(loginId == null) {
+		String empNo = (String) session.getAttribute("loginNo");
+		if(empNo == null) {
 			throw new WhoAreYouException();
 		}
 		
@@ -44,16 +44,23 @@ public class BoardOwnerInterceptor implements HandlerInterceptor{
         	throw new TargetNotfoundException("존재하지 않는 게시글입니다.");
         }
         
+        //(+추가) 관리자는 무조건 통과(수정/삭제 가능)
+        String loginRole = (String) session.getAttribute("loginRole");
+        if ("관리자".equals(loginRole)) {
+            return true;
+        }
+        
         //(4) 작성자가 탈퇴했다면 차단
         if(boardDto.getBoardWriter() == null) {
         	throw new GetOutException();
         }
         
-        //(5) 소유자가 아니면 차단
-        String loginNo= (String)session.getAttribute("loginNo");
-        if (!loginNo.equals(boardDto.getBoardWriter())) {
-        	throw new GetOutException();
-        }
+        //(5) 글 소유자가 아니면 차단
+		String loginNo = (String) session.getAttribute("loginNo");
+		if (!loginNo.equals(boardDto.getBoardWriter())) {
+		    throw new GetOutException();
+		}
+        
         
         //(6) 위를 다 통과했다면 본인 소유의 글에 접근하는 것으로 간주
 		return true;//통과
