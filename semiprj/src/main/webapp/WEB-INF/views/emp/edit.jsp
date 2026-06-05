@@ -12,15 +12,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>사용자 정보 수정페이지</title>
     <link rel="icon" href="/kh.png" type="image/jpeg">
     <link rel="stylesheet" 
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
         type="text/css">
     <link rel="stylesheet" href="/css/commons_semi.css" type="text/css">
+    
+    <!-- lightpick CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/lightpick@1.6.2/css/lightpick.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lightpick@1.6.2/lightpick.min.js"></script>
+    
     <!-- jQuery CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="/js/preview.js"></script>
     <!-- 자바스크립트 작성 영역 -->
+    <!-- kakao postapi CDN -->
+    <script src="//t1.kakaocdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+    
     <script>
         $(function(){
             var state = {
@@ -29,7 +38,6 @@
                 empEmailValid : false, 
                 empContactValid : false, 
                 empAddressValid : false, 
-                empEmailCertValid : false, 
                 ok : function(){
                     return Object.values(this)
                         .filter(v => typeof v === "boolean")
@@ -55,6 +63,7 @@
                     $(".preview").attr("src", "https://dummyimage.com/200x200?text=NO");
                 }
                 $(this).addClass("success");
+                state.attachValid = true;
             });
             $("[name=empBirth]").on("blur", function(){
                 var regex = /^([0-9]{4})-(((02)-(0[1-9]|1[0-9]|2[0-9]))|((0[469]|11)-(0[1-9]|1[0-9]|2[0-9]|30))|((0[13578]|1[02])-(0[1-9]|1[0-9]|2[0-9]|3[01])))$/;
@@ -67,7 +76,7 @@
                 var valid = regex.test($(this).val());
                 $(this).removeClass("success fail").addClass(valid? "success": "fail");
                 state.empContactValid = valid;
-            });
+            });  
             $("[name=empEmail]").on("blur", function(){
                 var regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9\.\-]+\.[a-zA-Z]{2,}$/;
                 var empEmail = $(this).val();
@@ -119,6 +128,9 @@
             $(".form-check").on("submit", function(){
                 $(this).find("input[name]").trigger("blur");
 
+                console.log(state);
+                console.log(state.ok());
+                
                 return state.ok();
             });
 
@@ -134,6 +146,9 @@
                 data:{certEmail:empEmail},
                 success:function(){
                     window.alert("이메일 발송 완료 \n이메일을 확인해주세요");
+                    
+                    var template = $("#cert-template").html();
+                    $(".cert-area").html(template);
                 },
                 error:function(){
                     window.alert("이메일 발송에 실패했습니다. \n잠시 후 다시 시도해보세요");
@@ -198,7 +213,38 @@
         });
 
 
-
+        $("[name=empPost], [name=empAddress1], .btn-address-search")
+	        .on("click", function(){
+	           new kakao.Postcode({
+			oncomplete: function(data) {
+			var addr = ''; 
+			
+			if (data.userSelectedType === 'R') { 
+			    addr = data.roadAddress;
+			} else { 
+			    addr = data.jibunAddress;
+			}
+			
+			$("[name=empPost]").val(data.zonecode);
+			$("[name=empAddress1]").val(addr);
+			
+			$(".btn-address-clear").fadeIn();
+			$("[name=empAddress2]").trigger("focus");
+			}
+			}).open(); 
+			});
+			$(".btn-address-clear").on("click", function(){
+			$("[name=empPost], [name=empAddress1], [name=empAddress2]")
+			    .val("").removeClass("success fail");
+			state.empAddressValid = true;
+			$(this).fadeOut();
+			});
+			var datePicker = new Lightpick({ 
+			field : $("[name=empBirth]")[0],
+			format : "YYYY-MM-DD",
+			firstDay : 7,
+			maxDate : moment(),
+			});
         });
 
     </script>
