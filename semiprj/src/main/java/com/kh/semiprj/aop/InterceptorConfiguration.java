@@ -46,6 +46,13 @@ public class InterceptorConfiguration implements WebMvcConfigurer{
 				)
 				.excludePathPatterns(
 						"/emp/login"
+						,"/emp/cert_id"
+						,"/emp/cert_pw"
+						,"/emp/change_pw"
+						,"/emp/change_pw_change"
+						,"/emp/find_id"
+						,"/emp/find_id_complete"
+						,"/emp/find_pw"
 						);
 		registry.addInterceptor(masterOnlyInterceptor).addPathPatterns("/admin/**");
 		registry.addInterceptor(masterDenyInterceptor).addPathPatterns(
