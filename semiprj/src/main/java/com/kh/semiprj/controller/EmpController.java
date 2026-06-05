@@ -1,6 +1,8 @@
 package com.kh.semiprj.controller;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,16 +13,22 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.kh.semiprj.dao.CertDao;
 import com.kh.semiprj.dao.EmpDao;
 import com.kh.semiprj.dao.EmpHistoryDao;
+import com.kh.semiprj.dto.CertDto;
 import com.kh.semiprj.dto.EmpDto;
 import com.kh.semiprj.dto.EmpHistoryDto;
+import com.kh.semiprj.service.EmailService;
+import com.kh.semiprj.vo.CertNumVo;
 import com.kh.semiprj.exception.TargetNotfoundException;
 import com.kh.semiprj.service.AttachService;
 import com.kh.semiprj.vo.HistoryPageVO;
 
+import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
@@ -30,10 +38,12 @@ public class EmpController {
 	
 	@Autowired
 	private EmpDao empDao;
-	
 	@Autowired
 	private EmpHistoryDao empHistoryDao;
-	
+	@Autowired
+	private EmailService emailService;
+	@Autowired
+	private CertDao certDao;
 	@Autowired
 	private AttachService attachService;
 
@@ -80,6 +90,127 @@ public class EmpController {
 		session.removeAttribute("loginNo");
 		
 		return "redirect:/";
+	}
+	
+	@GetMapping("/find_id")
+	public String find_id() {
+		return "emp/find_id";
+	}
+	@PostMapping("/find_id")
+	public String find_id(@ModelAttribute EmpDto empDto, HttpSession session) throws MessagingException, IOException {
+		EmpDto findEmpDto = empDao.selectOneforFindId(empDto.getEmpEmail(), empDto.getEmpName());
+		if (findEmpDto == null) {
+			return "redirect:./find_id?error";
+		}
+		//비활성화된 사원? 퇴사한 사원? 어떻게 처리할지 사원파트 다 하시면 확인
+		emailService.sendCertNumber(empDto.getEmpEmail());
+		
+		session.setAttribute("findIdEmail", empDto.getEmpEmail());
+		
+		return "redirect:./cert_id";
+	}
+	
+	@GetMapping("/cert_id")
+	public String cert_id() {
+		return "emp/cert_id";
+	}
+	@PostMapping("/cert_id")
+	public String cert_id(@ModelAttribute CertNumVo certNumVo, HttpSession session,
+							RedirectAttributes redirectAttributes) {
+		String certEmail = (String) session.getAttribute("findIdEmail");
+		CertDto findCertDto = certDao.selectOne(certEmail);
+		
+		if(findCertDto == null) return "redirect:./cert_id?error";
+		
+		boolean valid = certNumVo.concat().equals(findCertDto.getCertNumber());
+
+		if(!valid) return "redirect:./cert_id?error";
+		
+		LocalDateTime current = LocalDateTime.now();
+		LocalDateTime sent = findCertDto.getCertTime().toLocalDateTime();
+		Duration duration = Duration.between(sent, current);
+		if(duration.toMinutes() > 10) return "redirect:./cert_id?error";
+		if(findCertDto.isComplete()) return "redirect:./cert_id?error";
+		
+		certDao.update(certEmail);
+		session.removeAttribute("findIdEmail");
+		
+		String findId = empDao.selectIdByEmail(certEmail);
+		//다음 페이지에 넘겨주고 자동 삭제되는 세션?
+		redirectAttributes.addFlashAttribute("findId", findId);
+		
+		return "redirect:./find_id_complete";
+	}
+	
+	@RequestMapping("/find_id_complete")
+	public String find_id_complete() {
+		return "emp/find_id_complete";
+	}
+	
+	@GetMapping("/find_pw")
+	public String find_pw() {
+		return "emp/find_pw";
+	}
+	@PostMapping("/find_pw")
+	public String find_pw(@ModelAttribute EmpDto empDto, HttpSession session) throws MessagingException, IOException {
+		EmpDto findEmpDto = empDao.selectOneforFindId(empDto.getEmpEmail(), empDto.getEmpName());
+		if (findEmpDto == null) {
+			return "redirect:./find_pw?error";
+		}
+		//비활성화된 사원? 퇴사한 사원? 어떻게 처리할지 사원파트 다 하시면 확인
+		emailService.sendCertNumber(empDto.getEmpEmail());
+		
+		session.setAttribute("findPwEmail", empDto.getEmpEmail());
+		
+		return "redirect:./cert_pw";
+	}
+	
+	@GetMapping("/cert_pw")
+	public String cert_pw() {
+		return "emp/cert_pw";
+	}
+	@PostMapping("/cert_pw")
+	public String cert_pw(@ModelAttribute CertNumVo certNumVo, HttpSession session,
+							RedirectAttributes redirectAttributes) {
+		String certEmail = (String) session.getAttribute("findPwEmail");
+		CertDto findCertDto = certDao.selectOne(certEmail);
+		
+		if(findCertDto == null) return "redirect:./cert_pw?error";
+		
+		boolean valid = certNumVo.concat().equals(findCertDto.getCertNumber());
+
+		if(!valid) return "redirect:./cert_pw?error";
+		
+		LocalDateTime current = LocalDateTime.now();
+		LocalDateTime sent = findCertDto.getCertTime().toLocalDateTime();
+		Duration duration = Duration.between(sent, current);
+		if(duration.toMinutes() > 10) return "redirect:./cert_pw?error";
+		if(findCertDto.isComplete()) return "redirect:./cert_pw?error";
+		
+		certDao.update(certEmail);
+		session.removeAttribute("findPwEmail");
+		
+		String findId = empDao.selectIdByEmail(certEmail);
+		//다음 페이지에 넘겨주고 자동 삭제되는 세션?
+		redirectAttributes.addFlashAttribute("empId", findId);
+		
+		return "redirect:./change_pw";
+	}
+	
+	@GetMapping("/change_pw")
+	public String change_pw() {
+		return "emp/change_pw";
+	}
+	
+	@PostMapping("/change_pw")
+	public String change_pw(@ModelAttribute EmpDto empDto) {
+		empDao.updateEmpPw(empDto);
+		return "redirect:./change_pw_complete";
+	}
+	
+	@RequestMapping("/change_pw_complete")
+	public String change_pw_complete() {
+		return "emp/change_pw_complete";
 	}
 	
 	@RequestMapping("/mypage")
@@ -210,17 +341,7 @@ public class EmpController {
 		return "emp/history";
 	}
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
 	
 	
 }
