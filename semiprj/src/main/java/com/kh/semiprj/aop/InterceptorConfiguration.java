@@ -24,16 +24,11 @@ public class InterceptorConfiguration implements WebMvcConfigurer{
 	private ReplyOwnerInterceptor replyOwnerInterceptor;
 	@Autowired
 	private PdsReadInterceptor pdsReadInterceptor;
-
-
-    InterceptorConfiguration(PdsReadInterceptor pdsReadInterceptor) {
-        this.pdsReadInterceptor = pdsReadInterceptor;
-    }
 	
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
 		//홈 화면에 로그인된 사용자 Dto를 넘겨주는 인터셉터(다른 화면에도 필요할 수 있을 거 같은데 필요하면 쓰세요
-		registry.addInterceptor(homeInterceptors).addPathPatterns("/**");
+		registry.addInterceptor(homeInterceptors).addPathPatterns("/");
 
 		
 		//자료실 조회수 증가 인터셉터
@@ -55,7 +50,11 @@ public class InterceptorConfiguration implements WebMvcConfigurer{
 						,"/emp/find_id_complete"
 						,"/emp/find_pw"
 						);
-		
+		registry.addInterceptor(masterOnlyInterceptor).addPathPatterns(
+				"/pds/write"
+				)
+				.excludePathPatterns(
+						);
 		//본인 소유의 게시글만 수정, 삭제가 가능하도록 하는 인터셉터
 		registry.addInterceptor(boardOwnerInterceptor)
 		        .addPathPatterns("/board/edit", "/board/delete");

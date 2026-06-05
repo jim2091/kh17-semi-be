@@ -187,6 +187,12 @@ public class EmpDao {
         
         return list.isEmpty() ? null : list.get(0);
     }
+    
+    public String selectNamebyNo(String empNo) {
+    	String sql = "select emp_name from emp where emp_no = ?";
+    	Object[]params = {empNo};
+    	return jdbcTemplate.queryForObject(sql, String.class, params);
+    }
 	
 	
 	

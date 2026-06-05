@@ -23,6 +23,10 @@ public class PdsMapper implements RowMapper<PdsDto>{
 		pdsDto.setPdsWriter(rs.getString("pds_writer"));
 		pdsDto.setPdsReadcount(rs.getLong("pds_readcount"));
 		pdsDto.setPdsWtime(rs.getTimestamp("pds_wtime"));
+		try {
+			pdsDto.setEmpName(rs.getString("emp_name"));
+		}
+		catch(Exception e) {}
 		
 		return pdsDto;
 	}
