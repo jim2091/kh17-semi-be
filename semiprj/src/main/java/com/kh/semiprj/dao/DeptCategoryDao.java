@@ -17,13 +17,13 @@ public class DeptCategoryDao {
 	@Autowired
 	private DeptCategoryMapper deptCategoryMapper;
 	
-	//카테고리 조회
+	//카테고리 조회 메소드
 	public List<DeptCategoryDto> selectCategoryList(){
 		String sql = "select * from dept_category_id "
 				+ "order by dept_category_no asc";
 		return jdbcTemplate.query(sql, deptCategoryMapper);
 	}
-	//카테고리 등록
+	//카테고리 등록 등록메소드
 	public int sequence() {
         String sql = "select dept_category_id_seq.nextval from dual";
         return jdbcTemplate.queryForObject(sql, int.class);
@@ -38,14 +38,14 @@ public class DeptCategoryDao {
 		return jdbcTemplate.update(sql,params)>0;
 	}
 	
-	//카테고리 중복
+	//카테고리 등록할때 중복됐을시 메소드
 	public boolean exists(String deptCategoryName) {
 		String sql = "select count(*) from dept_category_id where dept_category_name = ?";
-		int count = jdbcTemplate.queryForObject(sql, Integer.class,deptCategoryName);
-		return count>0;
+		return jdbcTemplate.queryForObject(sql, Integer.class,deptCategoryName)>0;
+		
 	}
 	
-	//카테고리 이름
+	//카테고리 이름 조회 메소드
 	public DeptCategoryDto selectOne(int deptCategoryNo) {
         String sql = "select * from dept_category_id where dept_category_no = ?";
         Object[] params = { deptCategoryNo };

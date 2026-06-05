@@ -8,20 +8,25 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.kh.semiprj.dao.DeptCategoryDao;
+import com.kh.semiprj.dao.DeptDao;
 import com.kh.semiprj.dto.DeptCategoryDto;
+import com.kh.semiprj.dto.DeptDto;
 import com.kh.semiprj.exception.SameNameException;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/rest/deptCategory")
-public class DeptCategoryRestController {
+@RequestMapping("/rest/dept")
+public class DeptRestController {
 	
 	@Autowired
 	private DeptCategoryDao deptCategoryDao;
+	@Autowired
+	private DeptDao deptDao;
 
+	//부서 카테고리 등록
 	@PostMapping("/insert")
 	public int insert(@RequestParam String deptCategoryName) throws Exception{
-		
+		//중복되는지
 		boolean isSame = deptCategoryDao.exists(deptCategoryName);
 		
 		if(isSame) {
@@ -36,5 +41,13 @@ public class DeptCategoryRestController {
 		deptCategoryDao.insert(deptCategoryDto);
 		
 		return nextNo;
+	}
+	
+	//부서 이름 중복
+	@PostMapping("/validName")
+	public boolean validName(@RequestParam String deptName) {
+		DeptDto deptDto = deptDao.selectOneByDeptName(deptName);
+        return deptDto == null;
+		
 	}
 }
