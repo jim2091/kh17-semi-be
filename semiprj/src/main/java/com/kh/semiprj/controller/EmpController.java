@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.kh.semiprj.dao.CertDao;
 import com.kh.semiprj.dao.EmpDao;
@@ -23,6 +24,9 @@ import com.kh.semiprj.dto.EmpDto;
 import com.kh.semiprj.dto.EmpHistoryDto;
 import com.kh.semiprj.service.EmailService;
 import com.kh.semiprj.vo.CertNumVo;
+import com.kh.semiprj.exception.TargetNotfoundException;
+import com.kh.semiprj.service.AttachService;
+import com.kh.semiprj.vo.HistoryPageVO;
 
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -40,6 +44,8 @@ public class EmpController {
 	private EmailService emailService;
 	@Autowired
 	private CertDao certDao;
+	@Autowired
+	private AttachService attachService;
 
 	@GetMapping("/login")
 	public String login() {
@@ -224,7 +230,6 @@ public class EmpController {
 	public String list(@RequestParam(required = false) String column, 
 						@RequestParam(required = false) String keyword, 
 						Model model) {
-		/* System.out.println("list 실행"); */
 		List<EmpDto> list = empDao.selectListByUser(column, keyword);
 		
 		model.addAttribute("list", list);
@@ -234,6 +239,11 @@ public class EmpController {
 	@RequestMapping("/detail")
 	public String detail(@RequestParam String empNo, Model model) {
 		EmpDto empDto = empDao.selectOneByDetail(empNo);
+		
+		if(empDto == null) {
+			throw new TargetNotfoundException("존재하지 않는 사원");
+		}
+		
 		model.addAttribute("empDto", empDto);
 		
 		
@@ -243,20 +253,36 @@ public class EmpController {
 	@GetMapping("/edit")
 	public String edit(@RequestParam String empNo, Model model) {
 		EmpDto empDto = empDao.selectOneByDetail(empNo);
-		//if(empDto == null) throw new TargetNotfoundException("대상이 존재하지 않습니다");
+		if(empDto == null) throw new TargetNotfoundException("대상이 존재하지 않습니다");
 		model.addAttribute("empDto", empDto);
+//		System.out.println(empDto);
 		return "emp/edit";
 	}
 	
 	@PostMapping("/edit") 
-	public String edit(@ModelAttribute EmpDto empDto) {
-	    //EmpDto findEmpDto = empDao.selectOneByDetail(empDto.getEmpNo());
-	    //if(findEmpDto == null) throw new TargetNotfoundException("존재하지 않는 회원");
+	public String edit(@ModelAttribute EmpDto empDto, 
+				@RequestParam MultipartFile attach) throws IllegalStateException, IOException {
+	    EmpDto findEmpDto = empDao.selectOneByDetail(empDto.getEmpNo());
+	    if(findEmpDto == null) throw new TargetNotfoundException("존재하지 않는 회원");
 	    
 	  
 	    empDao.updateByUser(empDto); 
 	    
-	    return "redirect:./detail?empNo=" + empDto.getEmpNo(); 
+	    String empNo = empDto.getEmpNo();
+	    
+	    if(!attach.isEmpty()) {
+	    	try {
+				int attachNo = empDao.searchProfile(empNo);
+				attachService.delete(attachNo);
+			}catch(Exception e) {
+				 e.printStackTrace();
+			}
+	    	
+			int attachNo = attachService.save(attach);
+			empDao.connect(empNo, attachNo);
+		}
+	    
+	    return "redirect:./mypage"; 
 	}
 	 
 	
@@ -281,19 +307,40 @@ public class EmpController {
 		empDao.updateEmpPw(empDto);
 		return "redirect:./mypage";	
 	}
+	@RequestMapping("/profile")
+	public String profile(@RequestParam String empNo) {
+		try {
+			int attachNo = empDao.searchProfile(empNo);
+//			System.out.println("attachNo = " + attachNo);
+			return "redirect:/download/modern?attachNo=" + attachNo;
+		}
+		catch(Exception e ){
+			e.printStackTrace();
+			return "redirect:/images/no_image.png";
+		}
+	}
+	@RequestMapping("/history")
+	public String history(HttpSession session, 
+								@ModelAttribute HistoryPageVO historyPageVO,
+								Model model) {
+		String loginNo = (String) session.getAttribute("loginNo");
+//		System.out.println(empDao.selectOneByDetail(loginNo));
+//		System.out.println(historyPageVO);
+		EmpDto empDto = empDao.selectOneByDetail(loginNo);
+		if(empDto == null) throw new TargetNotfoundException("대상이 존재하지 않습니다");
+		model.addAttribute("empDto", empDto);
+		
+		List<EmpHistoryDto> loginhistory = 
+				empHistoryDao.selectList(loginNo, historyPageVO);
+//		System.out.println(loginhistory);
+		model.addAttribute("loginhistory", loginhistory);
+		int count = empHistoryDao.count(loginNo, historyPageVO);
+		historyPageVO.setCount(count);
+		model.addAttribute("historyPageVO", historyPageVO);
+		return "emp/history";
+	}
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
 	
 	
 }

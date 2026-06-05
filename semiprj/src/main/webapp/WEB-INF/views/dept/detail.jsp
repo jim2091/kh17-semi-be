@@ -3,6 +3,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
+<jsp:include page="/WEB-INF/views/template/side_home.jsp"></jsp:include>
 
 <div class="container w-800 mt-50 mb-50">
     <div class="cell">
@@ -19,7 +20,7 @@
                 <tr>
                     <th>카테고리</th>
                     <td>
-                        <span class="badge blue">${deptDto.deptCategory}</span>
+                        <span>${deptCategoryDto.deptCategoryName}</span>
                     </td>
                 </tr>
                 <tr>

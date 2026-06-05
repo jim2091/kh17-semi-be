@@ -11,7 +11,20 @@ public class InterceptorConfiguration implements WebMvcConfigurer{
 	@Autowired
 	private HomeInterceptors homeInterceptors;
 	@Autowired
+	private BoardOwnerInterceptor boardOwnerInterceptor;
+	@Autowired
+	private EmpOnlyInterceptor empOnlyInterceptor;
+	@Autowired
+	private MasterDenyInterceptor masterDenyInterceptor;
+	@Autowired
+	private MasterOnlyInterceptor masterOnlyInterceptor;
+	@Autowired
+	private BoardReadInterceptor boardReadInterceptor;
+	@Autowired
+	private ReplyOwnerInterceptor replyOwnerInterceptor;
+	@Autowired
 	private PdsReadInterceptor pdsReadInterceptor;
+
 
     InterceptorConfiguration(PdsReadInterceptor pdsReadInterceptor) {
         this.pdsReadInterceptor = pdsReadInterceptor;
@@ -21,9 +34,24 @@ public class InterceptorConfiguration implements WebMvcConfigurer{
 	public void addInterceptors(InterceptorRegistry registry) {
 		//홈 화면에 로그인된 사용자 Dto를 넘겨주는 인터셉터(다른 화면에도 필요할 수 있을 거 같은데 필요하면 쓰세요
 		registry.addInterceptor(homeInterceptors).addPathPatterns("/**");
+
 		
 		//자료실 조회수 증가 인터셉터
 		registry.addInterceptor(pdsReadInterceptor)
 				.addPathPatterns("/pds/detail");
+		
+		registry.addInterceptor(empOnlyInterceptor).addPathPatterns(
+				"/emp/**"
+				,"/admin/**"
+				)
+				.excludePathPatterns(
+						"/emp/login"
+						);
+		registry.addInterceptor(masterOnlyInterceptor).addPathPatterns("/admin/**");
+		registry.addInterceptor(masterDenyInterceptor).addPathPatterns(
+				"/admin/detail"
+				,"/admin/edit"
+				);
+				
 	}
 }

@@ -18,7 +18,7 @@ public class ReplyDao {
 	
 	//댓글 등록 메소드
 	public long sequence() {
-		String sql = "selcet reply_seq.nextval from dual";
+		String sql = "select reply_seq.nextval from dual";
 		return jdbcTemplate.queryForObject(sql, long.class);
 	}
 	public void insert(ReplyDto replyDto) {
@@ -49,16 +49,27 @@ public class ReplyDao {
 	
 	//댓글 목록 메소드
 	public List<ReplyDto> selectList(long replyOrigin) {
-		String sql = "select * from reply "
-						+ "where reply_origin = ? "
-					+ "order by reply_no asc";
+		String sql = "select r.reply_no, "
+						+ "r.reply_writer, e.emp_name, "
+						+ "r.reply_origin, r.reply_content, "
+						+ "r.reply_wtime, r.reply_etime "
+					+ "from reply r "
+					+ "left outer join emp e on r.reply_writer = e.emp_no "
+					+ "where r.reply_origin = ? "
+					+ "order by r.reply_no asc";
 		Object[] params = {replyOrigin};
 	    return jdbcTemplate.query(sql, replyMapper, params);
 	}
 	
 	//댓글 상세 조회 메소드
 	public ReplyDto selectOne(long replyNo) {
-		String sql = "select * from reply where reply_no = ?";
+		String sql = "select r.reply_no, "
+						+ "r.reply_writer, e.emp_name, "
+						+ "r.reply_origin, r.reply_content, "
+						+ "r.reply_wtime, r.reply_etime "
+			      + "from reply r "
+			      + "left outer join emp e on r.reply_writer = e.emp_no "
+			      + "where r.reply_no = ?";
 		Object[] params = {replyNo};
 		List<ReplyDto> list = jdbcTemplate.query(sql, replyMapper, params);
 		return list.isEmpty() ? null : list.get(0);

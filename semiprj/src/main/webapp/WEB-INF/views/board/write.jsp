@@ -4,6 +4,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
+<jsp:include page="/WEB-INF/views/template/side_home.jsp"></jsp:include>
 
 <style>
 	.field ~ .success-feedback {
@@ -135,7 +136,7 @@ $(function(){
 		
 		<!-- 경고문 -->
 		<div class="cell center mt-10">
-			<i class="fa-solid fa-circle-exclamation red"></i>
+			<i class="fa-solid fa-circle-exclamation fa-fade red"></i>
 			타인에 대한 무분별한 비방글은 경고 없이 삭제될 수 있습니다.
 		</div>
 	
@@ -152,7 +153,7 @@ $(function(){
 			<select name="boardHead" class="field w-100">
 				<option value="">-- 선택하세요 --</option>
 				<!-- (*) 공지는 관리자에게만 보임 -->
-				<c:if test="${sessionScope.empLevel == '관리자'}">
+				<c:if test="${sessionScope.loginRole == '관리자'}">
 					<option>공지</option>
 				</c:if>
 				<option>자유</option>

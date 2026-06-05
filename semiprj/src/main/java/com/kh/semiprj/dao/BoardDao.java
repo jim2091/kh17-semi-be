@@ -21,7 +21,7 @@ public class BoardDao {
 	@Autowired
 	private EmpMapper empMapper;
 	//검색 허용 컬럼
-	private Set<String> allowList = Set.of("board_title", "board_writer", "board_content");
+	private Set<String> allowList = Set.of("board_title", "board_writer", "title_content", "board_head");
 	
 	//1. 등록 메소드
 	public long sequence() {
@@ -66,13 +66,21 @@ public class BoardDao {
 		return jdbcTemplate.update(sql, params) > 0;
 	}
 	
-	//(2-3) 추천수 증가
+	//(2-3) 추천수 수정
 	public boolean updateBoardLikecount(long boardNo) {
 		String sql = "update board set board_likecount = ("
 						+ "select count(*) from board_like where board_no = ?"
 					+ ") where board_no = ?";
 		Object[] params = { boardNo, boardNo };
 		return jdbcTemplate.update(sql, params) > 0;
+	}
+	
+	//(2-4) 댓글수 수정
+	public void updateBoardReplycount(long boardNo) {
+		String sql = "update board set board_replycount = ("
+						+ "select count(*) from reply where reply_origin = ?"
+					+ ") where board_no = ?";
+	    jdbcTemplate.update(sql, boardNo, boardNo);
 	}
 	
 	//3. 목록 및 검색 메소드
@@ -95,7 +103,7 @@ public class BoardDao {
 	//(3-2) 공지글 목록
 	public List<BoardDto> selectNoticeList() {
 		String sql = "select * from board_list "
-					+ "where board_head = '공지' "
+						+ "where board_head = '공지' "
 					+ "order by board_no desc";
 		return jdbcTemplate.query(sql, boardMapper);
 	}
@@ -103,19 +111,53 @@ public class BoardDao {
 	//(3-3) 작성자로 검색하는 메소드
 	public List<BoardDto> selectListByBoardWriter(String boardWriter) {
 		String sql = "select * from board_list "
-					+ "where board_writer = ? "
+						+ "where board_writer = ? "
 					+ "order by board_no desc";
 		Object[] params = {boardWriter};
 		return jdbcTemplate.query(sql, boardMapper, params);
 	}
 	
-	//(3-4) 목록 페이징
+	//(3-4) 목록 및 검색 결과 페이징
 	public List<BoardDto> selectList(PageVO pageVO) {
 		if(pageVO.isList()) 
 			return selectList(pageVO.getPage(), pageVO.getSize());	
 		if(!allowList.contains(pageVO.getColumn())) 
 			return selectList(pageVO.getPage(), pageVO.getSize());
+		
+		//작성자
+		if(pageVO.getColumn().equals("board_writer")) {
+		    String sql = "select * from ( "
+		    				+ "select rownum RN, TMP.* from ( "
+		    					+ "select b.* "
+		    					+ "from board b "
+		    					+ "left outer join emp e on b.board_writer = e.emp_no "
+		    					+ "where instr(e.emp_name, ?) > 0 "
+		    					+ "connect by prior board_no = board_parent "
+		    					+ "start with board_parent is null "
+		    					+ "order siblings by board_group desc, board_no asc "
+		    				+ ") TMP "
+		    			+ ") where RN between ? and ?";
+		    Object[] params = {pageVO.getKeyword(), pageVO.getBeginRownum(), pageVO.getEndRownum()};
+		    return jdbcTemplate.query(sql, boardMapper, params);
+		}
+		
+		//제목+내용
+		if(pageVO.getColumn().equals("title_content")) {
+			String sql = "select * from ("
+							+ "select rownum RN, TMP.* FROM ("
+								+ "select * from board "
+								+ "where instr(board_title, ?) > 0 "
+								+ "or instr(board_content, ?) > 0 "
+								+ "connect by prior board_no=board_parent "
+								+ "start with board_parent is null "
+								+ "order siblings by board_group desc, board_no asc"
+							+ ")TMP"
+						+ ") where RN between ? and ?";
+			Object[] params = {pageVO.getKeyword(), pageVO.getKeyword(), pageVO.getBeginRownum(), pageVO.getEndRownum()};
+			return jdbcTemplate.query(sql, boardMapper, params);
+		}
 
+		//제목
 		String sql = "select * from ("
 						+ "select rownum RN, TMP.* FROM ("
 							+ "select * from board_list "
@@ -137,6 +179,24 @@ public class BoardDao {
 	public int count(PageVO pageVO) {
 		if(pageVO.isList()) return count();
 		if(!allowList.contains(pageVO.getColumn())) return count();
+		
+		if(pageVO.getColumn().equals("board_writer")) {
+		    String sql = "select count(*) "
+		    				+ "from board b "
+		    				+ "left outer join emp e on b.board_writer = e.emp_no "
+		    			+ "where instr(e.emp_name, ?) > 0";
+		    Object[] params = {pageVO.getKeyword()};
+		    return jdbcTemplate.queryForObject(sql, int.class, params);
+		}
+		
+		if(pageVO.getColumn().equals("title_content")) {
+			String sql = "select count(*) from board "
+						+ "where instr(board_title, ?) > 0 "
+						+ "or instr(board_content, ?) > 0";
+			Object[] params = {pageVO.getKeyword(), pageVO.getKeyword()};
+			return jdbcTemplate.queryForObject(sql, int.class, params);
+		}
+		
 		String sql = "select count(*) from board "
 					+ "where instr(" + pageVO.getColumn() + ", ?) > 0";
 		Object[] params = {pageVO.getKeyword()};

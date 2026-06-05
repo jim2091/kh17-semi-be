@@ -23,7 +23,7 @@ public class BoardDto {
 	private Long boardParent;
 	private long boardDepth;
 	
-	//게시글 소유자(사원 아이디)
+	//게시글 작성자(사원 아이디, 사원명)
 	private String empId;
 	public String getEmpId() {
 		return empId;
@@ -31,8 +31,7 @@ public class BoardDto {
 	public void setEmpId(String empId) {
 		this.empId = empId;
 	}
-	
-	//게시글 작성자(사원명)
+
 	private String empName;
 	public String getEmpName() {
 		return empName;
