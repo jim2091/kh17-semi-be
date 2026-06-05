@@ -1,26 +1,34 @@
 package com.kh.semiprj.dao;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-
+import com.kh.semiprj.dto.AppDto;
 import com.kh.semiprj.dto.VacAppDto;
+import java.util.List;
 
 @Repository
+@RequiredArgsConstructor
 public class VacAppDao {
-	
-	@Autowired
-	private JdbcTemplate jdbcTemplate;
-	//휴가 신청서 생성용 dao
-	
-	public void insert(VacAppDto vacAppDto) {
-		String sql = "insert into vac_app (app_id, vac_start_date, vac_end_date, vac_type) "
-					+ " values(?, ?, ?, ?)";
-		Object[] params = {
-							vacAppDto.getAppId(), vacAppDto.getVacStartDate(),
-							vacAppDto.getVacEndDate(), vacAppDto.getVacType()
-						};
-		jdbcTemplate.update(sql, params);
-		
-	}
+
+    private final JdbcTemplate jdbcTemplate;
+
+    // 시퀀스 발급기
+    public int sequence() {
+        String sql = "select app_seq.nextval from dual";
+        Integer seq = jdbcTemplate.queryForObject(sql, Integer.class);
+        return seq != null ? seq : 0;
+    }
+    public void insertVacApp(VacAppDto vacAppDto) {
+        String sql = "insert into vac_app (app_id, vac_start_date, vac_end_date, vac_type)"
+                   + " values(?, ?, ?, ?)";
+        Object[] params = {
+            vacAppDto.getAppId(),
+            vacAppDto.getVacStartDate(),
+            vacAppDto.getVacEndDate(),
+            vacAppDto.getVacType()
+        };
+        jdbcTemplate.update(sql, params);
+    }
 }

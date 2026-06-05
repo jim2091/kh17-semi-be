@@ -16,12 +16,12 @@
         <!-- 하위 메뉴 -->
         <ul>
             <li>
-                <a href="#">
+                <a href="/app/list">
                     <span>내 문서함</span>
                 </a>
             </li>
             <li>
-                <a href="#">
+                <a href="/app/list">
                     <span>결재 문서함</span>
                 </a>
             </li>
