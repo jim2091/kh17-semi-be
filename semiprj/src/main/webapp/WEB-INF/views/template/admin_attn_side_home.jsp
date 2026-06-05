@@ -3,13 +3,13 @@
 
 <div class="container w-100 mt-10 side-area center cell flex-fill">
 			<li>
-                <a href="/attn/list">
-                    <span>근태관리</span>
+                <a href="/admin/attn/manage">
+                    <span>근태기록</span>
                 </a>
             </li>
             <li>
-                <a href="/attn/calculator">
-                    <span>근태계산기</span>
+                <a href="#">
+                    <span>근무제도</span>
                 </a>
             </li>
 </div>

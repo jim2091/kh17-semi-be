@@ -2,6 +2,7 @@ package com.kh.semiprj.service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,9 +12,11 @@ import com.kh.semiprj.vo.PageVO;
 
 @Service
 public class AttnService {
+    @Autowired private AttnDao attnDao;
 
-    @Autowired
-    private AttnDao attnDao;
+    public Map<String, Object> getVacationInfo(String empNo) {
+        return attnDao.selectVacationInfo(empNo);
+    }
 
     public int countAttendance(AttnDto attnDto) {
         return attnDao.countAttendance(attnDto);
@@ -23,9 +26,9 @@ public class AttnService {
         if (attnDto.getYear() == null) attnDto.setYear(String.valueOf(LocalDate.now().getYear()));
         if (attnDto.getMonth() == null) attnDto.setMonth(String.format("%02d", LocalDate.now().getMonthValue()));
         if (attnDto.getEmpNo() == null) attnDto.setEmpNo("20260001");
-
+        
         List<AttnDto> list = attnDao.selectListByMonth(attnDto, pageVO);
-
+        
         for (AttnDto dto : list) {
             if (dto.getAttnInTime() != null && dto.getAttnOutTime() == null) {
                 dto.setAttnRecord("결근");
@@ -38,13 +41,9 @@ public class AttnService {
         return attnDao.getWorkTimeSum(empNo, startDate, endDate);
     }
 
-    /**
-     * 일일 근태 마감 처리 (퇴근 미기록자 결근 처리)
-     */
     @Transactional
     public void processDailyAttendance() {
         attnDao.updateStatusToAbsent();
-        System.out.println("일일 근태 마감: 미퇴근자 결근 처리 완료");
     }
 
     public List<String> getEmployeesWithoutOutTime() {

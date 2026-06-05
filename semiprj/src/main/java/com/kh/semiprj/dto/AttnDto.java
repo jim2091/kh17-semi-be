@@ -16,7 +16,13 @@ public class AttnDto {
 
     private String year;
     private String month;
-
-    // ✅ 추가
     private Integer planWorkTime;
+    private int vacTot;
+    private int vacCnt;
+
+    private String empName;
+    private String deptCode;      // 매핑: EMP_DEPT
+    private String positionCode;  // 매핑: EMP_POSITION
+    private String startDate;
+    private String endDate;
 }
