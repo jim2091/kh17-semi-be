@@ -13,6 +13,7 @@
 <script src="./preview.js"></script>
 
 <jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
+<jsp:include page="/WEB-INF/views/template/side_home.jsp"></jsp:include>
 
 
 <script>

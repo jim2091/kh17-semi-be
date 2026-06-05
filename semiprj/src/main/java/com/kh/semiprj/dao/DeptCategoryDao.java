@@ -44,4 +44,14 @@ public class DeptCategoryDao {
 		int count = jdbcTemplate.queryForObject(sql, Integer.class,deptCategoryName);
 		return count>0;
 	}
+	
+	//카테고리 이름
+	public DeptCategoryDto selectOne(int deptCategoryNo) {
+        String sql = "select * from dept_category_id where dept_category_no = ?";
+        Object[] params = { deptCategoryNo };
+        
+        List<DeptCategoryDto> list = jdbcTemplate.query(sql, deptCategoryMapper, params);
+        
+        return list.isEmpty() ? null : list.get(0);
+	}
 }
