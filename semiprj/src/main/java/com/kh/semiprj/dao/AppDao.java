@@ -30,36 +30,19 @@ public class AppDao {
 	// 시퀀스 발급기
     public int sequence() {
         String sql = "select app_seq.nextval from dual";
-        // [방어 코드 1] int.class 대신 래퍼 클래스인 Integer.class를 사용하여 내부 Null 에러 방지
         Integer seq = jdbcTemplate.queryForObject(sql, Integer.class);
         return seq != null ? seq : 0;
     }   
 
 
-	// 목록 및 검색
-	public List<AppDto> selectList(int page, int size) {
-		String sql = "select * from (" + "	select rownum rn, TMP.* from("
-				+ "		select * from app order by app_no desc" + "	)TMP" + ") where rn between ? and ?";
-		int beginRow = page * size - (size - 1);
-		int endRow = page * size;
-		Object[] params = { beginRow, endRow };
-		return jdbcTemplate.query(sql, appMapper, params);
-	}
-
-	// 목록 (자신의 것만 볼수있는 버전)
 	public List<AppDto> selectMyList(String appReqId) {
-		String sql = " select * from app where app_req_id=? order by app_id desc";
-		Object[] params = { appReqId };
-		return jdbcTemplate.query(sql, appMapper, params);
-
+	    String sql = "select a.*, e.emp_name from app a "
+	               + "join emp e on a.app_req_id = e.emp_no "
+	               + "where a.app_req_id = ? "
+	               + "order by a.app_id desc";
+	    Object[] params = { appReqId };
+	    return jdbcTemplate.query(sql, appMapper, params);
 	}
-
-//	//app_type 에 따라 달라지는 목록
-//	public List<AppDto> selectListByAppType(String appType){
-//		String sql = "select * from app where app_type=? order by app_id desc";
-//		Object[] params = { appType };
-//		return jdbcTemplate.query(sql, appMapper, params);
-//	}
 
 	// app_type 페이징
 	public List<AppDto> selectByAppTypeList(PageVO pageVO) {
@@ -79,7 +62,9 @@ public class AppDao {
 
 	}
 
-	// 등록 할 때 생각해야할 점 : 품의서, 휴가신청서, 업무기안서 를 세개의 테이블로 나눠서 진행할 때, 어떤 sql 구문을 써야 하는가
+	// 등록 할 때 생각해야할 점 : 품의서, 휴가신청서, 
+	// 업무기안서 를 세개의 테이블로 나눠서 진행할 때, 
+	// 어떤 sql 구문을 써야 하는가
 
 	// 등록 
 	public void insert(AppDto appDto) {
@@ -115,14 +100,13 @@ public class AppDao {
 	public void insert(VacAppDto vacAppDto) {
 	    String sql = "insert into app (app_id, app_req_id, app_title, "
 	               + "app_content, app_type, app_status, app_date, app_save_yn)"
-	               //                  ↑ 여기
 	               + " values(?, ?, ?, ?, ?, ?, ?, ?)";
 	    Object[] params = {
 	        vacAppDto.getAppId(),
 	        vacAppDto.getAppReqId(),
 	        vacAppDto.getAppTitle(),
 	        vacAppDto.getAppContent(),
-	        vacAppDto.getAppType(),   // ← 여기
+	        vacAppDto.getAppType(),   
 	        vacAppDto.getAppStatus(),
 	        vacAppDto.getAppDate(),
 	        vacAppDto.getAppSaveYn()
@@ -131,13 +115,6 @@ public class AppDao {
 	}
 	
 
-	// 상세(기인자)
-	public AppDto selectOne(String appReqId) {
-		String sql = "select * from app where app_req_id=?";
-		Object[] params = { appReqId };
-		List<AppDto> list = jdbcTemplate.query(sql, appMapper, params);
-		return list.isEmpty() ? null : list.get(0);
-	}
 
 	// 삭제
 	public boolean delete(int appId) {
@@ -180,9 +157,66 @@ public class AppDao {
 	    jdbcTemplate.update(sql, params);
 	}
 
+	// 이름 또는 부서로 결재자 검색
+	public List<AppDto> searchApprover(String keyword) {
+	    String sql = "select emp_no, emp_name, emp_dept, emp_position "
+	               + "from emp "
+	               + "where (emp_name like ? or emp_dept like ?) "
+	               + "and emp_use_yn = 'Y'";
+	    Object[] params = { "%" + keyword + "%", "%" + keyword + "%" };
+	    return jdbcTemplate.query(sql, (rs, rn) -> {
+	        AppDto dto = new AppDto();
+	        dto.setAppReqId(rs.getString("emp_no"));
+	        dto.setAppTitle(rs.getString("emp_name"));
+	        dto.setAppContent(rs.getString("emp_dept"));
+	        dto.setAppType(rs.getString("emp_position"));
+	        return dto;
+	    }, params);
+	}
+	
+	
+	public List<AppDto> selectList(int page, int size) {
+	    String sql = "select a.*, e.emp_name from ("
+	               + "  select rownum rn, TMP.* from ("
+	               + "    select a.*, e.emp_name from app a "
+	               + "    join emp e on a.app_req_id = e.emp_no "
+	               + "    order by a.app_id desc"
+	               + "  ) TMP"
+	               + ") where rn between ? and ?";
+	    int beginRow = page * size - (size - 1);
+	    int endRow = page * size;
+	    Object[] params = { beginRow, endRow };
+	    return jdbcTemplate.query(sql, appMapper, params);
+	}
+
+	public AppDto selectOne(String appReqId) {
+	    String sql = "select a.*, e.emp_name from app a "
+	               + "join emp e on a.app_req_id = e.emp_no "
+	               + "where a.app_req_id = ?";
+	    Object[] params = { appReqId };
+	    List<AppDto> list = jdbcTemplate.query(sql, appMapper, params);
+	    return list.isEmpty() ? null : list.get(0);
+	}
+
+	public AppDto selectOneById(int appId) {
+	    String sql = "select a.*, e.emp_name from app a "
+	               + "join emp e on a.app_req_id = e.emp_no "
+	               + "where a.app_id = ?";
+	    Object[] params = { appId };
+	    List<AppDto> list = jdbcTemplate.query(sql, appMapper, params);
+	    return list.isEmpty() ? null : list.get(0);
+	}
+
 	public List<AppDto> selectMyListByType(String appReqId, String appType) {
-	    String sql = "select * from app where app_req_id=? and app_type=? order by app_id desc";
+	    String sql = "select a.*, e.emp_name from app a "
+	               + "join emp e on a.app_req_id = e.emp_no "
+	               + "where a.app_req_id = ? and a.app_type = ? "
+	               + "order by a.app_id desc";
 	    Object[] params = { appReqId, appType };
 	    return jdbcTemplate.query(sql, appMapper, params);
 	}
+	
+	
+	
+	
 }

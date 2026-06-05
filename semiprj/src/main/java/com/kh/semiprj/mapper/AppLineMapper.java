@@ -16,11 +16,11 @@ public class AppLineMapper implements RowMapper<AppLineDto>{
 		AppLineDto applineDto = new AppLineDto();
 		applineDto.setAppLineId(rs.getInt("app_line_id"));
 		applineDto.setAppId(rs.getInt("app_id"));
-		applineDto.setAppAppId(rs.getInt("app_app_id"));
+		applineDto.setAppAppId(rs.getString("app_app_id"));
 		applineDto.setAppLineOrder(rs.getInt("app_line_order"));
 		applineDto.setAppLineType(rs.getString("app_line_type"));
 		applineDto.setAppLineStatus(rs.getString("app_line_status"));
-		applineDto.setAppLineDate(rs.getTimestamp("app_line_date"));
+		applineDto.setAppLineDate(rs.getString("app_line_date"));
 		applineDto.setAppLineRej(rs.getString("app_line_rej"));
 		return applineDto;
 	}

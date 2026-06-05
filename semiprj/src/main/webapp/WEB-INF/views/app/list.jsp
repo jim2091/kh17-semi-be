@@ -11,7 +11,7 @@
     </div>
 
     <%-- 문서종류 필터 --%>
-    <div class="cell center">
+    <div class="cell left">
         <form action="./list" method="get">
             <select name="appType" class="field" onchange="this.form.submit()">
                 <option value="">전체</option>
@@ -21,16 +21,22 @@
             </select>
         </form>
     </div>
-
+	<div class="cell right">
+		<input class="field">
+		<button type="submit" class="btn btn-neutral">검색</button>
+	</div>
 	<div class="cell right">
 		<div class="cell">
-	<a href="./insert" class="btn">기본신청서</a>	
-    <a href="./vacInsert" class="btn">휴가신청서</a>
-    <a href="./expInsert" class="btn">품의서</a>
-    <a href="./dftInsert" class="btn">업무기안서</a>
-</div>
 		
+			<a href="./insert" class="btn">기본신청서</a>	
+    		<a href="./vacInsert" class="btn">휴가신청서</a>
+    		<a href="./expInsert" class="btn">품의서</a>
+    		<a href="./dftInsert" class="btn">업무기안서</a>
+		</div>
 	</div>
+	
+	
+	
     <div class="cell">
         <table class="table">
             <thead>

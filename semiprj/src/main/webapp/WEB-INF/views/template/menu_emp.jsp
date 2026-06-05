@@ -21,7 +21,7 @@
                 </a>
             </li>
             <li>
-                <a href="/app/list">
+                <a href="/appr/list">
                     <span>결재 문서함</span>
                 </a>
             </li>
