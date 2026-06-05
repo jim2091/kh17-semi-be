@@ -95,6 +95,7 @@
                     success : function(response){
                         if(response === true){
                             state.empEmailValid = true;
+                            
                         }
                         else{
                             $("[name=empEmail]").removeClass("success fail")

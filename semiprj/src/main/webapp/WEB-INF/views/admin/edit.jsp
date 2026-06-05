@@ -132,7 +132,7 @@
         <div class="fail-feedback">필수 입력사항입니다</div>
         </div>
         <div class="cell">
-            <label><i class="fa-solid fa-asterisk red"></i>담당사수 :</label>
+            <label>담당사수 :</label>
              <input type="text" name="empMentor" value="${empDto.empMentor}" class="field">
             <div class="success-feedback"></div>
             <div class="fail-feedback">필수 입력사항입니다</div>
