@@ -8,7 +8,6 @@
     /* 원형 그래프 스타일 */
     .circle-graph {
         width: 250px; height: 250px; border-radius: 50%;
-        /* 주 52시간 기준: 데이터에 따라 변하는 conic-gradient */
         background: conic-gradient(#d32f2f calc(var(--percent) * 1%), #eee 0);
         display: flex; align-items: center; justify-content: center;
         transition: background 0.5s ease;
@@ -47,7 +46,7 @@
                 누적 근무시간 : <strong id="totalWorkTimeDisplay" style="color: #d32f2f;">${totalWorkTime}</strong> 시간
             </div>
             <div style="padding: 15px 30px; border: 1px solid #ddd; border-radius: 8px; font-size: 18px;">
-                잔여연차일수: <input type="text" style="border: 1px solid #ccc; padding: 5px; width: 100px;">
+                잔여 연차일수: <strong style="color: #2e7d32;">${empty vacInfo ? 0 : vacInfo.VAC_CNT}</strong> 일
             </div>
         </div>
     </div>
@@ -72,7 +71,7 @@ function fetchData() {
         .then(data => {
             // 1. 그래프 안의 숫자 변경
             document.getElementById("totalTime").innerText = data;
-            // 2. 바깥의 '누적 근무시간' 텍스트 변경 (추가된 부분)
+            // 2. 바깥의 '누적 근무시간' 텍스트 변경
             document.getElementById("totalWorkTimeDisplay").innerText = data;
             // 3. 그래프 모양 변경
             updateGraph(data);
