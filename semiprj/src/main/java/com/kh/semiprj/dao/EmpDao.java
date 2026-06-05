@@ -172,6 +172,12 @@ public class EmpDao {
 		
 		return jdbcTemplate.queryForObject(sql, int.class, params);
 	}
+	public EmpDto selectOneByEmpEmail(String empEmail) {
+		String sql = "select * from emp where emp_email=?";
+		Object[] params = {empEmail};
+		List<EmpDto> list = jdbcTemplate.query(sql, empMapper, params);
+			return list.isEmpty() ? null : list.get(0);
+	}
 	
 	
 	

@@ -17,7 +17,7 @@
     <link rel="stylesheet" 
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
         type="text/css">
-    <link rel="stylesheet" href="../css/commons.css" type="text/css">
+    <link rel="stylesheet" href="/css/commons_semi.css" type="text/css">
     <!-- jQuery CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <!-- 자바스크립트 작성 영역 -->
@@ -29,6 +29,7 @@
                 empEmailValid : false, 
                 empContactValid : false, 
                 empAddressValid : false, 
+                empEmailCertValid : false, 
                 ok : function(){
                     return Object.values(this)
                         .filter(v => typeof v === "boolean")
@@ -79,7 +80,7 @@
                     return;
                 }
                 $.ajax({
-                    url : "http://localhost:8080/rest/member/validEmail",
+                    url : "/rest/emp/validEmail",
                     method : "post",
                     data : {empEmail : empEmail},
                     success : function(response){
@@ -123,7 +124,96 @@
 
 
 
+        
+        $(".btn-cert-send").on("click", function(){
+            var empEmail = $("[name=empEmail]").val();
+            if(state.empEmailValid == false) return;
+            $.ajax({
+                url:"/rest/cert/send",
+                method:"post",
+                data:{certEmail:empEmail},
+                success:function(){
+                    window.alert("이메일 발송 완료 \n이메일을 확인해주세요");
+                },
+                error:function(){
+                    window.alert("이메일 발송에 실패했습니다. \n잠시 후 다시 시도해보세요");
+                },
+                beforeSend:function(){
+                    $(".btn-cert-send").find("span").text("인증메일 발송중");
+                    $(".btn-cert-send").find("i").removeClass("fa-envelope")
+                                        .addClass("fa-spinner fa-spin");
+                    $(".btn-cert-send").prop("disabled", true);  
+                    
+                    
+                    
+                },
+                complete:function(){
+                    $(".btn-cert-send").find("span").text("인증메일 재발송");
+                    $(".btn-cert-send").find("i").removeClass("fa-spinner fa-spin")
+                                        .addClass("fa-envelope");
+                    $(".btn-cert-send").prop("disabled", false);                    
+                },
+            });
         });
+
+        $(".cert-area").on("click", ".btn-cert-check", function(){
+            var certEmail = $("[name=empEmail]").val();
+            var certNumber = $(".field-cert").val();
+            var certRegex = /^[0-9]{6}$/;
+            var certValid = certRegex.test(certNumber);
+            if(certValid == false)return;
+
+            $.ajax({
+                url:"/rest/cert/check",
+                method : "post",
+                data : {certEmail : certEmail, certNumber: certNumber},
+                success : function(response){
+                    if(response === true){
+                        state.empEmailCertValid = true;
+                        console.log("성공");
+                        $("[name=empEmail]").removeClass("success fail").addClass("success");
+                        $(".cert-area").empty();
+                        $(".btn-cert-send").hide();
+                        $(".btn-cert-retry").show();
+                        $("[name=empEmail]").prop("readonly", true);
+                    }
+                    else{
+                        state.empEmailCertValid = false;
+                        console.log("실패");
+                        $(".field-cert").addClass("fail")
+                    }
+                }
+            });
+        });
+
+        $(".btn-cert-retry").on("click", function(){
+            $(".btn-cert-retry").hide();
+            $(".btn-cert-send").show();
+            $("[name=empEmail]").removeClass("success fail")
+                    .prop("readonly", false).val("");
+            state.empEmailValid = false;
+            state.empEmailCertValid = false;
+
+            $("[name=empEmail]").trigger("focus");
+        });
+
+
+
+        });
+
+    </script>
+    <script type="text/template" id="cert-template">
+    <div class="cert-wrapper flex-area" style="flex-wrap: wrap;">
+        <input type="text" inputmode="numeric" class="field field-cert" placeholder="인증번호입력" 
+                size="6" maxlength="6">
+        <button type="button" class="btn btn-positive btn-cert-check ms-10">
+            <i class="fa-solid fa-lock"></i>
+            <span>인증번호확인</span>
+        </button>
+    <div class="fail-feedback w-100">
+        인증번호를 다시 확인해주세요.
+    </div>
+    </div>
 
     </script>
 </head>
@@ -169,11 +259,26 @@
         </div>
         <div class="cell">
             <label><i class="fa-solid fa-asterisk red"></i>이메일주소 : </label>
-            <div class="cell">
-                <input type="text" name="empEmail" value="${empDto.empEmail}" class="field w-100">
+            <div class="cell mt-0 flex-area" style="flex-wrap: wrap;">
+                <input type="text" name="empEmail" value="${empDto.empEmail}" class="field">
+                <button type="button" class="btn btn-neutral btn-cert-send ms-10">
+                    <i class="fa-solid fa-envelope"></i>
+                    <span>인증메일보내기</span>
+                </button>
+                <button type="button" class="btn btn-negative btn-cert-retry ms-10" 
+                        style="display: none;">
+                    <i class="fa-solid fa-rotate-right"></i>
+                    <span>다시 이메일 인증하기</span>
+                </button>
+                <div class="success-feedback w-100">사용할 수 있는 이메일입니다</div>
+                <div class="fail-feedback w-100">
+                    <div>형식에 맞지 않는 이메일입니다</div>
+                    <div>이미 사용중인 이메일입니다</div>
+                </div>
             </div>
-            <div class="success-feedback"></div>
-            <div class="fail-feedback"></div>
+            <div class="cell cert-area">
+                
+            </div>
         </div>
         <div class="cell">
             <label><i class="fa-solid fa-asterisk red"></i>연락처 : </label>
