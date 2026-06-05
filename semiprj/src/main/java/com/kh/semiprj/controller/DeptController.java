@@ -130,15 +130,6 @@ public class DeptController {
 		return "redirect:./detail?deptId="+deptDto.getDeptId();
 	}
 	
-	//삭제 매핑
-		@RequestMapping("/delete")
-		public String delete(@RequestParam int deptId) {
-			DeptDto deptDto = deptDao.selectOne(deptId);
-			if(deptDto == null) throw new TargetNotfoundException("존재하지 않는 부서");
-
-			deptDao.delete(deptId);
-			return "redirect:./list";//상대경로
-		}
 	//활성화 토글
 	@RequestMapping("/block")
 	public String block(@RequestParam int deptId, HttpSession session) {

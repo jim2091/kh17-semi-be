@@ -50,4 +50,10 @@ public class DeptRestController {
         return deptDto == null;
 		
 	}
+	
+	//부서 삭제
+	@RequestMapping("/delete")
+	public boolean delete(@RequestParam int deptId) {
+		return deptDao.delete(deptId);
+	}
 }
