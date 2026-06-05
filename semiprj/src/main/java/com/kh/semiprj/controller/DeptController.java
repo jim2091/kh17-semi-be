@@ -50,8 +50,8 @@ public class DeptController {
 		model.addAttribute("pageVO",pageVO);
 		
 		
-		List<DeptCategoryDto> categoryList = deptCategoryDao.selectCategoryList();
-		model.addAttribute("categoryList",categoryList);
+		List<DeptCategoryDto> deptCategoryList = deptCategoryDao.selectCategoryList();
+		model.addAttribute("deptCategoryList",deptCategoryList);
 		
 		return "dept/list";
 	}
@@ -64,8 +64,8 @@ public class DeptController {
 			throw new WhoAreYouException("관리자 권한이 필요한 기능입니다.");
 		}
 		
-		List<DeptCategoryDto> categoryList = deptCategoryDao.selectCategoryList();
-		model.addAttribute("categoryList",categoryList);
+		List<DeptCategoryDto> deptCategoryList = deptCategoryDao.selectCategoryList();
+		model.addAttribute("deptCategoryList",deptCategoryList);
 		
 		return "dept/insert";
 	}
@@ -94,7 +94,7 @@ public class DeptController {
 		if(deptDto == null) {
 			throw new TargetNotfoundException("존재하지 않는 부서 정보");
 		}
-		EmpDto empDto = empDao.selectOneDeptHeadId(deptDto.getDeptHeadId());
+		EmpDto empDto = empDao.selectOneDeptHeadId(deptDto.getDeptHeadId());//부서장 이름을 불러오기위해
 		
 		model.addAttribute("empDto",empDto);
 		model.addAttribute("deptDto",deptDto);
@@ -116,7 +116,7 @@ public class DeptController {
 		if(deptDto == null) throw new TargetNotfoundException("존재하지 않은 부서");
 		
 		model.addAttribute("deptDto",deptDto);
-		model.addAttribute("categoryList",deptCategoryDao.selectCategoryList());
+		model.addAttribute("deptCategoryList",deptCategoryDao.selectCategoryList());
 		return "dept/edit";
 	}
 	
@@ -130,6 +130,15 @@ public class DeptController {
 		return "redirect:./detail?deptId="+deptDto.getDeptId();
 	}
 	
+	//삭제 매핑
+		@RequestMapping("/delete")
+		public String delete(@RequestParam int deptId) {
+			DeptDto deptDto = deptDao.selectOne(deptId);
+			if(deptDto == null) throw new TargetNotfoundException("존재하지 않는 부서");
+
+			deptDao.delete(deptId);
+			return "redirect:./list";//상대경로
+		}
 	//활성화 토글
 	@RequestMapping("/block")
 	public String block(@RequestParam int deptId, HttpSession session) {
@@ -149,7 +158,5 @@ public class DeptController {
 		
 		return "redirect:./detail?deptId="+deptId;
 	}
-	
-	//부서 이름 중복검사
 	
 }

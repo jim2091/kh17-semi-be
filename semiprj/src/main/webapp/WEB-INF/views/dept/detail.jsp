@@ -3,10 +3,10 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
-<jsp:include page="/WEB-INF/views/template/side_home.jsp"></jsp:include>
+<jsp:include page="/WEB-INF/views/template/side_dept.jsp"></jsp:include>
 
-<div class="container w-800">
-    <div class="cell">
+<div class="container w-80">
+    <div class="center">
         <h2>부서 상세정보</h2>
     </div>
     
@@ -73,7 +73,14 @@
 			 ${deptDto.deptYn == 'Y' ? '비활성화' : '활성화' }
         </a>
         </c:if>
+        <c:if test="${sessionScope.loginRole == '관리자'}">
+        <a class="btn btn-negative" href="./delete?deptId=${deptDto.deptId}">
+			<i class="fa-solid fa-trash"></i>
+			<span>삭제하기</span>
+		</a>
+        </c:if>
+        
+        
     </div>
-</div>
 </div>
 <jsp:include page="/WEB-INF/views/template/footer.jsp"></jsp:include>

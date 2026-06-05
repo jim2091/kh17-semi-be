@@ -3,15 +3,16 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
-<jsp:include page="/WEB-INF/views/template/side_home.jsp"></jsp:include>
+<jsp:include page="/WEB-INF/views/template/side_dept.jsp"></jsp:include>
 
 <div class="container w-80">
-	<div class="center center">
+	<div class="center">
 		<h1>부서 목록 및 검색</h1>
 	</div>
 	
-	<div class="flex-area">
-	    <div class="flex">
+	<div class="cell right">
+		<div class="flex-area">
+	    <div class="cell">
 	        <form action="./list">
 	            <select name="column" class="field">
 	                <option value="dept_name" ${param.column == "dept_name" ? "selected" : ""}>부서명</option>
@@ -26,20 +27,21 @@
 	        </form>
 	    </div>
 
-	    <div class="flex-fill right">
+	    <div class="cell ms-50">
 		    <c:if test="${loginRole != null && loginRole == '관리자'}">
 		        <a href="./insert" class="btn btn-positive">신규 등록하기</a>
 	        </c:if>
 	    </div>
+	    </div>
 	</div>
 
 	<div class="cell">
-		<table class="table table-stripe">
+		<table class="table">
 			<thead>
 				<tr>
 					<th>코드</th>
 					<th>부서카테고리</th>
-					<th>부서이름</th>
+					<th>부서명</th>
 				</tr>
 			</thead>
 			<tbody align="center">
@@ -47,7 +49,7 @@
 				<tr>
 					<td>${deptDto.deptId}</td>
 					<td>
-						<c:forEach var="category" items="${categoryList}">
+						<c:forEach var="category" items="${deptCategoryList}">
 							<c:if test="${deptDto.deptCategory == category.deptCategoryNo}">
 								${category.deptCategoryName}
 							</c:if>
@@ -67,6 +69,5 @@
     <div class="cell center">
    		<jsp:include page="/WEB-INF/views/template/pagination.jsp"></jsp:include>
 	</div>
-
 </div>
 <jsp:include page="/WEB-INF/views/template/footer.jsp"></jsp:include>
