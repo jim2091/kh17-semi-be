@@ -3,7 +3,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
-<jsp:include page="/WEB-INF/views/template/side_home.jsp"></jsp:include>
+<jsp:include page="/WEB-INF/views/template/side_user.jsp"></jsp:include>
 
 
 
@@ -47,7 +47,7 @@
 	</table>
 	</div>
 		<div class="cell center">
-   		<jsp:include page="/WEB-INF/views/template/pagination.jsp"></jsp:include>
+   		<jsp:include page="/WEB-INF/views/template/pagination_waitinglist.jsp"></jsp:include>
 		</div>
 </div>
 
