@@ -113,7 +113,7 @@
     
 	<!-- 페이지네이션 -->
     <div class="cell mt-50">
-		<jsp:include page="/WEB-INF/views/template/pagination.jsp"></jsp:include>
+		<jsp:include page="/WEB-INF/views/template/pagination_board.jsp"></jsp:include>
     </div>
 </div>
 

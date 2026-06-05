@@ -21,6 +21,7 @@ import com.kh.semiprj.dto.EmpDto;
 import com.kh.semiprj.dto.ReplyDto;
 import com.kh.semiprj.exception.GetOutException;
 import com.kh.semiprj.exception.TargetNotfoundException;
+import com.kh.semiprj.exception.WhoAreYouException;
 import com.kh.semiprj.vo.PageVO;
 
 import jakarta.servlet.http.HttpSession;
@@ -64,6 +65,13 @@ public class BoardController {
 	    }
 	    else {
 	    	BoardDto findBoardDto = boardDao.selectOne(boardDto.getBoardParent());
+
+	    	// 비밀 답글에는 답글 작성 금지
+	        if(findBoardDto.getBoardParent() != null
+	        		&& "비밀".equals(findBoardDto.getBoardType())
+	        		) {
+	            throw new GetOutException("비밀 답글에는 답글을 작성할 수 없습니다.");
+	        }
 	    	boardDto.setBoardGroup(findBoardDto.getBoardGroup());
 	    	boardDto.setBoardDepth(findBoardDto.getBoardDepth()+1);
 	    }
@@ -145,10 +153,24 @@ public class BoardController {
 		if("비밀".equals(boardDto.getBoardType())) {
 			String loginRole = (String)session.getAttribute("loginRole");
 			String loginId = (String)session.getAttribute("loginId");
+			
+			if(loginId == null) throw new WhoAreYouException();
+			
 			EmpDto loginEmpDto = empDao.selectOne(loginId);
+			
 			boolean isAdmin = "관리자".equals(loginRole);
 			boolean isWriter = loginEmpDto.getEmpNo().equals(boardDto.getBoardWriter());
-			if(!isAdmin && !isWriter) {
+			boolean isParentWriter = false;
+			
+			//답글일 경우
+			if(boardDto.getBoardParent() != null) {
+				BoardDto parentDto = boardDao.selectOne(boardDto.getBoardParent());
+				if(parentDto != null) {
+					isParentWriter = loginEmpDto.getEmpNo().equals(parentDto.getBoardWriter());
+				}
+			}
+			
+			if(!isAdmin && !isWriter && !isParentWriter) {
 				throw new GetOutException();
 			}
 		}

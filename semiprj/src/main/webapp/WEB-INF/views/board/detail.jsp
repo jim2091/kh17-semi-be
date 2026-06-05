@@ -377,7 +377,9 @@ $(function(){
 		<!-- 로그인 한 경우 보이는 버튼 -->
 		<c:if test="${sessionScope.loginId != null}">
 			<a class="btn btn-positive" href="./write">글쓰기</a>
+			<c:if test="${!(boardDto.boardType eq '비밀' and boardDto.boardParent ne null)}">
 			<a class="btn btn-positive" href="./write?boardParent=${boardDto.boardNo}">답글쓰기</a>
+			</c:if>
 		</c:if>
 		<a class="btn btn-neutral" href="./list">목록으로</a>
 	</div>

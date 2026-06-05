@@ -154,6 +154,7 @@ public class BoardDao {
 		    					+ "from board b "
 		    					+ "left outer join emp e on b.board_writer = e.emp_no "
 		    					+ "where instr(e.emp_name, ?) > 0 "
+		    					+ "and b.board_type <> '익명'"
 		    					+ "connect by prior board_no = board_parent "
 		    					+ "start with board_parent is null "
 		    					+ "order siblings by board_group desc, board_no asc "
