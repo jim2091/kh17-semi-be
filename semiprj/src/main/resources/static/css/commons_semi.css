@@ -589,3 +589,48 @@ select.field {
     border: none;
 }
 
+/* 입력창(field) 디자인 */
+.field2 {
+    outline: none; /* 기본 강조선 제거 */
+    font-size: 20px;
+    padding: 0.35em 0.75em;
+    border: 1px solid #636e72;
+    border-radius: 0.5em;
+}
+textarea.field2 {
+    resize: none;
+}
+.field2:focus { /*조건부 디자인 : 입력 상태일 경우 */
+    border-color: #2d3436;
+}
+.text-login{
+	font-size: 24px;
+	font-family: 'Courier New';
+	font-weight: 600;
+}
+
+.field2 ~ .success-feedback {
+    color: #0984e3;
+    visibility: hidden;
+}
+.field2 ~ .fail-feedback {
+    color: #d63031;
+    visibility: hidden;
+}
+.field2.success ~ .success-feedback {
+    visibility: visible;
+}
+.field2.fail ~ .fail-feedback {
+    visibility: visible;
+}
+
+.field2 {
+    background-size: 1em;
+    background-repeat: no-repeat;
+    background-position-x: right 0.5em;
+    background-position-y: center;
+    padding-right: 2em;
+}
+select.field2 {
+    background-position-x: right 1em;
+}

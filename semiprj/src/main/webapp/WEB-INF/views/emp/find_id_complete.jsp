@@ -5,33 +5,27 @@
 <jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
 <jsp:include page="/WEB-INF/views/template/side_home.jsp"></jsp:include>
 
-<div class="container w-600 mt-20 mb-20">
-    <div class="cell center">
-        <h1>아이디 찾기</h1>
+<div class="container w-400 mt-20 mb-20">
+    <div class="cell">
+        <h1>찾은 아이디</h1>
     </div>
-    <div class="cell center">
-    	<h3>아래 정보를 입력하시면 인증번호를 메일로 발송해드립니다</h3>
+    <div class="cell mt-40">
+    	<!-- 지금은 addFlashAttribute로 받은 상태라 새로고침하면 아이디 사라짐. 고칠지 고민 -->
+    	<span class="field2 w-200" style="display: inline-block;">${findId}</span>
     </div>
-    <form action="./find_id" method="post" autocomplete="off">
+    <div class="cell">
+    	<span>혹시 비밀번호를 잊으셨나요?</span>
+    </div>
+    <div class="flex-area">
+    	<div class="cell">
+            <a href="./find_pw" class="btn btn-neutral">비밀번호 찾기</a>
+        </div>
+        <div class="flex-fill"></div>
         <div class="cell">
-            <div>이름</div>
-            <input type="text" name="empName" required class="field">
+            <a href="./login" class="btn btn-positive">로그인하러 가기</a>
         </div>
-        <div class="cell">
-            <div>이메일</div>
-            <input type="email" name="empEmail" required class="field">
-        </div>
-        <div class="cell red">
-            <c:if test="${param.error != null}">
-                입력한 정보가 일치하지 않습니다
-            </c:if>
-        </div>
-        <div class="cell right">
-  		    <a href="./login" class="btn btn-neutral">로그인 페이지로 이동</a>
-            <button type="submit" class="btn btn-positive">다음</button>
-        </div>
+    </div>
 
-    </form>
 </div>
 
 <jsp:include page="/WEB-INF/views/template/footer.jsp"></jsp:include>
