@@ -231,21 +231,24 @@
 			$(".btn-address-clear").fadeIn();
 			$("[name=empAddress2]").trigger("focus");
 			}
+	           
 			}).open(); 
 			});
-			$(".btn-address-clear").on("click", function(){
+        
+		$(".btn-address-clear").on("click", function(){
 			$("[name=empPost], [name=empAddress1], [name=empAddress2]")
 			    .val("").removeClass("success fail");
 			state.empAddressValid = true;
 			$(this).fadeOut();
 			});
-			var datePicker = new Lightpick({ 
+			
+		var datePicker = new Lightpick({ 
 			field : $("[name=empBirth]")[0],
 			format : "YYYY-MM-DD",
 			firstDay : 7,
 			maxDate : moment(),
-			});
-        });
+		});
+       });
 
     </script>
     <script type="text/template" id="cert-template">
@@ -270,12 +273,12 @@
         <div class="cell center">
             <h1>[${empDto.empName}]님 정보 수정</h1>
         </div>
-        <div class="cell">
-			<img class="preview" src="./profile?empNo=${empDto.empNo}" width="150">
+        <div class="cell preview-area">
+			<img src="./profile?empNo=${empDto.empNo}" width="150">
         </div>
         <div class="cell">
             <label><i class="fa-solid fa-asterisk red"></i>사진</label>
-        	<input type="file" name="attach" accept=".png, .jpeg" class="field w-100">
+        	<input type="file" name="attach" accept=".png, .jpeg" class="field w-100 preview-input">
             <div class="success-feedback"></div>
             <div class="fail-feedback"></div>
         </div>

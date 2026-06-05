@@ -22,5 +22,15 @@ public class EmpRestController {
 		EmpDto empDto = empDao.selectOneByEmpEmail(empEmail);
 		return empDto == null;
 	}
+	@RequestMapping("/validNo")
+	public boolean validNo(@RequestParam String empNo) {
+		EmpDto empDto = empDao.selectOneByDetail(empNo);
+		return empDto == null;
+	}
+	@RequestMapping("/validId")
+	public boolean validId(@RequestParam String empId) {
+		EmpDto empDto = empDao.selectOne(empId);
+		return empDto == null;
+	}
 
 }
