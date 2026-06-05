@@ -14,5 +14,6 @@ public class DeptDto {
 	private String deptYn;
 	private Timestamp deptCreateAt;
 	private String deptContent;
+	
 
 }
