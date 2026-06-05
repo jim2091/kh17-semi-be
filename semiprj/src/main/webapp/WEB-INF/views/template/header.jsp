@@ -28,6 +28,19 @@
     <script src="https://cdn.jsdelivr.net/npm/lightpick@1.6.2/lightpick.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/lightpick@1.6.2/css/lightpick.min.css" rel="stylesheet">
     
+    <script type="text/javascript">
+	    $(function(){
+	        $("[name=masterToggle]").change(function(){
+	
+	            $.post("/menu/toggle", {
+	                managerToggle : $(this).is(":checked")
+	            }, function(){
+	                location.reload();
+	            });
+	
+	        });
+	    });
+    </script>
 </head>
 <body>
     <!-- 메인 컨테이너1 + 내부영역4 -->
@@ -45,12 +58,14 @@
 					<jsp:include page="/WEB-INF/views/template/menu_normal.jsp"></jsp:include>
 				</c:if>     
 				<c:if test="${sessionScope.loginId != null && sessionScope.loginRole != null}">
-					<c:if test="${sessionScope.loginRole != '관리자'}">
-						<jsp:include page="/WEB-INF/views/template/menu_emp.jsp"></jsp:include>
-					</c:if>
-					<c:if test="${sessionScope.loginRole == '관리자'}">
-						<jsp:include page="/WEB-INF/views/template/menu_admin.jsp"></jsp:include>
-					</c:if>
+					<c:choose>
+					    <c:when test="${sessionScope.managerToggle}">
+					        <jsp:include page="/WEB-INF/views/template/menu_admin.jsp"/>
+					    </c:when>
+					    <c:otherwise>
+					        <jsp:include page="/WEB-INF/views/template/menu_emp.jsp"/>
+					    </c:otherwise>
+					</c:choose>
 				</c:if>
            		</div>
             </div>
@@ -93,12 +108,30 @@
                             </div>
                         </div>
                         
-                        <div class="cell center">
-                            <h3>
-                            	${loginUser.empDept}<br>
+                        <div class="cell flex-area flex-vertical flex-center">
+                            <div class="center-right">
+                            	<div class="side dept" style="width: 100px">
+								    <c:choose>
+								        <c:when test="${sessionScope.managerToggle}">
+								            ${sessionScope.loginRole}
+								        </c:when>
+								        <c:otherwise>
+								            ${loginUser.empDept}
+								        </c:otherwise>
+								    </c:choose>
+                            	</div>
+                            	<div>
+	                            	<label class="toggle">
+									    <input type="checkbox" name="masterToggle" <c:if test="${sessionScope.managerToggle}">checked</c:if>>
+									    <span class="slider"></span>
+									</label>
+                            	</div>
+                            </div>
+                            
+                            <div class="side-cell center mt-10" style="width: 150px">
                             	${loginUser.empName}/${loginUser.empPosition}
-
-                            </h3>
+                            </div>
+        
                         </div>
                         
                         </c:if>

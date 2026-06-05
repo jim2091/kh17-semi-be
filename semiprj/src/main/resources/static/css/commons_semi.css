@@ -634,3 +634,67 @@ textarea.field2 {
 select.field2 {
     background-position-x: right 1em;
 }
+.side-cell {
+	border: 1px solid #79868a;
+	border-radius :10px;
+	padding: 0.2em 0.5em;
+	
+}
+/* 관리자 토글 버튼 디자인 */
+.toggle {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+}
+
+.toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    inset: 0;
+    background: #d1d5db;
+    border-radius: 999px;
+    transition: .25s;
+}
+
+.slider:before {
+    content: "";
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    left: 3px;
+    top: 3px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0,0,0,.2);
+    transition: .25s;
+}
+
+.toggle input:checked + .slider {
+    background: #22c55e;
+}
+
+.toggle input:checked + .slider:before {
+    transform: translateX(20px);
+}
+.center-right {
+    position: relative;
+    width: 100%;
+    text-align: center;
+}
+
+.center-right .toggle {
+    position: absolute;
+    right: 10%;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.dept {
+    display: inline-block;
+}
