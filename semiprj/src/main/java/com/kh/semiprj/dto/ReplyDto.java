@@ -1,6 +1,9 @@
 package com.kh.semiprj.dto;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,5 +34,22 @@ public class ReplyDto {
 	}
 	public void setEmpName(String empName) {
 		this.empName = empName;
+	}
+	
+	//댓글 작성일
+	public String getReplyWtimeString() {
+		LocalDateTime current = LocalDateTime.now();
+		LocalDateTime writeTime = replyWtime.toLocalDateTime();
+	
+		LocalDate currentDate = current.toLocalDate();
+		LocalDate writeDate = writeTime.toLocalDate();
+		
+		if(writeDate.equals(currentDate)) { 
+			DateTimeFormatter f = DateTimeFormatter.ofPattern("HH:mm");
+			return writeTime.format(f);
+		}
+		else {
+			return writeDate.toString();
+		}
 	}
 }

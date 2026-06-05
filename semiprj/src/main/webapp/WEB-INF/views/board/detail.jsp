@@ -6,7 +6,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
-<jsp:include page="/WEB-INF/views/template/side_home.jsp"></jsp:include>
+<jsp:include page="/WEB-INF/views/template/side_board.jsp"></jsp:include>
 
 <style>
 	.reply-viewer, .reply-editor {
@@ -310,9 +310,9 @@ $(function(){
 		<div class="ms-20">조회수 ${boardDto.boardReadcount}</div>
 	</div>
 	
-	<!-- 작성자와 로그인 한 아이디가 같은 경우 보이는 버튼 -->
+	<!-- 관리자 + 작성자와 로그인 한 아이디가 같은 경우 보이는 버튼 -->
 	<div class="cell right">
-		<c:if test="${boardDto.empId != null && boardDto.empId == sessionScope.loginId}">
+		<c:if test="${boardDto.empId == sessionScope.loginId || sessionScope.loginRole == '관리자'}">
 		<a class="btn btn-negative" href="./edit?boardNo=${boardDto.boardNo}">수정하기</a>
 		<a class="btn btn-negative btn-content-delete" href="./delete?boardNo=${boardDto.boardNo}">삭제하기</a>
 		</c:if>

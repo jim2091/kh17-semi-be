@@ -109,7 +109,7 @@ public class BoardDao {
 	}
 	
 	//(3-3) 작성자로 검색하는 메소드
-	public List<BoardDto> selectListByBoardWriter(String boardWriter) {
+	public List<BoardDto> selectMyList(String boardWriter) {
 		String sql = "select * from board_list "
 						+ "where board_writer = ? "
 					+ "order by board_no desc";
@@ -119,6 +119,28 @@ public class BoardDao {
 	
 	//(3-4) 목록 및 검색 결과 페이징
 	public List<BoardDto> selectList(PageVO pageVO) {
+		if(pageVO.getBoardHead() != null &&
+				   !pageVO.getBoardHead().isEmpty()) {
+
+			    String sql =
+			        "select * from ("
+			        + "select rownum RN, TMP.* FROM ("
+			            + "select * from board_list "
+			            + "where board_head = ? "
+			            + "connect by prior board_no=board_parent "
+			            + "start with board_parent is null "
+			            + "order siblings by board_group desc, board_no asc"
+			        + ")TMP"
+			        + ") where RN between ? and ?";
+
+			    Object[] params = {
+			        pageVO.getBoardHead(),
+			        pageVO.getBeginRownum(),
+			        pageVO.getEndRownum()
+			    };
+
+			    return jdbcTemplate.query(sql, boardMapper, params);
+		}
 		if(pageVO.isList()) 
 			return selectList(pageVO.getPage(), pageVO.getSize());	
 		if(!allowList.contains(pageVO.getColumn())) 
@@ -177,6 +199,19 @@ public class BoardDao {
 		return jdbcTemplate.queryForObject(sql, int.class);
 	}
 	public int count(PageVO pageVO) {
+		if(pageVO.getBoardHead() != null &&
+				   !pageVO.getBoardHead().isEmpty()) {
+
+				    String sql =
+				        "select count(*) from board "
+				        + "where board_head = ?";
+
+				    return jdbcTemplate.queryForObject(
+				        sql,
+				        int.class,
+				        pageVO.getBoardHead()
+				    );
+				}
 		if(pageVO.isList()) return count();
 		if(!allowList.contains(pageVO.getColumn())) return count();
 		
@@ -200,6 +235,27 @@ public class BoardDao {
 		String sql = "select count(*) from board "
 					+ "where instr(" + pageVO.getColumn() + ", ?) > 0";
 		Object[] params = {pageVO.getKeyword()};
+		return jdbcTemplate.queryForObject(sql, int.class, params);
+	}
+	
+	//(3-6) 내가 쓴 글 목록
+	public List<BoardDto> selectMyList(String boardWriter, PageVO pageVO) {
+		String sql = "select * from ("
+				+ "select rownum RN, TMP.* from ("
+				+ "select * from board_list "
+				+ "where board_writer = ? "
+				+ "connect by prior board_no = board_parent "
+				+ "start with board_parent is null "
+				+ "order siblings by board_group desc, board_no asc"
+				+ ") TMP"
+				+ ") where RN between ? and ?";
+		Object[] params = {boardWriter,  pageVO.getBeginRownum(), pageVO.getEndRownum()};
+		return jdbcTemplate.query(sql, boardMapper, params);
+	}
+	public int countMyList(String boardWriter) {
+		String sql = "select count(*) from board "
+				+ "where board_writer = ?";
+		Object[] params = {boardWriter};
 		return jdbcTemplate.queryForObject(sql, int.class, params);
 	}
 	

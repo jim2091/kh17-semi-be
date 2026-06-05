@@ -40,19 +40,19 @@ public class BoardReadInterceptor implements HandlerInterceptor{
 		
 		//(3) 비회원인 경우를 제거
 		HttpSession session = request.getSession();
-		String loginId = (String) session.getAttribute("loginId");
-		if(loginId == null) {
+		String empNo = (String) session.getAttribute("loginNo");
+		if(empNo == null) {
 			return true;
 		}
 		
 		//(4) DB에 조회이력이 있으면 제거
-		int count = boardReadDao.count(loginId, boardNo);
+		int count = boardReadDao.count(empNo, boardNo);
 		if(count > 0) {//기록이 1개 이상이라면
 			return true;
 		}
 		
 		//(5) DB에 조회이력을 생성
-		boardReadDao.insert(loginId, boardNo);
+		boardReadDao.insert(empNo, boardNo);
 		
 		//(6) 조회수 증가 처리
 		boardDao.updateBoardReadcount(boardNo);
