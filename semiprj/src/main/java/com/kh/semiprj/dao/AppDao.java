@@ -8,6 +8,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import com.kh.semiprj.dto.AppDto;
+import com.kh.semiprj.dto.DftAppDto;
+import com.kh.semiprj.dto.ExpAppDto;
 import com.kh.semiprj.dto.VacAppDto;
 import com.kh.semiprj.mapper.AppMapper;
 import com.kh.semiprj.mapper.EmpMapper;
@@ -144,5 +146,38 @@ public class AppDao {
 		return jdbcTemplate.update(sql, params) > 0;
 	}
 	
+	public void insert(ExpAppDto expAppDto) {
+	    String sql = "insert into app (app_id, app_req_id, app_title, "
+	               + "app_content, app_type, app_status, app_date, app_save_yn)"
+	               + " values(?, ?, ?, ?, ?, ?, ?, ?)";
+	    Object[] params = {
+	        expAppDto.getAppId(),
+	        expAppDto.getAppReqId(),
+	        expAppDto.getAppTitle(),
+	        expAppDto.getAppContent(),
+	        expAppDto.getAppType(),
+	        expAppDto.getAppStatus(),
+	        expAppDto.getAppDate(),
+	        expAppDto.getAppSaveYn()
+	    };
+	    jdbcTemplate.update(sql, params);
+	}
+
+	public void insert(DftAppDto dftAppDto) {
+	    String sql = "insert into app (app_id, app_req_id, app_title, "
+	               + "app_content, app_type, app_status, app_date, app_save_yn)"
+	               + " values(?, ?, ?, ?, ?, ?, ?, ?)";
+	    Object[] params = {
+	        dftAppDto.getAppId(),
+	        dftAppDto.getAppReqId(),
+	        dftAppDto.getAppTitle(),
+	        dftAppDto.getAppContent(),
+	        dftAppDto.getAppType(),
+	        dftAppDto.getAppStatus(),
+	        dftAppDto.getAppDate(),
+	        dftAppDto.getAppSaveYn()
+	    };
+	    jdbcTemplate.update(sql, params);
+	}
 
 }

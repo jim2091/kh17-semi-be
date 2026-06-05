@@ -139,32 +139,66 @@ public class AppController {
 		return "redirect:./insertComplete";
 	}
 
-	// 품의서 작성
+	// 품의서
 	@GetMapping("/expInsert")
-	public String expInsert() {
+	public String expInsert(HttpSession session, Model model) {
+		String loginId = (String) session.getAttribute("loginId");
+		String empName = appDao.selectEmpNameById(loginId);
+		model.addAttribute("empName", empName);
 		return "/app/expInsert";
 	}
 
 	@PostMapping("/expInsert")
-	public String expInsert(@ModelAttribute ExpAppDto expAppDto, 
-				@ModelAttribute AppDto appDto, HttpSession session) {
-		expAppDao.insert(expAppDto);
-		appDao.insert(appDto);
-		return "redirect:/insertComplete";
+	public String expInsert(@ModelAttribute ExpAppDto expAppDto, HttpSession session) {
+		String loginId = (String) session.getAttribute("loginId");
+		if (loginId == null)
+			return "redirect:/login";
+
+		String empNo = appDao.selectEmpNoById(loginId);
+		if (empNo == null)
+			return "redirect:./expInsert";
+
+		expAppDto.setAppReqId(empNo);
+		expAppDto.setAppType("품의서");
+
+		int nextAppId = appDao.sequence();
+		expAppDto.setAppId(nextAppId);
+
+		appDao.insert(expAppDto);
+		expAppDao.insertExpApp(expAppDto);
+
+		return "redirect:./insertComplete";
 	}
 
-	// 업무기안서 작성
+	// 업무기안서
 	@GetMapping("/dftInsert")
-	public String dftInsert() {
+	public String dftInsert(HttpSession session, Model model) {
+		String loginId = (String) session.getAttribute("loginId");
+		String empName = appDao.selectEmpNameById(loginId);
+		model.addAttribute("empName", empName);
 		return "/app/dftInsert";
 	}
 
 	@PostMapping("/dftInsert")
-	public String dftInsert(@ModelAttribute DftAppDto dftAppDto, 
-				@ModelAttribute AppDto appDto, HttpSession session) {
-		dftAppDao.insert(dftAppDto);
-		appDao.insert(appDto);
-		return "redirect:/insertComplete";
+	public String dftInsert(@ModelAttribute DftAppDto dftAppDto, HttpSession session) {
+		String loginId = (String) session.getAttribute("loginId");
+		if (loginId == null)
+			return "redirect:/login";
+
+		String empNo = appDao.selectEmpNoById(loginId);
+		if (empNo == null)
+			return "redirect:./dftInsert";
+
+		dftAppDto.setAppReqId(empNo);
+		dftAppDto.setAppType("업무기안서");
+
+		int nextAppId = appDao.sequence();
+		dftAppDto.setAppId(nextAppId);
+
+		appDao.insert(dftAppDto);
+		dftAppDao.insertDftApp(dftAppDto);
+
+		return "redirect:./insertComplete";
 	}
 
 }
