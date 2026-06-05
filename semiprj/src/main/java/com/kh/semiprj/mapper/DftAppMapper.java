@@ -15,7 +15,7 @@ public class DftAppMapper implements RowMapper<DftAppDto>{
 	public DftAppDto mapRow(ResultSet rs, int rowNum) throws SQLException {
 		DftAppDto dftAppDto = new DftAppDto();
 		dftAppDto.setAppId(rs.getInt("app_id"));
-		dftAppDto.setDftDate(rs.getTimestamp("dft_date"));
+		dftAppDto.setDftDate(rs.getString("dft_date"));
 		return dftAppDto;
 	}
 
