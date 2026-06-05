@@ -3,16 +3,15 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
-<jsp:include page="/WEB-INF/views/template/side_home.jsp"></jsp:include>
+<jsp:include page="/WEB-INF/views/template/side_user.jsp"></jsp:include>
 
-<h1>[${empDto.empName}]사원 정보 수정</h1>
 
 
 <form action="./edit" method="post" autocomplete="off" enctype="multipart/form-data">
 	<input type="hidden" name="empNo" value="${empDto.empNo}">
 	<div class="container w-600 mt-50 mb-50">
         <div class="cell center">
-            <h1>[${empDto.empName}]사원 상세 정보</h1>
+            <h1>[${empDto.empName}]님 정보 수정</h1>
         </div>
         <div class="cell">
 			<img src="./profile?empNo=${empDto.empNo}" width="150">

@@ -2,7 +2,7 @@
     pageEncoding="UTF-8"%>
     
 <jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
-<jsp:include page="/WEB-INF/views/template/side_home.jsp"></jsp:include>
+<jsp:include page="/WEB-INF/views/template/side_user.jsp"></jsp:include>
     
     
 <div class="container w-80">
