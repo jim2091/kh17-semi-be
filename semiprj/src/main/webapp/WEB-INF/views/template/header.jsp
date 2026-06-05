@@ -111,7 +111,7 @@
                         
                         <div class="cell flex-area flex-vertical flex-center">
                             <div class="center-right">
-                            	<div class="side dept" style="width: 100px">
+                            	<div class="side-cell dept" style="width: 100px">
 								    <c:choose>
 								        <c:when test="${sessionScope.managerToggle}">
 								            ${sessionScope.loginRole}
