@@ -707,3 +707,49 @@ select.field2 {
 .dept {
     display: inline-block;
 }
+/* 사이드바 */
+.side-title{
+    background:#fafafa;
+    border-bottom:1px solid #ddd;
+    padding:15px;
+    font-size:20px;
+    font-weight:bold;
+    text-align:center;
+}
+
+.side-link{
+    display:block;
+    padding:10px 15px;
+    text-decoration:none;
+    color:#333;
+    font-size:17px;
+}
+
+.side-link:hover{
+    background:#f5f5f5;
+}
+
+.rank-link{
+    display:block;
+    padding:8px 12px;
+    text-decoration:none;
+    color:#333;
+    font-size:14px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+.board-rank{
+    height:180px;
+}
+
+.side-section{
+    border:1px solid #e5e5e5;
+    border-radius:10px;
+    overflow:hidden;
+    margin-bottom:15px;
+}
+
+.side-section:last-child{
+    border-bottom: none;
+}
