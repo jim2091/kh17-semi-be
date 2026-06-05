@@ -14,8 +14,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.kh.semiprj.dao.DeptCategoryDao;
 import com.kh.semiprj.dao.DeptDao;
+import com.kh.semiprj.dao.EmpDao;
 import com.kh.semiprj.dto.DeptCategoryDto;
 import com.kh.semiprj.dto.DeptDto;
+import com.kh.semiprj.dto.EmpDto;
 import com.kh.semiprj.exception.TargetNotfoundException;
 import com.kh.semiprj.exception.WhoAreYouException;
 import com.kh.semiprj.vo.PageVO;
@@ -27,8 +29,8 @@ import jakarta.servlet.http.HttpSession;
 public class DeptController {
 	@Autowired
 	private DeptDao deptDao;
-	
-	// 💡 [수정] 변수명 첫 글자를 소문자로 올바르게 교정했습니다.
+	@Autowired
+	private EmpDao empDao;
 	@Autowired
 	private DeptCategoryDao deptCategoryDao;
 
@@ -87,10 +89,16 @@ public class DeptController {
 	@RequestMapping("/detail")
 	public String detail(@RequestParam int deptId, Model model) {
 		DeptDto deptDto = deptDao.selectOne(deptId);
+		DeptCategoryDto deptCategoryDto = 
+				deptCategoryDao.selectOne(deptDto.getDeptCategory());
 		if(deptDto == null) {
 			throw new TargetNotfoundException("존재하지 않는 부서 정보");
 		}
+		EmpDto empDto = empDao.selectOneDeptHeadId(deptDto.getDeptHeadId());
+		
+		model.addAttribute("empDto",empDto);
 		model.addAttribute("deptDto",deptDto);
+		model.addAttribute("deptCategoryDto", deptCategoryDto);
 		
 		return "dept/detail";
 	}
@@ -108,6 +116,7 @@ public class DeptController {
 		if(deptDto == null) throw new TargetNotfoundException("존재하지 않은 부서");
 		
 		model.addAttribute("deptDto",deptDto);
+		model.addAttribute("categoryList",deptCategoryDao.selectCategoryList());
 		return "dept/edit";
 	}
 	
@@ -121,6 +130,7 @@ public class DeptController {
 		return "redirect:./detail?deptId="+deptDto.getDeptId();
 	}
 	
+	//활성화 토글
 	@RequestMapping("/block")
 	public String block(@RequestParam int deptId, HttpSession session) {
 		String loginRole = (String) session.getAttribute("loginRole");
@@ -139,4 +149,7 @@ public class DeptController {
 		
 		return "redirect:./detail?deptId="+deptId;
 	}
+	
+	//부서 이름 중복검사
+	
 }

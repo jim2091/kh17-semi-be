@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
+
 //관리자의 접근만 허용하는 인터셉터
 @Service
 public class MasterOnlyInterceptor implements HandlerInterceptor{
@@ -26,5 +27,6 @@ public class MasterOnlyInterceptor implements HandlerInterceptor{
 		}
 		return true;
 	}
+
 
 }

@@ -1,6 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
+<jsp:include page="/WEB-INF/views/template/side_home.jsp"></jsp:include>
 
 
 <form action="./edit" method="post" enctype="multipart/form-data" autocomplete="off">
@@ -15,9 +17,12 @@
 		<label>부서 카테고리 <i class="fa-solid fa-asterisk red"></i></label>
 		<select class="field w-100" name="deptCategory" required>
             <option value="">선택하세요</option>
-            <option ${deptDto.deptCategory == '영업' ? 'selected' : ''}>영업</option>
-            <option ${deptDto.deptCategory == '관리' ? 'selected' : ''}>관리</option>
-            <option ${deptDto.deptCategory == '감사' ? 'selected' : ''}>감사</option>
+            <c:forEach var ="category" items="${categoryList}">
+				<option value="${category.deptCategoryNo }"
+						${deptDto.deptCategory == category.deptCategoryNo ? 'selected' : ''}>
+					${category.deptCategoryName}
+				</option>
+		</c:forEach>
         </select>
 	</div>
 	<div class="cell">

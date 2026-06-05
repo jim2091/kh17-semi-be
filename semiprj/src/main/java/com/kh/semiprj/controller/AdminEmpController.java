@@ -16,6 +16,10 @@ import com.kh.semiprj.dao.EmpDao;
 import com.kh.semiprj.dao.EmpHistoryDao;
 import com.kh.semiprj.dto.EmpDto;
 import com.kh.semiprj.dto.EmpHistoryDto;
+import com.kh.semiprj.exception.TargetNotfoundException;
+import com.kh.semiprj.vo.HistoryPageVO;
+
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/admin")
@@ -153,7 +157,28 @@ public class AdminEmpController {
 		return "redirect:./waitingList";
 	}
 	
-	
+	@RequestMapping("/history")
+	public String history(@RequestParam String empNo, 
+								@ModelAttribute HistoryPageVO historyPageVO,
+								Model model) {
+//		String loginNo = (String) session.getAttribute("loginNo");
+//		System.out.println(empDao.selectOneByDetail(loginNo));
+//		System.out.println(historyPageVO);
+//		System.out.println(empNo);
+		EmpDto empDto = empDao.selectOneByDetail(empNo);
+		if(empDto == null) throw new TargetNotfoundException("대상이 존재하지 않습니다");
+		model.addAttribute("empDto", empDto);
+		
+		List<EmpHistoryDto> loginhistory = 
+				empHistoryDao.selectList(empNo, historyPageVO);
+//		System.out.println(loginhistory);
+		
+		model.addAttribute("loginhistory", loginhistory);
+		int count = empHistoryDao.count(empNo, historyPageVO);
+		historyPageVO.setCount(count);
+		model.addAttribute("historyPageVO", historyPageVO);
+		return "admin/history";
+	}
 	
 	
 	

@@ -109,6 +109,11 @@
 		    <version>1.22.2</version>
 		    <scope>compile</scope>
 		</dependency>
+		<!-- Mail 도구-->
+		<dependency>
+		    <groupId>org.springframework.boot</groupId>
+		    <artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>

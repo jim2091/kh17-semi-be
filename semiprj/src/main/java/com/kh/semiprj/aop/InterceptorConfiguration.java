@@ -15,13 +15,16 @@ public class InterceptorConfiguration implements WebMvcConfigurer{
 	@Autowired
 	private EmpOnlyInterceptor empOnlyInterceptor;
 	@Autowired
+	private MasterDenyInterceptor masterDenyInterceptor;
+	@Autowired
 	private MasterOnlyInterceptor masterOnlyInterceptor;
 	@Autowired
 	private BoardReadInterceptor boardReadInterceptor;
 	@Autowired
 	private ReplyOwnerInterceptor replyOwnerInterceptor;
-	private PdsReadInterceptor pdsReadInterceptor;
 	@Autowired
+	private PdsReadInterceptor pdsReadInterceptor;
+
 
     InterceptorConfiguration(PdsReadInterceptor pdsReadInterceptor) {
         this.pdsReadInterceptor = pdsReadInterceptor;
@@ -42,8 +45,15 @@ public class InterceptorConfiguration implements WebMvcConfigurer{
 				,"/admin/**"
 				,"/board/**"
 				)
-				.excludePathPatterns(//비로그인도 접근 가능
+				.excludePathPatterns(
 						"/emp/login"
+						,"/emp/cert_id"
+						,"/emp/cert_pw"
+						,"/emp/change_pw"
+						,"/emp/change_pw_change"
+						,"/emp/find_id"
+						,"/emp/find_id_complete"
+						,"/emp/find_pw"
 						);
 		
 		//본인 소유의 게시글만 수정, 삭제가 가능하도록 하는 인터셉터
@@ -57,5 +67,10 @@ public class InterceptorConfiguration implements WebMvcConfigurer{
 		//댓글 소유자만 수정, 삭제가 가능하도록 하는 인터셉터
 		registry.addInterceptor(replyOwnerInterceptor)
 				.addPathPatterns("/rest/reply/edit", "/rest/reply/delete");
+		registry.addInterceptor(masterOnlyInterceptor).addPathPatterns("/admin/**");
+		registry.addInterceptor(masterDenyInterceptor).addPathPatterns(
+				"/admin/detail"
+				,"/admin/edit"
+				);
 	}
 }

@@ -5,50 +5,84 @@
 <jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
 <jsp:include page="/WEB-INF/views/template/side_home.jsp"></jsp:include>
 
-<h1>[${empDto.empName}]님 정보</h1>
-<img src="./profile?empNo=${empDto.empNo}" width="100"><br>
- 		사원사진
- <ul>
- 		
- 		<li>사원실명 : ${empDto.empName}</li>
- 		<li>사원아이디 : ${empDto.empId}</li>
- 		<li>사원부서 : ${empDto.empDept}</li>
- 		<li>사원직위 : ${empDto.empPosition}</li>
- 		<li>담당사수 : ${empDto.empMentor}</li>
- 		<li>생년월일 : ${empDto.empBirth}</li>
- 		<li>이메일주소 : ${empDto.empEmail}</li>
- 		<li>연락처 : ${empDto.empContact}</li>
- 		<li>주소 : [${empDto.empPost}]  ${empDto.empAddress1}  ${empDto.empAddress2}</li>
- 		<li>입사일 :<fmt:formatDate value = "${empDto.empHireDate}" pattern="yyyy-MM-dd"/></li>
- </ul>
-<h2><a href="./edit?empNo=${empDto.empNo}">내정보수정</a>
-<a href="./list">목록으로</a>
-</h2>
+<div class="container w-600 mt-50 mb-50">
+        <div class="cell center">
+            <h1>[${empDto.empName}]사원 상세 정보</h1>
+        </div>
+        <div class="cell">
+            <img src="./profile?empNo=${empDto.empNo}" width="100">
+        </div>
+        
+        <div class="cell">
+            <span>사원실명 : ${empDto.empName}</span>
+        </div>
+        <div class="cell">
+            <span>사원부서 : ${empDto.empDept}</span>
+        </div>
+        <div class="cell">
+            <span>사원직위 : ${empDto.empPosition}</span>
+        </div>
+        <div class="cell">
+            <span>담당사수 : ${empDto.empMentor}</span>
+        </div>
+        <div class="cell">
+            <span>사원아이디 : ${empDto.empId}</span>
+        </div>
+        <div class="cell">
+            <span>생년월일 : ${empDto.empBirth}</span>
+        </div>
+        <div class="cell">
+            <span>이메일주소 : ${empDto.empEmail}</span>
+        </div>
+        <div class="cell">
+            <span>연락처 : ${empDto.empContact}</span>
+        </div>
+        <div class="cell">
+            <span>주소 : [${empDto.empPost}]  ${empDto.empAddress1}  ${empDto.empAddress2}</span>
+        </div>
+        <div class="cell">
+            <span>입사일 :<fmt:formatDate value = "${empDto.empHireDate}" pattern="yyyy-MM-dd"/></span>
+        </div>
+        <div class="cell">
+        	<c:if test="${sessionScope.loginNo != null && sessionScope.loginNo == empDto.empNo}">
+            <a href="./edit?empNo=${empDto.empNo}" class="btn btn-neutral">내정보수정</a>
+            </c:if>
+            <a href="./list" class="btn btn-neutral">목록으로</a>
+        </div>
+        
 
 
-<br><br>
- 	<h1>	[최근 로그인 이력 ] </h1>
- <table border="1" width="1200">
-	<thead>
+</div>
+
+<div class="container w-80">
+	<div class="center">
+		<h1>최근 로그인 이력</h1>
+		<a href = "./history?empNo=${empDto.empNo}">더보기</a>
+	</div>
+	<div class="cell">
+ 		<table class="table table-stripe">
+			<thead>
 			<tr>
 				<th>일시</th>
 				<th>접속주소</th>
 				<th>에이전트</th>
 			</tr>
-	</thead>
-	<tbody>
+			</thead>
+		<tbody>
 		<c:forEach var= "empHistoryDto" items="${loginHistory}">
-		<tr>
+			<tr>
 			<td>${empHistoryDto.empHistoryTime}</td>
 			<td>${empHistoryDto.empHistoryAddress}</td>
 			<td>${empHistoryDto.empHistoryAgent}</td>
-		</tr>
+			</tr>
 		</c:forEach>
-	</tbody>
-</table>
-	<div class="cell center">
+		</tbody>
+		</table>
+		<div class="cell center">
   		<jsp:include page="/WEB-INF/views/template/pagination.jsp"></jsp:include>
 	</div>
+	</div>
+</div>
  
-<h2><a href="./list">검색으로 이동</a></h2>
+
 <jsp:include page="/WEB-INF/views/template/footer.jsp"></jsp:include>

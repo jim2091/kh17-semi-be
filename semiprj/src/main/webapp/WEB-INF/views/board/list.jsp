@@ -8,6 +8,7 @@
 <jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
 <jsp:include page="/WEB-INF/views/template/side_board.jsp"></jsp:include>
 
+
 <div class="container w-900 mt-50 mb-50">
 	<!-- 페이지 제목 -->
     <div class="cell center">

@@ -1,114 +1,138 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+
 <jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
-<jsp:include page="/WEB-INF/views/template/side_home.jsp"></jsp:include>
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>근태 기록</title>
-    <script>
-        function changeDate() {
-            document.getElementById("searchForm").submit();
-        }
-        
-        function setToday() {
-            const now = new Date();
-            document.getElementById("yearSelect").value = now.getFullYear();
-            document.getElementById("monthSelect").value = String(now.getMonth() + 1).padStart(2, '0');
-            changeDate();
-        }
-    </script>
-</head>
-<body>
+<jsp:include page="/WEB-INF/views/template/attn_side_home.jsp"></jsp:include>
 
-    <h2>근태 기록</h2>
-    <hr/>
+<style>
+    /* 페이징 박스 고정 스타일 */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 5px;
+        margin-top: 40px;
+    }
+    .page-box {
+        width: 35px;
+        height: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        color: #333;
+        border: 1px solid transparent; 
+        transition: all 0.2s;
+    }
+    .page-box.active {
+        border: 1px solid #000;
+        font-weight: bold;
+        background-color: #f9f9f9;
+    }
+    .page-box:not(.active):hover {
+        text-decoration: underline;
+    }
+</style>
 
-    <form id="searchForm" action="/attn/list" method="get">
-        <select id="yearSelect" name="year" onchange="changeDate()">
-            <c:forEach var="y" begin="2020" end="2030">
-                <option value="${y}" ${search.year == y ? 'selected' : ''}>${y}년</option>
-            </c:forEach>
-        </select>
+<div class="attn-content-body" style="flex-grow: 1; padding-left: 40px; box-sizing: border-box; font-family: 'Malgun Gothic', sans-serif;">
 
-        <select id="monthSelect" name="month" onchange="changeDate()">
-            <c:forEach var="m" begin="1" end="12">
-                <c:set var="formattedM" value="${m < 10 ? '0' : ''}${m}" />
-                <option value="${formattedM}" ${search.month == formattedM ? 'selected' : ''}>${m}월</option>
-            </c:forEach>
-        </select>
+    <div class="cell mb-30" style="border-bottom: 2px solid #333; padding-bottom: 10px;">
+        <h1 class="bold" style="margin: 0; font-size: 28px; color: #222;">근태 기록</h1>
+    </div>
 
-        <button type="button" onclick="setToday()">오늘</button>
-    </form>
+    <div class="cell mb-20">
+        <form id="searchForm" action="/attn/list" method="get" style="display: flex; align-items: center; gap: 8px;">
+            <select id="yearSelect" name="year" onchange="changeDate()">
+                <c:forEach var="y" begin="2020" end="2030">
+                    <option value="${y}" ${search.year == y ? 'selected' : ''}>${y}년</option>
+                </c:forEach>
+            </select>
 
-    <br/>
+            <select id="monthSelect" name="month" onchange="changeDate()">
+                <c:forEach var="m" begin="1" end="12">
+                    <c:set var="mm" value="${m < 10 ? '0' : ''}${m}" />
+                    <option value="${mm}" ${search.month == mm ? 'selected' : ''}>${m}월</option>
+                </c:forEach>
+            </select>
 
-    <table border="1" style="border-collapse: collapse; width: 90%; text-align: center;">
+            <button type="button" onclick="setToday()">오늘</button>
+            <input type="hidden" name="page" value="1"/>
+        </form>
+    </div>
+
+    <table style="width:100%; border-collapse: collapse; text-align: center;">
         <thead>
-            <tr>
-                <th>월/일</th>
-                <th>부재사항</th>
-                <th>계획근로시간</th>
-                <th>근태기록시간</th>
-                <th>근로시간</th>
-                <th>상태</th>
+            <tr style="border-bottom: 1px solid #ddd;">
+                <th style="padding: 10px;">월/일</th>
+                <th style="padding: 10px;">부재사항</th>
+                <th style="padding: 10px;">계획근로시간</th>
+                <th style="padding: 10px;">근태기록시간</th>
+                <th style="padding: 10px;">근로시간</th>
+                <th style="padding: 10px;">상태</th>
             </tr>
         </thead>
         <tbody>
-            <c:choose>
-                <c:when test="${empty attnList}">
-                    <tr>
-                        <td colspan="6">조회된 근태 기록이 없습니다.</td>
+        <c:choose>
+            <c:when test="${empty attnList}">
+                <tr><td colspan="6" style="padding: 20px;">조회된 데이터 없음</td></tr>
+            </c:when>
+            <c:otherwise>
+                <c:forEach var="dto" items="${attnList}">
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding: 10px;"><fmt:formatDate value="${dto.attnWorkDate}" pattern="MM/dd"/></td>
+                        <td style="padding: 10px;">
+                            <c:choose>
+                                <c:when test="${dto.attnRecord == '연차'}"><span style="color:#ffa500;">○</span> 연차</c:when>
+                                <c:otherwise>-</c:otherwise>
+                            </c:choose>
+                        </td>
+                        <td style="padding: 10px;">09:00~18:00</td>
+                        <td style="padding: 10px;">
+                            <fmt:formatDate value="${dto.attnInTime}" pattern="HH:mm"/> ~
+                            <fmt:formatDate value="${dto.attnOutTime}" pattern="HH:mm"/>
+                        </td>
+                        <td style="padding: 10px;">
+                            <c:choose>
+                                <c:when test="${dto.attnWorkTime > 0}">${dto.attnWorkTime}h</c:when>
+                                <c:otherwise>-</c:otherwise>
+                            </c:choose>
+                        </td>
+                        <td style="padding: 10px;">${dto.attnRecord}</td>
                     </tr>
-                </c:when>
-                <c:otherwise>
-                    <c:forEach var="dto" items="${attnList}">
-                        <tr>
-                            <td><fmt:formatDate value="${dto.attnWorkDate}" pattern="dd E"/></td>
-                            <td>-</td>
-                            <td>09:00~18:00</td>
-                            <td>
-                                ${not empty dto.attnInTime ? '<fmt:formatDate value="'.concat(dto.attnInTime).concat('" pattern="HH:mm"/>') : '--:--'}
-                                ~
-                                ${not empty dto.attnOutTime ? '<fmt:formatDate value="'.concat(dto.attnOutTime).concat('" pattern="HH:mm"/>') : '--:--'}
-                            </td>
-                            <td>${dto.attnWorkTime}시간</td>
-                            <td>
-                                <span style="color: ${dto.attnRecord == '정상출근' ? 'green' : 'red'};">●</span> 
-                                ${dto.attnRecord}
-                            </td>
-                        </tr>
-                    </c:forEach>
-                </c:otherwise>
-            </c:choose>
+                </c:forEach>
+            </c:otherwise>
+        </c:choose>
         </tbody>
     </table>
 
-    <br/>
-
-    <div class="pagination" style="text-align: center;">
+    <div class="pagination">
         <c:if test="${pageVO.hasPrevious()}">
-            <a href="list?page=${pageVO.previousBlock}&year=${search.year}&month=${search.month}">&laquo; 이전</a>
+            <a href="/attn/list?page=${pageVO.previousBlock}&year=${search.year}&month=${search.month}" class="page-box">◀</a>
         </c:if>
-        
+
         <c:forEach var="i" begin="${pageVO.beginBlock}" end="${pageVO.endBlock}">
-            <c:choose>
-                <c:when test="${i == pageVO.page}">
-                    <strong style="color: blue; padding: 5px;">${i}</strong>
-                </c:when>
-                <c:otherwise>
-                    <a href="list?page=${i}&year=${search.year}&month=${search.month}" style="padding: 5px;">${i}</a>
-                </c:otherwise>
-            </c:choose>
+            <a href="/attn/list?page=${i}&year=${search.year}&month=${search.month}" 
+               class="page-box ${i == pageVO.page ? 'active' : ''}">${i}</a>
         </c:forEach>
-        
+
         <c:if test="${pageVO.hasNext()}">
-            <a href="list?page=${pageVO.nextBlock}&year=${search.year}&month=${search.month}">다음 &raquo;</a>
+            <a href="/attn/list?page=${pageVO.nextBlock}&year=${search.year}&month=${search.month}" class="page-box">▶</a>
         </c:if>
     </div>
+</div>
 
-</body>
-</html>
+<script>
+function changeDate() {
+    document.getElementById("searchForm").submit();
+}
+
+function setToday() {
+    const now = new Date();
+    document.getElementById("yearSelect").value = now.getFullYear();
+    document.getElementById("monthSelect").value = String(now.getMonth()+1).padStart(2,'0');
+    changeDate();
+}
+</script>
+
 <jsp:include page="/WEB-INF/views/template/footer.jsp"></jsp:include>

@@ -16,4 +16,7 @@ public class AttnDto {
 
     private String year;
     private String month;
+
+    // ✅ 추가
+    private Integer planWorkTime;
 }

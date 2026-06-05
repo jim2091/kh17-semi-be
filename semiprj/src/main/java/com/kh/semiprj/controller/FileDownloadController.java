@@ -19,56 +19,30 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.kh.semiprj.dao.AttachDao;
+import com.kh.semiprj.dao.EmpAttachDao;
+import com.kh.semiprj.dao.EmpDao;
 import com.kh.semiprj.dto.AttachDto;
+import com.kh.semiprj.dto.EmpDto;
 import com.kh.semiprj.exception.TargetNotfoundException;
 
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/download")
 public class FileDownloadController {
 	@Autowired
 	private AttachDao attachDao;
-	
 	@Value("${custom.file.upload-path}")
 	private String uploadPath;
+	@Autowired
+	private EmpAttachDao empAttachDao;
+	@Autowired
+	private EmpDao empDao;
 	
-	@RequestMapping("/legacy")
-	@ResponseBody
-	public void legecy(@RequestParam int attachNo, 
-						HttpServletResponse response) throws IOException {
-		AttachDto attachDto = attachDao.selectOne(attachNo);
-		if(attachDto == null) throw new TargetNotfoundException("존재하지 않는 파일");
-		
-//		File dir = new File("D:/upload");
-		File dir = new File(uploadPath);
-		File target = new File(dir, String.valueOf(attachNo));
-		if(!target.isFile()) throw new TargetNotfoundException("존재하지 않는 파일");
-		
-		response.setHeader("Content-Encoding", "UTF-8");
-		response.setHeader("Content-Type", attachDto.getAttachTypeString());
-		response.setHeader("Content-Length", String.valueOf(attachDto.getAttachSize()));
-		StringBuffer sb = new StringBuffer();
-		sb.append("attachment");
-		sb.append(";");
-		sb.append("filename=");
-		sb.append("\"");
-		sb.append(URLEncoder.encode(attachDto.getAttachName(), "UTF-8"));
-		sb.append("\"");
-		response.setHeader("Content-Disposition", sb.toString());
-		FileInputStream stream = new FileInputStream(target);
-		byte[] buffer = new byte[1024];
-		
-		while(true) {
-			int size = stream.read(buffer);
-			if(size == -1) break;
-			response.getOutputStream().write(buffer, 0, size);
-		}
-		stream.close();
-	}
 	
 	@RequestMapping("/modern")
-	public ResponseEntity<ByteArrayResource> download(@RequestParam int attachNo) throws IOException{
+	public ResponseEntity<ByteArrayResource> download(@RequestParam int attachNo, HttpSession session) throws IOException{
 		
 		AttachDto attachDto = attachDao.selectOne(attachNo);
 		if(attachDto == null) throw new TargetNotfoundException("존재하지 않는 파일");
@@ -79,6 +53,10 @@ public class FileDownloadController {
 		
 		byte[] data = FileCopyUtils.copyToByteArray(target);
 		ByteArrayResource resource = new ByteArrayResource(data);
+		
+		String loginId = (String)session.getAttribute("loginId");
+		EmpDto empDto = empDao.selectOne(loginId);
+		empAttachDao.insert(empDto.getEmpNo(), attachNo);
 		
 		return ResponseEntity.ok()
 				.contentLength(attachDto.getAttachSize())
