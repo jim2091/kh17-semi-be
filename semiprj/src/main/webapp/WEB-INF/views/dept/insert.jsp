@@ -114,7 +114,7 @@
             if(name.length == 0) return;
             
             $.ajax({
-                url: "../rest/deptCategory/insert",
+                url: "../rest/dept/insert",
                 method : "post",
                 data: {deptCategoryName : name},
                 success: function(response){
