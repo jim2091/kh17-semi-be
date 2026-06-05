@@ -44,24 +44,34 @@ import com.kh.semiprj.vo.PageVO;
 	            return jdbcTemplate.query(sql, deptMapper, params);
 	        }
 	        
-	        //검색
-	        Set<String> allowList = Set.of("dept_id", "dept_category", "dept_name");
-	        if (allowList.contains(pageVO.getColumn()) == false) {
-	            return List.of();
+	        if (pageVO.getColumn().equals("dept_category_name")) {
+	            String sql = "select * from ("
+	                       + " select rownum rn, TMP.* from ("
+			                       + " select * from dept "
+				                       + " where dept_category in ("
+					                       + " select dept_category_no from dept_category_id "
+					                       + " where instr(dept_category_name, ?) > 0"
+				                       + " ) "
+				                       + " order by dept_id asc"
+		                       + " ) TMP"
+	                       + ") where rn between ? and ?";
+	            
+	            Object[] params = {pageVO.getKeyword(), pageVO.getBeginRownum(), pageVO.getEndRownum()};
+	            return jdbcTemplate.query(sql, deptMapper, params);
+	        } 
+	        
+	        else {
+	            String sql = "select * from ("
+	                       + " select rownum rn, TMP.* from ("
+			                       + " select * from dept "
+			                       + " where instr(" + pageVO.getColumn() + ", ?) > 0 "
+			                       + " order by dept_id asc"
+		                       + " ) TMP"
+	                       + ") where rn between ? and ?";
+	            
+	            Object[] params = {pageVO.getKeyword(), pageVO.getBeginRownum(), pageVO.getEndRownum()};
+	            return jdbcTemplate.query(sql, deptMapper, params);
 	        }
-	        
-	        String sql = "select * from ("
-	                        + "select rownum rn, TMP.* from ("
-	                            + "select * from dept "
-	                            + "where instr(" + pageVO.getColumn() + ", ?) > 0 "
-	                            + "order by dept_id asc"
-	                        + ")TMP"
-	                    + ") where rn between ? and ?";
-	        
-	        Object[] params = { 
-	            pageVO.getKeyword(), pageVO.getBeginRownum(), pageVO.getEndRownum()
-	        };
-	        return jdbcTemplate.query(sql, deptMapper, params);
 	    }
 	    
 	    // 등록을 위한 시퀀스 번호 생성
@@ -103,6 +113,12 @@ import com.kh.semiprj.vo.PageVO;
 				deptDto.getDeptHeadId(),deptDto.getDeptContent(),
 				deptDto.getDeptId()
 			};
+			return jdbcTemplate.update(sql, params) > 0;
+		}
+		//삭제 메소드
+		public boolean delete(int deptId) {
+			String sql = "delete dept where dept_id = ?";
+			Object[] params = { deptId };
 			return jdbcTemplate.update(sql, params) > 0;
 		}
 	    
