@@ -53,7 +53,19 @@
 	    <a href="/attn/list">
 	        <span>근태관리</span>
 	    </a>
-	</li>
+	     <ul>
+            <li>
+                <a href="/admin/attn/manage">
+                    <span>근태기록</span>
+                </a>
+            </li>
+            <li>
+                <a href="/attn/#">
+                    <span>근무제도</span>
+                </a>
+            </li>
+        </ul>	    
+	</li>	
 	<li>
 	    <a href="#">
 	        <span>기타관리</span>

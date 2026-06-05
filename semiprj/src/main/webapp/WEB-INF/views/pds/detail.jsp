@@ -18,8 +18,16 @@
 	.badge.silver { border-color: #BDC3C7 !important; }
 </style>
 
-<!-- 좋아요 토글 자바스크립트 -->
-<script type="text/javascript">
+<!-- 게시글 삭제 시 한번 더 물어보는 확인창 -->
+<script>
+$(function(){
+	$(".btn-content-delete").click(function(e){
+		var choice = window.confirm("정말 삭제하시겠습니까?");
+		if(choice == false) {
+			e.preventDefault();
+		}
+	});
+});
 </script>
 
 <div class="container w-800 mt-50 mb-50">
@@ -39,7 +47,7 @@
 				<c:if test="${pdsDto.pdsWriter != null}">
 					<!-- 링크 누르면 사원 상세 정보 페이지로 이동 -->
 					<a href="#=${pdsDto.pdsWriter}" class="link">
-						${pdsDto.pdsWriter}
+						${pdsDto.empName}
 					</a>
 				</c:if>
 			</div>
@@ -73,11 +81,11 @@
 	<!-- 이전글/다음글 -->
 	<div class="cell">
 		<span class="badge blue me-10">이전글</span> 
-		<a href="./detail?boardNo=${prevBoardDto.boardNo}" class="link">${prevBoardDto.boardTitle}</a>	
+		<a href="./detail?pdsNo=${prevPdsDto.pdsNo}" class="link">${prevPdsDto.pdsTitle}</a>	
 	</div>
 	<div class="cell">
 		<span class="badge blue me-10">다음글</span>
-		<a href="./detail?boardNo=${nextBoardDto.boardNo}" class="link">${nextBoardDto.boardTitle}</a>	
+		<a href="./detail?pdsNo=${nextPdsDto.pdsNo}" class="link">${nextPdsDto.pdsTitle}</a>	
 	</div>
 	
 	<hr class="mb-20">

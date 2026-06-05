@@ -753,3 +753,11 @@ select.field2 {
 .side-section:last-child{
     border-bottom: none;
 }
+
+.bg-red     { background-color: #fab1a0 !important; } 
+.bg-orange  { background-color: #ffeaa7 !important; } 
+.bg-yellow  { background-color: #fff200 !important; } 
+.bg-green   { background-color: #55efc4 !important; } 
+.bg-blue    { background-color: #74b9ff !important; } 
+.bg-navy    { background-color: #0984e3 !important; } 
+.bg-purple  { background-color: #a29bfe !important; } 

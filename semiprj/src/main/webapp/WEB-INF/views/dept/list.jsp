@@ -16,7 +16,7 @@
 	        <form action="./list">
 	            <select name="column" class="field">
 	                <option value="dept_name" ${param.column == "dept_name" ? "selected" : ""}>부서명</option>
-	                <option value="dept_category_name" ${param.column == "dept_category_name" ? "selected" : ""}>부서카테고리</option>
+	                <option value="dept_category_name" ${param.column == "dept_category_name" ? "selected" : ""}>상위부서</option>
 	                <option value="dept_id" ${param.column == "dept_id" ? "selected" : ""}>부서코드</option>
 	            </select>
 	            <input type="text" name="keyword" placeholder="검색어 입력" class="field" value="${param.keyword}">
@@ -38,9 +38,9 @@
 	<div class="cell">
 		<table class="table">
 			<thead>
-				<tr>
+				<tr class="bg-yellow">
 					<th>코드</th>
-					<th>부서카테고리</th>
+					<th>상위부서</th>
 					<th>부서명</th>
 				</tr>
 			</thead>
@@ -56,7 +56,7 @@
 						</c:forEach>
 					</td>
 					<td>
-						<a href="./detail?deptId=${deptDto.deptId}">
+						<a href="./detail?deptId=${deptDto.deptId}" class="link">
 							${deptDto.deptName}
 						</a>
 					</td>

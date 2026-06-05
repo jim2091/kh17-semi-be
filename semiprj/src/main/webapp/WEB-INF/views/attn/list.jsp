@@ -6,13 +6,32 @@
 <jsp:include page="/WEB-INF/views/template/attn_side_home.jsp"></jsp:include>
 
 <style>
-    /* 페이징 박스 고정 스타일 */
+    /* 페이징 컨테이너 */
+    .pagination-wrapper {
+        position: relative;
+        margin-top: 40px;
+        padding: 0 10px;
+        height: 40px; /* 고정 높이 확보 */
+        display: flex;
+        align-items: center;
+        justify-content: center; /* 전체 중앙 정렬 */
+    }
+    
+    /* 연차 정보 영역 */
+    .vac-info-area {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        font-size: 14px;
+        font-weight: bold;
+        color: #444;
+    }
+    
+    /* 페이징 박스 */
     .pagination {
         display: flex;
-        justify-content: center;
         align-items: center;
         gap: 5px;
-        margin-top: 40px;
     }
     .page-box {
         width: 35px;
@@ -48,14 +67,12 @@
                     <option value="${y}" ${search.year == y ? 'selected' : ''}>${y}년</option>
                 </c:forEach>
             </select>
-
             <select id="monthSelect" name="month" onchange="changeDate()">
                 <c:forEach var="m" begin="1" end="12">
                     <c:set var="mm" value="${m < 10 ? '0' : ''}${m}" />
                     <option value="${mm}" ${search.month == mm ? 'selected' : ''}>${m}월</option>
                 </c:forEach>
             </select>
-
             <button type="button" onclick="setToday()">오늘</button>
             <input type="hidden" name="page" value="1"/>
         </form>
@@ -106,19 +123,26 @@
         </tbody>
     </table>
 
-    <div class="pagination">
-        <c:if test="${pageVO.hasPrevious()}">
-            <a href="/attn/list?page=${pageVO.previousBlock}&year=${search.year}&month=${search.month}" class="page-box">◀</a>
-        </c:if>
+    <div class="pagination-wrapper">
+        <div class="vac-info-area">
+            총 연차: ${empty vacInfo ? 0 : vacInfo.VAC_TOT}일 | 
+            잔여 연차: ${empty vacInfo ? 0 : vacInfo.VAC_CNT}일
+        </div>
 
-        <c:forEach var="i" begin="${pageVO.beginBlock}" end="${pageVO.endBlock}">
-            <a href="/attn/list?page=${i}&year=${search.year}&month=${search.month}" 
-               class="page-box ${i == pageVO.page ? 'active' : ''}">${i}</a>
-        </c:forEach>
+        <div class="pagination">
+            <c:if test="${pageVO.hasPrevious()}">
+                <a href="/attn/list?page=${pageVO.previousBlock}&year=${search.year}&month=${search.month}" class="page-box">◀</a>
+            </c:if>
 
-        <c:if test="${pageVO.hasNext()}">
-            <a href="/attn/list?page=${pageVO.nextBlock}&year=${search.year}&month=${search.month}" class="page-box">▶</a>
-        </c:if>
+            <c:forEach var="i" begin="${pageVO.beginBlock}" end="${pageVO.endBlock}">
+                <a href="/attn/list?page=${i}&year=${search.year}&month=${search.month}" 
+                   class="page-box ${i == pageVO.page ? 'active' : ''}">${i}</a>
+            </c:forEach>
+
+            <c:if test="${pageVO.hasNext()}">
+                <a href="/attn/list?page=${pageVO.nextBlock}&year=${search.year}&month=${search.month}" class="page-box">▶</a>
+            </c:if>
+        </div>
     </div>
 </div>
 

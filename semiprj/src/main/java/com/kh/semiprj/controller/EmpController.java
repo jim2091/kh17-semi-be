@@ -94,6 +94,8 @@ public class EmpController {
 		session.removeAttribute("loginId");
 		session.removeAttribute("loginLevel");
 		session.removeAttribute("loginNo");
+		session.removeAttribute("loginName");
+		session.removeAttribute("masterToggle");
 		
 		return "redirect:/";
 	}
@@ -282,7 +284,6 @@ public class EmpController {
 				int attachNo = empDao.searchProfile(empNo);
 				attachService.delete(attachNo);
 			}catch(Exception e) {
-				 e.printStackTrace();
 			}
 	    	
 			int attachNo = attachService.save(attach);
@@ -322,7 +323,6 @@ public class EmpController {
 			return "redirect:/download/modern?attachNo=" + attachNo;
 		}
 		catch(Exception e ){
-//			e.printStackTrace();
 			return "redirect:/images/no_image.png";
 		}
 	}
