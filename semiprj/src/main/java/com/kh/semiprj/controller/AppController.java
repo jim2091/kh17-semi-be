@@ -49,7 +49,6 @@ public class AppController {
 
 	    // 결재선도 함께 조회
 	    List<AppLineDto> lineList = appLineDao.selectByAppId(appId);
-
 	    model.addAttribute("appDto", appDto);
 	    model.addAttribute("lineList", lineList);
 	    return "app/detail";
@@ -159,20 +158,15 @@ public class AppController {
 		String loginId = (String) session.getAttribute("loginId");
 		if (loginId == null)
 			return "redirect:/login";
-
 		String empNo = appDao.selectEmpNoById(loginId);
 		if (empNo == null)
 			return "redirect:./dftInsert";
-
 		dftAppDto.setAppReqId(empNo);
 		dftAppDto.setAppType("업무기안서");
-
 		int nextAppId = appDao.sequence();
 		dftAppDto.setAppId(nextAppId);
-
 		appDao.insert(dftAppDto);
 		dftAppDao.insertDftApp(dftAppDto);
-
 		return "redirect:./insertComplete";
 	}
 
