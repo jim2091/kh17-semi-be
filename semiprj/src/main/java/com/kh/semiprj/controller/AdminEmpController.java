@@ -38,7 +38,7 @@ public class AdminEmpController {
 	
 	@PostMapping("/register")
 	public String register(@ModelAttribute EmpDto empDto) {
-		System.out.println(empDto);
+//		System.out.println(empDto);
 		empDao.insertFromAdmin(empDto);
 		
 		return "redirect:/";

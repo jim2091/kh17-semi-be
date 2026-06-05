@@ -316,7 +316,7 @@ public class EmpController {
 			return "redirect:/download/modern?attachNo=" + attachNo;
 		}
 		catch(Exception e ){
-			e.printStackTrace();
+//			e.printStackTrace();
 			return "redirect:/images/no_image.png";
 		}
 	}
