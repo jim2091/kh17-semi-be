@@ -37,18 +37,6 @@ public class AppController {
 	@Autowired
 	private ExpAppDao expAppDao;
 
-	// 목록
-	@RequestMapping("/list")
-	public String list(@ModelAttribute PageVO pageVO, Model model, HttpSession session) {
-		// 로그인 된 사원정보 가져오기
-		String loginId = (String) session.getAttribute("loginId");
-		AppDto appDto = appDao.selectOne(loginId);
-
-		// 목록조회(자기것만)
-		List<AppDto> list = appDao.selectMyList(loginId);
-		model.addAttribute("list", list);
-		return "/app/list";
-	}
 
 	// 상세
 	@RequestMapping("/detail")
@@ -199,6 +187,24 @@ public class AppController {
 		dftAppDao.insertDftApp(dftAppDto);
 
 		return "redirect:./insertComplete";
+	}
+	
+	
+	@RequestMapping("/list")
+	public String list(@RequestParam(required = false) String appType,
+	                   HttpSession session, Model model) {
+	    String loginId = (String) session.getAttribute("loginId");
+	    String empNo = appDao.selectEmpNoById(loginId);
+
+	    List<AppDto> list;
+	    if (appType != null && !appType.isEmpty()) {
+	        list = appDao.selectMyListByType(empNo, appType); // 종류별 필터
+	    } else {
+	        list = appDao.selectMyList(empNo); // 전체
+	    }
+
+	    model.addAttribute("list", list);
+	    return "/app/list";
 	}
 
 }

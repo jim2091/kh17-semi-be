@@ -180,4 +180,9 @@ public class AppDao {
 	    jdbcTemplate.update(sql, params);
 	}
 
+	public List<AppDto> selectMyListByType(String appReqId, String appType) {
+	    String sql = "select * from app where app_req_id=? and app_type=? order by app_id desc";
+	    Object[] params = { appReqId, appType };
+	    return jdbcTemplate.query(sql, appMapper, params);
+	}
 }
