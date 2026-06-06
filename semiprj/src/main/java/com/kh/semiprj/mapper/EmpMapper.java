@@ -34,6 +34,7 @@ public class EmpMapper implements RowMapper<EmpDto>{
 		empDto.setEmpCreateAt(rs.getTimestamp("emp_create_at"));
 		empDto.setEmpMentor(rs.getString("emp_mentor"));
 		empDto.setEmpPwChange(rs.getTimestamp("emp_pw_change"));
+		empDto.setEmpEmailVerified(rs.getString("emp_email_verified"));
 		
 		return empDto;
 	}

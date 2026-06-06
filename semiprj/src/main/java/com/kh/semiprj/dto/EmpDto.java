@@ -26,4 +26,5 @@ public class EmpDto {
 	private Timestamp empCreateAt;
 	private String empMentor;
 	private Timestamp empPwChange;
+	private String empEmailVerified;
 }

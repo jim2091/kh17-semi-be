@@ -136,7 +136,7 @@ public class EmpDao {
 	public boolean updateByUser(EmpDto empDto) {
 		String sql = "update emp "
 				+ "set emp_birth=?, emp_email=?, emp_contact=?, "
-				+ "emp_post=?, emp_address1=?, emp_address2=? where emp_no = ?";
+				+ "emp_post=?, emp_address1=?, emp_address2=?, emp_email_verified='Y' where emp_no = ?";
 		Object[] params = {empDto.getEmpBirth(), empDto.getEmpEmail(), 
 				empDto.getEmpContact(), empDto.getEmpPost(), 
 				empDto.getEmpAddress1(), empDto.getEmpAddress2(), 

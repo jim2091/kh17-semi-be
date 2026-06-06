@@ -36,6 +36,7 @@
                 attachValid : false, 
                 empBirthValid : false, 
                 empEmailValid : false, 
+                empEmailCertValid : false, 
                 empContactValid : false, 
                 empAddressValid : false, 
                 ok : function(){
@@ -46,24 +47,30 @@
                         
                 }
             };
+            var originSrc = $(".preview").attr("src");
+	            if (originSrc && originSrc.trim() !== "") {
+	                state.attachValid = true;
+	                $("[name=attach]").addClass("success");
+	            } else {
+	                state.attachValid = false; 
+            }
             $("[name=attach]").on("input", function(){
-                var originSrc = $(".preview").attr("src");//현재 .preview의 src를 가져와서
-                if(originSrc.startsWith("blob:")){//생성된 주소가 존재한다면
-                    URL.revokeObjectURL(originSrc);//생선된 주소를 회수하세요.
-
+                var originSrc = $(".preview").attr("src");
+                if(originSrc.startsWith("blob:")){
+                    URL.revokeObjectURL(originSrc);
                 }
 
-                //this == 파일 입력창(files라는 내부 속성이 존재)
-                if(this.files.length > 0){//파일을 선택한 경우(미리보기 생성)
-                    var address = URL.createObjectURL(this.files[0]);//파일을 주고 주소 생성을 요청
+                if(this.files.length > 0){
+                    var address = URL.createObjectURL(this.files[0]);
                     $(".preview").attr("src", address);
+                    $(this).addClass("success");
+                    state.attachValid = true;
 
                 }
-                else{//파일 선택을 취소한 경우(미리보기를 삭제할 수는없고, 더미이미지를  )
+                else{
                     $(".preview").attr("src", "https://dummyimage.com/200x200?text=NO");
                 }
-                $(this).addClass("success");
-                state.attachValid = true;
+                
             });
             $("[name=empBirth]").on("blur", function(){
                 var regex = /^([0-9]{4})-(((02)-(0[1-9]|1[0-9]|2[0-9]))|((0[469]|11)-(0[1-9]|1[0-9]|2[0-9]|30))|((0[13578]|1[02])-(0[1-9]|1[0-9]|2[0-9]|3[01])))$/;
@@ -82,8 +89,8 @@
                 var empEmail = $(this).val();
                 var valid = regex.test(empEmail);
 
-                if(valid == false){
-                    $(empEmail).removeClass("success fail")
+                if(valid == false || empEmail == null){
+                    $("[name=empEmail]").removeClass("success fail")
                         .addClass("fail").attr("data-error", "1");
                     state.empEmailValid = false;
                     return;
@@ -126,15 +133,7 @@
                 var replacement = $(this).val().replace(regex, "");
                 $(this).val(replacement);
             });
-            $(".form-check").on("submit", function(){
-                $(this).find("input[name]").trigger("blur");
-
-                console.log(state);
-                console.log(state.ok());
-                
-                return state.ok();
-            });
-
+            
 
 
         
@@ -150,6 +149,7 @@
                     
                     var template = $("#cert-template").html();
                     $(".cert-area").html(template);
+                   
                 },
                 error:function(){
                     window.alert("이메일 발송에 실패했습니다. \n잠시 후 다시 시도해보세요");
@@ -249,6 +249,25 @@
 			firstDay : 7,
 			maxDate : moment(),
 		});
+		
+		$(".form-check").on("submit", function(){
+            $(this).find("input[name]").trigger("blur");
+            $(this).find("input[name]").trigger("input");
+
+            console.log(state);
+            console.log(state.ok());
+            
+            if (!state.ok()) {
+                alert("필수 입력사항을 모두 올바르게 입력해주세요.");
+                
+                // 브라우저의 기본 submit 동작을 강제로 막음
+                e.preventDefault(); 
+                return false; 
+            }
+            
+            //return state.ok();
+        });
+
        });
 
     </script>
@@ -311,6 +330,8 @@
             <label><i class="fa-solid fa-asterisk red"></i>이메일주소 : </label>
             <div class="cell mt-0 flex-area" style="flex-wrap: wrap;">
                 <input type="text" name="empEmail" value="${empDto.empEmail}" class="field">
+                <c:if test="${empDto.empEmailVerified == null || empDto.empEmailVerified == 'N'}">
+                
                 <button type="button" class="btn btn-neutral btn-cert-send ms-10">
                     <i class="fa-solid fa-envelope"></i>
                     <span>인증메일보내기</span>
@@ -325,6 +346,7 @@
                     <div>형식에 맞지 않는 이메일입니다</div>
                     <div>이미 사용중인 이메일입니다</div>
                 </div>
+                </c:if>
             </div>
             <div class="cell cert-area">
                 
