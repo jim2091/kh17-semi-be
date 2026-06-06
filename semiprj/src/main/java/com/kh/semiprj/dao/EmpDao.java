@@ -146,7 +146,7 @@ public class EmpDao {
 	}
 	
 	public List<EmpDto> selectListForWaiting(){
-		String sql = "select * from emp where emp_approval_status = 'N' order by emp_no asc";
+		String sql = "select * from emp where emp_approval_status = 'N' and emp_email_verified = 'Y' order by emp_no asc";
 		return jdbcTemplate.query(sql, empMapper);
 	}
 	

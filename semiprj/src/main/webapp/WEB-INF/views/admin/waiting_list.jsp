@@ -15,6 +15,7 @@
 	<div class="cell">
 	<table class="table table-stripe">
 		<thead>
+		
 				<tr align="center">
 						<th>사원실명</th>
 						<th>사원아이디</th>
@@ -27,8 +28,11 @@
 				</tr>
 		</thead>
 		<tbody>
+
+		
 			<c:forEach var="empDto" items="${list}">
 				<tr align="center">
+				
 						<td>${empDto.empName}</td>
 						<td>${empDto.empId}</td>
 						<td>${empDto.empDept}</td>

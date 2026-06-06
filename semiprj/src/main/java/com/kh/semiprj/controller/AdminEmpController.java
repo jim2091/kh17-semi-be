@@ -52,6 +52,7 @@ public class AdminEmpController {
 		/* System.out.println("list 실행"); */
 		List<EmpDto> list = empDao.selectListByAdmin(column, keyword);
 		
+		
 		model.addAttribute("list", list);
 		
 		return "admin/list";
@@ -136,7 +137,15 @@ public class AdminEmpController {
 	public String waitingList(Model model) {
 		
 		List<EmpDto> list = empDao.selectListForWaiting();
-		model.addAttribute("list", list);
+		
+		if (list == null || list.isEmpty()) {
+	        model.addAttribute("isEmpty", true);
+	    } else {
+	        model.addAttribute("isEmpty", false);
+	        model.addAttribute("list", list);
+	    }
+		
+//		model.addAttribute("list", list);
 		
 		return "admin/waiting_list";
 		
