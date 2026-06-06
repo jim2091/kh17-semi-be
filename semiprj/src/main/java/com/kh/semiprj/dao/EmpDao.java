@@ -136,7 +136,7 @@ public class EmpDao {
 	public boolean updateByUser(EmpDto empDto) {
 		String sql = "update emp "
 				+ "set emp_birth=?, emp_email=?, emp_contact=?, "
-				+ "emp_post=?, emp_address1=?, emp_address2=? where emp_no = ?";
+				+ "emp_post=?, emp_address1=?, emp_address2=?, emp_email_verified='Y' where emp_no = ?";
 		Object[] params = {empDto.getEmpBirth(), empDto.getEmpEmail(), 
 				empDto.getEmpContact(), empDto.getEmpPost(), 
 				empDto.getEmpAddress1(), empDto.getEmpAddress2(), 
@@ -146,7 +146,7 @@ public class EmpDao {
 	}
 	
 	public List<EmpDto> selectListForWaiting(){
-		String sql = "select * from emp where emp_approval_status = 'N' order by emp_no asc";
+		String sql = "select * from emp where emp_approval_status = 'N' and emp_email_verified = 'Y' order by emp_no asc";
 		return jdbcTemplate.query(sql, empMapper);
 	}
 	
