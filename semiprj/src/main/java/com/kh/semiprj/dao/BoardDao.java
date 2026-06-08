@@ -122,24 +122,24 @@ public class BoardDao {
 		if(pageVO.getBoardHead() != null &&
 				   !pageVO.getBoardHead().isEmpty()) {
 
-			    String sql =
-			        "select * from ("
-			        + "select rownum RN, TMP.* FROM ("
-			            + "select * from board_list "
-			            + "where board_head = ? "
-			            + "connect by prior board_no=board_parent "
-			            + "start with board_parent is null "
-			            + "order siblings by board_group desc, board_no asc"
-			        + ")TMP"
-			        + ") where RN between ? and ?";
+		    String sql =
+		        "select * from ("
+		        + "select rownum RN, TMP.* FROM ("
+		            + "select * from board_list "
+		            + "where board_head = ? "
+		            + "connect by prior board_no=board_parent "
+		            + "start with board_parent is null "
+		            + "order siblings by board_group desc, board_no asc"
+		        + ")TMP"
+		        + ") where RN between ? and ?";
 
-			    Object[] params = {
-			        pageVO.getBoardHead(),
-			        pageVO.getBeginRownum(),
-			        pageVO.getEndRownum()
-			    };
+		    Object[] params = {
+		        pageVO.getBoardHead(),
+		        pageVO.getBeginRownum(),
+		        pageVO.getEndRownum()
+		    };
 
-			    return jdbcTemplate.query(sql, boardMapper, params);
+		    return jdbcTemplate.query(sql, boardMapper, params);
 		}
 		if(pageVO.isList()) 
 			return selectList(pageVO.getPage(), pageVO.getSize());	

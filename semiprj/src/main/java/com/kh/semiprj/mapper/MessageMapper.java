@@ -24,7 +24,15 @@ public class MessageMapper implements RowMapper<MessageDto>{
 		}
 		messageDto.setMessageWtime(rs.getTimestamp("message_wtime"));
 		messageDto.setMessageRead(rs.getString("message_read"));
-		return null;
-	}
+		try {
+            messageDto.setSenderName(rs.getString("sender_name"));
+        }
+        catch(Exception e) {}
 
+        try {
+            messageDto.setReceiverName(rs.getString("receiver_name"));
+        }
+        catch(Exception e) {}
+		return messageDto;
+	}
 }
