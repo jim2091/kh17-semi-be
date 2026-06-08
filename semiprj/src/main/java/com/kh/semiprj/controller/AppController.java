@@ -47,17 +47,13 @@ public class AppController {
 		AppDto appDto = appDao.selectOneById(appId);
 		if (appDto == null)
 			return "redirect:./list";
-
 		List<AppLineDto> lineList = appLineDao.selectByAppId(appId);
-
 		// loginEmpNo 추가!
 		String loginId = (String) session.getAttribute("loginId");
 		String empNo = appDao.selectEmpNoById(loginId);
-
 		model.addAttribute("appDto", appDto);
 		model.addAttribute("lineList", lineList);
 		model.addAttribute("loginEmpNo", empNo);
-
 		return "app/detail";
 	}
 
@@ -65,7 +61,6 @@ public class AppController {
 	@PostMapping("/edit")
 	public String edit(@RequestParam int appId, @RequestParam String appStatus, HttpSession session,
 			RedirectAttributes attr) {
-
 		return "redirect:/app/list";
 	}
 
@@ -162,35 +157,8 @@ public class AppController {
 			line3.setAppLineStatus("대기");
 			appLineDao.insertAppr(line3); // ← insertAppr 사용!
 		}
-
 		return "redirect:./insertComplete";
 	}
-
-//	// 품의서
-//	@GetMapping("/expInsert")
-//	public String expInsert(HttpSession session, Model model) {
-//		String loginId = (String) session.getAttribute("loginId");
-//		String empName = appDao.selectEmpNameById(loginId);
-//		model.addAttribute("empName", empName);
-//		return "/app/expInsert";
-//	}
-//
-//	@PostMapping("/expInsert")
-//	public String expInsert(@ModelAttribute ExpAppDto expAppDto, HttpSession session) {
-//		String loginId = (String) session.getAttribute("loginId");
-//		if (loginId == null)
-//			return "redirect:/login";
-//		String empNo = appDao.selectEmpNoById(loginId);
-//		if (empNo == null)
-//			return "redirect:./expInsert";
-//		expAppDto.setAppReqId(empNo);
-//		expAppDto.setAppType("품의서");
-//		int nextAppId = appDao.sequence();
-//		expAppDto.setAppId(nextAppId);
-//		appDao.insert(expAppDto);
-//		expAppDao.insertExpApp(expAppDto);
-//		return "redirect:./insertComplete";
-//	}
 
 	@GetMapping("/expInsert")
 	public String expInsert(HttpSession session, Model model) {
@@ -250,35 +218,8 @@ public class AppController {
 			line3.setAppLineType("품의서");
 			appLineDao.insert(line3);
 		}
-
 		return "redirect:./insertComplete";
 	}
-
-//	// 업무기안서
-//	@GetMapping("/dftInsert")
-//	public String dftInsert(HttpSession session, Model model) {
-//		String loginId = (String) session.getAttribute("loginId");
-//		String empName = appDao.selectEmpNameById(loginId);
-//		model.addAttribute("empName", empName);
-//		return "/app/dftInsert";
-//	}
-//
-//	@PostMapping("/dftInsert")
-//	public String dftInsert(@ModelAttribute DftAppDto dftAppDto, HttpSession session) {
-//		String loginId = (String) session.getAttribute("loginId");
-//		if (loginId == null)
-//			return "redirect:/login";
-//		String empNo = appDao.selectEmpNoById(loginId);
-//		if (empNo == null)
-//			return "redirect:./dftInsert";
-//		dftAppDto.setAppReqId(empNo);
-//		dftAppDto.setAppType("업무기안서");
-//		int nextAppId = appDao.sequence();
-//		dftAppDto.setAppId(nextAppId);
-//		appDao.insert(dftAppDto);
-//		dftAppDao.insertDftApp(dftAppDto);
-//		return "redirect:./insertComplete";
-//	}
 
 	@GetMapping("/dftInsert")
 	public String dftInsert(HttpSession session, Model model) {
@@ -342,24 +283,6 @@ public class AppController {
 		return "redirect:./insertComplete";
 	}
 
-//	@RequestMapping("/list")
-//	public String list(@RequestParam(required = false) String appType, HttpSession session, Model model) {
-//		String loginId = (String) session.getAttribute("loginId");
-//		String empNo = appDao.selectEmpNoById(loginId);
-//		String empName = appDao.selectEmpNameById(loginId);
-//		model.addAttribute("empName", empName);
-//		List<AppDto> list;
-//		if (appType != null && !appType.isEmpty()) {
-//			list = appDao.selectMyListByType(empNo, appType); // 종류별 필터
-//		} else {
-//			list = appDao.selectMyList(empNo); // 전체
-//		}
-//
-//		model.addAttribute("list", list);
-//		return "/app/list";
-//	}
-
-	// 검색
 	@RequestMapping("/list")
 	public String list(@RequestParam(required = false) String appType, @RequestParam(required = false) String column,
 			@RequestParam(required = false) String keyword, HttpSession session, Model model) {
@@ -372,16 +295,12 @@ public class AppController {
 		List<AppDto> list;
 
 		if (keyword != null && !keyword.isEmpty() && column != null) {
-			// 검색
 			list = appDao.searchList(empNo, column, keyword);
 		} else if (appType != null && !appType.isEmpty()) {
-			// 타입 필터
 			list = appDao.selectMyListByType(empNo, appType);
 		} else {
-			// 전체
 			list = appDao.selectMyList(empNo);
 		}
-
 		model.addAttribute("list", list);
 		return "/app/list";
 	}
