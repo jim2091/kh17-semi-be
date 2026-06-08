@@ -71,7 +71,6 @@ $(function(){
         }
     	var valid = title.length > 0;
     	$(this).removeClass("success fail").addClass(valid ? "success" : "fail");
-    	console.log("sadf")
     	state.boardTitleValid = valid;
     });
     

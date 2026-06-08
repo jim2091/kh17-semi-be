@@ -154,7 +154,6 @@ public class BoardController {
 	//3. 게시글 상세 매핑
 	@RequestMapping("/detail")
 	public String detail(Model model, @RequestParam long boardNo, HttpSession session) {
-		boardDao.updateBoardReadcount(boardNo);
 		BoardDto boardDto = boardDao.selectOne(boardNo);
 		if(boardDto == null) throw new TargetNotfoundException("존재하지 않는 게시글입니다.");
 		

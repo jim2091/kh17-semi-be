@@ -78,7 +78,6 @@ public class EmpController {
 		session.setAttribute("loginId", findEmpDto.getEmpId());
 		session.setAttribute("loginRole", findEmpDto.getEmpLevel());
 		session.setAttribute("loginNo", findEmpDto.getEmpNo());
-		session.setAttribute("loginName", findEmpDto.getEmpName());
 
 		if (findEmpDto.getEmpLevel().equals("관리자")) {
 			session.setAttribute("masterToggle", true);
