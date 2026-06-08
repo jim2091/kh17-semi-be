@@ -47,17 +47,13 @@ public class AppController {
 		AppDto appDto = appDao.selectOneById(appId);
 		if (appDto == null)
 			return "redirect:./list";
-
 		List<AppLineDto> lineList = appLineDao.selectByAppId(appId);
-
 		// loginEmpNo 추가!
 		String loginId = (String) session.getAttribute("loginId");
 		String empNo = appDao.selectEmpNoById(loginId);
-
 		model.addAttribute("appDto", appDto);
 		model.addAttribute("lineList", lineList);
 		model.addAttribute("loginEmpNo", empNo);
-
 		return "app/detail";
 	}
 
@@ -65,7 +61,6 @@ public class AppController {
 	@PostMapping("/edit")
 	public String edit(@RequestParam int appId, @RequestParam String appStatus, HttpSession session,
 			RedirectAttributes attr) {
-
 		return "redirect:/app/list";
 	}
 
@@ -162,7 +157,6 @@ public class AppController {
 			line3.setAppLineStatus("대기");
 			appLineDao.insertAppr(line3); // ← insertAppr 사용!
 		}
-
 		return "redirect:./insertComplete";
 	}
 
@@ -224,10 +218,8 @@ public class AppController {
 			line3.setAppLineType("품의서");
 			appLineDao.insert(line3);
 		}
-
 		return "redirect:./insertComplete";
 	}
-
 
 	@GetMapping("/dftInsert")
 	public String dftInsert(HttpSession session, Model model) {
