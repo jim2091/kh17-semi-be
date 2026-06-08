@@ -761,3 +761,8 @@ select.field2 {
 .bg-blue    { background-color: #74b9ff !important; } 
 .bg-navy    { background-color: #0984e3 !important; } 
 .bg-purple  { background-color: #a29bfe !important; } 
+
+/* 스크롤바 고정 */
+html {
+    scrollbar-gutter: stable;
+}

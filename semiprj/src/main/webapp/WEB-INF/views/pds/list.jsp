@@ -20,10 +20,14 @@ $(function(){
 });
 </script>
 
-<div class="container w-950 mt-50 mb-50">
+<div class="container w-900 mt-50 mb-50">
 	<!-- 페이지 제목 -->
     <div class="cell center">
         <h1 class="mt-0 mb-0">자료실</h1>
+    </div>
+
+    <div class="cell center mt-10">
+        <span>&nbsp</span>
     </div>
 	
     <!-- 검색창 -->
