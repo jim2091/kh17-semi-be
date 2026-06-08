@@ -12,10 +12,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.kh.semiprj.dao.DeptCategoryDao;
 import com.kh.semiprj.dao.DeptDao;
 import com.kh.semiprj.dao.EmpDao;
-import com.kh.semiprj.dto.DeptCategoryDto;
 import com.kh.semiprj.dto.DeptDto;
 import com.kh.semiprj.dto.EmpDto;
 import com.kh.semiprj.exception.TargetNotfoundException;
@@ -31,10 +29,8 @@ public class DeptController {
 	private DeptDao deptDao;
 	@Autowired
 	private EmpDao empDao;
-	@Autowired
-	private DeptCategoryDao deptCategoryDao;
 
-	//목록 및 검색
+	//목록 및 검색(페이징처리된것)
 	@RequestMapping("/list")
 	public String list(@ModelAttribute PageVO pageVO, Model model) {
 		
@@ -49,11 +45,18 @@ public class DeptController {
 		model.addAttribute("list",list);
 		model.addAttribute("pageVO",pageVO);
 		
-		
-		List<DeptCategoryDto> deptCategoryList = deptCategoryDao.selectCategoryList();
-		model.addAttribute("deptCategoryList",deptCategoryList);
-		
 		return "dept/list";
+	}
+	
+	//목록 (조직도)
+	@RequestMapping("/tree")
+	public String tree(Model model) {
+		
+		
+		List<DeptDto> deptList = deptDao.selectTreeList();
+		model.addAttribute("deptList",deptList);
+		
+		return "dept/tree";
 	}
 	
 	//등록
@@ -64,8 +67,8 @@ public class DeptController {
 			throw new WhoAreYouException("관리자 권한이 필요한 기능입니다.");
 		}
 		
-		List<DeptCategoryDto> deptCategoryList = deptCategoryDao.selectCategoryList();
-		model.addAttribute("deptCategoryList",deptCategoryList);
+		List<DeptDto> deptList = deptDao.selectTreeList();
+		model.addAttribute("deptList",deptList);
 		
 		return "dept/insert";
 	}
@@ -89,19 +92,26 @@ public class DeptController {
 	@RequestMapping("/detail")
 	public String detail(@RequestParam int deptId, Model model) {
 		DeptDto deptDto = deptDao.selectOne(deptId);
-		DeptCategoryDto deptCategoryDto = 
-				deptCategoryDao.selectOne(deptDto.getDeptCategory());
 		if(deptDto == null) {
 			throw new TargetNotfoundException("존재하지 않는 부서 정보");
 		}
-		EmpDto empDto = empDao.selectOneDeptHeadId(deptDto.getDeptHeadId());//부서장 이름을 불러오기위해
 		
+		if(deptDto.getParentDeptId() != 0) {
+			DeptDto parentDeptDto = deptDao.selectOne(deptDto.getParentDeptId());
+			model.addAttribute("parentDeptDto",parentDeptDto);	
+		}
+		
+		EmpDto empDto = empDao.selectOneDeptHeadId(deptDto.getDeptHeadId());//부서장 이름을 불러오기위해
+		List<EmpDto> memberList = deptDao.selectListByDept(deptId);
+	    
+	    model.addAttribute("memberList", memberList);
 		model.addAttribute("empDto",empDto);
 		model.addAttribute("deptDto",deptDto);
-		model.addAttribute("deptCategoryDto", deptCategoryDto);
 		
 		return "dept/detail";
 	}
+	
+	
 	
 	//수정
 	@GetMapping("/edit")
@@ -112,11 +122,11 @@ public class DeptController {
 		}
 		
 		DeptDto deptDto = deptDao.selectOne(deptId);
-		
 		if(deptDto == null) throw new TargetNotfoundException("존재하지 않은 부서");
-		
 		model.addAttribute("deptDto",deptDto);
-		model.addAttribute("deptCategoryList",deptCategoryDao.selectCategoryList());
+		
+		List<DeptDto> deptList = deptDao.selectTreeList();
+		model.addAttribute("deptList", deptList);
 		return "dept/edit";
 	}
 	
