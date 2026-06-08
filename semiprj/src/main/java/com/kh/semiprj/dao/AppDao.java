@@ -34,16 +34,6 @@ public class AppDao {
         return seq != null ? seq : 0;
     }   
 
-
-	public List<AppDto> selectMyList(String appReqId) {
-	    String sql = "select a.*, e.emp_name from app a "
-	               + "join emp e on a.app_req_id = e.emp_no "
-	               + "where a.app_req_id = ? "
-	               + "order by a.app_id desc";
-	    Object[] params = { appReqId };
-	    return jdbcTemplate.query(sql, appMapper, params);
-	}
-
 	// app_type 페이징
 	public List<AppDto> selectByAppTypeList(PageVO pageVO) {
 		if (pageVO == null) {
@@ -123,6 +113,7 @@ public class AppDao {
 		return jdbcTemplate.update(sql, params) > 0;
 	}
 	
+	//품의서 업무기안서 등록
 	public void insert(ExpAppDto expAppDto) {
 	    String sql = "insert into app (app_id, app_req_id, app_title, "
 	               + "app_content, app_type, app_status, app_date, app_save_yn)"
@@ -189,6 +180,7 @@ public class AppDao {
 	    return jdbcTemplate.query(sql, appMapper, params);
 	}
 
+	
 	public AppDto selectOne(String appReqId) {
 	    String sql = "select a.*, e.emp_name from app a "
 	               + "join emp e on a.app_req_id = e.emp_no "
@@ -206,7 +198,9 @@ public class AppDao {
 	    List<AppDto> list = jdbcTemplate.query(sql, appMapper, params);
 	    return list.isEmpty() ? null : list.get(0);
 	}
-
+	
+	
+	//내 서류를 타입에 따라 필터링
 	public List<AppDto> selectMyListByType(String appReqId, String appType) {
 	    String sql = "select a.*, e.emp_name from app a "
 	               + "join emp e on a.app_req_id = e.emp_no "
@@ -217,6 +211,48 @@ public class AppDao {
 	}
 	
 	
+	// 내가 결재해야 하는 (app_line에서 조회)
+	public List<AppDto> selectMyApprList(String empNo) {
+	    String sql = "select a.*, e.emp_name from app_line l "
+	               + "join app a on l.app_id = a.app_id "
+	               + "join emp e on a.app_req_id = e.emp_no "
+	               + "where l.app_app_id = ? "
+	               + "and l.app_line_status = '진행중' "
+	               + "order by a.app_id desc";
+	    Object[] params = { empNo };
+	    return jdbcTemplate.query(sql, appMapper, params);
+	}
+
+	// 내가 기안한 것 중 진행중
+	public List<AppDto> selectMyIngList(String empNo) {
+	    String sql = "select a.*, e.emp_name from app a "
+	               + "join emp e on a.app_req_id = e.emp_no "
+	               + "where a.app_req_id = ? "
+	               + "and a.app_status = '진행중' "
+	               + "order by a.app_id desc";
+	    Object[] params = { empNo };
+	    return jdbcTemplate.query(sql, appMapper, params);
+	}
+
+	// 내가 기안한 것 중 반려
+	public List<AppDto> selectMyRejList(String empNo) {
+	    String sql = "select a.*, e.emp_name from app a "
+	               + "join emp e on a.app_req_id = e.emp_no "
+	               + "where a.app_req_id = ? "
+	               + "and a.app_status = '반려' "
+	               + "order by a.app_id desc";
+	    Object[] params = { empNo };
+	    return jdbcTemplate.query(sql, appMapper, params);
+	}
 	
-	
+	public List<AppDto> selectMyList(String empNo) {
+		 String sql = "select a.*, e.emp_name from app_line l "
+	               + "join app a on l.app_id = a.app_id "
+	               + "join emp e on a.app_req_id = e.emp_no "
+	               + "where l.app_app_id = ? "
+	               + "and l.app_line_status = '진행중' "
+	               + "order by a.app_id desc";
+	    Object[] params = { empNo };
+	    return jdbcTemplate.query(sql, appMapper, params);
+	}
 }

@@ -65,7 +65,7 @@ public class AppLineDao {
     // 승인
     public void approve(int appLineId) {
         String sql = "update app_line set app_line_status = '완료', "
-                   + "app_line_date = to_char(sysdate, 'YYYY-MM-DD') "
+                   + "app_line_date = systimestamp  "
                    + "where app_line_id = ?";
         jdbcTemplate.update(sql, appLineId);
     }
@@ -73,7 +73,7 @@ public class AppLineDao {
     // 반려
     public void reject(int appLineId, String reason) {
         String sql = "update app_line set app_line_status = '반려', "
-                   + "app_line_date = to_char(sysdate, 'YYYY-MM-DD'), "
+                   + "app_line_date = systimestamp , "
                    + "app_line_rej = ? "
                    + "where app_line_id = ?";
         jdbcTemplate.update(sql, reason, appLineId);

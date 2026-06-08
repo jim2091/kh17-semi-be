@@ -1,7 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 
 <jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
-<jsp:include page="/WEB-INF/views/template/side_home.jsp"></jsp:include>
+<jsp:include page="/WEB-INF/views/template/side_app.jsp"></jsp:include>
 
 <form action="./expInsert" method="post" autocomplete="off">
     <div class="cell center">

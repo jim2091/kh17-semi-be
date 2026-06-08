@@ -58,6 +58,9 @@ public class AppController {
 	@PostMapping("/edit")
 	public String edit(@RequestParam int appId, @RequestParam String appStatus, HttpSession session,
 			RedirectAttributes attr) {
+		
+		
+		
 		return "redirect:/app/list";
 	}
 
@@ -171,24 +174,57 @@ public class AppController {
 	}
 
 	@RequestMapping("/list")
-	public String list(@RequestParam(required = false) String appType, HttpSession session, Model model) {
+	public String list(@RequestParam(required = false) String appType, 
+							HttpSession session, Model model) {
 		String loginId = (String) session.getAttribute("loginId");
 		String empNo = appDao.selectEmpNoById(loginId);
-
+		
+		String empName = appDao.selectEmpNameById(loginId);
+		model.addAttribute("empName", empName);
 		List<AppDto> list;
 		if (appType != null && !appType.isEmpty()) {
 			list = appDao.selectMyListByType(empNo, appType); // 종류별 필터
 		} else {
 			list = appDao.selectMyList(empNo); // 전체
 		}
-
+		
 		model.addAttribute("list", list);
 		return "/app/list";
 	}
-
-	@GetMapping("/searchApprover")
-	@ResponseBody
-	public List<AppDto> searchApprover(@RequestParam String keyword) {
-		return appDao.searchApprover(keyword);
+	
+	//검색
+	
+	
+	
+	//사이드바 용 필터링(걸러내기)
+	
+	@GetMapping("/myAppr")
+	public String myAppr(HttpSession session, Model model) {
+	    String empNo = appDao.selectEmpNoById((String)session.getAttribute("loginId"));
+	    model.addAttribute("list", appDao.selectMyApprList(empNo));
+	    return "/app/list";
 	}
+
+	@GetMapping("/myIng")
+	public String myIng(HttpSession session, Model model) {
+	    String empNo = appDao.selectEmpNoById((String)session.getAttribute("loginId"));
+	    model.addAttribute("list", appDao.selectMyIngList(empNo));
+	    return "/app/list";
+	}
+
+	@GetMapping("/myRej")
+	public String myRej(HttpSession session, Model model) {
+	    String empNo = appDao.selectEmpNoById((String)session.getAttribute("loginId"));
+	    model.addAttribute("list", appDao.selectMyRejList(empNo));
+	    return "/app/list";
+	}
+	
+	@GetMapping("/myList")
+	public String myList(HttpSession session, Model model) {
+	    String loginId = (String) session.getAttribute("loginId");
+	    String empNo = appDao.selectEmpNoById(loginId);
+	    model.addAttribute("list", appDao.selectMyList(empNo));
+	    return "/app/list";
+	}
+	
 }

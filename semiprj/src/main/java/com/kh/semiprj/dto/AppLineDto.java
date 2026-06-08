@@ -16,5 +16,5 @@ public class AppLineDto {
 
     private String empName;        // 결재자 이름
     private String empDept;        // 결재자 부서
-    private String empPosition;    // 결재자 직급
+    private String empPosition;    // 결재자 직위
 }

@@ -3,7 +3,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 
 <jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
-<jsp:include page="/WEB-INF/views/template/side_home.jsp"></jsp:include>
+<jsp:include page="/WEB-INF/views/template/side_app.jsp"></jsp:include>
 
 <div class="container w-900 mt-50 mb-50">
     <div class="cell center">
@@ -98,27 +98,6 @@
             </tbody>
         </table>
     </div>
-
-    <%-- 결재 버튼 (내가 진행중인 결재자일 때만 표시) --%>
-    <c:forEach var="line" items="${lineList}">
-        <c:if test="${line.appAppId == loginEmpNo && line.appLineStatus == '진행중'}">
-            <div class="cell center mt-40">
-                <form action="./approve" method="post" style="display:inline;">
-                    <input type="hidden" name="appLineId" value="${line.appLineId}">
-                    <input type="hidden" name="appId" value="${appDto.appId}">
-                    <button class="btn" type="submit">승인</button>
-                </form>
-                <form action="./reject" method="post" style="display:inline;">
-                    <input type="hidden" name="appLineId" value="${line.appLineId}">
-                    <input type="hidden" name="appId" value="${appDto.appId}">
-                    <div>
-                        <input type="text" name="appLineRej" class="field" placeholder="반려 사유 입력" required>
-                    </div>
-                    <button class="btn" type="submit" style="background:red; color:white;">반려</button>
-                </form>
-            </div>
-        </c:if>
-    </c:forEach>
 
     <div class="cell center mt-40">
         <button class="btn" onclick="location.href='./list';">목록으로</button>
