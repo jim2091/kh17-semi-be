@@ -26,7 +26,7 @@ public class ErrorRestController {
 	public ResponseEntity<String> forbidden(Exception e) {
 		return ResponseEntity.status(403).build();
 	}
-	//비동기 부서 카테고리 등록 중복 오류
+	//비동기 부서 카테고리 등록 중복 오류 메세지
 		@ExceptionHandler(SameNameException.class)
 		public ResponseEntity<String> handleSameName(SameNameException e) {
 			e.printStackTrace();

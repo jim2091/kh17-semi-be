@@ -5,6 +5,9 @@
 <jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
 <jsp:include page="/WEB-INF/views/template/side_dept.jsp"></jsp:include>
 
+<!-- 조직도를 구리기위한 외부라이브러리 추가! -->
+<script src="https://github.com/wesnolte/jOrgChart"></script>
+
 <div class="container w-80">
 	<div class="center">
 		<h1>부서 목록 및 검색</h1>
@@ -16,7 +19,7 @@
 	        <form action="./list">
 	            <select name="column" class="field">
 	                <option value="dept_name" ${param.column == "dept_name" ? "selected" : ""}>부서명</option>
-	                <option value="parent_dept_name" ${param.column == "parent_dept_name" ? "selected" : ""}>상위부서</option>
+	                <option value="dept_category_name" ${param.column == "dept_category_name" ? "selected" : ""}>상위부서</option>
 	                <option value="dept_id" ${param.column == "dept_id" ? "selected" : ""}>부서코드</option>
 	            </select>
 	            <input type="text" name="keyword" placeholder="검색어 입력" class="field" value="${param.keyword}">
@@ -49,10 +52,11 @@
 				<tr>
 					<td>${deptDto.deptId}</td>
 					<td>
-						<c:choose>
-						    <c:when test="${deptDto.parentDeptId == 0}">최상위 부서</c:when>
-						    <c:otherwise>${deptDto.parentDeptName}</c:otherwise>
-						</c:choose>
+						<c:forEach var="category" items="${deptCategoryList}">
+							<c:if test="${deptDto.deptCategory == category.deptCategoryNo}">
+								${category.deptCategoryName}
+							</c:if>
+						</c:forEach>
 					</td>
 					<td>
 						<a href="./detail?deptId=${deptDto.deptId}" class="link">

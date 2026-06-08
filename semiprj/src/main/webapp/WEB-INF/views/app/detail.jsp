@@ -96,7 +96,11 @@
 			</tbody>
 		</table>
 	</div>
-
+	<div class="cell center mt-40">
+		<button class="btn btn-positive" onclick="">승인</button>
+		<button class="btn btn-negative" onclick="">반려</button>
+		<!-- 반려를 누르면 반려 사유를 적을 수 있는 공간 나오게 -->
+	</div>
 
 
 	<div class="cell center mt-40">
