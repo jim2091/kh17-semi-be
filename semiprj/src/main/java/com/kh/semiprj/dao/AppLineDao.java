@@ -3,29 +3,51 @@ package com.kh.semiprj.dao;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import com.kh.semiprj.dto.AppLineDto;
+import com.kh.semiprj.mapper.AppLineMapper;
 
 import lombok.RequiredArgsConstructor;
 
 @Repository
 @RequiredArgsConstructor
 public class AppLineDao {
-    private final JdbcTemplate jdbcTemplate;
-
-    // 결재선 등록
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+    @Autowired
+    private AppLineMapper appLineMapper;
+    
+    
+    
+    
+    
     public void insert(AppLineDto appLineDto) {
         String sql = "insert into app_line (app_line_id, app_id, app_app_id, "
                    + "app_line_order, app_line_type, app_line_status) "
-                   + "values (app_line_seq.nextval, ?, ?, ?, ?, '대기')";
+                   + "values (app_line_seq.nextval, ?, ?, ?, ?, '대기')"; // ← 시퀀스로!
         Object[] params = {
             appLineDto.getAppId(),
             appLineDto.getAppAppId(),
             appLineDto.getAppLineOrder(),
             appLineDto.getAppLineType()
+        };
+        jdbcTemplate.update(sql, params);
+    }
+    
+    public void insertAppr(AppLineDto appLineDto) {
+        String sql = "insert into app_line "
+                   + "(app_line_id, app_id, app_app_id, app_line_order, app_line_type, app_line_status) "
+                   + "values(app_line_seq.nextval, ?, ?, ?, ?, ?)"; // ← app_line_id는 시퀀스로!
+        Object[] params = {
+            appLineDto.getAppId(),          // 1
+            appLineDto.getAppAppId(),        // 2
+            appLineDto.getAppLineOrder(),    // 3
+            appLineDto.getAppLineType(),     // 4
+            appLineDto.getAppLineStatus()    // 5
         };
         jdbcTemplate.update(sql, params);
     }
@@ -47,7 +69,7 @@ public class AppLineDao {
         Object[] params = { appId };
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(AppLineDto.class), params);
     }
-
+    
     // 내가 결재해야 할 목록 (진행중인 것만)
     public List<AppLineDto> selectMyApprList(String empNo) {
         String sql = "select l.*, a.app_title, a.app_type, a.app_date, "
@@ -62,22 +84,6 @@ public class AppLineDao {
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(AppLineDto.class), params);
     }
 
-    // 승인
-    public void approve(int appLineId) {
-        String sql = "update app_line set app_line_status = '완료', "
-                   + "app_line_date = to_char(sysdate, 'YYYY-MM-DD') "
-                   + "where app_line_id = ?";
-        jdbcTemplate.update(sql, appLineId);
-    }
-
-    // 반려
-    public void reject(int appLineId, String reason) {
-        String sql = "update app_line set app_line_status = '반려', "
-                   + "app_line_date = to_char(sysdate, 'YYYY-MM-DD'), "
-                   + "app_line_rej = ? "
-                   + "where app_line_id = ?";
-        jdbcTemplate.update(sql, reason, appLineId);
-    }
 
     // 다음 순서 결재자 진행중으로 변경
     public void activateNext(int appId, int nextOrder) {
@@ -85,4 +91,38 @@ public class AppLineDao {
                    + "where app_id = ? and app_line_order = ?";
         jdbcTemplate.update(sql, appId, nextOrder);
     }
+    
+    
+ // 단건 조회 (본인 확인용)
+    public AppLineDto selectOne(int appLineId) {
+        String sql = "select * from app_line where app_line_id = ?";
+        List<AppLineDto> list = jdbcTemplate.query(sql, appLineMapper, appLineId);
+        return list.isEmpty() ? null : list.get(0);
+    }
+
+    // 승인 처리
+    public void approve(int appLineId) {
+        String sql = "update app_line set app_line_status = '완료', "
+                   + "app_line_date = systimestamp "
+                   + "where app_line_id = ?";
+        jdbcTemplate.update(sql, appLineId);
+    }
+
+    // 다음 결재자 진행중으로 변경 (변경된 행 수 반환)
+    public int updateNextApprover(int appId, int currentOrder) {
+        String sql = "update app_line set app_line_status = '진행중' "
+                   + "where app_id = ? and app_line_order = ?";
+        return jdbcTemplate.update(sql, appId, currentOrder + 1);
+    }
+
+    // 반려 처리
+    public void reject(int appLineId, String reason) {
+        String sql = "update app_line set app_line_status = '반려', "
+                   + "app_line_date = systimestamp, "
+                   + "app_line_rej = ? "
+                   + "where app_line_id = ?";
+        jdbcTemplate.update(sql, reason, appLineId);
+    }
+    
+    
 }
