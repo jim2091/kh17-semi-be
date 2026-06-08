@@ -39,6 +39,7 @@ public class InterceptorConfiguration implements WebMvcConfigurer{
 				"/emp/**"
 				,"/admin/**"
 				,"/board/**"
+				,"/dept/**"
 				)
 				.excludePathPatterns(
 						"/emp/login"
@@ -49,6 +50,8 @@ public class InterceptorConfiguration implements WebMvcConfigurer{
 						,"/emp/find_id"
 						,"/emp/find_id_complete"
 						,"/emp/find_pw"
+						,"/dept/insert"
+						,"/dept/edit"
 						);
 		registry.addInterceptor(masterOnlyInterceptor).addPathPatterns(
 				"/pds/write"

@@ -7,9 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import com.kh.semiprj.dto.DeptCategoryDto;
 import com.kh.semiprj.dto.DeptDto;
-import com.kh.semiprj.mapper.DeptCategoryMapper;
+import com.kh.semiprj.dto.EmpDto;
 import com.kh.semiprj.mapper.DeptMapper;
 import com.kh.semiprj.mapper.EmpMapper;
 import com.kh.semiprj.vo.PageVO;
@@ -24,46 +23,27 @@ import com.kh.semiprj.vo.PageVO;
 	    @Autowired
 	    private DeptMapper deptMapper;
 	    @Autowired
-	    private DeptCategoryMapper deptCategoryMapper;
-	    @Autowired
 	    private EmpMapper empMapper;
 	    
-	    //목록
+	    
+	    //목록 및 검색 (페이징처리)
 	    public List<DeptDto> selectList(PageVO pageVO) {
 	        
 	        
 	        if (pageVO.isList()) {
 	            String sql = "select * from ("
-	                            + "select rownum rn, TMP.* from ("
-	                                + "select * from dept order by dept_id asc"
-	                            + ")TMP"
-	                        + ") where rn between ? and ?";
-	            
+	            				+ "select rownum rn, TMP.* from ("
+	            					+ "select * from dept_profile_view order by dept_id asc"
+	            				+ ")TMP"
+	            			+ ") where rn between ? and ?";
 	            
 	            Object[] params = { pageVO.getBeginRownum(), pageVO.getEndRownum() };
 	            return jdbcTemplate.query(sql, deptMapper, params);
-	        }
-	        
-	        if (pageVO.getColumn().equals("dept_category_name")) {
-	            String sql = "select * from ("
-	                       + " select rownum rn, TMP.* from ("
-			                       + " select * from dept "
-				                       + " where dept_category in ("
-					                       + " select dept_category_no from dept_category_id "
-					                       + " where instr(dept_category_name, ?) > 0"
-				                       + " ) "
-				                       + " order by dept_id asc"
-		                       + " ) TMP"
-	                       + ") where rn between ? and ?";
-	            
-	            Object[] params = {pageVO.getKeyword(), pageVO.getBeginRownum(), pageVO.getEndRownum()};
-	            return jdbcTemplate.query(sql, deptMapper, params);
 	        } 
-	        
 	        else {
 	            String sql = "select * from ("
 	                       + " select rownum rn, TMP.* from ("
-			                       + " select * from dept "
+			                       + " select * from dept_profile_view "
 			                       + " where instr(" + pageVO.getColumn() + ", ?) > 0 "
 			                       + " order by dept_id asc"
 		                       + " ) TMP"
@@ -80,36 +60,36 @@ import com.kh.semiprj.vo.PageVO;
 	        return jdbcTemplate.queryForObject(sql, int.class);
 	    }
 	    
-	    // 등록
+	    // 등록 메소드
 	    public void insert(DeptDto deptDto) {
 	        String sql = "insert into dept( "
-	                + "dept_id, dept_category, dept_head_id, "
+	                + "dept_id, parent_dept_id, dept_head_id, "
 	                + "dept_name, dept_content " 
 	                + ") values (?, ?, ?, ?, ?)";
 	        
 	        Object[] params = {
-	        	deptDto.getDeptId(), deptDto.getDeptCategory(),
+	        	deptDto.getDeptId(), deptDto.getParentDeptId(),
 	            deptDto.getDeptHeadId(), deptDto.getDeptName(),
 	            deptDto.getDeptContent()
 	        };
 	        jdbcTemplate.update(sql, params); 
 	    }
 	    
-	    // 상세조회
+	    // 상세조회 메소드
 	    public DeptDto selectOne(int deptId) {
-	        String sql = "select * from dept where dept_id = ?";
+	        String sql = "select * from dept_profile_view where dept_id = ?";
 	        Object[] params = { deptId };
 	        List<DeptDto> list = jdbcTemplate.query(sql, deptMapper, params);
 	        return list.isEmpty() ? null : list.get(0);
 	    }
-		//수정
+		//수정 메소두
 		public boolean update(DeptDto deptDto) {
 			String sql = "update dept "
-						+ "set dept_category=?, dept_name=?,"
+						+ "set parent_dept_id=?, dept_name=?,"
 							+ "dept_head_id=?, dept_content=?"
 						+ "where dept_id=?";
 			Object[] params = {
-				deptDto.getDeptCategory(),deptDto.getDeptName(),
+				deptDto.getParentDeptId(),deptDto.getDeptName(),
 				deptDto.getDeptHeadId(),deptDto.getDeptContent(),
 				deptDto.getDeptId()
 			};
@@ -122,7 +102,7 @@ import com.kh.semiprj.vo.PageVO;
 			return jdbcTemplate.update(sql, params) > 0;
 		}
 	    
-	    //페이징
+	    //페이징 메소드
 	    public int count(PageVO pageVO) {
 	        if (pageVO.isList()) { // 일반 목록일 때의 전체 개수
 	            String sql = "select count(*) from dept";
@@ -130,11 +110,11 @@ import com.kh.semiprj.vo.PageVO;
 	        }
 	        
 	        // 검색일 때의 결과 개수 세기
-	        Set<String> allowList = Set.of("dept_id", "dept_category", "dept_name");
+	        Set<String> allowList = Set.of("dept_id", "parent_dept_id", "dept_name","parent_dept_name");
 	        if (allowList.contains(pageVO.getColumn()) == false) {
 	            return 0;
 	        }        
-	        String sql = "select count(*) from dept where instr(" + pageVO.getColumn() + ", ?) > 0";
+	        String sql = "select count(*) from dept_profile_view where instr(" + pageVO.getColumn() + ", ?) > 0";
 	        Object[] params = { pageVO.getKeyword() };
 	        return jdbcTemplate.queryForObject(sql, int.class, params);
 	    }
@@ -142,23 +122,34 @@ import com.kh.semiprj.vo.PageVO;
 	    //활성화 토글 구현하는 메소드
 	    public boolean updateDeptYn(DeptDto deptDto) {
 	    	String sql = "update dept set dept_yn=? where dept_id=?";
+	    	
 	    	Object[] params = {deptDto.getDeptYn(), deptDto.getDeptId()};
+	    	
 	    	return jdbcTemplate.update(sql,params)>0;
 	    }
 	    
-	    //부서 카테고리 목록보여주는 메소드
-	    public List<DeptCategoryDto> selectCategoryList(){
-			String sql = "select * from dept_category_id "
-					+ "order by dept_category_no asc";
-			return jdbcTemplate.query(sql, deptCategoryMapper);
-		}
-	    
 	    //부서 이름 중복확인 메소드
 	    public DeptDto selectOneByDeptName(String deptName) {
-	    	String sql = "select * from dept where dept_name=?";
+	    	String sql = "select * from dept_profile_view where dept_name=?";
 	    	Object[]params = {deptName};
 	    	List<DeptDto>list = jdbcTemplate.query(sql,deptMapper,params);	    	
 	    	return list.isEmpty() ? null : list.get(0);
 	    }
 	    
+	    //해당 부서에 소속된 사원 목록 조회 메소드
+	    public List<EmpDto> selectListByDept(int deptId) {
+	        String sql = "select * from emp "
+	        		+ "where emp_no in (select emp_no from dept_emp where dept_id = ?) "
+	        		+ "order by emp_name asc";
+	        
+	        Object[] params = { deptId };
+	        
+	        return jdbcTemplate.query(sql, empMapper, params);
+	    }
+	    
+	  //조직도 목록조회 메소드 일단 전체만 조회 페이징처리한 리스트는 같이 못씀
+	    public List<DeptDto> selectTreeList() {
+	    	String sql = "select * from dept_profile_view order by dept_id asc";
+	        return jdbcTemplate.query(sql, deptMapper);
+	    }
 	}

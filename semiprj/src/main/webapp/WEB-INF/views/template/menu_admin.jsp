@@ -48,6 +48,19 @@
 	    <a href="/dept/list">
 	        <span>부서관리</span>
 	    </a>
+	    <ul>
+            <li>
+                <a href="/dept/insert">
+                    <span>부서등록</span>
+                </a>
+                
+            </li>
+            <li>
+                <a href="/dept/list">
+                    <span>부서목록</span>
+                </a>
+            </li>
+        </ul>
 	</li>
 	<li>
 	    <a href="/attn/list">
