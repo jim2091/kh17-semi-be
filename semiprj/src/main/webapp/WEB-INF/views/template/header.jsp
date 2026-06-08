@@ -37,7 +37,6 @@
 	            }, function(){
 	                location.reload();
 	            });
-	
 	        });
 	    });
     </script>
