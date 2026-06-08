@@ -293,5 +293,16 @@ public class AppDao {
             return dto;
         });
     }
+ // 최근 5개만 가져오기
+    public List<AppDto> selectMyRecentList(String empNo) {
+        String sql = "select * from ("
+                   + "  select a.*, e.emp_name from app a "
+                   + "  join emp e on a.app_req_id = e.emp_no "
+                   + "  where a.app_req_id = ? "
+                   + "  order by a.app_id desc"
+                   + ") where rownum <= 5";
+        Object[] params = { empNo };
+        return jdbcTemplate.query(sql, appMapper, params);
+    }
     
 }

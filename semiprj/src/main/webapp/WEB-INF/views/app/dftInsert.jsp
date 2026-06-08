@@ -41,7 +41,7 @@ window.onload = function() {
 	<div class="container w-900 mt-50 mb-50">
 		<div class="cell mt-40">
 			<label>결재명</label> <input type="text" name="appTitle"
-				class="field w-50" required maxlength="100">
+				class="field w-60" required maxlength="100">
 		</div>
 		<div class="cell mt-40">
 			<label>결재 기안자</label> <input type="text" value="${empName}"
@@ -53,14 +53,13 @@ window.onload = function() {
 			<div class="form-section-title">
 				<i class="fa-solid fa-users"></i> 결재자 설정
 			</div>
-
 			<c:forEach var="i" begin="1" end="3">
 				<div class="approver-row">
 					<span class="approver-label"> ${i}) 결재자 <c:if
 							test="${i == 1}">
 							<span class="required">*</span>
 						</c:if>
-					</span> <select id="approver${i}" name="approver${i}" class="field w-30"
+					</span> <select id="approver${i}" name="approver${i}" class="field w-30 mt-20"
 						onchange="showSelected(${i})">
 						<option value="">-- 선택 --</option>
 						<c:forEach var="emp" items="${empList}">
@@ -75,17 +74,17 @@ window.onload = function() {
 
 		<div class="cell mt-40">
 			<label>결재내용</label> <input type="text" name="appContent"
-				class="field w-80" required maxlength="1000">
+				class="field w-60" required maxlength="1000">
 		</div>
 		<div class="cell mt-40">
 			<label>기안일</label> 
-			<input type="date" name="appDate" class="field w-80" readonly>
+			<input type="date" name="appDate" class="field w-60" readonly>
 		</div>
 
 		<%-- 업무기안서 전용 항목 --%>
 		<div class="cell mt-40">
 			<label>업무일</label> <input type="date" name="dftDate"
-				class="field w-80" required>
+				class="field w-60" required>
 		</div>
 
 		<div class="cell center">
