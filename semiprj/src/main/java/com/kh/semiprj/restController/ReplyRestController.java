@@ -19,6 +19,7 @@ import com.kh.semiprj.dao.ReplyDao;
 import com.kh.semiprj.dto.BoardDto;
 import com.kh.semiprj.dto.EmpDto;
 import com.kh.semiprj.dto.ReplyDto;
+import com.kh.semiprj.service.NotificationService;
 import com.kh.semiprj.vo.PageVO;
 import com.kh.semiprj.vo.ReplyVO;
 
@@ -34,6 +35,8 @@ public class ReplyRestController {
 	private BoardDao boardDao;
 	@Autowired
 	private EmpDao empDao;
+	@Autowired
+	private NotificationService notificationService;
 	
 	//댓글 등록 매핑
 	@PostMapping("/write")
@@ -45,6 +48,11 @@ public class ReplyRestController {
 		replyDto.setReplyWriter(empDto.getEmpNo());
 		replyDao.insert(replyDto);
 		boardDao.updateBoardReplycount(replyDto.getReplyOrigin());
+		
+		//알림 생성
+		BoardDto originBoardDto = boardDao.selectOne(replyDto.getReplyOrigin());
+		String receiver = originBoardDto.getBoardWriter();
+		notificationService.notifyComment(receiver, replyDto.getReplyOrigin());
 	}
 	
 	//댓글 목록 매핑
