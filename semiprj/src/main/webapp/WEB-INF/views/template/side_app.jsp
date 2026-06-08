@@ -53,11 +53,13 @@
 		</div>
 		<div class="side-section">
 			<div class="side-title">문서함</div>
-			<a href="./list" class="side-link"> <i class="fa-solid fa-folder-open"></i> 전체
-			</a> <a href="./myList" class="side-link"> <i class="fa-solid fa-file-lines"></i> 내가 기안한
-			</a> <a href="./myAppr" class="side-link"> <i class="fa-solid fa-file-circle-check"></i> 결재해야 하는
-			</a> <a href="./myIng" class="side-link"> <i class="fa-solid fa-clock"></i> 진행중인 기안
-			</a> <a href="./myRej" class="side-link"> <i class="fa-solid fa-file-circle-xmark"></i> 반려된 기안
+			<a href="./list" class="side-link"> <i class="fa-solid fa-folder-open"></i> 전체 문서함</a>
+			<a href="./myNoneList" class="side-link"> <i class="fa-solid fa-file-lines"></i> 결재 대기함
+			</a>
+			<a href="./myList" class="side-link"> <i class="fa-solid fa-file-lines"></i> 기안 문서함
+			</a> <a href="./myAppr" class="side-link"> <i class="fa-solid fa-file-circle-check"></i> 미결재 문서함
+			</a> <a href="./myIng" class="side-link"> <i class="fa-solid fa-clock"></i> 결재 진행 문서함
+			</a> <a href="./myRej" class="side-link"> <i class="fa-solid fa-file-circle-xmark"></i> 반려 문서함
 			</a>
 		</div>
 	</div>

@@ -3,19 +3,24 @@ package com.kh.semiprj.dao;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import com.kh.semiprj.dto.AppLineDto;
+import com.kh.semiprj.mapper.AppLineMapper;
 
 import lombok.RequiredArgsConstructor;
 
 @Repository
 @RequiredArgsConstructor
 public class AppLineDao {
-    private final JdbcTemplate jdbcTemplate;
-
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+    @Autowired
+    private AppLineMapper appLineMapper;
+    
     // 결재선 등록
     public void insert(AppLineDto appLineDto) {
         String sql = "insert into app_line (app_line_id, app_id, app_app_id, "
@@ -62,22 +67,6 @@ public class AppLineDao {
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(AppLineDto.class), params);
     }
 
-    // 승인
-    public void approve(int appLineId) {
-        String sql = "update app_line set app_line_status = '완료', "
-                   + "app_line_date = systimestamp  "
-                   + "where app_line_id = ?";
-        jdbcTemplate.update(sql, appLineId);
-    }
-
-    // 반려
-    public void reject(int appLineId, String reason) {
-        String sql = "update app_line set app_line_status = '반려', "
-                   + "app_line_date = systimestamp , "
-                   + "app_line_rej = ? "
-                   + "where app_line_id = ?";
-        jdbcTemplate.update(sql, reason, appLineId);
-    }
 
     // 다음 순서 결재자 진행중으로 변경
     public void activateNext(int appId, int nextOrder) {
@@ -85,4 +74,38 @@ public class AppLineDao {
                    + "where app_id = ? and app_line_order = ?";
         jdbcTemplate.update(sql, appId, nextOrder);
     }
+    
+    
+ // 단건 조회 (본인 확인용)
+    public AppLineDto selectOne(int appLineId) {
+        String sql = "select * from app_line where app_line_id = ?";
+        List<AppLineDto> list = jdbcTemplate.query(sql, appLineMapper, appLineId);
+        return list.isEmpty() ? null : list.get(0);
+    }
+
+    // 승인 처리
+    public void approve(int appLineId) {
+        String sql = "update app_line set app_line_status = '완료', "
+                   + "app_line_date = systimestamp "
+                   + "where app_line_id = ?";
+        jdbcTemplate.update(sql, appLineId);
+    }
+
+    // 다음 결재자 진행중으로 변경 (변경된 행 수 반환)
+    public int updateNextApprover(int appId, int currentOrder) {
+        String sql = "update app_line set app_line_status = '진행중' "
+                   + "where app_id = ? and app_line_order = ?";
+        return jdbcTemplate.update(sql, appId, currentOrder + 1);
+    }
+
+    // 반려 처리
+    public void reject(int appLineId, String reason) {
+        String sql = "update app_line set app_line_status = '반려', "
+                   + "app_line_date = systimestamp, "
+                   + "app_line_rej = ? "
+                   + "where app_line_id = ?";
+        jdbcTemplate.update(sql, reason, appLineId);
+    }
+    
+    
 }

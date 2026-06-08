@@ -222,6 +222,18 @@ public class AppDao {
 	    Object[] params = { empNo };
 	    return jdbcTemplate.query(sql, appMapper, params);
 	}
+	
+	// 내가 기안한 것 중 대기중 (아무것도 진행 안된)
+		public List<AppDto> selectMyNoneList(String empNo) {
+		    String sql = "select a.*, e.emp_name from app a "
+		               + "join emp e on a.app_req_id = e.emp_no "
+		               + "where a.app_req_id = ? "
+		               + "and a.app_status = '대기' "
+		               + "order by a.app_id desc";
+		    Object[] params = { empNo };
+		    return jdbcTemplate.query(sql, appMapper, params);
+		}
+	
 
 	// 내가 기안한 것 중 진행중
 	public List<AppDto> selectMyIngList(String empNo) {
@@ -246,13 +258,17 @@ public class AppDao {
 	}
 	
 	public List<AppDto> selectMyList(String empNo) {
-		 String sql = "select a.*, e.emp_name from app_line l "
-	               + "join app a on l.app_id = a.app_id "
+	    String sql = "select a.*, e.emp_name from app a "
 	               + "join emp e on a.app_req_id = e.emp_no "
-	               + "where l.app_app_id = ? "
-	               + "and l.app_line_status = '진행중' "
+	               + "where a.app_req_id = ? "       
 	               + "order by a.app_id desc";
 	    Object[] params = { empNo };
 	    return jdbcTemplate.query(sql, appMapper, params);
 	}
+	
+	 // 문서 상태 변경
+    public void updateAppStatus(int appId, String status) {
+        String sql = "update app set app_status = ? where app_id = ?";
+        jdbcTemplate.update(sql, status, appId);
+    }
 }
