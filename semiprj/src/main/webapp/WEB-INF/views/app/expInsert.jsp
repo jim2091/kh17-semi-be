@@ -23,12 +23,21 @@ function validateForm() {
     }
     return true;
 }
+
+window.onload = function() {
+    let today = new Date();
+    let yyyy = today.getFullYear();
+    let mm = String(today.getMonth() + 1).padStart(2, '0');
+    let dd = String(today.getDate()).padStart(2, '0');
+    document.querySelector("input[name='appDate']").value = yyyy + "-" + mm + "-" + dd;
+};
 </script>
 
 <form action="./expInsert" method="post" autocomplete="off">
 	<div class="cell center">
 		<h1>품의서</h1>
 	</div>
+	<hr>
 	<div class="container w-900 mt-50 mb-50">
 		<div class="cell mt-40">
 			<label>결재명</label> <input type="text" name="appTitle"
@@ -67,8 +76,8 @@ function validateForm() {
 				class="field w-80" required maxlength="1000">
 		</div>
 		<div class="cell mt-40">
-			<label>기안일</label> <input type="date" name="appDate"
-				class="field w-80" required>
+			<label>기안일</label> 
+			<input type="date" name="appDate" class="field w-80" readonly>
 		</div>
 
 		<%-- 품의서 전용 항목 --%>

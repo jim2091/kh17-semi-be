@@ -24,6 +24,14 @@ function validateForm() {
     }
     return true;
 }
+
+window.onload = function() {
+    let today = new Date();
+    let yyyy = today.getFullYear();
+    let mm = String(today.getMonth() + 1).padStart(2, '0');
+    let dd = String(today.getDate()).padStart(2, '0');
+    document.querySelector("input[name='appDate']").value = yyyy + "-" + mm + "-" + dd;
+};
 </script>
 
 <form action="./vacInsert" method="post" autocomplete="off"
@@ -66,13 +74,15 @@ function validateForm() {
 				</div>
 			</c:forEach>
 		</div>
+
+
 		<div class="cell mt-40">
 			<label>결재내용</label> <input type="text" name="appContent"
 				class="field w-40" required maxlength="1000">
 		</div>
 		<div class="cell mt-40">
-			<label>기안일</label> <input type="date" name="appDate"
-				class="field w-80" required>
+			<label>기안일</label> 
+			<input type="date" name="appDate" class="field w-80" readonly>
 		</div>
 		<div class="cell mt-40">
 			<label>휴가시작일</label> <input type="date" name="vacStartDate"
@@ -82,12 +92,20 @@ function validateForm() {
 			<label>휴가종료일</label> <input type="date" name="vacEndDate"
 				class="field w-40" required>
 		</div>
-		<div class="cell mt-40">
-			<label>휴가구분</label> <select name="vacType">
-				<option value="연차">연차</option>
-				<option value="휴가">휴가</option>
-				<option value="병가">병가</option>
-			</select>
+		<div class="form-row">
+			<label>휴가구분 <span class="required">*</span></label>
+			<div class="vac-type-wrap">
+				<label class="vac-type-item"> <input type="radio"
+					name="vacType" value="연차" checked> <span><i
+						class="fa-solid fa-calendar-days"></i> 연차</span>
+				</label> <label class="vac-type-item"> <input type="radio"
+					name="vacType" value="휴가"> <span><i
+						class="fa-solid fa-umbrella-beach"></i> 휴가</span>
+				</label> <label class="vac-type-item"> <input type="radio"
+					name="vacType" value="병가"> <span><i
+						class="fa-solid fa-kit-medical"></i> 병가</span>
+				</label>
+			</div>
 		</div>
 
 

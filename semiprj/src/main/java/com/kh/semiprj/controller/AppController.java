@@ -41,8 +41,6 @@ public class AppController {
 	@Autowired
 	private AppLineDao appLineDao;
 
-	
-	
 	// 상세
 	@RequestMapping("/detail")
 	public String detail(Model model, @RequestParam int appId, HttpSession session) {
@@ -110,6 +108,7 @@ public class AppController {
 			return "redirect:/login";
 		String empName = appDao.selectEmpNameById(loginId);
 		model.addAttribute("empName", empName);
+		model.addAttribute("empList", appDao.selectAllEmp());
 		return "/app/vacInsert";
 	}
 
@@ -362,31 +361,29 @@ public class AppController {
 
 	// 검색
 	@RequestMapping("/list")
-	public String list(@RequestParam(required = false) String appType,
-	                   @RequestParam(required = false) String column,
-	                   @RequestParam(required = false) String keyword,
-	                   HttpSession session, Model model) {
+	public String list(@RequestParam(required = false) String appType, @RequestParam(required = false) String column,
+			@RequestParam(required = false) String keyword, HttpSession session, Model model) {
 
-	    String loginId = (String) session.getAttribute("loginId");
-	    String empNo = appDao.selectEmpNoById(loginId);
-	    String empName = appDao.selectEmpNameById(loginId);
-	    model.addAttribute("empName", empName);
+		String loginId = (String) session.getAttribute("loginId");
+		String empNo = appDao.selectEmpNoById(loginId);
+		String empName = appDao.selectEmpNameById(loginId);
+		model.addAttribute("empName", empName);
 
-	    List<AppDto> list;
+		List<AppDto> list;
 
-	    if (keyword != null && !keyword.isEmpty() && column != null) {
-	        // 검색
-	        list = appDao.searchList(empNo, column, keyword);
-	    } else if (appType != null && !appType.isEmpty()) {
-	        // 타입 필터
-	        list = appDao.selectMyListByType(empNo, appType);
-	    } else {
-	        // 전체
-	        list = appDao.selectMyList(empNo);
-	    }
+		if (keyword != null && !keyword.isEmpty() && column != null) {
+			// 검색
+			list = appDao.searchList(empNo, column, keyword);
+		} else if (appType != null && !appType.isEmpty()) {
+			// 타입 필터
+			list = appDao.selectMyListByType(empNo, appType);
+		} else {
+			// 전체
+			list = appDao.selectMyList(empNo);
+		}
 
-	    model.addAttribute("list", list);
-	    return "/app/list";
+		model.addAttribute("list", list);
+		return "/app/list";
 	}
 
 	// 사이드바 용 필터링(걸러내기)
