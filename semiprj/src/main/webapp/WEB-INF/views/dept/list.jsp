@@ -50,7 +50,7 @@
 					<td>${deptDto.deptId}</td>
 					<td>
 						<c:choose>
-						    <c:when test="${deptDto.parentDeptId == 0}">최상위 부서</c:when>
+						    <c:when test="${deptDto.parentDeptId == 0}">없음</c:when>
 						    <c:otherwise>${deptDto.parentDeptName}</c:otherwise>
 						</c:choose>
 					</td>

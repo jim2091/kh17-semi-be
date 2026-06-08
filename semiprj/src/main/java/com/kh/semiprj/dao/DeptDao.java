@@ -147,9 +147,19 @@ import com.kh.semiprj.vo.PageVO;
 	        return jdbcTemplate.query(sql, empMapper, params);
 	    }
 	    
-	  //조직도 목록조회 메소드 일단 전체만 조회 페이징처리한 리스트는 같이 못씀
+	  //조직도 목록조회 메소드(전체조회) 페이징처리한 리스트는 같이 못씀
 	    public List<DeptDto> selectTreeList() {
 	    	String sql = "select * from dept_profile_view order by dept_id asc";
 	        return jdbcTemplate.query(sql, deptMapper);
+	    }
+	    
+	    //부서명 중복체크 메소드
+	    public boolean checkDuplicateForEdit(String deptName, int deptId) {
+	        // 내 부서 번호(dept_id)가 아니면서, 입력한 부서명과 일치하는 행의 개수 카운트
+	        String sql = "select count(*) from dept where dept_id != ? and dept_name = ?";
+	        Object[] params = { deptId, deptName };
+	        int count = jdbcTemplate.queryForObject(sql, int.class, params);
+	        
+	        return count == 0; // 0개면 중복 없으므로 true(사용 가능), 1개 이상이면 false(중복)
 	    }
 	}
