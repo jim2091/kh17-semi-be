@@ -122,10 +122,12 @@
 								    </c:choose>
                             	</div>
                             	<div>
+                            		<c:if test="${sessionScope.loginRole == '관리자'}">
 	                            	<label class="toggle">
 									    <input type="checkbox" name="masterToggle" <c:if test="${sessionScope.managerToggle}">checked</c:if>>
 									    <span class="slider"></span>
 									</label>
+									</c:if>
                             	</div>
                             </div>
                             
