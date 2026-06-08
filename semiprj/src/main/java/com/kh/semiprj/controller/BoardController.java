@@ -22,6 +22,7 @@ import com.kh.semiprj.dto.ReplyDto;
 import com.kh.semiprj.exception.GetOutException;
 import com.kh.semiprj.exception.TargetNotfoundException;
 import com.kh.semiprj.exception.WhoAreYouException;
+import com.kh.semiprj.service.NotificationService;
 import com.kh.semiprj.vo.PageVO;
 
 import jakarta.servlet.http.HttpSession;
@@ -37,6 +38,8 @@ public class BoardController {
 	private BoardReadDao boardReadDao;
 	@Autowired
 	private ReplyDao replyDao;
+	@Autowired
+	private NotificationService notificationService;
 	
 	//1. 게시글 등록 매핑
 	@GetMapping("/write")
@@ -74,6 +77,11 @@ public class BoardController {
 	        }
 	    	boardDto.setBoardGroup(findBoardDto.getBoardGroup());
 	    	boardDto.setBoardDepth(findBoardDto.getBoardDepth()+1);
+	    	
+	    	//알림 생성
+	    	notificationService.notifyBoardReply(
+	    			findBoardDto.getBoardWriter(), findBoardDto.getBoardNo());
+	    	
 	    }
 	    boardDao.insert(boardDto);
 	    //(5) 등록한 게시글 상세 페이지로 리다이렉트
