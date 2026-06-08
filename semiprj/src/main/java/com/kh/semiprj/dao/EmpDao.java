@@ -194,7 +194,14 @@ public class EmpDao {
     	return jdbcTemplate.queryForObject(sql, String.class, params);
     }
 	
-	
+	public List<EmpDto> searchByName(String keyword) {
+		String sql = "select * from emp "
+				+ "where instr(emp_name, ?) > 0 "
+				+ "and emp_use_yn = 'Y' "
+				+ "order by emp_name asc";
+		Object[] params = {keyword};
+		return jdbcTemplate.query(sql, empMapper, params);
+	}
 	
 	
 	
