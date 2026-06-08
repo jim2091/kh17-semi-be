@@ -55,7 +55,7 @@
 	    </a>
 	</li>
 	<li>
-	    <a href="#">
+	    <a href="/event/calendar">
 	        <span>일정</span>
 	    </a>
 	</li>
