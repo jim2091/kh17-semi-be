@@ -1,5 +1,6 @@
 package com.kh.semiprj.dao;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -87,6 +88,14 @@ public class AppDao {
         return jdbcTemplate.queryForObject(sql, String.class, params);
     }
 	
+	// 삭제
+	public boolean delete(int appId) {
+		String sql = "delete app where app_id=?";
+		Object[] params = { appId };
+		return jdbcTemplate.update(sql, params) > 0;
+	}
+	
+	// 휴가신청서 품의서 업무기안서 등록
 	public void insert(VacAppDto vacAppDto) {
 	    String sql = "insert into app (app_id, app_req_id, app_title, "
 	               + "app_content, app_type, app_status, app_date, app_save_yn)"
@@ -103,17 +112,6 @@ public class AppDao {
 	    };
 	    jdbcTemplate.update(sql, params);
 	}
-	
-
-
-	// 삭제
-	public boolean delete(int appId) {
-		String sql = "delete app where app_id=?";
-		Object[] params = { appId };
-		return jdbcTemplate.update(sql, params) > 0;
-	}
-	
-	//품의서 업무기안서 등록
 	public void insert(ExpAppDto expAppDto) {
 	    String sql = "insert into app (app_id, app_req_id, app_title, "
 	               + "app_content, app_type, app_status, app_date, app_save_yn)"
@@ -130,7 +128,6 @@ public class AppDao {
 	    };
 	    jdbcTemplate.update(sql, params);
 	}
-
 	public void insert(DftAppDto dftAppDto) {
 	    String sql = "insert into app (app_id, app_req_id, app_title, "
 	               + "app_content, app_type, app_status, app_date, app_save_yn)"
@@ -165,7 +162,6 @@ public class AppDao {
 	    }, params);
 	}
 	
-	
 	public List<AppDto> selectList(int page, int size) {
 	    String sql = "select a.*, e.emp_name from ("
 	               + "  select rownum rn, TMP.* from ("
@@ -180,7 +176,7 @@ public class AppDao {
 	    return jdbcTemplate.query(sql, appMapper, params);
 	}
 
-	
+	//뭐든 해당 사원이 포함되는걸로 검색
 	public AppDto selectOne(String appReqId) {
 	    String sql = "select a.*, e.emp_name from app a "
 	               + "join emp e on a.app_req_id = e.emp_no "
@@ -189,7 +185,7 @@ public class AppDao {
 	    List<AppDto> list = jdbcTemplate.query(sql, appMapper, params);
 	    return list.isEmpty() ? null : list.get(0);
 	}
-
+	//기인자로 검색
 	public AppDto selectOneById(int appId) {
 	    String sql = "select a.*, e.emp_name from app a "
 	               + "join emp e on a.app_req_id = e.emp_no "
@@ -217,7 +213,6 @@ public class AppDao {
 	               + "join app a on l.app_id = a.app_id "
 	               + "join emp e on a.app_req_id = e.emp_no "
 	               + "where l.app_app_id = ? "
-	               + "and l.app_line_status = '진행중' "
 	               + "order by a.app_id desc";
 	    Object[] params = { empNo };
 	    return jdbcTemplate.query(sql, appMapper, params);
@@ -271,4 +266,32 @@ public class AppDao {
         String sql = "update app set app_status = ? where app_id = ?";
         jdbcTemplate.update(sql, status, appId);
     }
+    //검색
+    public List<AppDto> searchList(String empNo, String column, String keyword) {
+        // allowList로 SQL injection 방지
+        Set<String> allowList = Set.of("app_title", "app_type", "app_status");
+        if (!allowList.contains(column)) return new ArrayList<>();
+
+        String sql = "select a.*, e.emp_name from app a "
+                   + "join emp e on a.app_req_id = e.emp_no "
+                   + "where a.app_req_id = ? "
+                   + "and " + column + " like ? "
+                   + "order by a.app_id desc";
+        Object[] params = { empNo, "%" + keyword + "%" };
+        return jdbcTemplate.query(sql, appMapper, params);
+    }
+    
+    public List<AppDto> selectAllEmp() {
+        String sql = "select emp_no, emp_name, emp_dept, emp_position "
+                   + "from emp where emp_use_yn = 'Y'";
+        return jdbcTemplate.query(sql, (rs, rn) -> {
+            AppDto dto = new AppDto();
+            dto.setAppReqId(rs.getString("emp_no"));
+            dto.setAppTitle(rs.getString("emp_name"));
+            dto.setAppContent(rs.getString("emp_dept"));
+            dto.setAppType(rs.getString("emp_position"));
+            return dto;
+        });
+    }
+    
 }

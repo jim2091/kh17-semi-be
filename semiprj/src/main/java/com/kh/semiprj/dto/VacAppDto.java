@@ -17,4 +17,6 @@ public class VacAppDto {
     private String vacStartDate;
     private String vacEndDate;
     private String vacType;
+    
+    
 }

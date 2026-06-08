@@ -21,16 +21,33 @@ public class AppLineDao {
     @Autowired
     private AppLineMapper appLineMapper;
     
-    // 결재선 등록
+    
+    
+    
+    
     public void insert(AppLineDto appLineDto) {
         String sql = "insert into app_line (app_line_id, app_id, app_app_id, "
                    + "app_line_order, app_line_type, app_line_status) "
-                   + "values (app_line_seq.nextval, ?, ?, ?, ?, '대기')";
+                   + "values (app_line_seq.nextval, ?, ?, ?, ?, '대기')"; // ← 시퀀스로!
         Object[] params = {
             appLineDto.getAppId(),
             appLineDto.getAppAppId(),
             appLineDto.getAppLineOrder(),
             appLineDto.getAppLineType()
+        };
+        jdbcTemplate.update(sql, params);
+    }
+    
+    public void insertAppr(AppLineDto appLineDto) {
+        String sql = "insert into app_line "
+                   + "(app_line_id, app_id, app_app_id, app_line_order, app_line_type, app_line_status) "
+                   + "values(app_line_seq.nextval, ?, ?, ?, ?, ?)"; // ← app_line_id는 시퀀스로!
+        Object[] params = {
+            appLineDto.getAppId(),          // 1
+            appLineDto.getAppAppId(),        // 2
+            appLineDto.getAppLineOrder(),    // 3
+            appLineDto.getAppLineType(),     // 4
+            appLineDto.getAppLineStatus()    // 5
         };
         jdbcTemplate.update(sql, params);
     }
@@ -52,7 +69,7 @@ public class AppLineDao {
         Object[] params = { appId };
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(AppLineDto.class), params);
     }
-
+    
     // 내가 결재해야 할 목록 (진행중인 것만)
     public List<AppLineDto> selectMyApprList(String empNo) {
         String sql = "select l.*, a.app_title, a.app_type, a.app_date, "

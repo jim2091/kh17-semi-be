@@ -10,6 +10,7 @@
 	<div class="cell center">
 		<h1 class="mt-0 mb-0">결재문서</h1>
 	</div>
+	<hr>
 
 	<%-- 문서 기본 정보 --%>
 	<div class="cell mt-40">
