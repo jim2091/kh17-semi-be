@@ -11,13 +11,13 @@
         position: relative;
         margin-top: 40px;
         padding: 0 10px;
-        height: 40px; /* 고정 높이 확보 */
+        height: 40px;
         display: flex;
         align-items: center;
-        justify-content: center; /* 전체 중앙 정렬 */
+        justify-content: center;
     }
     
-    /* 연차 정보 영역 */
+    /* 연차 정보 영역 (왼쪽) */
     .vac-info-area {
         position: absolute;
         left: 0;
@@ -25,6 +25,22 @@
         font-size: 14px;
         font-weight: bold;
         color: #444;
+    }
+    
+    /* 휴가원 작성 버튼 영역 (오른쪽) */
+    .btn-vac-write {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        padding: 8px 16px;
+        background-color: #333;
+        color: #fff;
+        text-decoration: none;
+        font-size: 14px;
+        border-radius: 4px;
+    }
+    .btn-vac-write:hover {
+        background-color: #555;
     }
     
     /* 페이징 박스 */
@@ -143,6 +159,8 @@
                 <a href="/attn/list?page=${pageVO.nextBlock}&year=${search.year}&month=${search.month}" class="page-box">▶</a>
             </c:if>
         </div>
+
+        <a href="#" class="btn-vac-write">휴가원 작성</a>
     </div>
 </div>
 

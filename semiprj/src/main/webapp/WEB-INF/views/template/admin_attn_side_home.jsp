@@ -3,7 +3,7 @@
 
 <div class="container w-100 mt-10 side-area center cell flex-fill">
 			<li>
-                <a href="/admin/attn/list">
+                <a href="/attn/admin/list">
                     <span>근태기록</span>
                 </a>
             </li>
