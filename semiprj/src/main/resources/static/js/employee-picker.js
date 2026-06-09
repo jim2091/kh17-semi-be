@@ -1,16 +1,30 @@
-//사원 찾기 버튼 클릭시 modal 보여주기
+// ===== 공통 함수 =====
+
+function updateSelectedCount(){
+    $(".selected-count").text(
+        $(".selected-item").length
+    );
+}
+
+// ===== 모달 열기/닫기 =====
 $(".open-search").click(function(){
 	$(".modal-overlay").css("display","flex");
-	
+	//모달 열리면 키워드 입력창으로 포커싱
 	$(".keyword").focus();
 });
+
+//모달 우측 상단 x
 $(".close-btn").click(function(){
     $(".modal-overlay").hide();
 });
+
+//모달 취소 버튼
 $(".cancel-btn").click(function(){
     $(".modal-overlay").hide();
 });
-//모달 상의 찾기 검색 버튼 클릭
+
+// ===== 검색 =====
+
 $(".search-emp-btn").click(function(){
 	$.ajax({
 		url : "/rest/emp/search",
@@ -59,6 +73,8 @@ $(".search-emp-btn").click(function(){
 	})
 });
 
+// ===== 선택 완료 =====
+
 $(".confirm-btn").click(function(){
 	$(".emp-check:checked").each(function(){
 		var empNo = $(this).data("no");
@@ -96,11 +112,7 @@ $(".confirm-btn").click(function(){
 	});
 });
 
-function updateSelectedCount(){
-    $(".selected-count").text(
-        $(".selected-item").length
-    );
-}
+// ===== 동적 이벤트=====
 
 $(function(){
 	
@@ -139,8 +151,8 @@ $(function(){
         updateSelectedCount();
     });
 	
-	//선택 취소
-    $(document).on("click", ".selected-remove", function(){
+	//모달 상단 selected-item 삭제
+    $(".emp-result-body").on("click", ".selected-remove", function(){
 
         var target = $(this).closest(".selected-item");
 

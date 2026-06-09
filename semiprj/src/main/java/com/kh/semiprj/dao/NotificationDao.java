@@ -54,7 +54,8 @@ public class NotificationDao {
 				+ "order by notification_time desc";
 		Object[] params = { notificationReceiver };
 		
-		return jdbcTemplate.query(sql, notificationMapper, params);
+		List<NotificationDto> list = jdbcTemplate.query(sql, notificationMapper, params);
+		return list.isEmpty() ? List.of() : list;
 	}
 	public List<NotificationDto> selectList(String notificationReceiver, String type){
 		String sql = "select * from notification where notification_receiver = ? "
@@ -87,7 +88,7 @@ public class NotificationDao {
 		Object[] params = { notificationReceiver };
 		
 		List<NotificationDto> list = jdbcTemplate.query(sql, notificationMapper, params);
-		return list.isEmpty() ? null : list;
+		return list.isEmpty() ? List.of() : list;
 	}
 	
 	public List<NotificationDto> selectRecent(String notificationReceiver){

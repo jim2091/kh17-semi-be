@@ -2,6 +2,15 @@
     pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
+<!-- 
+	<이 템플릿을 부르는 위치>
+	- 윗부분에 open-search라는 클래스를 가지는 찾기 버튼과 같은 것이 있어야 함
+	- 아랫 부분에 receiver-list라는 클래스를 가지는 div가 있어야 함
+	- receiver-list에 html로 선택한 정보들을 넘김
+		- receiver-tag라는 span에 이름을 찍어 보여줌
+		- messageReceiver라는 hidden input에 사원번호를 찍어줌
+ -->
+
 <style>
 
 .modal-overlay{

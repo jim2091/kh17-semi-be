@@ -153,9 +153,12 @@
 	</li>
 	<li style="width: 50px;" class="notification-wrapper2">
 		<div class="notification-wrapper">
-			<i class="fa-solid fa-bell notification-icon"></i>
+			<a href="/notification/list">
+				<i class="fa-solid fa-bell notification-icon"></i>
+			</a>
 			<c:if test="${unreadCount > 0}">
 			<span class="notification-badge">${unreadCount}</span>
+			</c:if>
 			<div class="notification-dropdown">
 				<c:forEach var="notification" items="${recentList}">
 					<div class="notification-item">
@@ -167,7 +170,7 @@
 					<a href="/notification/list">전체 알림 보기</a>
 				</div>
 			</div>
-			</c:if>
+			
 		</div>
 	</li>
 	<c:if test="${sessionScope.attnYn == false}">
