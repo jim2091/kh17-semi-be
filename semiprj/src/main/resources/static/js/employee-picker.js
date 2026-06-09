@@ -107,7 +107,7 @@ $(".confirm-btn").click(function(){
 		
 		html += "</span>";
 		
-		$(".receiver-list").append(html);
+		$(".receiver-selected-list").append(html);
 		$(".modal-overlay").hide();
 	});
 });

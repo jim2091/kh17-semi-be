@@ -17,6 +17,7 @@ import com.kh.semiprj.dao.MessageDao;
 import com.kh.semiprj.dto.EmpDto;
 import com.kh.semiprj.dto.MessageDto;
 import com.kh.semiprj.exception.GetOutException;
+import com.kh.semiprj.exception.TargetNotfoundException;
 import com.kh.semiprj.service.MessageService;
 import com.kh.semiprj.vo.PageVO;
 
@@ -40,23 +41,40 @@ public class MessageController {
 		return "message/write";
 	}
 	@PostMapping("/write")
-	public String write(@ModelAttribute MessageDto messageDto, HttpSession session) {
+	public String write(@RequestParam List<String> messageReceiver, 
+			@ModelAttribute MessageDto messageDto, HttpSession session) {
 
 		String loginId = (String)session.getAttribute("loginId");
 		EmpDto empDto = empDao.selectOne(loginId);
-
-		long messageNo = messageDao.sequence();
 		
-		messageDto.setMessageNo(messageNo);
-		messageDto.setMessageSender(empDto.getEmpNo());
-		
-		messageDao.insert(messageDto);
+		for(String receiver : messageReceiver) {
+	        long messageNo = messageDao.sequence();
 
+	        messageDto.setMessageNo(messageNo);
+	        messageDto.setMessageSender(String.valueOf(empDto.getEmpNo()));
+	        messageDto.setMessageReceiver(receiver);
+
+	        messageDao.insert(messageDto);
+	    }
+	
 		return "redirect:./writeComplete";
 	}
 	@RequestMapping("/writeComplete")
 	public String writeComplete() {
 		return "message/writeComplete";
+	}
+	
+	//(+추가) 답장 매핑
+	@GetMapping("/writeReply")
+	public String writeReply(@RequestParam long messageNo, Model model) {
+		MessageDto messageDto = messageDao.selectOne(messageNo);
+		String title = messageDto.getMessageTitle();
+		if(!title.startsWith("RE:")) {
+			title = "RE: " + title;
+		}
+		model.addAttribute("replyTitle", title);
+		model.addAttribute("messageDto", messageDto);
+		return "message/write";
 	}
 
 	//2. 쪽지 목록 매핑
@@ -93,7 +111,7 @@ public class MessageController {
 	}
 	
 	//(2-3) 전체 쪽지함
-	@RequestMapping("/admin/list")
+	@RequestMapping("/adminList")
 	public String adminList(HttpSession session, Model model, @ModelAttribute PageVO pageVO) {
 		String loginId = (String)session.getAttribute("loginId");
 		EmpDto empDto = empDao.selectOne(loginId);
@@ -121,21 +139,57 @@ public class MessageController {
 	
 	//4. 쪽지 상세 매핑
 	@RequestMapping("/detail")
-	public String detail(Model model, @RequestParam long messageNo, HttpSession session) {
+	public String detail(Model model, HttpSession session, 
+			@RequestParam long messageNo, @RequestParam String type) {
 		String loginId = (String)session.getAttribute("loginId");
-		EmpDto empDto = empDao.selectOne(loginId);
-		MessageDto messageDto = messageService.detail(messageNo, empDto);
-		model.addAttribute("messageDto", messageDto);
-		return "message/detail";
+	    String loginNo = (String)session.getAttribute("loginNo");
+	    EmpDto empDto = empDao.selectOne(loginId);
+	    MessageDto messageDto = messageService.detail(messageNo, empDto);
+
+	    MessageDto prevMessageDto = null;
+	    MessageDto nextMessageDto = null;
+	    if(type.equals("receive")) {
+	        prevMessageDto = messageDao.selectPreviousReceive(messageNo, loginNo);
+
+	        nextMessageDto =
+	                messageDao.selectNextReceive(
+	                        messageNo, loginNo);
+	    }
+	    else if(type.equals("send")) {
+	        prevMessageDto =
+	                messageDao.selectPreviousSend(
+	                        messageNo, loginNo);
+
+	        nextMessageDto =
+	                messageDao.selectNextSend(
+	                        messageNo, loginNo);
+	    }
+
+	    model.addAttribute("messageDto", messageDto);
+	    model.addAttribute("prevMessageDto", prevMessageDto);
+	    model.addAttribute("nextMessageDto", nextMessageDto);
+	    model.addAttribute("type", type);
+
+	    return "message/detail";
 	}
 	
 	//5. 쪽지 삭제 매핑
-	@RequestMapping("/admin/delete")
+	@RequestMapping("/delete")
 	public String delete(@RequestParam long messageNo, HttpSession session) {
 		String loginId = (String) session.getAttribute("loginId");
 	    EmpDto empDto = empDao.selectOne(loginId);
 	    messageService.delete(messageNo, empDto);
-		return "redirect:./admin/list";
+		return "redirect:./adminList";
 	}
-	
+	@RequestMapping("/deleteAll")
+	public String deleteAll(@RequestParam List<Long> messageNoList) {
+		for(Long messageNo : messageNoList)	{
+			MessageDto messageDto = messageDao.selectOne(messageNo);
+			if(messageDto == null) throw new TargetNotfoundException("존재하지 않는 게시글이 포함되어있습니다");
+		}
+		for(Long messageNo : messageNoList)	{
+			messageDao.delete(messageNo);
+		}
+		return "redirect:./adminList";
+	}
 }
