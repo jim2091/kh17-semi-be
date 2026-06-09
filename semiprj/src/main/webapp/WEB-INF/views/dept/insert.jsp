@@ -1,11 +1,8 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
     
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
-
 <link rel="stylesheet" type="text/css" href="../css/commons.css">
-
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script src="./preview.js"></script>
@@ -13,12 +10,11 @@
 <jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
 <jsp:include page="/WEB-INF/views/template/side_dept.jsp"></jsp:include>
 
-
 <script>
     $(function(){
         // 상태 객체
         var state = {
-            deptCategoryValid : false,
+            parentDeptIdValid : false,
             deptNameValid : false,
             deptHeadIdValid : false,
             deptContentValid : true,
@@ -29,20 +25,14 @@
             }
         };
 
-        // 개별 입력창 검사 - 부서카테고리
-        $("[name=deptCategory]").on("input", function(){
+        // 개별 입력창 검사 - 상위 부서 선택
+        $("[name=parentDeptId]").on("input", function(){
             var value = $(this).val();
-            var valid = $(this).val().length > 0;
-            if(value === 'custom'){
-                $("#custom-category-area").show();
-                $("[name=customCategoryName]").focus();
-                valid = false;
-            }
-            else{
-                $("#custom-category-area").hide();
-            }
+            // 값을 선택했으면 유효 (0번 최상위 선택도 유효값으로 판정)
+            var valid = value.length > 0;
+            
             $(this).removeClass("success fail").addClass(valid ? "success" : "fail");
-            state.deptCategoryValid = valid;
+            state.parentDeptIdValid = valid;
         });
         
         // 개별 입력창 검사 - 부서명
@@ -107,37 +97,6 @@
 
             return state.ok();
         });
-      
-        // 카테고리 등록 버튼 클릭 이벤트
-        $("#btn-add-category").click(function() {
-            var name = $("[name=customCategoryName]").val();
-            if(name.length == 0) return;
-            
-            $.ajax({
-                url: "../rest/dept/insert",
-                method : "post",
-                data: {deptCategoryName : name},
-                success: function(response){
-                    var newCategory = $("<option>").val(response).text(name).prop("selected",true);
-                    $("[name=deptCategory]").append(newCategory);
-                    
-                    $("[name=customCategoryName]").val("");
-                    $("#custom-category-area").hide();
-                    
-                    
-                    $("[name=deptCategory]").removeClass("success fail").addClass("success");
-                    state.deptCategoryValid = true;
-                },
-                error: function(xhr) {
-                    if(xhr.status === 400) {
-                        alert(xhr.responseText); 
-                        $("[name=customCategoryName]").focus().select();
-                    } else {
-                        alert("시스템 오류가 발생했습니다.");
-                    }
-                }
-            });
-        });
     }); 
 </script>
 
@@ -148,22 +107,17 @@
         </div>
 
         <div class="cell">
-            <label>부서카테고리 <i class="fa-solid fa-asterisk red"></i></label>            
-            <select name="deptCategory" class="field w-100">
+            <label>상위 부서 분류 <i class="fa-solid fa-asterisk red"></i></label>            
+            <select name="parentDeptId" class="field w-100">
                 <option value="">선택하세요</option>
-                <c:forEach var = "categoryDto" items="${deptCategoryList}">
-                	<option value= "${categoryDto.deptCategoryNo}">
-                		${categoryDto.deptCategoryName}
+                <option value="0">최상위 부서 (독립 부서) 추가</option>
+                
+                <c:forEach var="deptDto" items="${deptList}">
+                	<option value="${deptDto.deptId}">
+                		${deptDto.deptName}
                 	</option>
                 </c:forEach>
-                <option value="custom">
-                		새 카테고리 직접 입력
-                </option>
             </select>
-            <div id="custom-category-area" style= "display:none;">
-            	<input type="text" name="customCategoryName" placeholder="새 카태고리명 입력">
-            	<button type="button" id ="btn-add-category">추가하기</button>
-            </div>
             <div class="fail-feedback">필수 항목입니다</div>
         </div>
 
@@ -175,13 +129,13 @@
         </div>
 
         <div class="cell">
-            <label>부서장 <i class="fa-solid fa-asterisk red"></i></label>
+            <label>부서장 사번 <i class="fa-solid fa-asterisk red"></i></label>
             <input type="text" inputmode="numeric" name="deptHeadId" class="field w-100">
             <div class="fail-feedback">필수 항목입니다!</div>
         </div>
 
         <div class="cell">
-            <label>업무내용 <i class="fa-solid fa-asterisk red"></i></label>
+            <label>업무내용</label>
             <input type="text" name="deptContent" class="field w-100">
         </div>
 
