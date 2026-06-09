@@ -78,19 +78,44 @@ public class EventController {
     
     @RequestMapping("/calendarList")
     public String calendarList(HttpSession session, 
+    		@RequestParam(required = false) String sort, 
+    		@RequestParam(required = false) String column, 
+			@RequestParam(required = false) String keyword, 
     					
     					Model model){
     	String loginNo = (String) session.getAttribute("loginNo");
     	
-    	List<EventDto> list = eventDao.selectListByUser(loginNo);
+    	List<EventDto> list; 
+    	
+    			
+		if(keyword != null && !keyword.trim().isEmpty()) {
+	
+	        list = eventDao.selectListByUser(
+	                loginNo,
+	                column,
+	                keyword);
+	
+	    }		
+    			
+    			
+    			
+		else if("event_no".equals(sort)) {
+            list = eventDao.selectNewest(loginNo);
+        }
+        else if("event_start1".equals(sort)) {
+            list = eventDao.selectBySchedule(loginNo);
+        }
+        else {
+            list = eventDao.selectOldest(loginNo);
+        }
     	
     	model.addAttribute("list", list);
+    	//System.out.println("sort = " + sort);
     	
     	return "event/calendarList";
     	
     	
     }
-    
     
     
     

@@ -12,14 +12,14 @@
 	<div class="cell">
 		<h1><i class="fa-solid fa-calendar"></i>일정 목록</h1>
 	</div>
+	<form action="./calendarList" method="get" class="flex-area">
 	<div class="cell flex-area">
-		<select class="field me-10">
-			<option value="event_no">작성순</option> <!-- order by event_no asc -->
-			<option value="event_start">일정순</option> <!-- order by event_start asc -->
-			<option value="event_start">오래된 순</option> <!-- order by event_no desc -->
+		<select name="sort" class="field me-10" onchange="this.form.submit();">
+			<option value="event_no" ${param.sort == 'event_no' ? 'selected' : ''}>작성순</option> <!-- order by event_no asc -->
+			<option value="event_start1" ${param.sort == 'event_start1' ? 'selected' : ''}>일정순</option> <!-- order by event_start asc -->
+			<option value="event_start2" ${param.sort == 'event_start2' ? 'selected' : ''}>오래된 순</option> <!-- order by event_no desc -->
 		</select>
 	
-	<form action="./calendarList" method="get" class="flex-area">
 		<select name="column" class="field me-10">
 			<option value="event_title" ${param.column == "event_title" ? "selected" : ""}>제목</option>
 			<option value="event_content" ${param.column == "event_content" ? "selected" : ""}>내용</option>
@@ -31,8 +31,8 @@
 			<i class="fa-solid fa-magnifying-glass"></i> 
 			<span>검색</span>
 		</button>
-	</form>
 	</div>
+	</form>
 	
 	<div class="cell">
 		<table class="table table-stripe">
@@ -48,7 +48,7 @@
 				<tbody>
 					<c:forEach var="eventDto" items="${list}">
 						<tr align="center">
-								<td>1${eventDto.eventOrigin}</td>
+								<td>1${eventDto.eventNo}</td>
 								<td>${eventDto.eventStart} - ${eventDto.eventEnd}</td>
 								<td>${eventDto.eventTitle}</td>
 								<td>${eventDto.eventContent}</td>
