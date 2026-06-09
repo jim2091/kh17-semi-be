@@ -1,9 +1,7 @@
 package com.kh.semiprj.controller;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +14,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.kh.semiprj.dao.AttachDao;
 import com.kh.semiprj.dao.EmpAttachDao;
@@ -25,7 +22,6 @@ import com.kh.semiprj.dto.AttachDto;
 import com.kh.semiprj.dto.EmpDto;
 import com.kh.semiprj.exception.TargetNotfoundException;
 
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 @Controller
@@ -71,6 +67,23 @@ public class FileDownloadController {
 				)
 				.body(resource);
 	}
-
 	
+	//자료실(게시글도 쓸지도) 이미지 첨부용
+	@RequestMapping("/image")
+	public ResponseEntity<ByteArrayResource> image(@RequestParam int attachNo) throws IOException{
+		AttachDto attachDto = attachDao.selectOne(attachNo);
+		if (attachDto == null) throw new TargetNotfoundException("존재하지 않는 파일");
+		
+		File dir = new File(uploadPath);
+		File target = new File(dir, String.valueOf(attachNo));
+		if(!target.isFile()) throw new TargetNotfoundException("존재하지 않는 파일");
+		
+		byte[] data = FileCopyUtils.copyToByteArray(target);
+		ByteArrayResource resource = new ByteArrayResource(data);
+		
+		return ResponseEntity.ok()
+				.contentLength(attachDto.getAttachSize())
+				.header(HttpHeaders.CONTENT_TYPE, attachDto.getAttachType())
+				.body(resource);
+	}
 }

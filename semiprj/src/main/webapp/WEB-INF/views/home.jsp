@@ -5,6 +5,9 @@
 
 <jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
 <jsp:include page="/WEB-INF/views/template/side_home.jsp"></jsp:include>
+<script>
+	console.log("loginRole =", "${sessionScope.loginRole}");
+</script>
 <div class="flex-area flex-vertical ms-40 me-40" style="height: 600px">
 	<div class="cell w-100 content-cell">공지 및 다양한 알림</div>
 	<div class="cell flex-area">

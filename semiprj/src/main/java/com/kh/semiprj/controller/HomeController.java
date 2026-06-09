@@ -33,15 +33,22 @@ public class HomeController {
             @RequestParam boolean managerToggle,
             HttpSession session) {
 
-        session.setAttribute("managerToggle", managerToggle);
-        session.setAttribute("originRole", "관리자");
-        if(managerToggle) {
-            // 사용자 모드
-            session.setAttribute("loginRole", "사용자");
+        String originRole = (String) session.getAttribute("originRole");
+
+        // 원래 관리자가 아니면 토글 불가
+        if (!"관리자".equals(originRole)) {
+            return;
         }
-        else {
+
+        session.setAttribute("managerToggle", managerToggle);
+
+        if (managerToggle) {
             // 관리자 모드
             session.setAttribute("loginRole", "관리자");
+        }
+        else {
+            // 사용자 모드
+            session.setAttribute("loginRole", "사용자");
         }
     }
 }
