@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.kh.semiprj.dao.DeptDao;
 import com.kh.semiprj.dao.EmpDao;
@@ -102,12 +103,11 @@ public class DeptController {
 		}
 		
 		EmpDto empDto = empDao.selectOneDeptHeadId(deptDto.getDeptHeadId());//부서장 이름을 불러오기위해
-		List<EmpDto> memberList = deptDao.selectListByDept(deptId);
+		List<EmpDto> memberList = deptDao.selectListByDeptRecursive(deptId);
 		List<DeptDto> childDeptList = deptDao.selectChildDept(deptId);
 		
 	    model.addAttribute("childDeptList",childDeptList);
 	    model.addAttribute("memberList", memberList);
-		model.addAttribute("empDto",empDto);
 		model.addAttribute("deptDto",deptDto);
 		
 		return "dept/detail";
@@ -161,5 +161,7 @@ public class DeptController {
 		
 		return "redirect:./detail?deptId="+deptId;
 	}
+	
+		
 	
 }
