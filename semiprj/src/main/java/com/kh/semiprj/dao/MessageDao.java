@@ -329,13 +329,21 @@ public class MessageDao {
 	//4. 상세 메소드
 	//(4-1) 쪽지 상세(사용자 + 관리자)
 	public MessageDto selectOne(long messageNo) {
-		String sql = "select * from message where message_no = ?";
+		String sql = "select m.*, "
+			      + "sender.emp_name sender_name, "
+			      + "receiver.emp_name receiver_name "
+			      + "from message m "
+			      + "left outer join emp sender "
+			      + "on m.message_sender = sender.emp_no "
+			      + "left outer join emp receiver "
+			      + "on m.message_receiver = receiver.emp_no "
+			      + "where m.message_no = ?";
 		Object[] params = {messageNo};
 		List<MessageDto> list = jdbcTemplate.query(sql, messageMapper, params);
 		return list.isEmpty() ? null : list.get(0);
 	}
 	
-	//(4-2) 이전 쪽지
+	//(4-2) 전체 이전 쪽지(관리자)
 	public MessageDto selectPreviousOne(long messageNo) {
 		String sql = "select * from message_list "
 						+ "where message_no = ("
@@ -347,7 +355,7 @@ public class MessageDao {
 		return list.isEmpty() ? null : list.get(0);
 	}
 	
-	//(4-3) 다음 쪽지
+	//(4-3) 전체 다음 쪽지(관리자)
 	public MessageDto selectNextOne(long messageNo) {
 		String sql = "select * from message_list "
 						+ "where message_no = ("
@@ -357,6 +365,87 @@ public class MessageDao {
 		Object[] params = {messageNo};
 		List<MessageDto> list = jdbcTemplate.query(sql, messageMapper, params);
 		return list.isEmpty() ? null : list.get(0);
+	}
+	
+	//(4-4) 받은 이전 쪽지(사용자)
+	public MessageDto selectPreviousReceive(
+	        long messageNo, String loginNo) {
+
+	    String sql =
+	        "select * from message_list "
+	      + "where message_no = ( "
+	      +     "select max(message_no) "
+	      +     "from message "
+	      +     "where message_receiver = ? "
+	      +     "and message_no < ? "
+	      + ")";
+
+	    Object[] params = {loginNo, messageNo};
+
+	    List<MessageDto> list =
+	            jdbcTemplate.query(sql, messageMapper, params);
+
+	    return list.isEmpty() ? null : list.get(0);
+	}
+	//(4-5) 받은 다음 쪽지(사용자)
+	public MessageDto selectNextReceive(
+	        long messageNo, String loginNo) {
+
+	    String sql =
+	        "select * from message_list "
+	      + "where message_no = ( "
+	      +     "select min(message_no) "
+	      +     "from message "
+	      +     "where message_receiver = ? "
+	      +     "and message_no > ? "
+	      + ")";
+
+	    Object[] params = {loginNo, messageNo};
+
+	    List<MessageDto> list =
+	            jdbcTemplate.query(sql, messageMapper, params);
+
+	    return list.isEmpty() ? null : list.get(0);
+	}
+	//(4-6) 보낸 이전 쪽지(사용자)
+	public MessageDto selectPreviousSend(
+	        long messageNo, String loginNo) {
+
+	    String sql =
+	        "select * from message_list "
+	      + "where message_no = ( "
+	      +     "select max(message_no) "
+	      +     "from message "
+	      +     "where message_sender = ? "
+	      +     "and message_no < ? "
+	      + ")";
+
+	    Object[] params = {loginNo, messageNo};
+
+	    List<MessageDto> list =
+	            jdbcTemplate.query(sql, messageMapper, params);
+
+	    return list.isEmpty() ? null : list.get(0);
+	}
+	//(4-7) 보낸 다음 쪽지(사용자)
+	public MessageDto selectNextSend(
+	        long messageNo, String loginNo) {
+
+	    String sql =
+	        "select * from message_list "
+	      + "where message_no = ( "
+	      +     "select min(message_no) "
+	      +     "from message "
+	      +     "where message_sender = ? "
+	      +     "and message_no > ? "
+	      + ")";
+
+	    Object[] params = {loginNo, messageNo};
+
+	    List<MessageDto> list =
+	            jdbcTemplate.query(sql, messageMapper, params);
+
+	    return list.isEmpty() ? null : list.get(0);
 	}
 	
 	//5. 삭제 메소드

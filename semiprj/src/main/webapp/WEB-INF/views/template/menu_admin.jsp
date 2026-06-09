@@ -169,8 +169,8 @@
 	    </a>
 	     <ul>
             <li>
-                <a href="#">
-                    <span>자리가 모자라서 일정/쪽지 일단 임시로 합쳐뒀어요</span>
+                <a href="/message/adminList">
+                    <span>쪽지관리</span>
                 </a>
             </li>
             <li>
