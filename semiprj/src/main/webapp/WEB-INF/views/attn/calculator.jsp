@@ -54,11 +54,14 @@
     <div style="margin-top: 50px; font-weight: bold; color: #555;">
         * 주 ${empty maxHours ? 52 : maxHours}시간 근무제 기준 
         (현재 설정 기간의 총 기준 시간: <span id="infoMaxHours">${empty maxHours ? 52 : maxHours}</span>시간 대비 달성률입니다.)
+        * 주 <span id="infoMaxHours">${empty maxHours ? 52 : maxHours}</span>시간 근무제 기준
+        (현재 설정 기간의 총 기준 시간: <span id="textMaxHours">${empty maxHours ? 52 : maxHours}</span>시간 대비 달성률입니다.)
     </div>
 
 </div>
 
 <script>
+    // 서버에서 받은 주당 기준 시간
     const WEEKLY_MAX_HOURS = ${empty maxHours ? 52 : maxHours};
 
     // 페이지 로드 시 초기 계산 실행
@@ -99,6 +102,20 @@
         let percent = (currentHours / dynamicMaxHours) * 100;
         if (percent > 100) percent = 100;
         
+        // 1. 선택된 기간 일수 계산
+        const start = new Date(document.getElementById("startDate").value);
+        const end = new Date(document.getElementById("endDate").value);
+        const diffDays = (end - start) / (1000 * 60 * 60 * 24) + 1;
+        
+        // 2. 일수에 따른 기준 시간 비례 계산 (주당 7일 기준)
+        const dynamicMaxHours = WEEKLY_MAX_HOURS * (diffDays / 7);
+        
+        // 3. 안내 문구 갱신
+        document.getElementById("textMaxHours").innerText = dynamicMaxHours.toFixed(1);
+        
+        // 4. 그래프 퍼센트 계산
+        let percent = (currentHours / dynamicMaxHours) * 100;
+        if (percent > 100) percent = 100;
         document.getElementById("workGraph").style.setProperty('--percent', percent);
     }
 </script>
