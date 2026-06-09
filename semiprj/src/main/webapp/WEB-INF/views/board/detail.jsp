@@ -40,7 +40,10 @@
 	    margin-left: 5px;
 	}
 </style>
-
+<script>
+	console.log("loginRole =", "${sessionScope.loginRole}");
+	console.log("masterToggle =", "${sessionScope.masterToggle}");
+</script>
 <!-- 게시글 삭제 시 한번 더 물어보는 확인창 -->
 <script>
 $(function(){
@@ -87,6 +90,7 @@ $(function(){
 		});
 	});
 </script>
+
 </c:if>
 
 <!-- 댓글 시스템을 위한 자바스크립트 -->

@@ -34,5 +34,14 @@ public class HomeController {
             HttpSession session) {
 
         session.setAttribute("managerToggle", managerToggle);
+        session.setAttribute("originRole", "관리자");
+        if(managerToggle) {
+            // 사용자 모드
+            session.setAttribute("loginRole", "사용자");
+        }
+        else {
+            // 관리자 모드
+            session.setAttribute("loginRole", "관리자");
+        }
     }
 }

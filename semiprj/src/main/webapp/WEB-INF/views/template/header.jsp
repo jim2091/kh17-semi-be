@@ -28,6 +28,12 @@
     <script src="https://cdn.jsdelivr.net/npm/lightpick@1.6.2/lightpick.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/lightpick@1.6.2/css/lightpick.min.css" rel="stylesheet">
     
+    <!-- Summernote -->
+	<link href="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote-lite.min.css" rel="stylesheet">
+	<script src="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote-lite.min.js"></script>
+	<!-- 한글 -->
+	<script src="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/lang/summernote-ko-KR.min.js"></script>
+    
     <script type="text/javascript">
 	    $(function(){
 	        $("[name=masterToggle]").change(function(){
@@ -121,7 +127,7 @@
 								    </c:choose>
                             	</div>
                             	<div>
-                            		<c:if test="${sessionScope.loginRole == '관리자'}">
+                            		<c:if test="${sessionScope.loginRole == '관리자' || sessionScope.originRole == '관리자'}">
 	                            	<label class="toggle">
 									    <input type="checkbox" name="masterToggle" <c:if test="${sessionScope.managerToggle}">checked</c:if>>
 									    <span class="slider"></span>
