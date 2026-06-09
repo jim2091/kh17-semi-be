@@ -1,4 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
 <style>
 	.side-title{
 	    background:#fafafa;
@@ -15,6 +17,7 @@
 	    text-decoration:none;
 	    color:#333;
 	    font-size:17px;
+	    text-align: left !important;
 	}
 	
 	.side-link:hover{
@@ -49,14 +52,17 @@
 <div class="container w-100 mt-10 side-area center cell flex-fill">
 	<div class="board-side">
 		<div class="side-section">
-           	 <div class="side-title">부서관리</div>
-           	 	<a href="/dept/list" class="side-link">
-           	 		<i class="fa-solid fa-list"></i> 목록화면
-           	 	</a>
-	           	<a href="/dept/insert" class="side-link">
-	           	 	<i class="fa-solid fa-plus"></i> 등록화면
-	           	</a>
-           	 
+           	 <div class="side-title">부서목록</div>
+          	 	<div>
+			        <c:forEach var="deptDto" items="${list}">
+			        	<c:if test="${deptDto.parentDeptId==0}">
+				            <a href="./detail?deptId=${deptDto.deptId}" class="side-link">
+				                <i class="fa-solid fa-folder style="margin-right: 5px; color: #ffb703;"></i>
+				                ${deptDto.deptName}
+				            </a>
+				        </c:if>
+			        </c:forEach>
+   				</div>
         </div>
     </div>                	 
 </div>

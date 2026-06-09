@@ -42,6 +42,7 @@
 					<th>부서코드</th>
 					<th>상위부서</th>
 					<th>부서명</th>
+					<th>부서장</th>
 				</tr>
 			</thead>
 			<tbody align="center">
@@ -59,6 +60,7 @@
 							${deptDto.deptName}
 						</a>
 					</td>
+					<td>${deptDto.deptHeadName}(${deptDto.deptHeadId})</td>
 				</tr>
 				</c:forEach>
 			</tbody>

@@ -135,8 +135,8 @@
 	    <ul>
 	    	<li>
                 <a href="/dept/listTree">
-                    <span>조직도</span>
-                </a>
+                    <span>부서조직도</span>
+                </a>   
             </li>
         </ul>
 	</li>
