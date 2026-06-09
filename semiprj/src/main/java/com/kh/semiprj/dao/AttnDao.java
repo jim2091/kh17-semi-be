@@ -13,6 +13,7 @@ public class AttnDao {
     @Autowired private JdbcTemplate jdbcTemplate;
     @Autowired private AttnMapper attnMapper;
 
+    // --- 기존 메서드 ---
     public List<Map<String, String>> selectAllEmployees() {
         String sql = "SELECT emp_no, emp_name FROM emp ORDER BY emp_name ASC";
         return jdbcTemplate.query(sql, (rs, rowNum) -> {
@@ -28,6 +29,11 @@ public class AttnDao {
         try { return jdbcTemplate.queryForMap(sql, empNo); } catch (Exception e) { return Map.of("VAC_TOT", 0, "VAC_CNT", 0); }
     }
 
+    // [추가] 관리자용 전체 연차 조회
+    public List<Map<String, Object>> selectAllVacations() {
+        return jdbcTemplate.queryForList("SELECT emp_no, vac_tot, vac_cnt FROM vac_info");
+    }
+
     public List<AttnDto> selectListByMonth(AttnDto attnDto, PageVO pageVO) {
         String sql = "SELECT * FROM (SELECT ROWNUM RN, TMP.* FROM (SELECT * FROM attn WHERE emp_no = ? AND TO_CHAR(attn_work_date, 'YYYY') = ? AND TO_CHAR(attn_work_date, 'MM') = ? ORDER BY attn_work_date DESC) TMP) WHERE RN BETWEEN ? AND ?";
         return jdbcTemplate.query(sql, attnMapper, attnDto.getEmpNo(), attnDto.getYear(), attnDto.getMonth(), pageVO.getBeginRownum(), pageVO.getEndRownum());
@@ -36,6 +42,17 @@ public class AttnDao {
     public int countAttendance(AttnDto attnDto) {
         String sql = "SELECT COUNT(*) FROM attn WHERE emp_no = ? AND TO_CHAR(attn_work_date, 'YYYY') = ? AND TO_CHAR(attn_work_date, 'MM') = ?";
         return jdbcTemplate.queryForObject(sql, Integer.class, attnDto.getEmpNo(), attnDto.getYear(), attnDto.getMonth());
+    }
+
+    // [추가] 관리자 기본 목록 조회 메서드
+    public List<AttnDto> selectAdminList(AttnDto s, PageVO p) {
+        String sql = "SELECT * FROM (SELECT ROWNUM RN, T.* FROM (SELECT * FROM ATTN ORDER BY ATTN_WORK_DATE DESC) T) WHERE RN BETWEEN ? AND ?";
+        return jdbcTemplate.query(sql, attnMapper, p.getBeginRownum(), p.getEndRownum());
+    }
+
+    // [추가] 관리자 카운트 메서드
+    public int countAdminAttendance(AttnDto s) {
+        return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM ATTN", Integer.class);
     }
 
     public int getWorkTimeSum(String empNo, String startDate, String endDate) {
@@ -53,16 +70,6 @@ public class AttnDao {
         return jdbcTemplate.queryForList(sql, String.class);
     }
 
-    // --- 관리자 기본 검색 (오류 해결용) ---
-    public List<AttnDto> selectAdminList(AttnDto searchDto, PageVO pageVO) {
-        return selectAdminListCustom(searchDto, pageVO, null, null);
-    }
-
-    public int countAdminAttendance(AttnDto searchDto) {
-        return countAdminAttendanceCustom(searchDto, null, null);
-    }
-
-    // --- 관리자 맞춤형 검색 (Custom) ---
     public List<AttnDto> selectAdminListCustom(AttnDto searchDto, PageVO pageVO, String startDate, String endDate) {
         StringBuilder sql = new StringBuilder("SELECT * FROM (SELECT ROWNUM AS RN, T.* FROM ( ");
         sql.append(" SELECT A.ATTN_ID, A.EMP_NO, A.ATTN_WORK_DATE, A.ATTN_WORK_TIME, A.ATTN_STATUS, A.ATTN_IN_TIME, A.ATTN_OUT_TIME, E.EMP_NAME, E.EMP_DEPT, E.EMP_POSITION ");
