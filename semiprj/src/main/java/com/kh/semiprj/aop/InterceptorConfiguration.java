@@ -40,6 +40,7 @@ public class InterceptorConfiguration implements WebMvcConfigurer{
 				,"/admin/**"
 				,"/board/**"
 				,"/dept/**"
+				,"/event/**"
 				)
 				.excludePathPatterns(
 						"/emp/login"

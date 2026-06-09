@@ -71,7 +71,7 @@ public class AdminEmpController {
 	@GetMapping("/edit")
 	public String edit(@RequestParam String empNo, Model model) {
 		EmpDto empDto = empDao.selectOneByDetail(empNo);
-		//if(empDto == null) throw new TargetNotfoundException("대상이 존재하지 않습니다");
+		if(empDto == null) throw new TargetNotfoundException("대상이 존재하지 않습니다");
 		model.addAttribute("empDto", empDto);
 		return "admin/edit";
 	}
@@ -118,7 +118,7 @@ public class AdminEmpController {
 	@RequestMapping("/useYn")
 	public String useYn(@RequestParam String empNo) {
 		EmpDto empDto = empDao.selectOneByDetail(empNo);
-		//if(empDto == null) throw new TargetNotfoundException("존재하지 않는 회원");
+		if(empDto == null) throw new TargetNotfoundException("존재하지 않는 회원");
 		System.out.println(empDto.getEmpUseYn());
 		System.out.println(empDto.getEmpUseYn().equals("N"));
 		
