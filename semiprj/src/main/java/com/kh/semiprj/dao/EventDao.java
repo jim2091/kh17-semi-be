@@ -47,6 +47,57 @@ public class EventDao {
 		return jdbcTemplate.queryForObject(sql, int.class);
 	}
 	
+	public boolean update(EventDto eventDto) {
+
+	    String sql = "update event set event_title = ?, "
+	    				+ "event_content = ?, event_start = ?, event_end = ?, "
+	    				+ "event_category = ?, event_option=? where event_no = ?";
+	    		
+
+	    Object[] params = {
+	    		eventDto.getEventTitle(), eventDto.getEventContent(), 
+		        eventDto.getEventStart(), eventDto.getEventEnd(), 
+		        eventDto.getEventCategory(),  
+		        eventDto.getEventOption(), eventDto.getEventNo()
+	    };
+	    	
+	    
+	    
+	    return	jdbcTemplate.update(sql, params) >0;
+	}
+	
+	public boolean delete(int eventNo) {
+
+	    String sql = "delete event where event_no = ?";
+
+	    Object[] params = {eventNo};
+
+	    return jdbcTemplate.update(sql, params) > 0;
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 
 }

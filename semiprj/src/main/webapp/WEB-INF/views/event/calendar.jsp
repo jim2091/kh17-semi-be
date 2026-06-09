@@ -50,6 +50,8 @@
     
     <script>
     const Calendar = tui.Calendar;
+    let currentEventNo = null;
+    
     
     // 1. 캘린더 인스턴스 생성
     const calendar = new Calendar('#calendar', {
@@ -58,46 +60,35 @@
         useDetailPopup: false  
     });
     function formatDate(date){
+
+        if (!date || !(date instanceof Date) || isNaN(date.getTime())) {
+            return "";
+        }
+
         const y = date.getFullYear();
         const m = String(date.getMonth()+1).padStart(2,'0');
         const d = String(date.getDate()).padStart(2,'0');
         const h = String(date.getHours()).padStart(2,'0');
         const min = String(date.getMinutes()).padStart(2,'0');
 
-        return `${y}-${m}-${d}T${h}:${min}`;
+        return y + "-" + m + "-" + d + "T" + h + ":" + min;
     }
     
     calendar.on('selectDateTime', function(e){
+    	const start = formatDate(e.start);
+    	//console.log("new start =", start);
 
-        $("[name=eventStart]").val(
-            formatDate(e.start)
-        );
+    	$("[name=eventStart]").val(start);
 
-        $("[name=eventEnd]").val(
-        		formatDate(e.end)
-        );
+        //$("[name=eventStart]").val(formatDate(e.start));
+
+        $("[name=eventEnd]").val(formatDate(e.end));
+        
 
         $(".modal").show();
     });
     
-    calendar.on('clickEvent', function(e){
-
-        $(".detail-title").val(e.event.title);
-        $(".detail-content").val(e.event.raw.content);
-        $(".detail-start").val(
-        		e.event.start
-            );
-
-        $(".detail-end").val(
-        		e.event.end
-        );
-        $(".detail-category").val(e.event.calendarId);
-        
-        console.log(e.event.start);
-        console.log(e.event.end);
-
-        $(".detail-modal").show();
-    });
+    
     
     // 2. [조회] 페이지가 로드되자마자 스프링에서 데이터를 받아와 달력에 뿌리기
     $(document).ready(function() {
@@ -133,6 +124,27 @@
         });
     });
    
+    calendar.on('clickEvent', function(e){
+        currentEventNo = e.event.id;
+
+        $(".detail-title").val(e.event.title);
+        $(".detail-content").val(e.event.raw.content);
+        
+        const start = formatDate(e.event.start.toDate());
+
+        $(".detail-start").val(start);
+        
+        
+        const end = formatDate(e.event.start.toDate());
+            
+        $(".detail-end").val(end);
+        
+        $(".detail-category").val(e.event.calendarId);
+        
+
+
+        $(".detail-modal").show();
+    });
    
 	$(function(){
 		
@@ -178,6 +190,67 @@
                     }
                 ]);
                 $(".modal").hide();
+            }
+        });
+    });
+    
+    $(".edit-btn").click(function(){
+        
+
+        const data = {
+            eventNo : currentEventNo,
+            eventTitle : $(".detail-title").val(),
+            eventContent : $(".detail-content").val(),
+            
+                
+            
+            eventStart : $(".detail-start").val(),
+            eventEnd : $(".detail-end").val(),
+            
+            eventCategory : $(".detail-category").val(), 
+            eventOption : "time"
+        };
+        console.log("start=", $(".detail-start").val());
+        console.log("end=", $(".detail-end").val());
+
+        $.ajax({
+            url : "/event/rest/event",
+            type : "put",
+            contentType : "application/json",
+            data : JSON.stringify(data),
+
+            success : function(){
+                alert("수정 완료");
+
+                location.reload();
+            },
+            error: function(xhr, status, error) {
+                console.error("수정 실패:", error);
+                alert("수정 중 오류가 발생했습니다.");
+            }
+        });
+    });
+    
+    $(".delete-btn").click(function(){
+
+        if(!confirm("정말 삭제하시겠습니까?")){
+            return;
+        }
+
+        $.ajax({
+            url : "/event/rest/event",
+            type : "delete",
+            data : {
+                eventNo : currentEventNo
+            },
+
+            success : function(){
+                alert("삭제 완료");
+                location.reload();
+            },
+
+            error : function(){
+                alert("삭제 실패");
             }
         });
     });
@@ -241,29 +314,35 @@
 
         <div class="cell">
             <label>제목</label>
-            <input type="text" class="field w-100 detail-title" readonly>
+            <input type="text" class="field w-100 detail-title">
         </div>
 
         <div class="cell">
             <label>내용</label>
-            <textarea class="field w-100 detail-content" readonly></textarea>
+            <textarea class="field w-100 detail-content"></textarea>
         </div>
 
         <div class="cell">
             <label>시작일시</label>
-            <input type="text" class="field w-100 detail-start" readonly>
+            <input type="datetime-local" class="field w-100 detail-start">
         </div>
 
         <div class="cell">
             <label>종료일시</label>
-            <input type="text" class="field w-100 detail-end" readonly>
+            <input type="datetime-local" class="field w-100 detail-end">
         </div>
 
         <div class="cell">
             <label>분류</label>
-            <input type="text" class="field w-100 detail-category" readonly>
+            <input type="text" class="field w-100 detail-category">
         </div>
 
+		<button type="button" class="btn btn-positive edit-btn">
+    		수정
+		</button>
+		<button type="button" class="btn btn-negative delete-btn">
+    		삭제
+		</button>
         <button type="button" class="btn btn-neutral detail-close-btn">
             닫기
         </button>
