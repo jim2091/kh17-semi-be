@@ -152,12 +152,12 @@
 	    </a>
 	     <ul>
             <li>
-                <a href="/admin/attn/manage">
+                <a href="/admin/attn/list">
                     <span>근태기록</span>
                 </a>
             </li>
             <li>
-                <a href="/attn/#">
+                <a href="/admin/attn/manage">
                     <span>근무제도</span>
                 </a>
             </li>

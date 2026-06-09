@@ -15,10 +15,12 @@ import com.kh.semiprj.vo.PageVO;
 @Controller
 @RequestMapping("/attn")
 public class AttnController {
+
     @Autowired private AttnService attnService;
     
     private final String TEST_EMP_NO = "20260001";
 
+    // 1. 직원용 근태 목록
     @GetMapping("/list")
     public String list(@ModelAttribute("search") AttnDto attnDto, 
                        @ModelAttribute("pageVO") PageVO pageVO,
@@ -30,7 +32,6 @@ public class AttnController {
         int totalCount = attnService.countAttendance(attnDto);
         pageVO.setCount(totalCount);
         
-        // [수정] 더미 연차 데이터 주입
         Map<String, Object> vacInfo = new HashMap<>();
         vacInfo.put("VAC_TOT", 20);
         vacInfo.put("VAC_CNT", 15);
@@ -41,6 +42,7 @@ public class AttnController {
         return "attn/list";
     }
 
+    // 2. 직원용 근무시간 계산기
     @GetMapping("/calculator")
     public String calculator(
             @RequestParam(required = false) String startDate,
@@ -55,7 +57,6 @@ public class AttnController {
         
         int totalWorkTime = attnService.getWorkTimeSum(TEST_EMP_NO, startDate, endDate);
         
-        // [수정] calculator 페이지에도 더미 데이터 주입
         Map<String, Object> vacInfo = new HashMap<>();
         vacInfo.put("VAC_TOT", 20);
         vacInfo.put("VAC_CNT", 15);
@@ -68,10 +69,32 @@ public class AttnController {
         return "attn/calculator";
     }
 
+    // 3. 직원용 비동기 계산기 데이터
     @GetMapping("/calculator/data")
     @ResponseBody
     public int getCalculatorData(@RequestParam String startDate, 
                                  @RequestParam String endDate) {
         return attnService.getWorkTimeSum(TEST_EMP_NO, startDate, endDate);
+    }
+
+    // ==========================================================
+    // [추가] 관리자 근태 조회 기능 통합 (경로 앞에 /를 붙여서 절대경로 맵핑)
+    // ==========================================================
+    @GetMapping("/admin/attn/list")
+    public String adminList(@ModelAttribute("search") AttnDto searchDto,
+                            @ModelAttribute("pageVO") PageVO pageVO,
+                            Model model) {
+        
+        // 관리자 전체 근태 기록 수 카운트 후 페이징 적용
+        int totalCount = attnService.countAdminAttendance(searchDto);
+        pageVO.setCount(totalCount);
+        
+        // 관리자용 페이징/검색 목록 조회
+        List<AttnDto> list = attnService.getAdminAttendanceList(searchDto, pageVO);
+        
+        model.addAttribute("attnList", list);
+        
+        // /WEB-INF/views/admin/attn/list.jsp 호출
+        return "admin/attn/list";
     }
 }

@@ -49,4 +49,16 @@ public class AttnService {
     public List<String> getEmployeesWithoutOutTime() {
         return attnDao.getEmployeesWithoutOutTime();
     }
+
+    // ==========================================
+    // 관리자용 비즈니스 로직 추가 연동
+    // ==========================================
+    
+    public int countAdminAttendance(AttnDto searchDto) {
+        return attnDao.countAdminAttendance(searchDto);
+    }
+
+    public List<AttnDto> getAdminAttendanceList(AttnDto searchDto, PageVO pageVO) {
+        return attnDao.selectAdminList(searchDto, pageVO);
+    }
 }

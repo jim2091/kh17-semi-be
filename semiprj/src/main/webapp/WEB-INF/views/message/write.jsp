@@ -94,9 +94,32 @@ $(function(){
 	                    emp.empName + " (" + emp.empDept + ")"
 	                );
 	                div.click(function(){
-	                    $(".receiver-input").val(emp.empName);
-	                    $("[name=messageReceiver]").val(emp.empNo);
+
+	                    if($("input[name=messageReceiver][value='"+emp.empNo+"']").length){
+	                        return;
+	                    }
+
+	                    var html = "";
+
+	                    html += "<span class='receiver-tag'>";
+	                    html += emp.empName;
+
+	                    html += "<button type='button' class='delete-tag'>";
+	                    html += "✕";
+	                    html += "</button>";
+
+	                    html += "<input type='hidden' ";
+	                    html += "name='messageReceiver' ";
+	                    html += "value='" + emp.empNo + "'>";
+
+	                    html += "</span>";
+
+	                    $(".receiver-selected-list").append(html);
+
+	                    $("[name=receiverKeyword]").val("");
+
 	                    $(".receiver-list").empty();
+
 	                    state.messageReceiverValid = true;
 	                });
 	
@@ -125,11 +148,15 @@ $(function(){
 	
 	//3. 폼 검사
     $(".form-check").on("submit", function(){
-    	state.messageReceiverValid = $("[name=messageReceiver]").val().length > 0;
+    	state.messageReceiverValid = $("input[name=messageReceiver]").length > 0;
         $(this).find("input[name], textarea[name]").trigger("blur");
         return state.ok();
     });
 	
+	//태그 삭제
+    $(".receiver-selected-list").on("click", ".delete-tag", function(){
+        $(this).closest(".receiver-tag").remove();
+    });
 });
 </script>
 
@@ -156,12 +183,30 @@ $(function(){
 		<!-- 받는이 입력창 -->
 		<div class="cell receiver-wrapper">
 			<label>받는이 <i class="fa-solid fa-asterisk red"></i></label>
-			<input type="text" name="receiverKeyword" value="${messageDto.senderName}" class="field">
-			<button type="button" class="btn btn-neutral ms-10">
+			<input type="text" name="receiverKeyword" class="field">
+			<button type="button" class="btn btn-neutral ms-10 open-search">
                 <i class="fa-solid fa-user-tie"></i>
                 <span>찾기</span>
             </button>
-			<input type="hidden" name="messageReceiver"  value="${messageDto.messageSender}">
+			<div class="receiver-selected-list">
+			    <c:if test="${messageDto != null}">
+			        <span class="receiver-tag">
+			            ${messageDto.senderName}
+			
+			            <button type="button" class="delete-tag">
+			                ✕
+			            </button>
+			
+			            <input type="hidden"
+			                   name="messageReceiver"
+			                   value="${messageDto.messageSender}">
+			        </span>
+			    </c:if>
+			</div>
+            <!-- 사원 검색 모달 -->
+            <jsp:include page="/WEB-INF/views/template/employee-picker.jsp"/>
+            <!-- 해당 모달 JS -->
+            <script src="/js/employee-picker.js"></script>
 			<div class="receiver-list"></div>
 			
 			<div class="fail-feedback">[필수] 받는이를 입력하세요.</div>

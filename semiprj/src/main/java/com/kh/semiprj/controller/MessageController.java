@@ -41,18 +41,22 @@ public class MessageController {
 		return "message/write";
 	}
 	@PostMapping("/write")
-	public String write(@ModelAttribute MessageDto messageDto, HttpSession session) {
+	public String write(@RequestParam List<String> messageReceiver, 
+			@ModelAttribute MessageDto messageDto, HttpSession session) {
 
 		String loginId = (String)session.getAttribute("loginId");
 		EmpDto empDto = empDao.selectOne(loginId);
-
-		long messageNo = messageDao.sequence();
 		
-		messageDto.setMessageNo(messageNo);
-		messageDto.setMessageSender(empDto.getEmpNo());
-		
-		messageDao.insert(messageDto);
+		for(String receiver : messageReceiver) {
+	        long messageNo = messageDao.sequence();
 
+	        messageDto.setMessageNo(messageNo);
+	        messageDto.setMessageSender(String.valueOf(empDto.getEmpNo()));
+	        messageDto.setMessageReceiver(receiver);
+
+	        messageDao.insert(messageDto);
+	    }
+	
 		return "redirect:./writeComplete";
 	}
 	@RequestMapping("/writeComplete")
