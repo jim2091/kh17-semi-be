@@ -189,7 +189,7 @@
 	<li class="divider"></li>
 	
 	<li style="width: 50px;">
-	    <a href="#">
+	    <a href="/message/receiveList">
 	        <i class="fa-solid fa-paper-plane"></i>
 	    </a>
 	</li>
