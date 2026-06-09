@@ -129,9 +129,17 @@
 	    </a>
 	</li>
 	<li>
-	    <a href="/dept/listTree">
+	    <a href="/dept/list">
 	        <span>부서목록</span>
 	    </a>
+	    <ul>
+	    	<li>
+                <a href="/dept/listTree">
+                    <span>부서조직도</span>
+                </a>
+                
+            </li>
+        </ul>
 	</li>
 	<li>
 	    <a href="/attn/list">

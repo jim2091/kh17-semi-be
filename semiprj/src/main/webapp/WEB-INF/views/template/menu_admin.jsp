@@ -133,6 +133,12 @@
 	        <span>부서관리</span>
 	    </a>
 	    <ul>
+	    	<li>
+                <a href="/dept/listTree">
+                    <span>부서조직도</span>
+                </a>
+                
+            </li>
             <li>
                 <a href="/dept/insert">
                     <span>부서등록</span>
