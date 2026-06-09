@@ -25,6 +25,8 @@ public class DeptMapper implements RowMapper<DeptDto>{
 		
 		deptDto.setParentDeptName(rs.getString("parent_dept_name"));
 		
+		deptDto.setDeptHeadName(rs.getString("dept_head_name"));
+		
 		return deptDto;
 	}
 }

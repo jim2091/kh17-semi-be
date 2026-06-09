@@ -52,7 +52,6 @@
 					<th>상위부서</th>
 					<th>부서장(사원번호)</th>
 					<th>개설일</th>
-					<th>활성 여부</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -62,13 +61,10 @@
 					<td>${empDto.empName}(${deptDto.deptHeadId})</td>
 					<td><fmt:formatDate value="${deptDto.deptCreateAt}"
 							pattern="yyyy-MM-dd" /></td>
-					<td>
-						<c:if test="${deptDto.deptYn == 'Y'}">활성화</c:if>
-						<c:if test="${deptDto.deptYn == 'N'}">비활성화</c:if>
-					</td>
 				</tr>
 			</tbody>
 		</table>
+		<div class="cell">소개 : ${deptDto.deptContent}</div>
 	</div>
 		<%-- 하위부서 목록 (하위부서가 있을 때만 표시) --%>
 		<c:if test="${not empty childDeptList}">
@@ -94,7 +90,6 @@
 		                    <tr>
 		                        <td>${child.deptId}</td>
 		                        <td>
-		                            <%-- 클릭하면 해당 하위부서 상세로 이동 --%>
 		                            <a href="./detail?deptId=${child.deptId}" class="link blue">
 		                                ${child.deptName}
 		                            </a>
@@ -147,17 +142,20 @@
 	</div>
 
 	<div class="cell mt-40 right">
-
-		<a class="btn btn-neutral" href="./list"> <i
-			class="fa-solid fa-list"></i> <span>목록으로 이동</span>
+	
+		<a class="btn btn-neutral" href="./listTree">
+			<i class="fa-solid fa-users"></i> <span>조직도</span>
+		</a>
+		<a class="btn btn-neutral" href="./list">
+			<i class="fa-solid fa-list"></i> <span>목록</span>
 		</a>
 
 		<c:if test="${sessionScope.loginRole == '관리자'}">
 			<a class="btn btn-positive" href="./insert"> <i
-				class="fa-solid fa-plus"></i> <span>신규 등록하기</span>
+				class="fa-solid fa-plus"></i> <span>신규등록</span>
 			</a>
 			<a class="btn btn-neutral" href="./edit?deptId=${deptDto.deptId}">
-				<i class="fa-solid fa-pen"></i> <span>수정하기</span>
+				<i class="fa-solid fa-pen"></i> <span>수정</span>
 			</a>
 			<a
 				class="btn ${deptDto.deptYn == 'Y' ? 'btn-negative' : 'btn-positive' }"
@@ -166,7 +164,7 @@
 
 			<button type="button" class="btn btn-negative" id="btn-delete-dept"
 				data-dept-id="${deptDto.deptId}">
-				<i class="fa-solid fa-trash"></i> <span>삭제하기</span>
+				<i class="fa-solid fa-trash"></i> <span>삭제</span>
 			</button>
 		</c:if>
 	</div>
