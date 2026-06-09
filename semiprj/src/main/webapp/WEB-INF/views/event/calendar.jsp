@@ -3,14 +3,14 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
-<jsp:include page="/WEB-INF/views/template/side_user.jsp"></jsp:include>
+<jsp:include page="/WEB-INF/views/template/side_event.jsp"></jsp:include>
 
   
     <link rel="stylesheet" href="https://uicdn.toast.com/tui.date-picker/latest/tui-date-picker.css" />
     <link rel="stylesheet" href="https://uicdn.toast.com/tui.time-picker/latest/tui-time-picker.css" />
     <link rel="stylesheet" href="https://uicdn.toast.com/calendar/latest/toastui-calendar.min.css" />
 <style>
-	.modal{
+	.modal, .detail-modal{
     display:none;
 
     position:fixed;
@@ -36,7 +36,7 @@
 </style>
 <div class="container w-80">
 
-    <h2>📅 일정 관리 시스템</h2>
+    <h2><i class="fa-solid fa-calendar"></i> 일정 관리 시스템</h2>
     <div id="calendar" style="height: 700px;"></div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://uicdn.toast.com/tui.code-snippet/latest/tui-code-snippet.min.js"></script>
@@ -68,8 +68,6 @@
     }
     
     calendar.on('selectDateTime', function(e){
-    	console.log("start =", e.start);
-        console.log("end =", e.end);
 
         $("[name=eventStart]").val(
             formatDate(e.start)
@@ -80,6 +78,25 @@
         );
 
         $(".modal").show();
+    });
+    
+    calendar.on('clickEvent', function(e){
+
+        $(".detail-title").val(e.event.title);
+        $(".detail-content").val(e.event.raw.content);
+        $(".detail-start").val(
+        		e.event.start
+            );
+
+        $(".detail-end").val(
+        		e.event.end
+        );
+        $(".detail-category").val(e.event.calendarId);
+        
+        console.log(e.event.start);
+        console.log(e.event.end);
+
+        $(".detail-modal").show();
     });
     
     // 2. [조회] 페이지가 로드되자마자 스프링에서 데이터를 받아와 달력에 뿌리기
@@ -97,14 +114,17 @@
             	            title: item.eventTitle,
             	            category: item.eventOption,
             	            start: item.eventStart,
-            	            end: item.eventEnd
+            	            end: item.eventEnd,
+            	            
+            	            raw : {
+            	                content : item.eventContent
+            	            }
+            	            
             	        };
             	    });
 
-            	    console.log(events);
 
             	    calendar.createEvents(events);
-            	
             	
             },
             error: function(xhr, status, error) {
@@ -116,7 +136,9 @@
    
 	$(function(){
 		
-	
+	$(".detail-close-btn").click(function(){
+	    $(".detail-modal").hide();
+	});
     $(".close-btn").click(function(){
         $(".modal").hide();
     });
@@ -147,7 +169,12 @@
                         title : data.eventTitle,
                         category : "time",
                         start : data.eventStart,
-                        end : data.eventEnd
+                        end : data.eventEnd, 
+                        
+                        raw : {
+                            content : data.eventContent
+                        }
+                        
                     }
                 ]);
                 $(".modal").hide();
@@ -160,39 +187,45 @@
             
     </script>
     </div>
-
-<div class="modal">
+<div class="container modal">
     <div class="modal-content">
 
         <h3>일정 등록</h3>
 
-        <div>
+        <div class="cell">
             <label>일정 제목</label>
-            <input type="text" name="eventTitle">
+            <input type="text" name="eventTitle" class="field w-100">
+            <div class="success-feedback"></div>
+            <div class="fail-feedback"></div>
         </div>
 
-        <div>
+        <div class="cell">
             <label>일정 내용</label>
-            <textarea name="eventContent"></textarea>
+            <textarea name="eventContent" class="field w-100"></textarea>
         </div>
 
-        <div>
+        <div class="cell">
             <label>시작일시</label>
-            <input type="datetime-local" name="eventStart">
+            <input type="datetime-local" name="eventStart" class="field w-100">
+            <div class="success-feedback"></div>
+            <div class="fail-feedback"></div>
         </div>
 
-        <div>
+        <div class="cell">
             <label>종료일시</label>
-            <input type="datetime-local" name="eventEnd">
+            <input type="datetime-local" name="eventEnd" class="field w-100">
+            <div class="success-feedback"></div>
+            <div class="fail-feedback"></div>
         </div>
 
-        <div>
+        <div class="cell">
             <label>일정 분류</label>
-            <select name="eventCategory">
+            <select name="eventCategory" class="field w-100">
                 <option value="개인일정">개인일정</option>
-                <option value="부서일정">부서일정</option>
                 <option value="사내일정">사내일정</option>
             </select>
+            <div class="success-feedback"></div>
+            <div class="fail-feedback"></div>
         </div>
 
         <button type="submit" class="btn btn-positive save-btn">저장</button>
@@ -201,6 +234,42 @@
     </div>
 </div>
 
+<div class="container detail-modal">
+    <div class="modal-content">
+
+        <h3>일정 상세정보</h3>
+
+        <div class="cell">
+            <label>제목</label>
+            <input type="text" class="field w-100 detail-title" readonly>
+        </div>
+
+        <div class="cell">
+            <label>내용</label>
+            <textarea class="field w-100 detail-content" readonly></textarea>
+        </div>
+
+        <div class="cell">
+            <label>시작일시</label>
+            <input type="text" class="field w-100 detail-start" readonly>
+        </div>
+
+        <div class="cell">
+            <label>종료일시</label>
+            <input type="text" class="field w-100 detail-end" readonly>
+        </div>
+
+        <div class="cell">
+            <label>분류</label>
+            <input type="text" class="field w-100 detail-category" readonly>
+        </div>
+
+        <button type="button" class="btn btn-neutral detail-close-btn">
+            닫기
+        </button>
+
+    </div>
+</div>
 
 
 
