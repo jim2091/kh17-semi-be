@@ -19,14 +19,15 @@ public class EventDao {
 	private EventMapper eventMapper;
 	
 
-	public List<EventDto> selectList(){
+	public List<EventDto> selectList(String eventOrigin){
 	    String sql = "select "
 	                + "event_no, event_origin, event_title, "
 	                + "event_category, event_content, event_start, event_end, event_option "
-	               + "from event "
+	               + "from event where event_origin = ? or event_category = '사내일정'"
 	               + "order by event_no desc";
+	    Object[] params = {eventOrigin};
 	    
-	    return jdbcTemplate.query(sql, eventMapper);
+	    return jdbcTemplate.query(sql, eventMapper, params);
 	}
 	public void insertEvent(EventDto eventDto) {
 		String sql = "insert into event("
@@ -77,7 +78,15 @@ public class EventDao {
 	
 	
 	
-	
+	public List<EventDto> selectListByUser(String eventOrigin){
+		
+		String sql = "select * from event where event_origin=? and event_category='개인일정' ";
+		Object[] params = {eventOrigin};
+		return jdbcTemplate.query(sql, eventMapper, params);
+		
+		
+		
+	}
 	
 	
 	

@@ -33,11 +33,41 @@
     margin:100px auto;
     padding:20px;
 }
+.calendar-header{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:15px;
+}
+
+.current-month{
+    font-size:20px;
+    font-weight:bold;
+    min-width:120px;
+    text-align:center;
+}
 </style>
+
+
+
 <div class="container w-80">
 
-    <h2><i class="fa-solid fa-calendar"></i> 일정 관리 시스템</h2>
+	<div class="cell">
+    	<h2><i class="fa-solid fa-calendar"></i> 일정 관리 시스템</h2>
+    </div>
+    <div class="cell calendar-header">
+    <button type="button" class="btn-prev"><i class="fa-solid fa-caret-left"></i></button>
+
+    <span class="current-month"></span>
+
+    <button type="button" class="btn-next"><i class="fa-solid fa-caret-right"></i></button>
+
+    <button type="button" class="btn-today">오늘</button>
+	</div>
+	
     <div id="calendar" style="height: 700px;"></div>
+    
+    
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://uicdn.toast.com/tui.code-snippet/latest/tui-code-snippet.min.js"></script>
 
@@ -59,6 +89,19 @@
         useFormPopup: false,   
         useDetailPopup: false  
     });
+    
+    function updateMonth() {
+
+        const date = calendar.getDate();
+
+        $(".current-month").text(
+            date.getFullYear() + "년 " +
+            (date.getMonth() + 1) + "월"
+        );
+    }
+
+    updateMonth();
+    
     function formatDate(date){
 
         if (!date || !(date instanceof Date) || isNaN(date.getTime())) {
@@ -99,6 +142,17 @@
             success: function(data) {
             	
             	 const events = data.map(function(item){
+            		 
+            		 let backgroundColor;
+            		 
+            		 if(item.eventCategory === "개인일정"){
+            	            backgroundColor = "#4CAF50";
+            	        }
+            	        else{
+            	            backgroundColor = "#2196F3";
+            	        }
+            		 
+            		 
             	        return {
             	            id: item.eventNo,
             	            calendarId: item.eventCategory,
@@ -106,6 +160,7 @@
             	            category: item.eventOption,
             	            start: item.eventStart,
             	            end: item.eventEnd,
+            	            backgroundColor : backgroundColor,
             	            
             	            raw : {
             	                content : item.eventContent
@@ -123,7 +178,10 @@
             }
         });
     });
-   
+    
+    
+
+       
     calendar.on('clickEvent', function(e){
         currentEventNo = e.event.id;
 
@@ -147,6 +205,28 @@
     });
    
 	$(function(){
+		
+		$(".btn-prev").click(function(){
+
+		    calendar.prev();
+		    updateMonth();
+
+		});
+
+		$(".btn-next").click(function(){
+
+		    calendar.next();
+		    updateMonth();
+
+		});
+
+		$(".btn-today").click(function(){
+
+		    calendar.today();
+		    updateMonth();
+
+		});
+		
 		
 	$(".detail-close-btn").click(function(){
 	    $(".detail-modal").hide();
@@ -333,8 +413,11 @@
         </div>
 
         <div class="cell">
-            <label>분류</label>
-            <input type="text" class="field w-100 detail-category">
+        	<label>일정 분류</label>
+            <select class="field w-100 detail-category">
+                <option value="개인일정">개인일정</option>
+                <option value="사내일정">사내일정</option>
+            </select>
         </div>
 
 		<button type="button" class="btn btn-positive edit-btn">
