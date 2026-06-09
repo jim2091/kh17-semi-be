@@ -49,14 +49,14 @@ public class DeptController {
 	}
 	
 	//목록 (조직도)
-	@RequestMapping("/tree")
-	public String tree(Model model) {
+	@RequestMapping("/listTree")
+	public String listTree(Model model) {
 		
 		
-		List<DeptDto> deptList = deptDao.selectTreeList();
-		model.addAttribute("deptList",deptList);
+		List<DeptDto> list = deptDao.selectTreeList();
+		model.addAttribute("list",list);
 		
-		return "dept/tree";
+		return "dept/listTree";
 	}
 	
 	//등록
@@ -103,7 +103,9 @@ public class DeptController {
 		
 		EmpDto empDto = empDao.selectOneDeptHeadId(deptDto.getDeptHeadId());//부서장 이름을 불러오기위해
 		List<EmpDto> memberList = deptDao.selectListByDept(deptId);
-	    
+		List<DeptDto> childDeptList = deptDao.selectChildDept(deptId);
+		
+	    model.addAttribute("childDeptList",childDeptList);
 	    model.addAttribute("memberList", memberList);
 		model.addAttribute("empDto",empDto);
 		model.addAttribute("deptDto",deptDto);

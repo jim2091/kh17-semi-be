@@ -1,76 +1,113 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
 <jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
 <jsp:include page="/WEB-INF/views/template/side_dept.jsp"></jsp:include>
 
-<!-- 조직도를 구리기위한 외부라이브러리 추가! -->
-<script src="https://github.com/wesnolte/jOrgChart"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/treant-js/1.0/Treant.css">
+
+<style>
+    /* ── 노드 기본 스타일 ── */
+    .node-box {
+        padding: 8px 14px;
+        background: #fab1a0;
+        border: 1.2px solid #aaa;
+        border-radius: 4px;
+        font-size: 13px;
+        font-family: 'Noto Sans KR', sans-serif;
+        text-align: center;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: background 0.15s, border-color 0.15s;
+    }
+
+    .node-box {
+    text-decoration: none !important;  /* 밑줄 제거 */
+    color: #333;            /* 링크 파란색 → 일반 텍스트 색상 */
+	}
+
+	.node-box:hover {
+    color: #2244aa;         /* 호버 시만 색상 변경 */
+	}
+
+
+    .node-box:hover {
+        background: #f0f4ff;
+        border-color: #5a7fd4;
+        color: #2244aa;
+    }
+
+    /* 접기 버튼 숨김 */
+    .Treant .collapse-switch { display: none; }
+</style>
 
 <div class="container w-80">
-	<div class="center">
-		<h1>부서 목록 및 검색</h1>
-	</div>
-	
-	<div class="cell right">
-		<div class="flex-area">
-	    <div class="cell">
-	        <form action="./list">
-	            <select name="column" class="field">
-	                <option value="dept_name" ${param.column == "dept_name" ? "selected" : ""}>부서명</option>
-	                <option value="dept_category_name" ${param.column == "dept_category_name" ? "selected" : ""}>상위부서</option>
-	                <option value="dept_id" ${param.column == "dept_id" ? "selected" : ""}>부서코드</option>
-	            </select>
-	            <input type="text" name="keyword" placeholder="검색어 입력" class="field" value="${param.keyword}">
-	            <button type="submit" class="btn btn-positive">
-	                <i class="fa-solid fa-magnifying-glass"></i>
-	                <span>검색</span>
-	            </button>        
-	        </form>
-	    </div>
+    <div class="center mb-30">
+        <h1>회사 조직도</h1>
+    </div>
 
-	    <div class="cell ms-50">
-		    <c:if test="${loginRole != null && loginRole == '관리자'}">
-		        <a href="./insert" class="btn btn-positive">신규 등록하기</a>
-	        </c:if>
-	    </div>
-	    </div>
-	</div>
+    <div class="cell right mb-10">
+        <a href="./list" class="btn btn-positive">
+            <i class="fa-solid fa-list"></i> 목록 보기
+        </a>
+    </div>
 
-	<div class="cell">
-		<table class="table">
-			<thead>
-				<tr class="bg-yellow">
-					<th>코드</th>
-					<th>상위부서</th>
-					<th>부서명</th>
-				</tr>
-			</thead>
-			<tbody align="center">
-				<c:forEach var="deptDto" items="${list}">
-				<tr>
-					<td>${deptDto.deptId}</td>
-					<td>
-						<c:forEach var="category" items="${deptCategoryList}">
-							<c:if test="${deptDto.deptCategory == category.deptCategoryNo}">
-								${category.deptCategoryName}
-							</c:if>
-						</c:forEach>
-					</td>
-					<td>
-						<a href="./detail?deptId=${deptDto.deptId}" class="link">
-							${deptDto.deptName}
-						</a>
-					</td>
-				</tr>
-				</c:forEach>
-			</tbody>
-		</table>
-	</div> 
-	
-    <div class="cell center">
-   		<jsp:include page="/WEB-INF/views/template/pagination.jsp"></jsp:include>
-	</div>
+    <div id="org-tree"></div>
 </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.3.0/raphael.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/treant-js/1.0/Treant.js"></script>
+
+<script>
+(function () {
+
+    var rawList = [
+        <c:forEach var="dept" items="${list}" varStatus="s">
+        { id: ${dept.deptId}, parentId: ${dept.parentDeptId}, name: "${dept.deptName}" }${!s.last ? ',' : ''}
+        </c:forEach>
+    ];
+
+    var nodeMap = {};
+
+    /* 1단계: 전체 노드 생성 */
+    rawList.forEach(function(d) {
+        nodeMap[d.id] = {
+            text:      { name: d.name },
+            HTMLclass: 'node-box',
+            link:      { href: './detail?deptId=' + d.id, target: '_self' },
+            children:  []
+        };
+    });
+
+    /* 2단계: 부모-자식 연결 */
+    rawList.forEach(function(d) {
+        if (d.id === 0) return;
+        if (nodeMap[d.parentId] !== undefined) {
+            nodeMap[d.parentId].children.push(nodeMap[d.id]);
+        }
+    });
+
+    /* 3단계: DEPT_ID=0 을 루트로 고정 */
+    var rootNode = nodeMap[0];
+
+    var config = {
+        chart: {
+            container:         '#org-tree',
+            connectors: {
+                type:  'step', /* 'straight'에서 'step'으로 변경하여 직각선으로 수정 */
+                style: { 'stroke': '#aaa', 'stroke-width': 1.5 }
+            },
+            nodeAlign:         'BOTTOM',
+            levelSeparation:   60,
+            siblingSeparation: 30,
+            subTeeSeparation:  30,
+            scrollbar:         'native'
+        },
+        nodeStructure: rootNode
+    };
+
+    new Treant(config);
+})();
+</script>
+
 <jsp:include page="/WEB-INF/views/template/footer.jsp"></jsp:include>

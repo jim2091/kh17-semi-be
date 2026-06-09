@@ -128,7 +128,7 @@ import com.kh.semiprj.vo.PageVO;
 	    	return jdbcTemplate.update(sql,params)>0;
 	    }
 	    
-	    //부서 이름 중복확인 메소드
+	    //부서 이름 중복 메소드
 	    public DeptDto selectOneByDeptName(String deptName) {
 	    	String sql = "select * from dept_profile_view where dept_name=?";
 	    	Object[]params = {deptName};
@@ -147,7 +147,7 @@ import com.kh.semiprj.vo.PageVO;
 	        return jdbcTemplate.query(sql, empMapper, params);
 	    }
 	    
-	  //조직도 목록조회 메소드(전체조회) 페이징처리한 리스트는 같이 못씀
+	    //조직도 목록조회 메소드(전체조회) 페이징처리한 리스트는 같이 못씀
 	    public List<DeptDto> selectTreeList() {
 	    	String sql = "select * from dept_profile_view order by dept_id asc";
 	        return jdbcTemplate.query(sql, deptMapper);
@@ -161,5 +161,13 @@ import com.kh.semiprj.vo.PageVO;
 	        int count = jdbcTemplate.queryForObject(sql, int.class, params);
 	        
 	        return count == 0; // 0개면 중복 없으므로 true(사용 가능), 1개 이상이면 false(중복)
+	    }
+	    
+	    //하위 부서 찾는 메소드
+	    public List<DeptDto> selectChildDept(int parentDeptId) {
+	    	String sql = "select * from dept_profile_view where parent_dept_id = ? order by dept_id asc";
+	    	Object[]params = {parentDeptId};
+	    	
+	    	return jdbcTemplate.query(sql, deptMapper,params);
 	    }
 	}

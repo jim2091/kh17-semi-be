@@ -39,7 +39,7 @@
 		<table class="table">
 			<thead>
 				<tr class="bg-yellow">
-					<th>코드</th>
+					<th>부서코드</th>
 					<th>상위부서</th>
 					<th>부서명</th>
 				</tr>
@@ -55,7 +55,7 @@
 						</c:choose>
 					</td>
 					<td>
-						<a href="./detail?deptId=${deptDto.deptId}" class="link">
+						<a href="./detail?deptId=${deptDto.deptId}" class="link blue">
 							${deptDto.deptName}
 						</a>
 					</td>
