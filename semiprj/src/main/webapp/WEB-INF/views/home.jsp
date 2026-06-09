@@ -5,9 +5,11 @@
 
 <jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
 <jsp:include page="/WEB-INF/views/template/side_home.jsp"></jsp:include>
-<script>
-	console.log("loginRole =", "${sessionScope.loginRole}");
-</script>
+
+
+
+<link rel="stylesheet" href="https://uicdn.toast.com/calendar/latest/toastui-calendar.min.css">
+
 <div class="flex-area flex-vertical ms-40 me-40" style="height: 600px">
 	<div class="cell w-100 content-cell">공지 및 다양한 알림</div>
 	<div class="cell flex-area">
@@ -70,9 +72,67 @@
 		
 		
 		<div class="cell w-50 content-cell ms-10" style="height: 300px;">
-			달력</div>
+			 <div id="home-calendar" style="height:250px;"></div>
+		</div>
+		
+
+<script src="https://uicdn.toast.com/tui.code-snippet/latest/tui-code-snippet.min.js"></script>
+<script src="https://uicdn.toast.com/calendar/latest/toastui-calendar.min.js"></script>
+<script>
+$(function(){
+
+    $.ajax({
+        url : "/event/api/events",
+        type : "get",
+        dataType : "json",
+
+        success : function(data){
+
+            const events = data.map(function(item){
+
+                let color;
+
+                if(item.eventCategory === "개인일정"){
+                    color = "#4CAF50";
+                }
+                else{
+                    color = "#2196F3";
+                }
+
+                return {
+                    id : item.eventNo,
+                    title : item.eventTitle,
+                    category : item.eventOption,
+                    start : item.eventStart,
+                    end : item.eventEnd,
+
+                    backgroundColor : color,
+                    borderColor : color,
+                    color : "#ffffff"
+                };
+            });
+
+            homeCalendar.createEvents(events);
+        }
+    });
+
+});
+</script>	
+		
+		
+		
+		
 	</div>
 	<div class="cell w-100 content-cell flex-fill">사내일정</div>
-</div>
+	</div>
+<script>
+const homeCalendar = new tui.Calendar('#home-calendar', {
+    defaultView: 'month',
 
+    useFormPopup: false,
+    useDetailPopup: false,
+
+    isReadOnly: true
+});
+</script>
 <jsp:include page="/WEB-INF/views/template/footer.jsp"></jsp:include>

@@ -160,7 +160,7 @@
             </c:if>
         </div>
 
-        <a href="#" class="btn-vac-write">휴가원 작성</a>
+        <a href="/app/vacInsert" class="btn-vac-write">휴가원 작성</a>
     </div>
 </div>
 

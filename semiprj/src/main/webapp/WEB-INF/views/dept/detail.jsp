@@ -134,7 +134,6 @@
 			            <td>${emp.empName}</td>
 			            <td>${emp.empPosition}</td>
 			            <td>${emp.empContact}</td>
-			            <td align="left">${dept.deptContent}</td> <!-- 업무내용을 사원에서 가져오는지/부서에서 가져오는지 --> 
 			        </tr>
 			    </c:forEach>
 			</tbody>

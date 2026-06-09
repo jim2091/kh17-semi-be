@@ -3,14 +3,14 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
-<jsp:include page="/WEB-INF/views/template/side_user.jsp"></jsp:include>
+<jsp:include page="/WEB-INF/views/template/side_event.jsp"></jsp:include>
 
   
     <link rel="stylesheet" href="https://uicdn.toast.com/tui.date-picker/latest/tui-date-picker.css" />
     <link rel="stylesheet" href="https://uicdn.toast.com/tui.time-picker/latest/tui-time-picker.css" />
     <link rel="stylesheet" href="https://uicdn.toast.com/calendar/latest/toastui-calendar.min.css" />
 <style>
-	.modal{
+	.modal, .detail-modal{
     display:none;
 
     position:fixed;
@@ -33,11 +33,41 @@
     margin:100px auto;
     padding:20px;
 }
+.calendar-header{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:15px;
+}
+
+.current-month{
+    font-size:20px;
+    font-weight:bold;
+    min-width:120px;
+    text-align:center;
+}
 </style>
+
+
+
 <div class="container w-80">
 
-    <h2>📅 일정 관리 시스템</h2>
+	<div class="cell">
+    	<h2><i class="fa-solid fa-calendar"></i> 일정 관리 시스템</h2>
+    </div>
+    <div class="cell calendar-header">
+    <button type="button" class="btn-prev"><i class="fa-solid fa-caret-left"></i></button>
+
+    <span class="current-month"></span>
+
+    <button type="button" class="btn-next"><i class="fa-solid fa-caret-right"></i></button>
+
+    <button type="button" class="btn-today">오늘</button>
+	</div>
+	
     <div id="calendar" style="height: 700px;"></div>
+    
+    
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://uicdn.toast.com/tui.code-snippet/latest/tui-code-snippet.min.js"></script>
 
@@ -50,6 +80,8 @@
     
     <script>
     const Calendar = tui.Calendar;
+    let currentEventNo = null;
+    
     
     // 1. 캘린더 인스턴스 생성
     const calendar = new Calendar('#calendar', {
@@ -57,30 +89,49 @@
         useFormPopup: false,   
         useDetailPopup: false  
     });
+    
+    function updateMonth() {
+
+        const date = calendar.getDate();
+
+        $(".current-month").text(
+            date.getFullYear() + "년 " +
+            (date.getMonth() + 1) + "월"
+        );
+    }
+
+    updateMonth();
+    
     function formatDate(date){
+
+        if (!date || !(date instanceof Date) || isNaN(date.getTime())) {
+            return "";
+        }
+
         const y = date.getFullYear();
         const m = String(date.getMonth()+1).padStart(2,'0');
         const d = String(date.getDate()).padStart(2,'0');
         const h = String(date.getHours()).padStart(2,'0');
         const min = String(date.getMinutes()).padStart(2,'0');
 
-        return `${y}-${m}-${d}T${h}:${min}`;
+        return y + "-" + m + "-" + d + "T" + h + ":" + min;
     }
     
     calendar.on('selectDateTime', function(e){
-    	console.log("start =", e.start);
-        console.log("end =", e.end);
+    	const start = formatDate(e.start);
+    	//console.log("new start =", start);
 
-        $("[name=eventStart]").val(
-            formatDate(e.start)
-        );
+    	$("[name=eventStart]").val(start);
 
-        $("[name=eventEnd]").val(
-        		formatDate(e.end)
-        );
+        //$("[name=eventStart]").val(formatDate(e.start));
+
+        $("[name=eventEnd]").val(formatDate(e.end));
+        
 
         $(".modal").show();
     });
+    
+    
     
     // 2. [조회] 페이지가 로드되자마자 스프링에서 데이터를 받아와 달력에 뿌리기
     $(document).ready(function() {
@@ -91,20 +142,35 @@
             success: function(data) {
             	
             	 const events = data.map(function(item){
+            		 
+            		 let backgroundColor;
+            		 
+            		 if(item.eventCategory === "개인일정"){
+            	            backgroundColor = "#4CAF50";
+            	        }
+            	        else{
+            	            backgroundColor = "#2196F3";
+            	        }
+            		 
+            		 
             	        return {
             	            id: item.eventNo,
             	            calendarId: item.eventCategory,
             	            title: item.eventTitle,
             	            category: item.eventOption,
             	            start: item.eventStart,
-            	            end: item.eventEnd
+            	            end: item.eventEnd,
+            	            backgroundColor : backgroundColor,
+            	            
+            	            raw : {
+            	                content : item.eventContent
+            	            }
+            	            
             	        };
             	    });
 
-            	    console.log(events);
 
             	    calendar.createEvents(events);
-            	
             	
             },
             error: function(xhr, status, error) {
@@ -112,11 +178,59 @@
             }
         });
     });
-   
+    
+    
+
+       
+    calendar.on('clickEvent', function(e){
+        currentEventNo = e.event.id;
+
+        $(".detail-title").val(e.event.title);
+        $(".detail-content").val(e.event.raw.content);
+        
+        const start = formatDate(e.event.start.toDate());
+
+        $(".detail-start").val(start);
+        
+        
+        const end = formatDate(e.event.start.toDate());
+            
+        $(".detail-end").val(end);
+        
+        $(".detail-category").val(e.event.calendarId);
+        
+
+
+        $(".detail-modal").show();
+    });
    
 	$(function(){
 		
-	
+		$(".btn-prev").click(function(){
+
+		    calendar.prev();
+		    updateMonth();
+
+		});
+
+		$(".btn-next").click(function(){
+
+		    calendar.next();
+		    updateMonth();
+
+		});
+
+		$(".btn-today").click(function(){
+
+		    calendar.today();
+		    updateMonth();
+
+		});
+		
+		
+	$(".detail-close-btn").click(function(){
+	    $(".detail-modal").hide();
+	});
     $(".close-btn").click(function(){
         $(".modal").hide();
     });
@@ -147,10 +261,76 @@
                         title : data.eventTitle,
                         category : "time",
                         start : data.eventStart,
-                        end : data.eventEnd
+                        end : data.eventEnd, 
+                        
+                        raw : {
+                            content : data.eventContent
+                        }
+                        
                     }
                 ]);
                 $(".modal").hide();
+            }
+        });
+    });
+    
+    $(".edit-btn").click(function(){
+        
+
+        const data = {
+            eventNo : currentEventNo,
+            eventTitle : $(".detail-title").val(),
+            eventContent : $(".detail-content").val(),
+            
+                
+            
+            eventStart : $(".detail-start").val(),
+            eventEnd : $(".detail-end").val(),
+            
+            eventCategory : $(".detail-category").val(), 
+            eventOption : "time"
+        };
+        console.log("start=", $(".detail-start").val());
+        console.log("end=", $(".detail-end").val());
+
+        $.ajax({
+            url : "/event/rest/event",
+            type : "put",
+            contentType : "application/json",
+            data : JSON.stringify(data),
+
+            success : function(){
+                alert("수정 완료");
+
+                location.reload();
+            },
+            error: function(xhr, status, error) {
+                console.error("수정 실패:", error);
+                alert("수정 중 오류가 발생했습니다.");
+            }
+        });
+    });
+    
+    $(".delete-btn").click(function(){
+
+        if(!confirm("정말 삭제하시겠습니까?")){
+            return;
+        }
+
+        $.ajax({
+            url : "/event/rest/event",
+            type : "delete",
+            data : {
+                eventNo : currentEventNo
+            },
+
+            success : function(){
+                alert("삭제 완료");
+                location.reload();
+            },
+
+            error : function(){
+                alert("삭제 실패");
             }
         });
     });
@@ -160,39 +340,45 @@
             
     </script>
     </div>
-
-<div class="modal">
+<div class="container modal">
     <div class="modal-content">
 
         <h3>일정 등록</h3>
 
-        <div>
+        <div class="cell">
             <label>일정 제목</label>
-            <input type="text" name="eventTitle">
+            <input type="text" name="eventTitle" class="field w-100">
+            <div class="success-feedback"></div>
+            <div class="fail-feedback"></div>
         </div>
 
-        <div>
+        <div class="cell">
             <label>일정 내용</label>
-            <textarea name="eventContent"></textarea>
+            <textarea name="eventContent" class="field w-100"></textarea>
         </div>
 
-        <div>
+        <div class="cell">
             <label>시작일시</label>
-            <input type="datetime-local" name="eventStart">
+            <input type="datetime-local" name="eventStart" class="field w-100">
+            <div class="success-feedback"></div>
+            <div class="fail-feedback"></div>
         </div>
 
-        <div>
+        <div class="cell">
             <label>종료일시</label>
-            <input type="datetime-local" name="eventEnd">
+            <input type="datetime-local" name="eventEnd" class="field w-100">
+            <div class="success-feedback"></div>
+            <div class="fail-feedback"></div>
         </div>
 
-        <div>
+        <div class="cell">
             <label>일정 분류</label>
-            <select name="eventCategory">
+            <select name="eventCategory" class="field w-100">
                 <option value="개인일정">개인일정</option>
-                <option value="부서일정">부서일정</option>
                 <option value="사내일정">사내일정</option>
             </select>
+            <div class="success-feedback"></div>
+            <div class="fail-feedback"></div>
         </div>
 
         <button type="submit" class="btn btn-positive save-btn">저장</button>
@@ -201,6 +387,51 @@
     </div>
 </div>
 
+<div class="container detail-modal">
+    <div class="modal-content">
+
+        <h3>일정 상세정보</h3>
+
+        <div class="cell">
+            <label>제목</label>
+            <input type="text" class="field w-100 detail-title">
+        </div>
+
+        <div class="cell">
+            <label>내용</label>
+            <textarea class="field w-100 detail-content"></textarea>
+        </div>
+
+        <div class="cell">
+            <label>시작일시</label>
+            <input type="datetime-local" class="field w-100 detail-start">
+        </div>
+
+        <div class="cell">
+            <label>종료일시</label>
+            <input type="datetime-local" class="field w-100 detail-end">
+        </div>
+
+        <div class="cell">
+        	<label>일정 분류</label>
+            <select class="field w-100 detail-category">
+                <option value="개인일정">개인일정</option>
+                <option value="사내일정">사내일정</option>
+            </select>
+        </div>
+
+		<button type="button" class="btn btn-positive edit-btn">
+    		수정
+		</button>
+		<button type="button" class="btn btn-negative delete-btn">
+    		삭제
+		</button>
+        <button type="button" class="btn btn-neutral detail-close-btn">
+            닫기
+        </button>
+
+    </div>
+</div>
 
 
 
