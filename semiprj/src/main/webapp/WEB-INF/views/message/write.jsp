@@ -6,8 +6,8 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 
 <jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
-<jsp:include page="/WEB-INF/views/template/side_home.jsp"></jsp:include>
-<!--  여기도 겹쳐서 일단 주석처리했어요
+<jsp:include page="/WEB-INF/views/template/side_message.jsp"></jsp:include>
+
 <style>
 	.receiver-list{
 	    border:1px solid #ccc;
@@ -41,9 +41,8 @@
 	    background: white;
 	    z-index: 999;
 	}
-
 </style>
--->
+
 <script type="text/javascript">
 $(function(){
 	//1. 상태 객체
@@ -72,7 +71,6 @@ $(function(){
 	});
 	
 	//(2) 받는이
-	/* 이 부분 아마 검색부분 하다가 만건가 잘 모르겠는데 제거랑 겹쳐서 일단 주석처리 했어요
 	$("[name=receiverKeyword]").on("keyup", function(){
 	    var keyword = $(this).val();
 	
@@ -96,9 +94,32 @@ $(function(){
 	                    emp.empName + " (" + emp.empDept + ")"
 	                );
 	                div.click(function(){
-	                    $(".receiver-input").val(emp.empName);
-	                    $("[name=messageReceiver]").val(emp.empNo);
+
+	                    if($("input[name=messageReceiver][value='"+emp.empNo+"']").length){
+	                        return;
+	                    }
+
+	                    var html = "";
+
+	                    html += "<span class='receiver-tag'>";
+	                    html += emp.empName;
+
+	                    html += "<button type='button' class='delete-tag'>";
+	                    html += "✕";
+	                    html += "</button>";
+
+	                    html += "<input type='hidden' ";
+	                    html += "name='messageReceiver' ";
+	                    html += "value='" + emp.empNo + "'>";
+
+	                    html += "</span>";
+
+	                    $(".receiver-selected-list").append(html);
+
+	                    $("[name=receiverKeyword]").val("");
+
 	                    $(".receiver-list").empty();
+
 	                    state.messageReceiverValid = true;
 	                });
 	
@@ -107,7 +128,6 @@ $(function(){
 	        }
 	    });
 	});
-	*/
 	
 	//(3) 내용
     $("[name=messageContent]").on("input blur", function(){
@@ -128,11 +148,15 @@ $(function(){
 	
 	//3. 폼 검사
     $(".form-check").on("submit", function(){
-    	state.messageReceiverValid = $("[name=messageReceiver]").val().length > 0;
+    	state.messageReceiverValid = $("input[name=messageReceiver]").length > 0;
         $(this).find("input[name], textarea[name]").trigger("blur");
         return state.ok();
     });
 	
+	//태그 삭제
+    $(".receiver-selected-list").on("click", ".delete-tag", function(){
+        $(this).closest(".receiver-tag").remove();
+    });
 });
 </script>
 
@@ -140,7 +164,7 @@ $(function(){
 	<div class="container w-800 mt-50 mb-50">
 		<!-- 페이지 제목 -->
 		<div class="cell center">
-			<h1 class="mt-0 mb-0>">쪽지 보내기</h1>
+			<h1 class="mt-0 mb-0">쪽지 보내기</h1>
 		</div>
 		
 		<!-- 경고문 -->
@@ -152,24 +176,37 @@ $(function(){
 		<!-- 제목 입력창 -->
 		<div class="cell mt-40">
 			<label>제목 <i class="fa-solid fa-asterisk red"></i></label>
-			<input type="text" name="messageTitle" class="field w-100">
+			<input type="text" name="messageTitle" value="${replyTitle}" class="field w-100">
 			<div class="fail-feedback">[필수] 제목을 입력해주세요.</div>
 		</div>
 	
 		<!-- 받는이 입력창 -->
 		<div class="cell receiver-wrapper">
 			<label>받는이 <i class="fa-solid fa-asterisk red"></i></label>
-			<input type="text" name="receiverKeyword" class="field" placeholder="이름을 입력하세요">
+			<input type="text" name="receiverKeyword" class="field">
 			<button type="button" class="btn btn-neutral ms-10 open-search">
                 <i class="fa-solid fa-user-tie"></i>
                 <span>찾기</span>
             </button>
-            
+			<div class="receiver-selected-list">
+			    <c:if test="${messageDto != null}">
+			        <span class="receiver-tag">
+			            ${messageDto.senderName}
+			
+			            <button type="button" class="delete-tag">
+			                ✕
+			            </button>
+			
+			            <input type="hidden"
+			                   name="messageReceiver"
+			                   value="${messageDto.messageSender}">
+			        </span>
+			    </c:if>
+			</div>
             <!-- 사원 검색 모달 -->
             <jsp:include page="/WEB-INF/views/template/employee-picker.jsp"/>
             <!-- 해당 모달 JS -->
             <script src="/js/employee-picker.js"></script>
-            
 			<div class="receiver-list"></div>
 			
 			<div class="fail-feedback">[필수] 받는이를 입력하세요.</div>

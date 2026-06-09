@@ -136,11 +136,11 @@
 	    	<li>
                 <a href="/dept/listTree">
                     <span>부서조직도</span>
-                </a>
-                
+                </a>   
             </li>
         </ul>
 	</li>
+		
 	<li>
 	    <a href="/attn/list">
 	        <span>근태관리</span>
@@ -155,7 +155,7 @@
 	<li class="divider"></li>
 	
 	<li style="width: 50px;">
-	    <a href="#">
+	    <a href="/message/receiveList">
 	        <i class="fa-solid fa-paper-plane"></i>
 	    </a>
 	</li>
