@@ -36,13 +36,14 @@
     
     <script type="text/javascript">
 	    $(function(){
-	        $("[name=masterToggle]").change(function(){
+	        $("[name=managerToggle]").change(function(){
 	
 	            $.post("/menu/toggle", {
 	                managerToggle : $(this).is(":checked")
 	            }, function(){
 	                location.reload();
 	            });
+	
 	        });
 	    });
     </script>
@@ -127,11 +128,12 @@
 								    </c:choose>
                             	</div>
                             	<div>
-                            		<c:if test="${sessionScope.loginRole == '관리자' || sessionScope.originRole == '관리자'}">
-	                            	<label class="toggle">
-									    <input type="checkbox" name="masterToggle" <c:if test="${sessionScope.managerToggle}">checked</c:if>>
-									    <span class="slider"></span>
-									</label>
+                            		<c:if test="${sessionScope.originRole == '관리자'}">
+									    <label class="toggle">
+									        <input type="checkbox" name="managerToggle"
+									            <c:if test="${sessionScope.managerToggle}">checked</c:if>>
+									        <span class="slider"></span>
+									    </label>
 									</c:if>
                             	</div>
                             </div>

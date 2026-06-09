@@ -80,9 +80,8 @@ public class EmpController {
 		session.setAttribute("loginNo", findEmpDto.getEmpNo());
 
 		if (findEmpDto.getEmpLevel().equals("관리자")) {
-			session.setAttribute("masterToggle", true);
+		    session.setAttribute("managerToggle", true);
 		}
-
 		
 
 		return "redirect:/";

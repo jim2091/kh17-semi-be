@@ -7,6 +7,7 @@
 <jsp:include page="/WEB-INF/views/template/side_home.jsp"></jsp:include>
 
 
+
 <link rel="stylesheet" href="https://uicdn.toast.com/calendar/latest/toastui-calendar.min.css">
 
 <div class="flex-area flex-vertical ms-40 me-40" style="height: 600px">
