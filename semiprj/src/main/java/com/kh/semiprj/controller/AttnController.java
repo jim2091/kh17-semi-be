@@ -2,6 +2,7 @@ package com.kh.semiprj.controller;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,6 +27,10 @@ public class AttnController {
         
         String empNo = (String) session.getAttribute("loginNo");
         attnDto.setEmpNo(empNo);
+        
+        // 연차 정보 조회 및 모델 추가
+        Map<String, Object> vacInfo = attnService.getVacationInfo(empNo);
+        model.addAttribute("vacInfo", vacInfo);
         
         List<AttnDto> list = attnService.getAttendanceList(attnDto, pageVO);
         pageVO.setCount(attnService.countAttendance(attnDto));
