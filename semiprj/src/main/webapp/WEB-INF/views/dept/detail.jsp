@@ -47,7 +47,7 @@
 	<div class="cell mt-10">
 		<table class="table table-horizontal" style="text-align: center;">
 			<thead>
-				<tr>
+				<tr class="bg-yellow">
 					<th>부서ID</th>
 					<th>상위부서</th>
 					<th>부서장(사원번호)</th>
@@ -70,14 +70,63 @@
 			</tbody>
 		</table>
 	</div>
+		<%-- 하위부서 목록 (하위부서가 있을 때만 표시) --%>
+		<c:if test="${not empty childDeptList}">
+		
+		    <div class="cell mt-30"
+		        style="border-bottom: 1px solid #ccc; margin-bottom: 20px;"></div>
+		
+		    <div class="cell mt-20">
+		        <h3>하위 부서 목록</h3>
+		    </div>
+		
+		    <div class="cell mt-10">
+		        <table class="table" style="text-align: center;">
+		            <thead>
+		                <tr class="bg-yellow">
+		                    <th>부서코드</th>
+		                    <th>부서명</th>
+		                    <th>활성여부</th>
+		                </tr>
+		            </thead>
+		            <tbody>
+		                <c:forEach var="child" items="${childDeptList}">
+		                    <tr>
+		                        <td>${child.deptId}</td>
+		                        <td>
+		                            <%-- 클릭하면 해당 하위부서 상세로 이동 --%>
+		                            <a href="./detail?deptId=${child.deptId}" class="link blue">
+		                                ${child.deptName}
+		                            </a>
+		                        </td>
+		                        <td>
+		                            <c:choose>
+		                                <c:when test="${child.deptYn == 'Y'}">
+		                                    <span style="color: green;">활성화</span>
+		                                </c:when>
+		                                <c:otherwise>
+		                                    <span style="color: red;">비활성화</span>
+		                                </c:otherwise>
+		                            </c:choose>
+		                        </td>
+		                    </tr>
+		                </c:forEach>
+		            </tbody>
+		        </table>
+		    </div>
+		
+		</c:if>
 
 	<div class="cell mt-30"
 		style="border-bottom: 1px solid #ccc; margin-bottom: 20px;"></div>
 
 	<div class="cell mt-20">
+		        <h3>직원 목록</h3>
+	</div>
+	<div class="cell mt-20">
 		<table class="table table-horizontal" style="text-align: center;">
 			<thead>
-				<tr>
+				<tr class="bg-yellow">
 					<th class="w-20">성명</th>
 					<th class="w-20">직위</th>
 					<th class="w-30">전화번호</th>
@@ -90,7 +139,7 @@
 			            <td>${emp.empName}</td>
 			            <td>${emp.empPosition}</td>
 			            <td>${emp.empContact}</td>
-			            <%-- <td align="left">${emp.empTask}</td> <!-- 업무내용을 사원에서 가져오는지/부서에서 가져오는지 --> --%>
+			            <td align="left">${dept.deptContent}</td> <!-- 업무내용을 사원에서 가져오는지/부서에서 가져오는지 --> 
 			        </tr>
 			    </c:forEach>
 			</tbody>

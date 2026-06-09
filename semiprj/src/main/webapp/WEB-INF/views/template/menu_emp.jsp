@@ -129,7 +129,7 @@
 	    </a>
 	</li>
 	<li>
-	    <a href="/dept/list">
+	    <a href="/dept/listTree">
 	        <span>부서목록</span>
 	    </a>
 	</li>
