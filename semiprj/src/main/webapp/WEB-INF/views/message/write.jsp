@@ -7,7 +7,7 @@
 
 <jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
 <jsp:include page="/WEB-INF/views/template/side_home.jsp"></jsp:include>
-
+<!--  여기도 겹쳐서 일단 주석처리했어요
 <style>
 	.receiver-list{
 	    border:1px solid #ccc;
@@ -41,8 +41,9 @@
 	    background: white;
 	    z-index: 999;
 	}
-</style>
 
+</style>
+-->
 <script type="text/javascript">
 $(function(){
 	//1. 상태 객체
@@ -71,6 +72,7 @@ $(function(){
 	});
 	
 	//(2) 받는이
+	/* 이 부분 아마 검색부분 하다가 만건가 잘 모르겠는데 제거랑 겹쳐서 일단 주석처리 했어요
 	$("[name=receiverKeyword]").on("keyup", function(){
 	    var keyword = $(this).val();
 	
@@ -105,6 +107,7 @@ $(function(){
 	        }
 	    });
 	});
+	*/
 	
 	//(3) 내용
     $("[name=messageContent]").on("input blur", function(){
@@ -157,11 +160,16 @@ $(function(){
 		<div class="cell receiver-wrapper">
 			<label>받는이 <i class="fa-solid fa-asterisk red"></i></label>
 			<input type="text" name="receiverKeyword" class="field" placeholder="이름을 입력하세요">
-			<button type="button" class="btn btn-neutral ms-10">
+			<button type="button" class="btn btn-neutral ms-10 open-search">
                 <i class="fa-solid fa-user-tie"></i>
                 <span>찾기</span>
             </button>
-			<input type="hidden" name="messageReceiver">
+            
+            <!-- 사원 검색 모달 -->
+            <jsp:include page="/WEB-INF/views/template/employee-picker.jsp"/>
+            <!-- 해당 모달 JS -->
+            <script src="/js/employee-picker.js"></script>
+            
 			<div class="receiver-list"></div>
 			
 			<div class="fail-feedback">[필수] 받는이를 입력하세요.</div>
