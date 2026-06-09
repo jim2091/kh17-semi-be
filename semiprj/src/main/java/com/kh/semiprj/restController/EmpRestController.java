@@ -1,6 +1,9 @@
 package com.kh.semiprj.restController;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -31,6 +34,11 @@ public class EmpRestController {
 	public boolean validId(@RequestParam String empId) {
 		EmpDto empDto = empDao.selectOne(empId);
 		return empDto == null;
+	}
+	
+	@GetMapping("/search")
+	public List<EmpDto> search(@RequestParam String keyword){
+		return empDao.search(keyword);
 	}
 
 }

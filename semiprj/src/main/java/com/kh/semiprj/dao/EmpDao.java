@@ -204,7 +204,22 @@ public class EmpDao {
 	}
 	
 	
-	
+	//emp-picker용
+	public List<EmpDto> search(String keyword){
+		if (keyword == null || keyword.trim().isEmpty()) {
+			String sql = "select * from emp where emp_use_yn = 'Y'"
+							+ "order by emp_name asc";
+			return jdbcTemplate.query(sql, empMapper);
+		}
+		
+		String sql = "select * from emp where emp_use_yn = 'Y' and ("
+						+ "instr(emp_no, ?) > 0 or instr(emp_name, ?) > 0 "
+						+ "or instr(emp_dept, ?) > 0 or instr(emp_position, ?) > 0"
+					+ ") order by emp_name asc";
+		Object[] params = {keyword, keyword, keyword, keyword};
+		
+		return jdbcTemplate.query(sql, empMapper, params);
+	}
 	
 	
 	
