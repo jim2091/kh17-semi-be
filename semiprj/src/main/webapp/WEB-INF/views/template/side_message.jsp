@@ -2,7 +2,6 @@
     pageEncoding="UTF-8"%>
 
 					<div class="container w-100 mt-10 side-area center cell flex-fill">
-						<c:if test="${sessionScope.loginId != null}">
 						<div class="board-side">
 							<div class="side-section">
 								<div class="side-title">쪽지</div>
@@ -18,6 +17,5 @@
 								</div>
 							</div>
 						</div>
-						</c:if>
                 	</div>
 				<div class="w-200 flex-fill">

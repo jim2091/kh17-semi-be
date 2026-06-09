@@ -7,38 +7,15 @@
 <jsp:include page="/WEB-INF/views/template/side_board.jsp"></jsp:include>
 
 <style>
-	.field ~ .success-feedback {
-	    color: #0984e3;
-	    display: none;
-	}
-	.field ~ .fail-feedback {
+	.text-editor ~ div > .fail-feedback {
 	    color: #d63031;
-	    display: none;
+	    visibility: hidden;
 	}
-	.field.success ~ .success-feedback {
-	    display: block;
+
+	.text-editor.fail ~ div > .fail-feedback {
+	    visibility: visible;
 	}
-	.field.fail ~ .fail-feedback {
-	    display: block;
-	}
-	.field {
-	    background-size: 1em;
-	    background-repeat: no-repeat;
-	    background-position-x: right 0.5em;
-	    background-position-y: center;
-	    padding-right: 2em;
-	}
-	select.field {
-	    background-position-x: right 1em;
-	}
-	.field.success {
-	    background-image: url("https://cdn.jsdelivr.net/gh/honglahyun/cdn/valid.png");
-	    border-color: #0984e3;
-	}
-	.field.fail {
-	    background-image: url("https://cdn.jsdelivr.net/gh/honglahyun/cdn/invalid.png");
-	    border-color: #d63031;
-	}
+	
 	.radio-wrapper {
     	border: none !important;
     	background-image: none !important;
@@ -48,6 +25,22 @@
 
 <script type="text/javascript">
 $(function(){
+	//(+) 입력창 summernote 적용
+	$('#summernote').summernote({
+	    lang : 'ko-KR',
+	    height : 400,
+	    callbacks : {
+	        onKeyup : function(){
+	            var text = $(this)
+	                .summernote('code')
+	                .replace(/<[^>]*>/g, '')
+	                .trim();
+	            $(".text-length span")
+	                .text(text.length);
+	        }
+	    }
+	});
+	
     //1. 상태 객체
     var state = {
    		boardTitleValid : false,
@@ -91,28 +84,43 @@ $(function(){
     
     //(4) 내용
     $("[name=boardContent]").on("input blur", function(){
-    	var size = $(this).val().length;
-    	if(size > 1000) {
-    		var origin = $(this).val();
-            var cut = origin.substring(0, 1000);
-            $(this).val(cut);
-            size = 1000;
-        }
-    	var span = $(this).next(".right").children("span");
-        span.text(size);
-        span.toggleClass("red", size >= 1000);
-    	var valid = size > 0;
-    	$(this).removeClass("success fail").addClass(valid ? "success" : "fail");
-    	state.boardContentValid = valid;
-    });
-    
+    	var content = $('#summernote').summernote('code');
+    	
+    	var valid = content.length > 0;
+		if(!valid){
+			$(this).addClass("fail");
+		} else{
+			$(this).removeClass("fail");
+		}
+		state.boardContentValid = valid;;
+	});
+	
     //3. 폼 검사
-    $(".form-check").on("submit", function(){
-        $(this).find("select[name]").trigger("input");
+	$(".form-check").on("submit", function(){
+		$(this).find("select[name]").trigger("input");
         $(this).find("input[name], textarea[name]").trigger("blur");
         state.boardTypeValid = $("input[name=boardType]:checked").length > 0;
+        checkBoardContent();
         return state.ok();
     });
+    
+	//기존 text-area와 달라 별도로 검사 및 피드백
+	function checkBoardContent(){
+	    var code = $("#summernote").summernote("code");
+	    var text = $("<div>").html(code).text().trim();
+
+	    var valid = text.length > 0;
+		console.log(valid);
+	    $("#summernote").removeClass("fail");
+
+	    if(!valid){
+	        $("#summernote").addClass("fail");
+	    }
+
+	    state.boardContentValid = valid;
+	    return valid;
+	}
+    
 });
 </script>
 
@@ -182,12 +190,21 @@ $(function(){
 		<!-- 내용 입력창 -->
 		<div class="cell">
 			<label>내용 <i class="fa-solid fa-asterisk red"></i> </label>
-			<textarea name="boardContent" rows="10" class="field w-100"></textarea>
-			<div class="right">
-                <span>0</span> / 1000
-            </div>
-            <div class="fail-feedback">[필수] 내용을 입력하세요.</div>
+			<textarea id="summernote" name="boardContent" rows="10" class="text-editor"></textarea>
+			<div class="justify">
+			    <span class="fail-feedback">[필수] 내용을 입력하세요.</span>
+			    <span class="text-length">
+			        <span>0</span> / 1000
+			    </span>
+			</div>
 		</div>
+		
+		<!-- 파일 첨부 -->
+<!-- 		<div class="cell">
+            <label>파일 첨부</label>
+            <input type="file" name="attach" class="field w-100" multiple
+            	accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.hwp,.hwpx,.zip">
+        </div>    -->
 	
 		<!-- 목록/등록 버튼 -->
 		<div class="cell mt-50 right">
