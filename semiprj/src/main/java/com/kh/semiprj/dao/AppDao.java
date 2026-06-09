@@ -291,6 +291,8 @@ public class AppDao {
             return dto;
         });
     }
+    
+    
  // 최근 5개만 가져오기
     public List<AppDto> selectMyRecentList(String empNo) {
         String sql = "select * from ("
@@ -302,5 +304,8 @@ public class AppDao {
         Object[] params = { empNo };
         return jdbcTemplate.query(sql, appMapper, params);
     }
+    
+    
+    
     
 }
