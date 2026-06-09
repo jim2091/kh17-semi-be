@@ -108,6 +108,7 @@
     
     <!-- 페이지네이션 -->
     <div class="cell mt-50">
+    	<c:set var="pageUrl" value="./sendList"/>
 		<jsp:include page="/WEB-INF/views/template/pagination_board.jsp"></jsp:include>
     </div>
 </div>

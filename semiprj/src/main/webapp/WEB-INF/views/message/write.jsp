@@ -28,6 +28,42 @@
 	    position: relative;
 	    width: 100%;
 	}
+	
+	.receiver-selected-list{
+	    margin-top: 10px;
+	    display: flex;
+	    flex-wrap: wrap;
+	    gap: 8px;
+	}
+	
+	.receiver-tag{
+	    display: inline-flex;
+	    align-items: center;
+	    gap: 6px;
+	
+	    padding: 6px 12px;
+	
+	    border: 1px solid #d9d9d9;
+	    border-radius: 999px;
+	
+	    background-color: #f5f7fa;
+	
+	    font-size: 14px;
+	}
+	
+	.receiver-tag .delete-tag{
+	    border: none;
+	    background: transparent;
+	    cursor: pointer;
+	
+	    color: #999;
+	    font-size: 14px;
+	    padding: 0;
+	}
+	
+	.receiver-tag .delete-tag:hover{
+	    color: #e74c3c;
+	}
 
 	/* 드롭다운을 입력창과 정확히 동일한 폭으로 */
 	.receiver-list{

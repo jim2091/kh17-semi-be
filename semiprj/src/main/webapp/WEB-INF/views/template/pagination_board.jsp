@@ -6,13 +6,13 @@
 
 <div class="pagination">
 	<!-- 맨 첫 페이지 -->
-	<a href="./list?page=1&${pageVO.getSearchParams()}">
+	<a href="${pageUrl}?page=1&${pageVO.getSearchParams()}">
 		<i class="fa-solid fa-angles-left"></i>
 	</a>
 	
 	<!-- 이전 -->
 	<c:if test="${pageVO.hasPrevious()}">
-		<a href="./list?page=${pageVO.getPreviousBlock()}&${pageVO.getSearchParams()}">
+		<a href="${pageUrl}?page=${pageVO.getPreviousBlock()}&${pageVO.getSearchParams()}">
 			<i class="fa-solid fa-angle-left"></i>
 		</a>
 	</c:if>
@@ -20,22 +20,22 @@
 	<!-- 숫자 --> 
 	<c:forEach var="i" begin="${pageVO.getBeginBlock()}" end="${pageVO.getEndBlock()}" step="1">
 		<c:if test="${pageVO.page == i}">
-			<a href="./list?page=${i}&${pageVO.getSearchParams()}" class="on">${i}</a>
+			<a href="${pageUrl}?page=${i}&${pageVO.getSearchParams()}" class="on">${i}</a>
 		</c:if>
 		<c:if test="${pageVO.page != i}">
-			<a href="./list?page=${i}&${pageVO.getSearchParams()}">${i}</a>
+			<a href="${pageUrl}?page=${i}&${pageVO.getSearchParams()}">${i}</a>
 		</c:if>
 	</c:forEach>
 
 	<!-- 다음 -->
 	<c:if test="${pageVO.hasNext()}">
-		<a href="./list?page=${pageVO.getNextBlock()}&${pageVO.getSearchParams()}">
+		<a href="${pageUrl}?page=${pageVO.getNextBlock()}&${pageVO.getSearchParams()}">
 			<i class="fa-solid fa-angle-right"></i>
 		</a>
 	</c:if>
 
 	<!-- 맨 뒷 페이지 -->
-	<a href="./list?page=${pageVO.getPageCount()}&${pageVO.getSearchParams()}">
+	<a href="${pageUrl}?page=${pageVO.getPageCount()}&${pageVO.getSearchParams()}">
 		<i class="fa-solid fa-angles-right"></i>
 	</a>
 </div>
