@@ -27,10 +27,13 @@
 	        </form>
 	    </div>
 
-	    <div class="cell ms-50">
+	    <div class="cell ms-20">
 		    <c:if test="${loginRole != null && loginRole == '관리자'}">
-		        <a href="./insert" class="btn btn-positive">신규 등록하기</a>
-	        </c:if>
+		        <a href="./insert" class="btn btn-positive">등록하기</a>
+	        </c:if>    	
+	    </div>
+	    <div class= "cell ms-20">
+			<a href="./listTree" class="btn btn-positive">조직도</a> 
 	    </div>
 	    </div>
 	</div>
