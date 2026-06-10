@@ -13,10 +13,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.kh.semiprj.dao.AppDao;
+import com.kh.semiprj.dao.DeptDao;
 import com.kh.semiprj.dao.EmpDao;
 import com.kh.semiprj.dao.EmpHistoryDao;
 import com.kh.semiprj.dto.AppDto;
 import com.kh.semiprj.dto.AttnDto;
+import com.kh.semiprj.dto.DeptDto;
 import com.kh.semiprj.dto.EmpDto;
 import com.kh.semiprj.dto.EmpHistoryDto;
 import com.kh.semiprj.exception.TargetNotfoundException;
@@ -32,6 +34,9 @@ public class AdminController {
 
 	@Autowired
 	private EmpDao empDao;
+	
+	@Autowired
+	private DeptDao deptDao;
 
 	@Autowired
 	private EmpHistoryDao empHistoryDao;
@@ -71,6 +76,12 @@ public class AdminController {
 	public String detail(@RequestParam String empNo, Model model) {
 		EmpDto empDto = empDao.selectOneByDetail(empNo);
 		model.addAttribute("empDto", empDto);
+		
+		int deptNo = empDto.getEmpDept();
+
+		DeptDto deptDto = deptDao.selectOne(deptNo);
+		model.addAttribute("deptDto", deptDto);
+		
 
 		List<EmpHistoryDto> loginHistory = empHistoryDao.selectList(empNo, 1, 10);
 		model.addAttribute("loginHistory", loginHistory);
@@ -110,7 +121,6 @@ public class AdminController {
 		} else {
 			empDto.setEmpRetiredDate(null);
 		}
-		System.out.println(empDto);
 
 		empDao.updateByMaster(empDto);
 		return "redirect:./detail?empNo=" + empDto.getEmpNo();
