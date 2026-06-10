@@ -103,7 +103,7 @@ public class AppLineDao {
     // 승인 처리
     public void approve(int appLineId) {
         String sql = "update app_line set app_line_status = '완료', "
-                   + "app_line_date = systimestamp "
+                   + "app_line_date = to_char(sysdate, 'YYYY-MM-DD') " // ← 10자리로 변환
                    + "where app_line_id = ?";
         jdbcTemplate.update(sql, appLineId);
     }
@@ -115,10 +115,9 @@ public class AppLineDao {
         return jdbcTemplate.update(sql, appId, currentOrder + 1);
     }
 
-    // 반려 처리
     public void reject(int appLineId, String reason) {
         String sql = "update app_line set app_line_status = '반려', "
-                   + "app_line_date = systimestamp, "
+                   + "app_line_date = to_char(sysdate, 'YYYY-MM-DD'), " // ← 동일하게 수정
                    + "app_line_rej = ? "
                    + "where app_line_id = ?";
         jdbcTemplate.update(sql, reason, appLineId);
