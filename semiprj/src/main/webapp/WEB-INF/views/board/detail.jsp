@@ -17,11 +17,14 @@
 	.reply-viewer > .profile-wrapper,
 	.reply-editor > .profile-wrapper {
 		width:100px;
+		min-width:100px;
+		flex-shrink:0;
 	}
 	.reply-viewer > .profile-wrapper > img,
 	.reply-editor > .profile-wrapper > img {
 		width:100%;
 		aspect-ratio:1/1;
+		object-fit:cover;
 	}
 	.reply-viewer > .content-wrapper,
 	.reply-editor > .content-wrapper {
@@ -39,11 +42,21 @@
 	    font-size: 12px;
 	    margin-left: 5px;
 	}
+	.child-reply{
+	    margin-left:60px;
+	    border-left:2px solid #ddd;
+	    padding-left:15px;
+	}
+	.reply-content{
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+}
 </style>
 <script>
 	console.log("loginRole =", "${sessionScope.loginRole}");
 	console.log("masterToggle =", "${sessionScope.masterToggle}");
 </script>
+
 <!-- 게시글 삭제 시 한번 더 물어보는 확인창 -->
 <script>
 $(function(){
@@ -117,7 +130,14 @@ $(function(){
 							.attr("src", "/emp/profile?empNo="+response[i].replyWriter);
 						$(html).find(".reply-writer").text(response[i].empName);
 						$(html).find(".reply-content").text(response[i].replyContent);
-					
+						if(response[i].replyParent == null){
+						    $(html).find(".btn-reply-child")
+						        .text("답글");
+						}
+						else{
+						    $(html).find(".btn-reply-child")
+						        .remove();
+						}
 						var wtime = moment(response[i].replyWtime).fromNow();
 						$(html).find(".reply-wtime").text(wtime);
 						
@@ -129,14 +149,18 @@ $(function(){
 						}
 						
 						//(1) owner가 false면 수정/삭제 버튼 영역을 지움
-						if(response[i].owner == false) {
-							$(html).find(".button-wrapper").remove();
+						if(response[i].owner == false &&
+  							response[i].admin == false){
+							$(html).find(".owner-menu").remove();
 						}
 						//(2) writer가 false면 작성자라는 글자 영역을 지움
 						if(response[i].writer == false) {
 							$(html).find(".board-writer").remove();
 						}
-						
+						if(response[i].replyParent != null){
+							$(html).addClass("child-reply")
+								.prepend("↳ ");;
+						}
 						$(".reply-area").append(html);
 					}
 				}
@@ -146,7 +170,12 @@ $(function(){
 		//등록 버튼을 누르면 댓글 등록이 이루어지도록 처리
 		$(".btn-reply").on("click", function(){
 			var replyContent = $(".field-reply").val();
+			 console.log("글자수 =", replyContent.length);
 			if(replyContent.length == 0) return;
+			if(replyContent.length > 500){
+		        alert("댓글은 500자까지 작성 가능합니다.");
+		        return;
+		    }
 			$.ajax({
 				url: "/rest/reply/write",
 				method: "post",
@@ -217,6 +246,11 @@ $(function(){
 			var replyNo = $(this).closest(".reply-editor").data("key");
 			var replyContent = $(this).closest(".reply-editor").find(".field-reply-edit").val();
 			if(replyContent.length == 0) return;
+			if(replyContent.length > 500){
+		        alert("댓글은 500자까지 작성 가능합니다.");
+		        return;
+		    }
+
 			$.ajax({
 				url : "/rest/reply/edit",
 				method : "post",
@@ -228,6 +262,68 @@ $(function(){
 					loadList();
 				}
 			});
+		});
+
+		$(".field-reply, .field-child-content, .field-reply-edit").on("input", function(){
+
+		    var len = $(this).val().length;
+
+		    $(".reply-length").text(len + " / 500");
+
+		    if(len >= 500){
+		        $(".reply-length").css("color", "red");
+		    }
+		    else{
+		        $(".reply-length").css("color", "");
+		    }
+		});
+		
+		//대댓글 입력창
+		$(".reply-area").on("click", ".btn-reply-child", function(){
+			 $(".reply-child-editor").remove();
+		    var template = $("#reply-child-template").text();
+		    var html = $.parseHTML(template);
+
+		    var replyViewer = $(this).closest(".reply-viewer");
+		    var parentNo = replyViewer.data("key");
+
+		    $(html).attr("data-parent", parentNo);
+
+		    replyViewer.after(html);
+		});
+		$(".reply-area").on("click", ".btn-child-cancel", function(){
+		    $(this).closest(".reply-child-editor").remove();
+		});
+		$(".reply-area").on("click", ".btn-child-save", function(){
+
+		    var editor = $(this).closest(".reply-child-editor");
+
+		    var parentNo = editor.data("parent");
+
+		    var replyContent =
+		        editor.find(".field-child-content").val();
+
+		    if(replyContent.length == 0) return;
+		    if(replyContent.length > 500){
+		        alert("댓글은 500자까지 작성 가능합니다.");
+		        return;
+		    }
+
+		    $.ajax({
+		        url: "/rest/reply/write",
+		        method: "post",
+		        data: {
+		            replyOrigin : boardNo,
+		            replyParent : parentNo,
+		            replyContent : replyContent
+		        },
+		        success: function(){
+		        	$(".reply-child-editor").remove();
+		            loadList();
+		            var count = Number($(".reply-count").text());
+		            $(".reply-count").text(count + 1);
+		        }
+		    });
 		});
 	});
 </script>
@@ -249,12 +345,33 @@ $(function(){
 					<span class="edited-tag"></span>
 				</div>
 				<div class="button-wrapper right w-50">
-					<i class="fa-solid fa-edit orange btn-reply-edit"></i>
-					<i class="fa-solid fa-trash red btn-reply-delete"></i>
+				    <span class="btn-reply-child">답글</span>
+				    <span class="owner-menu">
+				        <i class="fa-solid fa-edit orange btn-reply-edit"></i>
+				        <i class="fa-solid fa-trash red btn-reply-delete"></i>
+				    </span>
 				</div>
 			</div>
 		</div>
 	</div>
+</script>
+<script type="text/template" id="reply-child-template">
+<div class="reply-child-editor ms-50">
+    <textarea class="field field-child-content w-100"
+              rows="3"
+			maxlength="1500"
+              placeholder="답글을 입력하세요"></textarea>
+	<div class="reply-length">0 / 500</div>
+    <div class="right mt-10">
+        <button type="button" class="btn btn-negative btn-child-cancel">
+            취소
+        </button>
+
+        <button type="button" class="btn btn-positive btn-child-save">
+            등록
+        </button>
+    </div>
+</div>
 </script>
 <script type="text/template" id="reply-editor-template">
 	<div class="reply-editor">
@@ -263,7 +380,8 @@ $(function(){
 		</div>
 		<div class="content-wrapper ms-20">
 			<h3 class="mb-10 mt-0 mb-0 reply-writer">작성자</h3>
-			<textarea class="field w-100 field-reply-edit" rows="3">내용 샘플</textarea>
+			<textarea class="field w-100 field-reply-edit" rows="3" maxlength="1500">내용 샘플</textarea>
+			<div class="reply-length">0 / 500</div>
 			<div class="mt-20 flex-area">
 				<div class="w-50">
 					<span class="gray reply-wtime">yyyy-MM-dd HH:mm</span>
@@ -329,6 +447,20 @@ $(function(){
 		<pre>${boardDto.boardContent}</pre>
 	</div>
 	
+	<c:if test="${not empty attachList}">
+	    <div class="cell">
+	        <h3>첨부파일</h3>
+	
+	        <c:forEach var="attachDto" items="${attachList}">
+	            <div>
+	                <a href="/attach/download?attachNo=${attachDto.attachNo}">
+	                    ${attachDto.attachName}
+	                </a>
+	            </div>
+	        </c:forEach>
+	    </div>
+	</c:if>
+	
 	<!-- 좋아요/댓글수 -->
 	<div class="cell mt-20 flex-area">
 		<div>
@@ -348,7 +480,8 @@ $(function(){
 	<!-- 로그인한 경우 -->
 	<c:if test="${sessionScope.loginId != null}">
 		<div class="cell">
-			<textarea class="field w-100 field-reply" rows="4" placeholder="댓글 내용 작성"></textarea>
+			<textarea class="field w-100 field-reply" rows="4" maxlength="1500" placeholder="댓글 내용 작성"></textarea>
+			<div class="reply-length">0 / 500</div>
 			<button type="button" class="btn btn-positive w-100 mt-10 btn-reply">
 				<i class="fa-solid fa-pen"></i>
 				<span>댓글 작성하기</span>

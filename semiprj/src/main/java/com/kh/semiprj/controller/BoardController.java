@@ -1,5 +1,7 @@
 package com.kh.semiprj.controller;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,11 +13,14 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.kh.semiprj.dao.AttachDao;
 import com.kh.semiprj.dao.BoardDao;
 import com.kh.semiprj.dao.BoardReadDao;
 import com.kh.semiprj.dao.EmpDao;
 import com.kh.semiprj.dao.ReplyDao;
+import com.kh.semiprj.dto.AttachDto;
 import com.kh.semiprj.dto.BoardDto;
 import com.kh.semiprj.dto.EmpDto;
 import com.kh.semiprj.dto.ReplyDto;
@@ -40,6 +45,8 @@ public class BoardController {
 	private ReplyDao replyDao;
 	@Autowired
 	private NotificationService notificationService;
+	@Autowired
+	private AttachDao attachDao;
 	
 	//1. 게시글 등록 매핑
 	@GetMapping("/write")
@@ -47,7 +54,7 @@ public class BoardController {
 		return "board/write";
 	}
 	@PostMapping("/write") 
-	public String write(@ModelAttribute BoardDto boardDto, HttpSession session){
+	public String write(@ModelAttribute BoardDto boardDto, HttpSession session) throws IllegalStateException, IOException{
 		//(1) 작성자 아이디 추출
 		String loginId = (String)session.getAttribute("loginId");
 		EmpDto empDto = empDao.selectOne(loginId);
@@ -156,7 +163,6 @@ public class BoardController {
 	public String detail(Model model, @RequestParam long boardNo, HttpSession session) {
 		BoardDto boardDto = boardDao.selectOne(boardNo);
 		if(boardDto == null) throw new TargetNotfoundException("존재하지 않는 게시글입니다.");
-		
 		if("비밀".equals(boardDto.getBoardType())) {
 			String loginRole = (String)session.getAttribute("loginRole");
 			String loginId = (String)session.getAttribute("loginId");

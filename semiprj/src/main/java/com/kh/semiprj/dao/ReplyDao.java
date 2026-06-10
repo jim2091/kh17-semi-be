@@ -24,11 +24,13 @@ public class ReplyDao {
 	}
 	public void insert(ReplyDto replyDto) {
 		String sql = "insert into reply("
-						+ "reply_no, reply_writer, reply_origin, reply_content"
-					+ ") values(?, ?, ?, ?)";
+						+ "reply_no, reply_writer, reply_origin, "
+						+ "reply_parent, reply_content"
+					+ ") values(?, ?, ?, ?, ?)";
 		Object[] params = {
 				replyDto.getReplyNo(), replyDto.getReplyWriter(), 
-				replyDto.getReplyOrigin(), replyDto.getReplyContent()};
+				replyDto.getReplyOrigin(), replyDto.getReplyParent(),
+				replyDto.getReplyContent()};
 		jdbcTemplate.update(sql, params);	
 	}
 	
@@ -52,12 +54,14 @@ public class ReplyDao {
 	public List<ReplyDto> selectList(long replyOrigin) {
 		String sql = "select r.reply_no, "
 						+ "r.reply_writer, e.emp_name, "
-						+ "r.reply_origin, r.reply_content, "
+						+ "r.reply_origin, r.reply_parent, r.reply_content, "
 						+ "r.reply_wtime, r.reply_etime "
 					+ "from reply r "
 					+ "left outer join emp e on r.reply_writer = e.emp_no "
 					+ "where r.reply_origin = ? "
-					+ "order by r.reply_no asc";
+					+ "order by nvl(r.reply_parent, r.reply_no), "
+					+ "case when r.reply_parent is null then 0 else 1 "
+					+ "end, r.reply_no";
 		Object[] params = {replyOrigin};
 	    return jdbcTemplate.query(sql, replyMapper, params);
 	}
@@ -68,7 +72,7 @@ public class ReplyDao {
 				+ "select rownum RN, TMP.* from ("
 				+ "select r.reply_no, "
 				+ "r.reply_writer, e.emp_name, "
-				+ "r.reply_origin, r.reply_content, "
+				+ "r.reply_origin, r.reply_parent, r.reply_content, "
 				+ "r.reply_wtime, r.reply_etime "
 				+ "from reply r "
 				+ "left outer join emp e "
@@ -92,7 +96,7 @@ public class ReplyDao {
 	public ReplyDto selectOne(long replyNo) {
 		String sql = "select r.reply_no, "
 						+ "r.reply_writer, e.emp_name, "
-						+ "r.reply_origin, r.reply_content, "
+						+ "r.reply_origin, r.reply_parent, r.reply_content, "
 						+ "r.reply_wtime, r.reply_etime "
 			      + "from reply r "
 			      + "left outer join emp e on r.reply_writer = e.emp_no "
@@ -100,5 +104,15 @@ public class ReplyDao {
 		Object[] params = {replyNo};
 		List<ReplyDto> list = jdbcTemplate.query(sql, replyMapper, params);
 		return list.isEmpty() ? null : list.get(0);
+	}
+	
+	//대댓글 작성 가능 여부 검사
+	public boolean canWriteChildReply(long parentNo) {
+		String sql = "select count(*) from reply "
+				+ "where reply_no = ? "
+				+ "and reply_parent is null";
+		Object[] params = {parentNo};
+	    int count = jdbcTemplate.queryForObject(sql, int.class, params);
+	    return count > 0;
 	}
 }

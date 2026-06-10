@@ -8,6 +8,13 @@
 <jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
 <jsp:include page="/WEB-INF/views/template/side_board.jsp"></jsp:include>
 
+<style>
+	.table{
+	    width:100%;
+	    table-layout:fixed;
+	}
+</style>
+
 <div class="container w-900 mt-50 mb-50">
 	<!-- 페이지 제목 -->
     <div class="cell center">
@@ -24,9 +31,9 @@
     	<table class="table">
     		<thead>
     			<tr>
-                    <th>댓글 내용</th>
-                    <th>작성일</th>
-                    <th>댓글 원글</th>
+                    <th style="width:75%;">댓글 내용</th>
+                    <th style="width:15%;">작성일</th>
+                    <th style="width:10%;">댓글 원글</th>
 				</tr>
 			</thead>
 			<tbody align="center">

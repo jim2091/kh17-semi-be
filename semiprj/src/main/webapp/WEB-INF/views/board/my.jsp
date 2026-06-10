@@ -8,12 +8,18 @@
 <jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
 <jsp:include page="/WEB-INF/views/template/side_board.jsp"></jsp:include>
 
+<style>
+	.table{
+	    width:100%;
+	    table-layout:fixed;
+	}
+</style>
+
 <div class="container w-900 mt-50 mb-50">
 	<!-- 페이지 제목 -->
     <div class="cell center">
         <h1 class="mb-20">내가 쓴 글</h1>
     </div>
-   
     
     <!-- 총 게시글 수 -->
 	<div class="cell right">
@@ -25,13 +31,13 @@
     	<table class="table">
     		<thead>
     			<tr>
-    				<th>종류</th>
-    				<th>유형</th>
-                    <th>제목</th>
-                    <th>조회수</th>
-                    <th>댓글수</th>
-                    <th>추천수</th>
-                    <th>작성일</th>
+    				<th style="width:10%;">종류</th>
+    				<th style="width:10%;">유형</th>
+                    <th style="width:35%;">제목</th>
+                    <th style="width:10%;">조회수</th>
+                    <th style="width:10%;">댓글수</th>
+                    <th style="width:10%;">추천수</th>
+                    <th style="width:15%;">작성일</th>
 				</tr>
 			</thead>
 			<tbody align="center">

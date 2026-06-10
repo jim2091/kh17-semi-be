@@ -21,6 +21,10 @@
 	    gap:8px;
 	    justify-content:center;
 	}
+	.table{
+	    width:100%;
+	    table-layout:fixed;
+	}
 </style>
 
 <script>
@@ -77,12 +81,12 @@ $(function(){
 	    		<thead>
 	    			<tr>
 	    				<c:if test="${sessionScope.loginRole == '관리자'}">
-	                		<th><input type="checkbox" class="check-all"></th>
+	                		<th style="width:5%;"><input type="checkbox" class="check-all"></th>
 	                	</c:if>
-	    				<th>보낸이</th>
-	                    <th>받는이</th>
-	                    <th>제목</th>
-	                    <th>작성일</th>
+	    				<th style="width:15%;">보낸이</th>
+	                    <th style="width:15%;">받는이</th>
+	                    <th style="width:50%;">제목</th>
+	                    <th style="width:15%;">작성일</th>
 					</tr>
 				</thead>
 				<tbody>
