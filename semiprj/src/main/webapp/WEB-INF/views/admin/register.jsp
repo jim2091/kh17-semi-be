@@ -136,7 +136,7 @@
                 state.empDeptValid = valid;
             });
             $("[name=empPosition]").on("input", function(){
-                var regex = /^(사원|과장|이사)$/;
+                var regex = /^(사원|선임|주임|대리|과장|차장|부장|이사|상무|전무|부사장|사장|부회장|회장)$/;
                 var valid = regex.test($(this).val());
                 $(this).removeClass("success fail").addClass(valid? "success": "fail");
 
