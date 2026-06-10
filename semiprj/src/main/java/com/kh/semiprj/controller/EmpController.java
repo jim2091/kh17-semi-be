@@ -13,19 +13,21 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.kh.semiprj.dao.CertDao;
+import com.kh.semiprj.dao.DeptDao;
 import com.kh.semiprj.dao.EmpDao;
 import com.kh.semiprj.dao.EmpHistoryDao;
 import com.kh.semiprj.dto.CertDto;
+import com.kh.semiprj.dto.DeptDto;
 import com.kh.semiprj.dto.EmpDto;
 import com.kh.semiprj.dto.EmpHistoryDto;
-import com.kh.semiprj.service.EmailService;
-import com.kh.semiprj.vo.CertNumVo;
 import com.kh.semiprj.exception.TargetNotfoundException;
 import com.kh.semiprj.service.AttachService;
+import com.kh.semiprj.service.EmailService;
+import com.kh.semiprj.vo.CertNumVo;
 import com.kh.semiprj.vo.HistoryPageVO;
 
 import jakarta.mail.MessagingException;
@@ -46,6 +48,8 @@ public class EmpController {
 	private CertDao certDao;
 	@Autowired
 	private AttachService attachService;
+	@Autowired
+	private DeptDao deptDao;
 
 	@GetMapping("/login")
 	public String login() {
@@ -236,6 +240,12 @@ public class EmpController {
 		EmpDto empDto = empDao.selectOneByDetail(loginNo);
 //		System.out.println(empDto);
 		model.addAttribute("empDto", empDto);
+		
+		int deptNo = empDto.getEmpDept();
+
+		DeptDto deptDto = deptDao.selectOne(deptNo);
+		model.addAttribute("deptDto", deptDto);
+		
 		List<EmpHistoryDto> loginHistory = 
 								empHistoryDao.selectList(loginNo, 1, 10);
 		model.addAttribute("loginHistory", loginHistory);
@@ -355,6 +365,20 @@ public class EmpController {
 	}
 	
 
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 }

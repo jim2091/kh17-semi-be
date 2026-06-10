@@ -91,7 +91,9 @@ public class AppDao {
 	public String selectEmpNoById(String loginId) {
         String sql = "select emp_no from emp where emp_id = ?";
         Object[] params = { loginId };
-        return jdbcTemplate.queryForObject(sql, String.class, params);
+        List<String> list = jdbcTemplate.queryForList(sql, String.class, params);
+        
+        return list.isEmpty() ? null : list.get(0);
     }
 	
 	// 삭제

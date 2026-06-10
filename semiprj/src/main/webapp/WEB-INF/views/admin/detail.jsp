@@ -19,7 +19,7 @@
             <span>사원실명 : ${empDto.empName}</span>
         </div>
         <div class="cell">
-            <span>사원부서 : ${empDto.empDept}</span>
+            <span>사원부서 : ${deptDto.deptName}</span>
         </div>
         <div class="cell">
             <span>사원직위 : ${empDto.empPosition}</span>
