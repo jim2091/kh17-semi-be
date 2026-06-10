@@ -26,7 +26,7 @@ public class EmpMapper implements RowMapper<EmpDto>{
 		empDto.setEmpAddress2(rs.getString("emp_address2"));
 		empDto.setEmpLevel(rs.getString("emp_level"));
 		empDto.setEmpPosition(rs.getString("emp_position"));
-		empDto.setEmpDept(rs.getString("emp_dept"));
+		empDto.setEmpDept(rs.getInt("emp_dept"));
 		empDto.setEmpApprovalStatus(rs.getString("emp_approval_status"));
 		empDto.setEmpUseYn(rs.getString("emp_use_yn"));
 		empDto.setEmpHireDate(rs.getTimestamp("emp_hire_date"));

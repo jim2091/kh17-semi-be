@@ -17,13 +17,38 @@
         type="text/css">
     <link rel="stylesheet" href="/css/commons_semi.css" type="text/css">
     
-    <!-- lightpick CDN -->
+    
+    
+<style>
+.modal {
+    display:none;
+
+    position:fixed;
+    top:0;
+    left:0;
+
+    width:100%;
+    height:100%;
+
+    background-color:rgba(0,0,0,0.4);
+
+    z-index:9999;
+}
+
+.modal-content{
+    width:650px;
+
+    background:white;
+
+    margin:100px auto;
+    padding:20px;
+}
+</style>
     <link href="https://cdn.jsdelivr.net/npm/lightpick@1.6.2/css/lightpick.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lightpick@1.6.2/lightpick.min.js"></script>
-    
-    <!-- jQuery CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+ 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     
     <script>
         $(function(){
@@ -129,14 +154,14 @@
                 state.empNameValid = valid;
             });
             $("[name=empDept]").on("input", function(){
-                var regex = /^(영업|관리|감사)$/;
+                var regex = /^(회사|경영지원본부|인사팀|총무감사팀|총무팀|개발본부|백엔드개발팀|프론트엔드개발팀|영업마케팅본부|국내영업팀)$/;
                 var valid = regex.test($(this).val());
                 $(this).removeClass("success fail").addClass(valid? "success": "fail");
 
                 state.empDeptValid = valid;
             });
             $("[name=empPosition]").on("input", function(){
-                var regex = /^(사원|과장|이사)$/;
+                var regex = /^(사원|선임|주임|대리|과장|차장|부장|이사|상무|전무|부사장|사장|부회장|회장)$/;
                 var valid = regex.test($(this).val());
                 $(this).removeClass("success fail").addClass(valid? "success": "fail");
 
@@ -170,6 +195,55 @@
                 format : "YYYY-MM-DD",
                 firstDay : 7
             });
+            $("[name=empMentor]").on("click", function(){
+                $(".modal").show();
+            });
+            $(".modal").click(function(e){
+                if($(e.target).hasClass("modal")){
+                    $(".modal").hide();
+                }
+            });
+        	$(".search-btn").click(function() {
+
+            const keyword = $("[name=keyword]").val();
+
+            $.ajax({
+                url : "/rest/emp/search",
+                method : "get",
+                data : {
+                    keyword : keyword
+                },
+                success : function(response) {
+                	 console.log(response[0]);
+
+                    $(".result").empty();
+
+                    for(let i=0; i < response.length; i++) {
+                        const row = $("<div>");
+
+                        row.text(
+                            response[i].empNo + " / " +
+                            response[i].empName + " / " +
+                            response[i].empDept + " / " +
+                            response[i].empPosition
+                        );
+                        
+                        row.css("cursor", "pointer");
+                        
+                        row.click(function(){
+
+                            $("[name=empMentor]").val(
+                                response[i].empName
+                            );
+
+                            $(".modal").hide();
+                        });
+
+                        $(".result").append(row);
+                    }
+                }
+            });
+        });
         });
 
     </script>
@@ -265,9 +339,16 @@
         <div class="cell">
             <label>사원부서<i class="fa-solid fa-asterisk red"></i></label>
             <select name="empDept" class="field w-100">
-                <option>영업</option>
-                <option>관리</option>
-                <option>감사</option>
+                <option value="0">회사</option>
+                <option value="10">경영지원본부</option>
+                <option value="20">인사팀</option>
+                <option value="21">총무감사팀</option>
+                <option value="30">총무팀</option>
+                <option value="40">개발본부</option>
+                <option value="50">백엔드개발팀</option>
+                <option value="60">프론트엔드개발팀</option>
+                <option value="70">영업마케팅본부</option>
+                <option value="80">국내영업팀</option>
             </select>
             <div class="success-feedback"></div>
             <div class="fail-feedback">필수항목입니다</div>
@@ -290,6 +371,20 @@
         </div>
     </div>
 </form>
+<div class="container modal">
+    <div class="modal-content">
+    	<%-- <select name="column" class="field">
+			<option value="emp_no" ${param.column == "emp_no" ? "selected" : ""}>사원번호</option>
+			<option value="emp_name" ${param.column == "emp_name" ? "selected" : ""}>사원실명</option>
+			<option value="emp_dept" ${param.column == "emp_dept" ? "selected" : ""}>부서</option>
+			<option value="emp_position" ${param.column == "emp_position" ? "selected" : ""}>직위</option>
+		</select>
+		 --%>
+        <input type="text" name="keyword" class="field ms-10" placeholder="사원 검색" value="${param.keyword}">
+        <button type="button" class="btn btn-positive search-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
+        <div class="result"></div>
+    </div>
+</div>
 </body>
 </html>
 

@@ -86,7 +86,6 @@
 	});
 </script>
 
-<!-- 비회원일 때 보여줄 메뉴 -->
 <ul class="menu">
 	<li>
 	    <a href="/">
@@ -94,7 +93,7 @@
 	    </a>
 	</li>
 	<li>
-	    <a href="#">
+	    <a href="/admin/app/list">
 	        <span>전자결재</span>
 		</a>
 	</li>
@@ -108,7 +107,6 @@
                     <span>자료실</span>
                 </a>
             </li>
-
         </ul>
 	</li>
 	<li>

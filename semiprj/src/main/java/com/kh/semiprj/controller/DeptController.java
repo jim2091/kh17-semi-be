@@ -61,36 +61,36 @@ public class DeptController {
 	}
 	
 	// 등록 
-		@GetMapping("/insert")
-		public String insert(HttpSession session, Model model ) {
-			String loginRole = (String)session.getAttribute("loginRole");
-			if(loginRole == null || !loginRole.equals("관리자")){
-				throw new WhoAreYouException("관리자 권한이 필요한 기능입니다.");
-			}
-			
-			List<DeptDto> deptList = deptDao.selectTreeList();
-			model.addAttribute("deptList",deptList);
-			
-			return "dept/insert";
+	@GetMapping("/insert")
+	public String insert(HttpSession session, Model model ) {
+		String loginRole = (String)session.getAttribute("loginRole");
+		if(loginRole == null || !loginRole.equals("관리자")){
+			throw new WhoAreYouException("관리자 권한이 필요한 기능입니다.");
 		}
 		
+		List<DeptDto> deptList = deptDao.selectTreeList();
+		model.addAttribute("deptList",deptList);
 		
-		@PostMapping("/insert")
-		public String insert(@ModelAttribute DeptDto deptDto,
-		                     @RequestParam(value="messageReceiver", required=false) String messageReceiver) throws IllegalStateException, IOException {
-			
-			// 화면의 공용 모달에서 넘어온 사원 번호(messageReceiver)를 부서장 ID로 매핑해줍니다.
-			if (messageReceiver != null) {
-		        deptDto.setDeptHeadId(messageReceiver);
-		    }
-		    
-			// 부서 번호 시퀀스 생성 및 인서트 작업 진행
-		    int deptId = deptDao.sequence();
-		    deptDto.setDeptId(deptId);
-		    deptDao.insert(deptDto);
-			
-			return "redirect:./insertComplete";
-		}
+		return "dept/insert";
+	}
+		
+		
+	@PostMapping("/insert")
+	public String insert(@ModelAttribute DeptDto deptDto,
+	                     @RequestParam(value="messageReceiver", required=false) String messageReceiver) throws IllegalStateException, IOException {
+		
+		// 화면의 공용 모달에서 넘어온 사원 번호(messageReceiver)를 부서장 ID로 매핑해줍니다.
+		if (messageReceiver != null) {
+	        deptDto.setDeptHeadId(messageReceiver);
+	    }
+	    
+		// 부서 번호 시퀀스 생성 및 인서트 작업 진행
+	    int deptId = deptDao.sequence();
+	    deptDto.setDeptId(deptId);
+	    deptDao.insert(deptDto);
+		
+		return "redirect:./insertComplete";
+	}
 	
 	@RequestMapping("/insertComplete")
 	public String insertComplete() {
@@ -113,7 +113,9 @@ public class DeptController {
 		EmpDto empDto = empDao.selectOneDeptHeadId(deptDto.getDeptHeadId());//부서장 이름을 불러오기위해
 		List<EmpDto> memberList = deptDao.selectListByDeptRecursive(deptId);
 		List<DeptDto> childDeptList = deptDao.selectChildDept(deptId);
+		List<DeptDto> allDeptList = deptDao.selectTreeList();
 		
+		model.addAttribute("list", allDeptList);
 	    model.addAttribute("childDeptList",childDeptList);
 	    model.addAttribute("memberList", memberList);
 		model.addAttribute("deptDto",deptDto);

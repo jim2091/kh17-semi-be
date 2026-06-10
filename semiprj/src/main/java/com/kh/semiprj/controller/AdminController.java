@@ -12,79 +12,76 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.kh.semiprj.dao.DeptDao;
+import com.kh.semiprj.dao.AppDao;
 import com.kh.semiprj.dao.EmpDao;
 import com.kh.semiprj.dao.EmpHistoryDao;
-import com.kh.semiprj.dto.DeptDto;
+import com.kh.semiprj.dto.AppDto;
+import com.kh.semiprj.dto.AttnDto;
 import com.kh.semiprj.dto.EmpDto;
 import com.kh.semiprj.dto.EmpHistoryDto;
 import com.kh.semiprj.exception.TargetNotfoundException;
+import com.kh.semiprj.service.AdminAttnService;
 import com.kh.semiprj.vo.HistoryPageVO;
+import com.kh.semiprj.vo.PageVO;
+
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/admin")
-public class AdminEmpController {
-	
+public class AdminController {
+
 	@Autowired
 	private EmpDao empDao;
-	
-	@Autowired
-	private DeptDao deptDao;
-	
+
 	@Autowired
 	private EmpHistoryDao empHistoryDao;
-	
+
+	@Autowired
+	private AppDao appDao;
+
+	@Autowired
+	private AdminAttnService adminAttnService;
+
 	@GetMapping("/register")
 	public String register() {
 		return "admin/register";
 	}
-	
+
 	@PostMapping("/register")
 	public String register(@ModelAttribute EmpDto empDto) {
 //		System.out.println(empDto);
 		empDao.insertFromAdmin(empDto);
-		
-//		int deptNo = empDto.getEmpDept();
-		
-		
+
 		return "redirect:./list";
-		//홈으로 리다이렉트해놓았는데, 사원목록구현후 사원목록페이지로 리다이렉트할 예정입니다
+		// 홈으로 리다이렉트해놓았는데, 사원목록구현후 사원목록페이지로 리다이렉트할 예정입니다
 	}
-	
+
 	@RequestMapping("/list")
-	public String list(@RequestParam(required = false) String column, 
-						@RequestParam(required = false) String keyword, 
-						Model model) {
+	public String list(@RequestParam(required = false) String column, @RequestParam(required = false) String keyword,
+			Model model) {
 		/* System.out.println("list 실행"); */
 		List<EmpDto> list = empDao.selectListByAdmin(column, keyword);
-		
-		System.out.println(list);
-		
+
 		model.addAttribute("list", list);
-		
+
 		return "admin/list";
 	}
+
 	@RequestMapping("/detail")
 	public String detail(@RequestParam String empNo, Model model) {
 		EmpDto empDto = empDao.selectOneByDetail(empNo);
 		model.addAttribute("empDto", empDto);
-		
-		int deptNo = empDto.getEmpDept();
 
-		DeptDto deptDto = deptDao.selectOne(deptNo);
-		model.addAttribute("deptDto", deptDto);
-		
-		
-		List<EmpHistoryDto> loginHistory = 
-				empHistoryDao.selectList(empNo, 1, 10);
+		List<EmpHistoryDto> loginHistory = empHistoryDao.selectList(empNo, 1, 10);
 		model.addAttribute("loginHistory", loginHistory);
-		
+
 		return "admin/detail";
 	}
+
 	@GetMapping("/edit")
 	public String edit(@RequestParam String empNo, Model model) {
 		EmpDto empDto = empDao.selectOneByDetail(empNo);
-		//if(empDto == null) throw new TargetNotfoundException("대상이 존재하지 않습니다");
+		// if(empDto == null) throw new TargetNotfoundException("대상이 존재하지 않습니다");
 		model.addAttribute("empDto", empDto);
 		return "admin/edit";
 	}
@@ -97,116 +94,117 @@ public class AdminEmpController {
 	 * empDao.updateByMaster(empDto); return "redirect:./detail?empNo=" +
 	 * empDto.getEmpNo(); }
 	 */
-	
-	@PostMapping("/edit")
-	public String edit(
-		@RequestParam(required = false) String hireDateStr, 
-	    @RequestParam(required = false) String retiredDateStr,
-	    @ModelAttribute EmpDto empDto
-	) {
-		
-		if(hireDateStr != null && !hireDateStr.isBlank()) {
-	        empDto.setEmpHireDate(
-	            Timestamp.valueOf(hireDateStr + " 00:00:00")
-	        );
-	    }
-	    else {
-	        empDto.setEmpHireDate(null);
-	    }
-		
-	    if(retiredDateStr != null && !retiredDateStr.isBlank()) {
-	        empDto.setEmpRetiredDate(
-	            Timestamp.valueOf(retiredDateStr + " 00:00:00")
-	        );
-	    }
-	    else {
-	        empDto.setEmpRetiredDate(null);
-	    }
-	    System.out.println(empDto);
 
-	    empDao.updateByMaster(empDto);
-	    return "redirect:./detail?empNo=" + empDto.getEmpNo();
+	@PostMapping("/edit")
+	public String edit(@RequestParam(required = false) String hireDateStr,
+			@RequestParam(required = false) String retiredDateStr, @ModelAttribute EmpDto empDto) {
+
+		if (hireDateStr != null && !hireDateStr.isBlank()) {
+			empDto.setEmpHireDate(Timestamp.valueOf(hireDateStr + " 00:00:00"));
+		} else {
+			empDto.setEmpHireDate(null);
+		}
+
+		if (retiredDateStr != null && !retiredDateStr.isBlank()) {
+			empDto.setEmpRetiredDate(Timestamp.valueOf(retiredDateStr + " 00:00:00"));
+		} else {
+			empDto.setEmpRetiredDate(null);
+		}
+		System.out.println(empDto);
+
+		empDao.updateByMaster(empDto);
+		return "redirect:./detail?empNo=" + empDto.getEmpNo();
 	}
-	
+
 	@RequestMapping("/useYn")
 	public String useYn(@RequestParam String empNo) {
 		EmpDto empDto = empDao.selectOneByDetail(empNo);
-		//if(empDto == null) throw new TargetNotfoundException("존재하지 않는 회원");
+		// if(empDto == null) throw new TargetNotfoundException("존재하지 않는 회원");
 		System.out.println(empDto.getEmpUseYn());
 		System.out.println(empDto.getEmpUseYn().equals("N"));
-		
-		if(empDto.getEmpUseYn().equals("N")) {
+
+		if (empDto.getEmpUseYn().equals("N")) {
 			empDao.useY(empNo);
-		}
-		else {
+		} else {
 			empDao.useN(empNo);
 		}
 		System.out.println("현재값 = " + empDto.getEmpUseYn());
-		return "redirect:./edit?empNo="+empNo;
+		return "redirect:./edit?empNo=" + empNo;
 	}
-	
-	
+
 	@RequestMapping("/waitingList")
 	public String waitingList(Model model) {
-		
+
 		List<EmpDto> list = empDao.selectListForWaiting();
-		
+
 		if (list == null || list.isEmpty()) {
-	        model.addAttribute("isEmpty", true);
-	    } else {
-	        model.addAttribute("isEmpty", false);
-	        model.addAttribute("list", list);
-	    }
-		
+			model.addAttribute("isEmpty", true);
+		} else {
+			model.addAttribute("isEmpty", false);
+			model.addAttribute("list", list);
+		}
 //		model.addAttribute("list", list);
-		
 		return "admin/waiting_list";
-		
 	}
-	
+
 	@RequestMapping("/approval")
 	public String approval(@RequestParam String empNo) {
-		
+
 		EmpDto empDto = empDao.selectOneByDetail(empNo);
-		
-		if(empDto.getEmpApprovalStatus().equals("N")) {
+
+		if (empDto.getEmpApprovalStatus().equals("N")) {
 			empDao.useY(empNo);
-		}
-		else {
+		} else {
 			empDao.useN(empNo);
 		}
-		
+
 		return "redirect:./waitingList";
 	}
-	
+
 	@RequestMapping("/history")
-	public String history(@RequestParam String empNo, 
-								@ModelAttribute HistoryPageVO historyPageVO,
-								Model model) {
+	public String history(@RequestParam String empNo, @ModelAttribute HistoryPageVO historyPageVO, Model model) {
 //		String loginNo = (String) session.getAttribute("loginNo");
 //		System.out.println(empDao.selectOneByDetail(loginNo));
 //		System.out.println(historyPageVO);
 //		System.out.println(empNo);
 		EmpDto empDto = empDao.selectOneByDetail(empNo);
-		if(empDto == null) throw new TargetNotfoundException("대상이 존재하지 않습니다");
+		if (empDto == null)
+			throw new TargetNotfoundException("대상이 존재하지 않습니다");
 		model.addAttribute("empDto", empDto);
-		
-		List<EmpHistoryDto> loginhistory = 
-				empHistoryDao.selectList(empNo, historyPageVO);
+
+		List<EmpHistoryDto> loginhistory = empHistoryDao.selectList(empNo, historyPageVO);
 //		System.out.println(loginhistory);
-		
+
 		model.addAttribute("loginhistory", loginhistory);
 		int count = empHistoryDao.count(empNo, historyPageVO);
 		historyPageVO.setCount(count);
 		model.addAttribute("historyPageVO", historyPageVO);
 		return "admin/history";
 	}
-	
-	
-	
-	
-	
-	
-	
+
+	// 전자결재 관리자 접근
+	@RequestMapping("/app/list")
+	public String appList(HttpSession session, Model model) {
+		String loginId = (String) session.getAttribute("loginId");
+		if (loginId == null)
+			return "redirect:/login";
+
+		String empLevel = (String) session.getAttribute("empLevel");
+		if (!"관리자".equals(empLevel))
+			return "redirect:/app/list"; // 관리자 아니면 차단
+
+		List<AppDto> list = appDao.selectAllList();
+		model.addAttribute("list", list);
+		return "/admin/app/list";
+	}
+
+	// 근태관리 관리자 접근
+	@GetMapping("/attn/manage")
+	public String manage(@ModelAttribute("search") AttnDto searchDto, @ModelAttribute("pageVO") PageVO pageVO,
+			Model model) {
+		pageVO.setCount(adminAttnService.countAdminAttendance(searchDto));
+		model.addAttribute("attnList", adminAttnService.getAdminAttendanceList(searchDto, pageVO));
+		return "admin/attn/manage";
+	}
 
 }

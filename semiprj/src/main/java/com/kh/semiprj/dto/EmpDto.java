@@ -18,7 +18,7 @@ public class EmpDto {
 	private String empAddress2;
 	private String empLevel;
 	private String empPosition;
-	private String empDept;
+	private int empDept;
 	private String empApprovalStatus;
 	private String empUseYn;
 	private Timestamp empHireDate;
@@ -28,3 +28,19 @@ public class EmpDto {
 	private Timestamp empPwChange;
 	private String empEmailVerified;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

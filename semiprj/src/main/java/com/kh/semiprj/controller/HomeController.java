@@ -25,7 +25,7 @@ public class HomeController {
 	    
 	    // 내 전자결재 최근 5개만
 	    model.addAttribute("myAppList", appDao.selectMyRecentList(empNo));
-		return "/home";
+		return "/home2";
 	}
     @PostMapping("/menu/toggle")
     @ResponseBody

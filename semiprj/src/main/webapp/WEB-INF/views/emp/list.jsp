@@ -48,7 +48,7 @@
 						<td>${empDto.empDept}</td>
 						<td>${empDto.empPosition}</td>
 						<td>${empDto.empMentor}</td>
-						<td>${empDto.empHireDate}</td>
+						<td><fmt:formatDate value = "${empDto.empHireDate}" pattern="yyyy-MM-dd"/></td>
 						<td><a href="./detail?empNo=${empDto.empNo}"><button>상세조회</button></a></td>
 				</tr>
 			</c:forEach>
