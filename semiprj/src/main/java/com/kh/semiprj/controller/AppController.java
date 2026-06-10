@@ -1,5 +1,6 @@
 package com.kh.semiprj.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +11,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.kh.semiprj.dao.AppDao;
@@ -233,54 +233,60 @@ public class AppController {
 	}
 
 	@PostMapping("/dftInsert")
-	public String expInsert(@ModelAttribute DftAppDto dftAppDto, @RequestParam String approver1,
-			@RequestParam(required = false) String approver2, @RequestParam(required = false) String approver3,
-			HttpSession session) {
+	public String dftInsert(@ModelAttribute DftAppDto dftAppDto,
+	        @RequestParam String approver1,
+	        @RequestParam(required = false) String approver2,
+	        @RequestParam(required = false) String approver3,
+	        HttpSession session) {
 
-		String loginId = (String) session.getAttribute("loginId");
-		if (loginId == null)
-			return "redirect:/login";
-		String empNo = appDao.selectEmpNoById(loginId);
-		if (empNo == null)
-			return "redirect:./dftInsert";
+	    String loginId = (String) session.getAttribute("loginId");
+	    if (loginId == null) return "redirect:/login";
 
-		dftAppDto.setAppReqId(empNo);
-		dftAppDto.setAppType("업무기안서");
-		dftAppDto.setAppStatus("대기");
-		int nextAppId = appDao.sequence();
-		dftAppDto.setAppId(nextAppId);
-		appDao.insert(dftAppDto);
-		dftAppDao.insertDftApp(dftAppDto);
+	    String empNo = appDao.selectEmpNoById(loginId);
+	    if (empNo == null) return "redirect:./dftInsert";
 
-		// 결재자 1 (필수) → 대기
-		AppLineDto line1 = new AppLineDto();
-		line1.setAppId(nextAppId);
-		line1.setAppAppId(approver1);
-		line1.setAppLineOrder(1);
-		line1.setAppLineType("업무기안서");
-		appLineDao.insert(line1);
+	    // 중복 결재자 체크
+	    List<String> approvers = new ArrayList<>();
+	    approvers.add(approver1);
+	    if (approver2 != null && !approver2.isEmpty()) {
+	        if (approvers.contains(approver2)) return "redirect:./dftInsert";
+	        approvers.add(approver2);
+	    }
+	    if (approver3 != null && !approver3.isEmpty()) {
+	        if (approvers.contains(approver3)) return "redirect:./dftInsert";
+	        approvers.add(approver3);
+	    }
 
-		// 결재자 2 (선택) → 대기
-		if (approver2 != null && !approver2.isEmpty()) {
-			AppLineDto line2 = new AppLineDto();
-			line2.setAppId(nextAppId);
-			line2.setAppAppId(approver2);
-			line2.setAppLineOrder(2);
-			line2.setAppLineType("업무기안서");
-			appLineDao.insert(line2);
-		}
+	    dftAppDto.setAppReqId(empNo);
+	    dftAppDto.setAppType("업무기안서");
+	    dftAppDto.setAppStatus("처리중");  // 대기 → 처리중으로 수정
+	    int nextAppId = appDao.sequence();
+	    dftAppDto.setAppId(nextAppId);
 
-		// 결재자 3 (선택) → 대기
-		if (approver3 != null && !approver3.isEmpty()) {
-			AppLineDto line3 = new AppLineDto();
-			line3.setAppId(nextAppId);
-			line3.setAppAppId(approver3);
-			line3.setAppLineOrder(3);
-			line3.setAppLineType("업무기안서");
-			appLineDao.insert(line3);
-		}
+	    try {
+	        appDao.insert(dftAppDto);
+	        dftAppDao.insertDftApp(dftAppDto);
 
-		return "redirect:./insertComplete";
+	        // 결재선 등록
+	        for (int i = 0; i < approvers.size(); i++) {
+	            AppLineDto line = new AppLineDto();
+	            line.setAppId(nextAppId);
+	            line.setAppAppId(approvers.get(i));
+	            line.setAppLineOrder(i + 1);
+	            line.setAppLineType("업무기안서");
+	            appLineDao.insert(line);
+	        }
+
+	        // 첫 번째 결재자 진행중으로 활성화
+	        appLineDao.activateFirst(nextAppId);
+
+	    } catch (Exception e) {
+	        System.out.println("====== DB INSERT 에러 발생 ======");
+	        e.printStackTrace();
+	        return "redirect:./dftInsert";
+	    }
+
+	    return "redirect:./insertComplete";
 	}
 
 	@RequestMapping("/list")

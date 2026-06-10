@@ -264,6 +264,7 @@ public class AppDao {
         String sql = "update app set app_status = ? where app_id = ?";
         jdbcTemplate.update(sql, status, appId);
     }
+    
     //검색
     public List<AppDto> searchList(String empNo, String column, String keyword) {
         // allowList로 SQL injection 방지

@@ -1,5 +1,6 @@
 package com.kh.semiprj.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,6 @@ import com.kh.semiprj.dao.AppDao;
 import com.kh.semiprj.dao.AppLineDao;
 import com.kh.semiprj.dto.AppDto;
 import com.kh.semiprj.dto.AppLineDto;
-import com.kh.semiprj.mapper.AppLineMapper;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -32,25 +32,20 @@ public class ApprController {
 		String loginId = (String) session.getAttribute("loginId");
 		if (loginId == null)
 			return "redirect:/login";
+
 		String empNo = appDao.selectEmpNoById(loginId);
 		List<AppLineDto> list = appLineDao.selectMyApprList(empNo);
+
+		// appDto 목록도 같이 조회
+		List<AppDto> appList = new ArrayList<>();
+		for (AppLineDto line : list) {
+			AppDto appDto = appDao.selectOneById(line.getAppId());
+			appList.add(appDto);
+		}
+
 		model.addAttribute("list", list);
+		model.addAttribute("appList", appList);
 		return "/appr/list";
-	}
-
-	// 결재자가 보는 디테일
-	@RequestMapping("/detail")
-	public String detail(Model model, @RequestParam int appId, HttpSession session) {
-		AppDto appDto = appDao.selectOneById(appId); // appId로 조회
-		if (appDto == null)
-			return "redirect:./list";
-
-		// 결재선도 함께 조회
-		List<AppLineDto> lineList = appLineDao.selectByAppId(appId);
-		model.addAttribute("appDto", appDto);
-		model.addAttribute("lineList", lineList);
-		return "appr/detail";
-
 	}
 
 	// 승인
@@ -66,9 +61,9 @@ public class ApprController {
 
 		int nextCount = appLineDao.updateNextApprover(appId, currentOrder);
 		if (nextCount > 0) {
-			appDao.updateAppStatus(appId, "결재중"); // ← appDao로 수정!
+			appDao.updateAppStatus(appId, "결재중");
 		} else {
-			appDao.updateAppStatus(appId, "승인"); // ← appDao로 수정!
+			appDao.updateAppStatus(appId, "승인");
 		}
 		return "redirect:./detail?appId=" + appId;
 	}
@@ -83,8 +78,34 @@ public class ApprController {
 			return "redirect:./list";
 
 		appLineDao.reject(appLineId, appLineRej);
-		appDao.updateAppStatus(appId, "반려"); // ← appDao로 수정!
+		appDao.updateAppStatus(appId, "반려");
 		return "redirect:./detail?appId=" + appId;
+	}
+
+	@RequestMapping("/detail")
+	public String detail(Model model, @RequestParam int appId, HttpSession session) {
+		String loginId = (String) session.getAttribute("loginId");
+		String empNo = appDao.selectEmpNoById(loginId);
+
+		AppDto appDto = appDao.selectOneById(appId);
+		if (appDto == null)
+			return "redirect:./list";
+
+		List<AppLineDto> lineList = appLineDao.selectByAppId(appId);
+
+		// 내 차례인지 확인
+		AppLineDto myTurn = null;
+		for (AppLineDto line : lineList) {
+			if (line.getAppAppId().equals(empNo) && line.getAppLineStatus().equals("진행중")) {
+				myTurn = line;
+				break;
+			}
+		}
+
+		model.addAttribute("appDto", appDto);
+		model.addAttribute("lineList", lineList);
+		model.addAttribute("myTurn", myTurn);
+		return "appr/detail";
 	}
 
 }

@@ -52,11 +52,16 @@
 					</tr>
 				</c:forEach>
 			</tbody>
+			<c:if test="${empty list}">
+				<tr>
+					<td colspan="6" style="text-align: center;">결재할 문서가 없습니다.</td>
+				</tr>
+			</c:if>
 		</table>
 
-	</div>
-	<div class="cell mt-50">
-		<jsp:include page="/WEB-INF/views/template/pagination.jsp"></jsp:include>
+
 	</div>
 </div>
-
+<div class="cell mt-50">
+		<jsp:include page="/WEB-INF/views/template/pagination.jsp"></jsp:include>
+	</div>
