@@ -56,6 +56,10 @@ public class AppController {
 		model.addAttribute("loginEmpNo", empNo);
 		return "app/detail";
 	}
+	
+	
+	
+	
 
 	// 수정(결재 or 반려)
 	@PostMapping("/edit")

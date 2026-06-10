@@ -46,9 +46,9 @@
 	<div class="board-side">
 		<div class="side-section">
 			<div class="side-title">결재 작성</div>
-			<a href="app/expInsert" class="side-link"> <i class="fa-solid fa-file-arrow-up"></i> 품의서
-			</a> <a href="app/dftInsert" class="side-link"> <i class="fa-solid fa-file-arrow-up"></i> 업무기안서
-			</a> <a href="app/vacInsert" class="side-link"> <i class="fa-solid fa-file-arrow-up"></i> 휴가신청서
+			<a href="/app/expInsert" class="side-link"> <i class="fa-solid fa-file-arrow-up"></i> 품의서
+			</a> <a href="/app/dftInsert" class="side-link"> <i class="fa-solid fa-file-arrow-up"></i> 업무기안서
+			</a> <a href="/app/vacInsert" class="side-link"> <i class="fa-solid fa-file-arrow-up"></i> 휴가신청서
 			</a>
 		</div>
 		<div class="side-section">
