@@ -68,7 +68,7 @@ public class InterceptorConfiguration implements WebMvcConfigurer{
 		
 		//댓글 소유자만 수정, 삭제가 가능하도록 하는 인터셉터
 		registry.addInterceptor(replyOwnerInterceptor)
-				.addPathPatterns("/rest/reply/edit", "/rest/reply/delete");
+				.addPathPatterns("/rest/reply/edit");
 		registry.addInterceptor(masterOnlyInterceptor).addPathPatterns("/admin/**");
 		registry.addInterceptor(masterDenyInterceptor).addPathPatterns(
 				"/admin/detail"

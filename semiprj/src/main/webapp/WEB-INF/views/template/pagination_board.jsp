@@ -5,11 +5,6 @@
 <!-- 페이지네이션 -->
 
 <div class="pagination">
-	<!-- 맨 첫 페이지 -->
-	<a href="${pageUrl}?page=1&${pageVO.getSearchParams()}">
-		<i class="fa-solid fa-angles-left"></i>
-	</a>
-	
 	<!-- 이전 -->
 	<c:if test="${pageVO.hasPrevious()}">
 		<a href="${pageUrl}?page=${pageVO.getPreviousBlock()}&${pageVO.getSearchParams()}">
@@ -33,9 +28,4 @@
 			<i class="fa-solid fa-angle-right"></i>
 		</a>
 	</c:if>
-
-	<!-- 맨 뒷 페이지 -->
-	<a href="${pageUrl}?page=${pageVO.getPageCount()}&${pageVO.getSearchParams()}">
-		<i class="fa-solid fa-angles-right"></i>
-	</a>
 </div>

@@ -11,11 +11,9 @@
 	    color: #d63031;
 	    visibility: hidden;
 	}
-
 	.text-editor.fail ~ div > .fail-feedback {
 	    visibility: visible;
 	}
-	
 	.radio-wrapper {
     	border: none !important;
     	background-image: none !important;
@@ -197,14 +195,7 @@ $(function(){
 			        <span>0</span> / 1000
 			    </span>
 			</div>
-		</div>
-		
-		<!-- 파일 첨부 -->
-<!-- 		<div class="cell">
-            <label>파일 첨부</label>
-            <input type="file" name="attach" class="field w-100" multiple
-            	accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.hwp,.hwpx,.zip">
-        </div>    -->
+		</div> 
 	
 		<!-- 목록/등록 버튼 -->
 		<div class="cell mt-50 right">

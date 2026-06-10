@@ -21,6 +21,10 @@
 	    gap:8px;
 	    justify-content:center;
 	}
+	.table{
+	    width:100%;
+	    table-layout:fixed;
+	}
 </style>
 
 <div class="container w-900 mt-50 mb-50">
@@ -62,10 +66,10 @@
     	<table class="table">
     		<thead>
     			<tr>
-                    <th>받는이</th>
-                    <th>제목</th>
-                    <th>열람</th>
-                    <th>작성일</th>
+                    <th style="width:20%;">받는이</th>
+                    <th style="width:50%;">제목</th>
+                    <th style="width:10%;">열람</th>
+                    <th style="width:20%;">작성일</th>
 				</tr>
 			</thead>
 			<tbody>

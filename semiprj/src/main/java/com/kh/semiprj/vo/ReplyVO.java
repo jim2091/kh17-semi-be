@@ -12,10 +12,12 @@ public class ReplyVO {
 	private long replyNo;
 	private String replyWriter;
 	private long replyOrigin;
+	private Long replyParent;
 	private String replyContent;
 	private Timestamp replyWtime;
 	private Timestamp replyEtime;
 	private boolean writer;
 	private boolean owner;
+	private boolean admin;
 	private String empName;
 }

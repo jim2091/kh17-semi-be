@@ -15,6 +15,7 @@ public class ReplyDto {
 	private long replyNo;
 	private String replyWriter;
 	private long replyOrigin;
+	private Long replyParent;
 	private String replyContent;
 	private Timestamp replyWtime;
 	private Timestamp replyEtime;

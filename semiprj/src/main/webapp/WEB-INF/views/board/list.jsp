@@ -8,6 +8,12 @@
 <jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
 <jsp:include page="/WEB-INF/views/template/side_board.jsp"></jsp:include>
 
+<style>
+	.table{
+	    width:100%;
+	    table-layout:fixed;
+	}
+</style>
 
 <div class="container w-900 mt-50 mb-50">
 	<!-- 페이지 제목 -->
@@ -54,11 +60,11 @@
     	<table class="table">
     		<thead>
     			<tr>
-    				<th>종류</th>
-                    <th>제목</th>
-                    <th>작성자</th>
-                    <th>조회수</th>
-                    <th>작성일</th>
+    				<th style="width:10%;">종류</th>
+                    <th style="width:50%;">제목</th>
+                    <th style="width:15%;">작성자</th>
+                    <th style="width:10%;">조회수</th>
+                    <th style="width:15%;">작성일</th>
 				</tr>
 			</thead>
 			<tbody>

@@ -19,6 +19,7 @@ import com.kh.semiprj.dao.ReplyDao;
 import com.kh.semiprj.dto.BoardDto;
 import com.kh.semiprj.dto.EmpDto;
 import com.kh.semiprj.dto.ReplyDto;
+import com.kh.semiprj.exception.GetOutException;
 import com.kh.semiprj.service.NotificationService;
 import com.kh.semiprj.vo.PageVO;
 import com.kh.semiprj.vo.ReplyVO;
@@ -46,9 +47,17 @@ public class ReplyRestController {
 		long replyNo = replyDao.sequence();
 		replyDto.setReplyNo(replyNo);
 		replyDto.setReplyWriter(empDto.getEmpNo());
+		if(replyDto.getReplyParent() != null) {
+		    if(!replyDao.canWriteChildReply(replyDto.getReplyParent())) {
+		        throw new GetOutException();
+		    }
+		}
+		if(replyDto.getReplyContent() != null
+			    && replyDto.getReplyContent().length() > 500) {
+			    throw new RuntimeException("댓글은 500자 이하만 작성 가능합니다.");
+			}
 		replyDao.insert(replyDto);
 		boardDao.updateBoardReplycount(replyDto.getReplyOrigin());
-		
 		//알림 생성
 		BoardDto originBoardDto = boardDao.selectOne(replyDto.getReplyOrigin());
 		String receiver = originBoardDto.getBoardWriter();
@@ -63,7 +72,7 @@ public class ReplyRestController {
 		EmpDto empDto = empDao.selectOne(loginId);
 		List<ReplyDto> originList = replyDao.selectList(replyOrigin);
 		List<ReplyVO> newList = new ArrayList<>();
-		
+		boolean admin = empDto != null && "관리자".equals(empDto.getEmpLevel());
 		//- 게시글 유형이 익명일 경우 댓글 작성자 이름을 익명 처리
 		boolean anonymous = "익명".equals(boardDto.getBoardType());
 		Map<String, Integer> anonymousMap = new HashMap<>();
@@ -89,11 +98,13 @@ public class ReplyRestController {
 						.replyWriter(replyDto.getReplyWriter())
 						.empName(displayName)
 						.replyContent(replyDto.getReplyContent())
+						.replyParent(replyDto.getReplyParent())
 						.replyOrigin(replyDto.getReplyOrigin())
 						.replyWtime(replyDto.getReplyWtime())
 						.replyEtime(replyDto.getReplyEtime())
 						.writer(writer)
 						.owner(owner)
+						.admin(admin)
 					.build());
 		}
 		return newList;
@@ -101,15 +112,37 @@ public class ReplyRestController {
 	
 	//댓글 삭제 매핑
 	@PostMapping("/delete")
-	public void delete(@RequestParam long replyNo) {
-		ReplyDto replyDto = replyDao.selectOne(replyNo);
-		replyDao.delete(replyNo);
-		boardDao.updateBoardReplycount(replyDto.getReplyOrigin());
+	public void delete(@RequestParam long replyNo, HttpSession session) {
+		String loginId = (String)session.getAttribute("loginId");
+	    EmpDto empDto = empDao.selectOne(loginId);
+	    ReplyDto replyDto = replyDao.selectOne(replyNo);
+	    if(replyDto == null) {
+	        throw new GetOutException();
+	    }
+	    boolean owner = String.valueOf(empDto.getEmpNo()).equals(replyDto.getReplyWriter());
+	    boolean admin = "관리자".equals(empDto.getEmpLevel());
+	    if(!(owner || admin)) {
+	    	throw new GetOutException();
+	    }
+	    
+	    replyDao.delete(replyNo);
+	    boardDao.updateBoardReplycount(replyDto.getReplyOrigin());
 	}
 	
 	//댓글 수정 매핑
 	@PostMapping("/edit")
-	public void edit(@ModelAttribute ReplyDto replyDto) {
+	public void edit(@ModelAttribute ReplyDto replyDto, HttpSession session) {
+		String loginId = (String)session.getAttribute("loginId");
+	    EmpDto empDto = empDao.selectOne(loginId);
+	    ReplyDto findReplyDto = replyDao.selectOne(replyDto.getReplyNo());
+	    boolean owner = String.valueOf(empDto.getEmpNo()).equals(findReplyDto.getReplyWriter());
+	    if(!(owner)) {
+	    	throw new GetOutException();
+	    }
+	    if(replyDto.getReplyContent() != null
+	    	    && replyDto.getReplyContent().length() > 500) {
+	    	    throw new RuntimeException("댓글은 500자 이하만 작성 가능합니다.");
+	    	}
 		replyDao.update(replyDto);
 	}
 }
