@@ -64,33 +64,6 @@ public class AppController {
 		return "redirect:/app/list";
 	}
 
-	@GetMapping("/insert")
-	public String insert(HttpSession session, Model model) {
-		String loginId = (String) session.getAttribute("loginId");
-		String empName = appDao.selectEmpNameById(loginId);
-		model.addAttribute("empName", empName);
-		return "/app/insert";
-	}
-
-	@PostMapping("/insert")
-	public String insert(@ModelAttribute AppDto appDto, HttpSession session) {
-		String loginId = (String) session.getAttribute("loginId");
-		if (loginId == null)
-			return "redirect:/login";
-		String empNo = appDao.selectEmpNoById(loginId);
-		if (empNo == null)
-			return "redirect:/app/insert";
-		appDto.setAppReqId(empNo);
-		int nextAppId = appDao.sequence();
-		appDto.setAppId(nextAppId);
-		try {
-			appDao.insert(appDto);
-		} catch (Exception e) {
-			return "redirect:/app/insert";
-		}
-		return "redirect:./insertComplete";
-	}
-
 	@RequestMapping("/insertComplete")
 	public String insertComplete(HttpSession session) {
 		return "/app/insertComplete";
@@ -115,48 +88,54 @@ public class AppController {
 		String loginId = (String) session.getAttribute("loginId");
 		if (loginId == null)
 			return "redirect:/login";
+
 		String empNo = appDao.selectEmpNoById(loginId);
 		if (empNo == null)
 			return "redirect:./vacInsert";
 
+		// 중복 결재자 체크
+		List<String> approvers = new ArrayList<>();
+		approvers.add(approver1);
+		if (approver2 != null && !approver2.isEmpty()) {
+			if (approvers.contains(approver2))
+				return "redirect:./vacInsert";
+			approvers.add(approver2);
+		}
+		if (approver3 != null && !approver3.isEmpty()) {
+			if (approvers.contains(approver3))
+				return "redirect:./vacInsert";
+			approvers.add(approver3);
+		}
+
 		vacAppDto.setAppReqId(empNo);
 		vacAppDto.setAppType("휴가신청서");
-		vacAppDto.setAppStatus("대기");
+		vacAppDto.setAppStatus("처리중");
 		int nextAppId = appDao.sequence();
 		vacAppDto.setAppId(nextAppId);
-		appDao.insert(vacAppDto);
-		vacAppDao.insertVacApp(vacAppDto);
 
-		// 결재자 1 (필수)
-		AppLineDto line1 = new AppLineDto();
-		line1.setAppId(nextAppId);
-		line1.setAppAppId(approver1);
-		line1.setAppLineOrder(1);
-		line1.setAppLineType("휴가신청서");
-		line1.setAppLineStatus("대기");
-		appLineDao.insertAppr(line1); // ← insertAppr 사용!
+		try {
+			appDao.insert(vacAppDto);
+			vacAppDao.insertVacApp(vacAppDto);
 
-		// 결재자 2 (선택)
-		if (approver2 != null && !approver2.isEmpty()) {
-			AppLineDto line2 = new AppLineDto();
-			line2.setAppId(nextAppId);
-			line2.setAppAppId(approver2);
-			line2.setAppLineOrder(2);
-			line2.setAppLineType("휴가신청서");
-			line2.setAppLineStatus("대기");
-			appLineDao.insertAppr(line2); // ← insertAppr 사용!
+			// 결재선 등록
+			for (int i = 0; i < approvers.size(); i++) {
+				AppLineDto line = new AppLineDto();
+				line.setAppId(nextAppId);
+				line.setAppAppId(approvers.get(i));
+				line.setAppLineOrder(i + 1);
+				line.setAppLineType("휴가신청서");
+				appLineDao.insert(line);
+			}
+
+			// 첫 번째 결재자 진행중으로 활성화
+			appLineDao.activateFirst(nextAppId);
+
+		} catch (Exception e) {
+			System.out.println("====== DB INSERT 에러 발생 ======");
+			e.printStackTrace();
+			return "redirect:./vacInsert";
 		}
 
-		// 결재자 3 (선택)
-		if (approver3 != null && !approver3.isEmpty()) {
-			AppLineDto line3 = new AppLineDto();
-			line3.setAppId(nextAppId);
-			line3.setAppAppId(approver3);
-			line3.setAppLineOrder(3);
-			line3.setAppLineType("휴가신청서");
-			line3.setAppLineStatus("대기");
-			appLineDao.insertAppr(line3); // ← insertAppr 사용!
-		}
 		return "redirect:./insertComplete";
 	}
 
@@ -179,45 +158,54 @@ public class AppController {
 		String loginId = (String) session.getAttribute("loginId");
 		if (loginId == null)
 			return "redirect:/login";
+
 		String empNo = appDao.selectEmpNoById(loginId);
 		if (empNo == null)
 			return "redirect:./expInsert";
 
+		// 중복 결재자 체크
+		List<String> approvers = new ArrayList<>();
+		approvers.add(approver1);
+		if (approver2 != null && !approver2.isEmpty()) {
+			if (approvers.contains(approver2))
+				return "redirect:./expInsert";
+			approvers.add(approver2);
+		}
+		if (approver3 != null && !approver3.isEmpty()) {
+			if (approvers.contains(approver3))
+				return "redirect:./expInsert";
+			approvers.add(approver3);
+		}
+
 		expAppDto.setAppReqId(empNo);
 		expAppDto.setAppType("품의서");
-		expAppDto.setAppStatus("대기");
+		expAppDto.setAppStatus("처리중"); // 대기 → 처리중으로 수정
 		int nextAppId = appDao.sequence();
 		expAppDto.setAppId(nextAppId);
-		appDao.insert(expAppDto);
-		expAppDao.insertExpApp(expAppDto);
 
-		// 결재자 1 (필수) → 대기
-		AppLineDto line1 = new AppLineDto();
-		line1.setAppId(nextAppId);
-		line1.setAppAppId(approver1);
-		line1.setAppLineOrder(1);
-		line1.setAppLineType("품의서");
-		appLineDao.insert(line1);
+		try {
+			appDao.insert(expAppDto);
+			expAppDao.insertExpApp(expAppDto);
 
-		// 결재자 2 (선택) → 대기
-		if (approver2 != null && !approver2.isEmpty()) {
-			AppLineDto line2 = new AppLineDto();
-			line2.setAppId(nextAppId);
-			line2.setAppAppId(approver2);
-			line2.setAppLineOrder(2);
-			line2.setAppLineType("품의서");
-			appLineDao.insert(line2);
+			// 결재선 등록
+			for (int i = 0; i < approvers.size(); i++) {
+				AppLineDto line = new AppLineDto();
+				line.setAppId(nextAppId);
+				line.setAppAppId(approvers.get(i));
+				line.setAppLineOrder(i + 1);
+				line.setAppLineType("품의서");
+				appLineDao.insert(line);
+			}
+
+			// 첫 번째 결재자 진행중으로 활성화
+			appLineDao.activateFirst(nextAppId);
+
+		} catch (Exception e) {
+			System.out.println("====== DB INSERT 에러 발생 ======");
+			e.printStackTrace();
+			return "redirect:./expInsert";
 		}
 
-		// 결재자 3 (선택) → 대기
-		if (approver3 != null && !approver3.isEmpty()) {
-			AppLineDto line3 = new AppLineDto();
-			line3.setAppId(nextAppId);
-			line3.setAppAppId(approver3);
-			line3.setAppLineOrder(3);
-			line3.setAppLineType("품의서");
-			appLineDao.insert(line3);
-		}
 		return "redirect:./insertComplete";
 	}
 
@@ -233,60 +221,62 @@ public class AppController {
 	}
 
 	@PostMapping("/dftInsert")
-	public String dftInsert(@ModelAttribute DftAppDto dftAppDto,
-	        @RequestParam String approver1,
-	        @RequestParam(required = false) String approver2,
-	        @RequestParam(required = false) String approver3,
-	        HttpSession session) {
+	public String dftInsert(@ModelAttribute DftAppDto dftAppDto, @RequestParam String approver1,
+			@RequestParam(required = false) String approver2, @RequestParam(required = false) String approver3,
+			HttpSession session) {
 
-	    String loginId = (String) session.getAttribute("loginId");
-	    if (loginId == null) return "redirect:/login";
+		String loginId = (String) session.getAttribute("loginId");
+		if (loginId == null)
+			return "redirect:/login";
 
-	    String empNo = appDao.selectEmpNoById(loginId);
-	    if (empNo == null) return "redirect:./dftInsert";
+		String empNo = appDao.selectEmpNoById(loginId);
+		if (empNo == null)
+			return "redirect:./dftInsert";
 
-	    // 중복 결재자 체크
-	    List<String> approvers = new ArrayList<>();
-	    approvers.add(approver1);
-	    if (approver2 != null && !approver2.isEmpty()) {
-	        if (approvers.contains(approver2)) return "redirect:./dftInsert";
-	        approvers.add(approver2);
-	    }
-	    if (approver3 != null && !approver3.isEmpty()) {
-	        if (approvers.contains(approver3)) return "redirect:./dftInsert";
-	        approvers.add(approver3);
-	    }
+		// 중복 결재자 체크
+		List<String> approvers = new ArrayList<>();
+		approvers.add(approver1);
+		if (approver2 != null && !approver2.isEmpty()) {
+			if (approvers.contains(approver2))
+				return "redirect:./dftInsert";
+			approvers.add(approver2);
+		}
+		if (approver3 != null && !approver3.isEmpty()) {
+			if (approvers.contains(approver3))
+				return "redirect:./dftInsert";
+			approvers.add(approver3);
+		}
 
-	    dftAppDto.setAppReqId(empNo);
-	    dftAppDto.setAppType("업무기안서");
-	    dftAppDto.setAppStatus("처리중");  // 대기 → 처리중으로 수정
-	    int nextAppId = appDao.sequence();
-	    dftAppDto.setAppId(nextAppId);
+		dftAppDto.setAppReqId(empNo);
+		dftAppDto.setAppType("업무기안서");
+		dftAppDto.setAppStatus("처리중"); // 대기 → 처리중으로 수정
+		int nextAppId = appDao.sequence();
+		dftAppDto.setAppId(nextAppId);
 
-	    try {
-	        appDao.insert(dftAppDto);
-	        dftAppDao.insertDftApp(dftAppDto);
+		try {
+			appDao.insert(dftAppDto);
+			dftAppDao.insertDftApp(dftAppDto);
 
-	        // 결재선 등록
-	        for (int i = 0; i < approvers.size(); i++) {
-	            AppLineDto line = new AppLineDto();
-	            line.setAppId(nextAppId);
-	            line.setAppAppId(approvers.get(i));
-	            line.setAppLineOrder(i + 1);
-	            line.setAppLineType("업무기안서");
-	            appLineDao.insert(line);
-	        }
+			// 결재선 등록
+			for (int i = 0; i < approvers.size(); i++) {
+				AppLineDto line = new AppLineDto();
+				line.setAppId(nextAppId);
+				line.setAppAppId(approvers.get(i));
+				line.setAppLineOrder(i + 1);
+				line.setAppLineType("업무기안서");
+				appLineDao.insert(line);
+			}
 
-	        // 첫 번째 결재자 진행중으로 활성화
-	        appLineDao.activateFirst(nextAppId);
+			// 첫 번째 결재자 진행중으로 활성화
+			appLineDao.activateFirst(nextAppId);
 
-	    } catch (Exception e) {
-	        System.out.println("====== DB INSERT 에러 발생 ======");
-	        e.printStackTrace();
-	        return "redirect:./dftInsert";
-	    }
+		} catch (Exception e) {
+			System.out.println("====== DB INSERT 에러 발생 ======");
+			e.printStackTrace();
+			return "redirect:./dftInsert";
+		}
 
-	    return "redirect:./insertComplete";
+		return "redirect:./insertComplete";
 	}
 
 	@RequestMapping("/list")
