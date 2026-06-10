@@ -5,18 +5,33 @@
 <jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
 <jsp:include page="/WEB-INF/views/template/side_user.jsp"></jsp:include>
 
+<script>
+$(function(){
+	$(".search-btn").click(function(e){
+		console.log("클릭됨");
+	    const beginDate = $("[name=beginDate]").val();
+	    const endDate = $("[name=endDate]").val();
 
+	    if(!beginDate || !endDate){
+	        alert("시작일과 종료일을 입력하세요");
+	        return;
+	    }
+	});
+});
+
+</script>
 <div class="container w-80">
 	
 	<div class="cell">
 	<form action="./history" method="get">
 	시작일<input type="date" name="beginDate" value="${param.beginDate}">
 	 - 종료일<input type="date" name="endDate" value="${param.endDate}">
-	<button type="submit" class="btn btn-positive">
+	<button type="submit" class="btn btn-positive search-btn">
 		<i class="fa-solid fa-magnifying-glass"></i>
 	</button>
 	</form>
 	</div>
+	
 
 	<div class="center">
 		<h1>[${empDto.empName}]의로그인 이력</h1>

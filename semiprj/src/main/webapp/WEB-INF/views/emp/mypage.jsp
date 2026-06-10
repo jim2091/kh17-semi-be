@@ -5,8 +5,8 @@
 <jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
 <jsp:include page="/WEB-INF/views/template/side_user.jsp"></jsp:include>
 
-<div class="container w-600 mt-50 mb-50">
-        <div class="cell center">
+<div class="container w-80 mt-50">
+        <div class="cell left">
             <h1>[${empDto.empName}]사원 상세 정보</h1>
         </div>
         <div class="cell">
@@ -18,7 +18,7 @@
             <span>사원실명 : ${empDto.empName}</span>
         </div>
         <div class="cell">
-            <span>사원부서 : ${empDto.empDept}</span>
+            <span>사원부서 : ${deptDto.deptName}</span>
         </div>
         <div class="cell">
             <span>사원직위 : ${empDto.empPosition}</span>
@@ -51,15 +51,10 @@
             <a href="./list" class="btn btn-neutral">목록으로</a>
         </div>
         
-
-
-</div>
-
-<div class="container w-80">
-	<div class="center">
+<div class="left">
 		<h1>최근 로그인 이력</h1>
 		<a href = "./history?empNo=${empDto.empNo}">더보기</a>
-	</div>
+</div>
 	<div class="cell">
  		<table class="table table-stripe">
 			<thead>
@@ -79,11 +74,29 @@
 		</c:forEach>
 		</tbody>
 		</table>
-		<div class="cell center">
-  		<jsp:include page="/WEB-INF/views/template/pagination.jsp"></jsp:include>
+		
 	</div>
-	</div>
+<div class="cell">
+<h1>보안설정</h1>
 </div>
- 
+<div class="cell">
+ 		<table class="table table-stripe">
+			<thead>
+			<tr>
+				<th>비밀번호 변경일시</th>
+			</tr>
+			</thead>
+		<tbody>
+			<tr>
+			<td>${empDto.empPwChange}</td>
+			</tr>
+		</tbody>
+		</table>
+		
+	</div>
+
+</div>
+
+
 
 <jsp:include page="/WEB-INF/views/template/footer.jsp"></jsp:include>
