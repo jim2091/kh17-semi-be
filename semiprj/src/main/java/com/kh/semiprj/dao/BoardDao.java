@@ -5,8 +5,10 @@ import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
+import com.kh.semiprj.dto.AttachDto;
 import com.kh.semiprj.dto.BoardDto;
 import com.kh.semiprj.mapper.BoardMapper;
 import com.kh.semiprj.mapper.EmpMapper;
@@ -268,7 +270,6 @@ public class BoardDao {
 		List<BoardDto> list = jdbcTemplate.query(sql, boardMapper, params);
 		return list.isEmpty() ? null : list.get(0);
 	}
-	
 	//(4-2) 이전글
 	public BoardDto selectPreviousOne(long boardNo) {
 		String sql = "select * from board "
@@ -299,4 +300,5 @@ public class BoardDao {
 		Object[] params = {boardNo};
 		return jdbcTemplate.update(sql, params) > 0;
 	}
+
 }

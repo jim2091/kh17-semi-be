@@ -17,6 +17,8 @@ public class ReplyMapper implements RowMapper<ReplyDto>{
 					.replyWriter(rs.getString("reply_writer"))
 					.empName(rs.getString("emp_name"))
 					.replyOrigin(rs.getLong("reply_origin"))
+					.replyParent(rs.getObject("reply_parent") == null ?
+						    null : rs.getLong("reply_parent"))
 					.replyContent(rs.getString("reply_content"))
 					.replyWtime(rs.getTimestamp("reply_wtime"))
 					.replyEtime(rs.getTimestamp("reply_etime"))
