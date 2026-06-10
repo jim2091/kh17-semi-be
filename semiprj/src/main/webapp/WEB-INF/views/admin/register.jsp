@@ -17,13 +17,38 @@
         type="text/css">
     <link rel="stylesheet" href="/css/commons_semi.css" type="text/css">
     
-    <!-- lightpick CDN -->
+    
+    
+<style>
+.modal {
+    display:none;
+
+    position:fixed;
+    top:0;
+    left:0;
+
+    width:100%;
+    height:100%;
+
+    background-color:rgba(0,0,0,0.4);
+
+    z-index:9999;
+}
+
+.modal-content{
+    width:650px;
+
+    background:white;
+
+    margin:100px auto;
+    padding:20px;
+}
+</style>
     <link href="https://cdn.jsdelivr.net/npm/lightpick@1.6.2/css/lightpick.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lightpick@1.6.2/lightpick.min.js"></script>
-    
-    <!-- jQuery CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+ 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     
     <script>
         $(function(){
@@ -170,6 +195,55 @@
                 format : "YYYY-MM-DD",
                 firstDay : 7
             });
+            $("[name=empMentor]").on("click", function(){
+                $(".modal").show();
+            });
+            $(".modal").click(function(e){
+                if($(e.target).hasClass("modal")){
+                    $(".modal").hide();
+                }
+            });
+        	$(".search-btn").click(function() {
+
+            const keyword = $("[name=keyword]").val();
+
+            $.ajax({
+                url : "/rest/emp/search",
+                method : "get",
+                data : {
+                    keyword : keyword
+                },
+                success : function(response) {
+                	 console.log(response[0]);
+
+                    $(".result").empty();
+
+                    for(let i=0; i < response.length; i++) {
+                        const row = $("<div>");
+
+                        row.text(
+                            response[i].empNo + " / " +
+                            response[i].empName + " / " +
+                            response[i].empDept + " / " +
+                            response[i].empPosition
+                        );
+                        
+                        row.css("cursor", "pointer");
+                        
+                        row.click(function(){
+
+                            $("[name=empMentor]").val(
+                                response[i].empName
+                            );
+
+                            $(".modal").hide();
+                        });
+
+                        $(".result").append(row);
+                    }
+                }
+            });
+        });
         });
 
     </script>
@@ -297,6 +371,20 @@
         </div>
     </div>
 </form>
+<div class="container modal">
+    <div class="modal-content">
+    	<%-- <select name="column" class="field">
+			<option value="emp_no" ${param.column == "emp_no" ? "selected" : ""}>사원번호</option>
+			<option value="emp_name" ${param.column == "emp_name" ? "selected" : ""}>사원실명</option>
+			<option value="emp_dept" ${param.column == "emp_dept" ? "selected" : ""}>부서</option>
+			<option value="emp_position" ${param.column == "emp_position" ? "selected" : ""}>직위</option>
+		</select>
+		 --%>
+        <input type="text" name="keyword" class="field ms-10" placeholder="사원 검색" value="${param.keyword}">
+        <button type="button" class="btn btn-positive search-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
+        <div class="result"></div>
+    </div>
+</div>
 </body>
 </html>
 
