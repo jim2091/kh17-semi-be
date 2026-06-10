@@ -29,25 +29,24 @@ public class HomeController {
 	}
     @PostMapping("/menu/toggle")
     @ResponseBody
-    public void toggle(
-            @RequestParam boolean managerToggle,
-            HttpSession session) {
+    public void toggle(@RequestParam boolean managerToggle,
+                       HttpSession session) {
 
-        String originRole = (String) session.getAttribute("originRole");
+        String empLevel = (String) session.getAttribute("empLevel");
 
-        // 원래 관리자가 아니면 토글 불가
-        if (!"관리자".equals(originRole)) {
+        // 진짜 관리자가 아니면 토글 불가
+        if (!"관리자".equals(empLevel)) {
+            session.setAttribute("loginRole", "사용자");
+            session.removeAttribute("managerToggle");
             return;
         }
 
         session.setAttribute("managerToggle", managerToggle);
 
         if (managerToggle) {
-            // 관리자 모드
             session.setAttribute("loginRole", "관리자");
         }
         else {
-            // 사용자 모드
             session.setAttribute("loginRole", "사용자");
         }
     }

@@ -65,7 +65,7 @@
 				</c:if>     
 				<c:if test="${sessionScope.loginId != null && sessionScope.loginRole != null}">
 					<c:choose>
-					    <c:when test="${sessionScope.managerToggle}">
+					    <c:when test="${sessionScope.loginRole == '관리자'}">
 					        <jsp:include page="/WEB-INF/views/template/menu_admin.jsp"/>
 					    </c:when>
 					    <c:otherwise>
@@ -128,7 +128,7 @@
 								    </c:choose>
                             	</div>
                             	<div>
-                            		<c:if test="${sessionScope.originRole == '관리자'}">
+                            		<c:if test="${sessionScope.managerToggle != null}">
 									    <label class="toggle">
 									        <input type="checkbox" name="managerToggle"
 									            <c:if test="${sessionScope.managerToggle}">checked</c:if>>

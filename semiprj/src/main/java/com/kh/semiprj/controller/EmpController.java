@@ -74,13 +74,22 @@ public class EmpController {
 		empHistoryDto.setEmpHistoryAgent(request.getHeader("User-Agent"));
 		empHistoryDao.insert(empHistoryDto);
 		
-		//session에 로그인 되었음을 표시
+		// session에 로그인 되었음을 표시
 		session.setAttribute("loginId", findEmpDto.getEmpId());
-		session.setAttribute("loginRole", findEmpDto.getEmpLevel());
 		session.setAttribute("loginNo", findEmpDto.getEmpNo());
 
+		// 원래 DB 권한
+		session.setAttribute("empLevel", findEmpDto.getEmpLevel());
+
+		// 현재 사용 중인 권한
+		session.setAttribute("loginRole", "사용자");
+
+		// 관리자라면 토글 생성
 		if (findEmpDto.getEmpLevel().equals("관리자")) {
-		    session.setAttribute("managerToggle", true);
+		    session.setAttribute("managerToggle", false);
+		}
+		else {
+		    session.removeAttribute("managerToggle");
 		}
 		
 
