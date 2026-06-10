@@ -57,7 +57,18 @@
 			<tbody>
 				<tr>
 					<td>${deptDto.deptId}</td>
-					<td>${deptDto.parentDeptName}</td>
+					<td>
+					    <c:choose>
+					        <c:when test="${deptDto.parentDeptId == 0 || empty deptDto.parentDeptId}">
+					            없음
+					        </c:when>
+					        <c:otherwise>
+					            <a href="./detail?deptId=${deptDto.parentDeptId}" class="link blue">
+					                ${deptDto.parentDeptName}
+					            </a>
+					        </c:otherwise>
+					    </c:choose>
+					</td>
 					<td>${empDto.empName}(${deptDto.deptHeadId})</td>
 					<td><fmt:formatDate value="${deptDto.deptCreateAt}"
 							pattern="yyyy-MM-dd" /></td>
@@ -66,7 +77,8 @@
 		</table>
 		<div class="cell">소개 : ${deptDto.deptContent}</div>
 	</div>
-		<%-- 하위부서 목록 (하위부서가 있을 때만 표시) --%>
+	
+	
 		<c:if test="${not empty childDeptList}">
 		
 		    <div class="cell mt-30"
@@ -82,7 +94,7 @@
 		                <tr class="bg-yellow">
 		                    <th>부서코드</th>
 		                    <th>부서명</th>
-		                    <th>활성여부</th>
+		                    <th>부서장</th>
 		                </tr>
 		            </thead>
 		            <tbody>
@@ -95,15 +107,15 @@
 		                            </a>
 		                        </td>
 		                        <td>
-		                            <c:choose>
-		                                <c:when test="${child.deptYn == 'Y'}">
-		                                    <span style="color: green;">활성화</span>
-		                                </c:when>
-		                                <c:otherwise>
-		                                    <span style="color: red;">비활성화</span>
-		                                </c:otherwise>
-		                            </c:choose>
-		                        </td>
+									<c:choose>
+									    <c:when test="${deptDto.deptHeadName == null}">(공석)</c:when>
+									    <c:otherwise>
+									    	<a href="${pageContext.request.contextPath}/emp/detail?empNo=${deptDto.deptHeadId}">
+											    ${child.deptHeadName}
+											</a>
+									    </c:otherwise>
+									</c:choose>
+								</td>
 		                    </tr>
 		                </c:forEach>
 		            </tbody>
@@ -125,7 +137,6 @@
 					<th class="w-20">성명</th>
 					<th class="w-20">직위</th>
 					<th class="w-30">전화번호</th>
-					<th class="w-30">주요업무</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -134,7 +145,6 @@
 			            <td>${emp.empName}</td>
 			            <td>${emp.empPosition}</td>
 			            <td>${emp.empContact }</td>
-			            <td>${emp.empContact}</td>
 			        </tr>
 			    </c:forEach>
 			</tbody>
