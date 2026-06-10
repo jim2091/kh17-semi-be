@@ -12,14 +12,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.kh.semiprj.dao.DeptDao;
 import com.kh.semiprj.dao.EmpDao;
 import com.kh.semiprj.dao.EmpHistoryDao;
+import com.kh.semiprj.dto.DeptDto;
 import com.kh.semiprj.dto.EmpDto;
 import com.kh.semiprj.dto.EmpHistoryDto;
 import com.kh.semiprj.exception.TargetNotfoundException;
 import com.kh.semiprj.vo.HistoryPageVO;
-
-import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/admin")
@@ -27,6 +27,9 @@ public class AdminEmpController {
 	
 	@Autowired
 	private EmpDao empDao;
+	
+	@Autowired
+	private DeptDao deptDao;
 	
 	@Autowired
 	private EmpHistoryDao empHistoryDao;
@@ -41,6 +44,9 @@ public class AdminEmpController {
 //		System.out.println(empDto);
 		empDao.insertFromAdmin(empDto);
 		
+//		int deptNo = empDto.getEmpDept();
+		
+		
 		return "redirect:./list";
 		//홈으로 리다이렉트해놓았는데, 사원목록구현후 사원목록페이지로 리다이렉트할 예정입니다
 	}
@@ -52,6 +58,7 @@ public class AdminEmpController {
 		/* System.out.println("list 실행"); */
 		List<EmpDto> list = empDao.selectListByAdmin(column, keyword);
 		
+		System.out.println(list);
 		
 		model.addAttribute("list", list);
 		
@@ -61,6 +68,12 @@ public class AdminEmpController {
 	public String detail(@RequestParam String empNo, Model model) {
 		EmpDto empDto = empDao.selectOneByDetail(empNo);
 		model.addAttribute("empDto", empDto);
+		
+		int deptNo = empDto.getEmpDept();
+
+		DeptDto deptDto = deptDao.selectOne(deptNo);
+		model.addAttribute("deptDto", deptDto);
+		
 		
 		List<EmpHistoryDto> loginHistory = 
 				empHistoryDao.selectList(empNo, 1, 10);
