@@ -62,13 +62,64 @@
             });
         });
         
-        // 개별 입력창 검사 - 부서장 사번
-        $("[name=deptHeadId]").on("blur", function(){
-            var value = $(this).val();
-            var valid = value.length > 0;
-            $(this).removeClass("success fail").addClass(valid ? "success" : "fail");
-            state.deptHeadIdValid = valid;
-        });
+        //부서장 입력
+        $("[name=deptHeadId]").on("keyup", function(){
+    	    var keyword = $(this).val();
+    	
+    	    if(keyword.length < 1){
+    	        $(".receiver-list").empty();
+    	        state.messageReceiverValid = false;
+    	        return;
+    	    }
+    	
+    	    $.ajax({
+    	        url:"http://localhost:8080/dept/searchEmp",
+    	        method:"get",
+    	        data:{ keyword:keyword },
+    	        success:function(response){
+    	            $(".receiver-list").empty();
+    	
+    	            $.each(response, function(index, emp){
+    	                var div = $("<div>");
+    	                div.addClass("receiver-item");
+    	                div.text(
+    	                    emp.empName + " (" + emp.empDept + ")"
+    	                );
+    	                div.click(function(){
+
+    	                    if($("input[name=messageReceiver][value='"+emp.empNo+"']").length){
+    	                        return;
+    	                    }
+
+    	                    var html = "";
+
+    	                    html += "<span class='receiver-tag'>";
+    	                    html += emp.empName;
+
+    	                    html += "<button type='button' class='delete-tag'>";
+    	                    html += "✕";
+    	                    html += "</button>";
+
+    	                    html += "<input type='hidden' ";
+    	                    html += "name='messageReceiver' ";
+    	                    html += "value='" + emp.empNo + "'>";
+
+    	                    html += "</span>";
+
+    	                    $(".receiver-selected-list").append(html);
+
+    	                    $("[name=receiverKeyword]").val("");
+
+    	                    $(".receiver-list").empty();
+
+    	                    state.messageReceiverValid = true;
+    	                });
+    	
+    	                $(".receiver-list").append(div);
+    	            });
+    	        }
+    	    });
+    	});
         
         // 개별 입력창 검사 - 업무내용
         $("[name=deptContent]").on("blur", function(){
@@ -129,10 +180,13 @@
         </div>
 
         <div class="cell">
-            <label>부서장 사번 <i class="fa-solid fa-asterisk red"></i></label>
-            <input type="text" inputmode="numeric" name="deptHeadId" class="field w-100">
+            <label>부서장 <i class="fa-solid fa-asterisk red"></i></label>
+            <input type="text" name="deptHeadId" class="field w-100">
             <div class="fail-feedback">필수 항목입니다!</div>
         </div>
+        
+        <script src="/js/employee-picker.js"></script>
+			<div class="receiver-list"></div>
 
         <div class="cell">
             <label>업무내용</label>

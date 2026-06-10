@@ -173,16 +173,18 @@ import com.kh.semiprj.vo.PageVO;
 	    
 	    //상위부서에 속한 부서의 사원 목록 메소드
 	    public List<EmpDto> selectListByDeptRecursive(int deptId) {
-	        String sql = "SELECT E.*, D.dept_name " +
+	        String sql = "SELECT DISTINCT E.* " + 
 	                     "FROM emp E " +
-	                     "LEFT OUTER JOIN dept D ON E.emp_dept = D.dept_id " +
-		                     "WHERE E.emp_dept IN (" +
-		                     "    SELECT dept_id FROM dept " +
-		                     "    START WITH dept_id = ? " + 
-		                     "    CONNECT BY PRIOR dept_id = parent_dept_id" +
-		                     ") " +
-	                     "ORDER BY E.emp_id ASC"; 
+	                     "INNER JOIN dept_emp DE ON E.emp_no = DE.emp_no " +
+	                     "WHERE DE.dept_id IN (" +
+	                     "    SELECT dept_id FROM dept " +
+	                     "    START WITH dept_id = ? " + 
+	                     "    CONNECT BY PRIOR dept_id = parent_dept_id" +
+	                     ") " +
+	                     "ORDER BY E.emp_name ASC"; 
 	                     
 	        return jdbcTemplate.query(sql, empMapper, deptId);
 	    }
+	    
+	    
 	}

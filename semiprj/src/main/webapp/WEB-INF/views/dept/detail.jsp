@@ -133,6 +133,7 @@
 			        <tr>
 			            <td>${emp.empName}</td>
 			            <td>${emp.empPosition}</td>
+			            <td>${emp.empContact }</td>
 			            <td>${emp.empContact}</td>
 			        </tr>
 			    </c:forEach>

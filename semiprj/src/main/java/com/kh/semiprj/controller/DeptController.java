@@ -161,7 +161,12 @@ public class DeptController {
 		
 		return "redirect:./detail?deptId="+deptId;
 	}
-	
+	//사원찾기
+	@GetMapping("/searchEmp")
+	@ResponseBody
+	public List<EmpDto> searchEmp(@RequestParam String keyword){
+	    return empDao.searchByName(keyword);
+	}
 		
 	
 }

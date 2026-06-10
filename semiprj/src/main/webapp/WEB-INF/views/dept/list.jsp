@@ -60,7 +60,12 @@
 							${deptDto.deptName}
 						</a>
 					</td>
-					<td>${deptDto.deptHeadName}(${deptDto.deptHeadId})</td>
+					<td>
+						<c:choose>
+						    <c:when test="${deptDto.deptHeadName == null}">(공석)</c:when>
+						    <c:otherwise>${deptDto.deptHeadName}</c:otherwise>
+						</c:choose>
+					</td>
 				</tr>
 				</c:forEach>
 			</tbody>
