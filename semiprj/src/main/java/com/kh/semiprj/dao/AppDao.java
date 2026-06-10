@@ -32,6 +32,14 @@ public class AppDao {
         Integer seq = jdbcTemplate.queryForObject(sql, Integer.class);
         return seq != null ? seq : 0;
     }   
+    
+    //관리자가 전부 확인
+    public List<AppDto> selectAllList() {
+        String sql = "select a.*, e.emp_name from app a "
+                   + "join emp e on a.app_req_id = e.emp_no "
+                   + "order by a.app_id desc";
+        return jdbcTemplate.query(sql, appMapper);
+    }
 
 	// app_type 페이징
 	public List<AppDto> selectByAppTypeList(PageVO pageVO) {
@@ -266,6 +274,7 @@ public class AppDao {
         String sql = "update app set app_status = ? where app_id = ?";
         jdbcTemplate.update(sql, status, appId);
     }
+    
     //검색
     public List<AppDto> searchList(String empNo, String column, String keyword) {
         // allowList로 SQL injection 방지

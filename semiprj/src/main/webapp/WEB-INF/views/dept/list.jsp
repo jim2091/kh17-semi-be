@@ -63,7 +63,11 @@
 					<td>
 						<c:choose>
 						    <c:when test="${deptDto.deptHeadName == null}">(공석)</c:when>
-						    <c:otherwise>${deptDto.deptHeadName}</c:otherwise>
+						    <c:otherwise>
+						    	<a href="${pageContext.request.contextPath}/emp/detail?empNo=${deptDto.deptHeadId}">
+								    ${deptDto.deptHeadName}
+								</a>
+						    </c:otherwise>
 						</c:choose>
 					</td>
 				</tr>
