@@ -24,6 +24,8 @@ public class InterceptorConfiguration implements WebMvcConfigurer{
 	private ReplyOwnerInterceptor replyOwnerInterceptor;
 	@Autowired
 	private PdsReadInterceptor pdsReadInterceptor;
+	@Autowired
+	private MessageOwnerInterceptor messageOwnerInterceptor;
 	
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
@@ -40,6 +42,7 @@ public class InterceptorConfiguration implements WebMvcConfigurer{
 				,"/admin/**"
 				,"/board/**"
 				,"/dept/**"
+				,"/message/**"
 				)
 				.excludePathPatterns(
 						"/emp/login"
@@ -55,6 +58,8 @@ public class InterceptorConfiguration implements WebMvcConfigurer{
 						);
 		registry.addInterceptor(masterOnlyInterceptor).addPathPatterns(
 				"/pds/write"
+				,"/message/delete"
+				,"/message/adminList"
 				)
 				.excludePathPatterns(
 						);
@@ -74,5 +79,11 @@ public class InterceptorConfiguration implements WebMvcConfigurer{
 				"/admin/detail"
 				,"/admin/edit"
 				);
+		
+		//메세지
+		registry.addInterceptor(messageOwnerInterceptor)
+				.addPathPatterns(
+						"/message/detail"
+						);
 	}
 }

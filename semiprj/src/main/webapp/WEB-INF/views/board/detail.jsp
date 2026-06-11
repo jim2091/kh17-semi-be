@@ -444,22 +444,8 @@ $(function(){
 	
 	<!-- 게시글 본문 -->
 	<div class="cell" style="min-height:300px">
-		<pre>${boardDto.boardContent}</pre>
+		<c:out value="${boardDto.boardContent}" escapeXml="false"/>
 	</div>
-	
-	<c:if test="${not empty attachList}">
-	    <div class="cell">
-	        <h3>첨부파일</h3>
-	
-	        <c:forEach var="attachDto" items="${attachList}">
-	            <div>
-	                <a href="/attach/download?attachNo=${attachDto.attachNo}">
-	                    ${attachDto.attachName}
-	                </a>
-	            </div>
-	        </c:forEach>
-	    </div>
-	</c:if>
 	
 	<!-- 좋아요/댓글수 -->
 	<div class="cell mt-20 flex-area">
