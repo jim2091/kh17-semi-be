@@ -10,6 +10,12 @@ $(function(){
 
         $(this).next(".admin-submenu").slideToggle(200);
     });
+    
+    $(".calendar-menu").click(function(e){
+        e.preventDefault();
+
+        $(this).next(".calendar-submenu").slideToggle(200);
+    });
 
 });
 </script>
@@ -48,10 +54,21 @@ $(function(){
             <i class="fa-solid fa-business-time"></i>
             <span>근태관리</span>
         </a>
-        <a href="/event/calendar">
+        <a href="/event/calendar" class="calendar-menu">
             <i class="fa-solid fa-calendar-day"></i>
             <span>일정</span>
         </a>
+        <div class="calendar-submenu" style="display:none; padding-left:25px;">
+		        <a href="/event/calendar">
+		            <i class="fa-solid fa-calendar-day"></i>
+		            <span>캘린더</span>
+		        </a>
+		
+		        <a href="/event/calendarList">
+		            <i class="fa-solid fa-list"></i>
+		            <span>일정 목록</span>
+		        </a>
+		</div>
         <a href="/board/list">
             <i class="fa-solid fa-clipboard-list"></i>
             <span>게시판</span>

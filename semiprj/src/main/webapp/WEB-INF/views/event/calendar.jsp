@@ -2,8 +2,7 @@
     pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
-<jsp:include page="/WEB-INF/views/template/side_event.jsp"></jsp:include>
+<jsp:include page="/WEB-INF/views/template/header2.jsp"></jsp:include>
 
   
     <link rel="stylesheet" href="https://uicdn.toast.com/tui.date-picker/latest/tui-date-picker.css" />
@@ -26,12 +25,8 @@
 }
 
 .modal-content{
-    width:500px;
-
-    background:white;
-
-    margin:100px auto;
-    padding:20px;
+    width:600px;
+    margin:80px auto;
 }
 .calendar-header{
     display:flex;
@@ -47,25 +42,55 @@
     text-align:center;
 }
 </style>
-
-
-
-<div class="container w-80">
-
-	<div class="cell">
-    	<h2><i class="fa-solid fa-calendar"></i> 일정 관리 시스템</h2>
+<div class="gw-page-head">
+    <div class="gw-breadcrumb">
+        일정 > 일정 관리
     </div>
-    <div class="cell calendar-header">
-    <button type="button" class="btn-prev"><i class="fa-solid fa-caret-left"></i></button>
 
-    <span class="current-month"></span>
+    <h1>일정 관리 시스템</h1>
+    <p>개인 일정과 사내 일정을 등록하고 관리할 수 있습니다.</p>
+</div>
 
-    <button type="button" class="btn-next"><i class="fa-solid fa-caret-right"></i></button>
 
-    <button type="button" class="btn-today">오늘</button>
-	</div>
+
+	<div class="gw-list-panel mb-20">
+
+    <div style="
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        gap:10px;
+        flex-wrap:wrap;
+    ">
+
+        <button type="button" class="gw-btn-outline btn-prev">
+            <i class="fa-solid fa-caret-left"></i>
+        </button>
+
+        <span class="current-month"
+              style="
+                font-size:22px;
+                font-weight:700;
+                min-width:140px;
+                text-align:center;
+              ">
+        </span>
+
+        <button type="button" class="gw-btn-outline btn-next">
+            <i class="fa-solid fa-caret-right"></i>
+        </button>
+
+        <button type="button" class="gw-btn-primary btn-today">
+            오늘
+        </button>
+
+    </div>
+
+</div>
 	
-    <div id="calendar" style="height: 700px;"></div>
+<div class="gw-list-panel">
+    <div id="calendar" style="height:700px;"></div>
+</div>
     
     
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -233,6 +258,7 @@
 	});
     $(".close-btn").click(function(){
         $(".modal").hide();
+        calendar.unselect();
     });
     $(".save-btn").click(function(){
 
@@ -334,46 +360,53 @@
             }
         });
     });
+    $(".modal").click(function(e){
+        if($(e.target).hasClass("modal")){
+            $(".modal").hide();
+            calendar.unselect();
+        }
+    });
 	});
     
     
             
     </script>
-    </div>
-<div class="container modal">
-    <div class="modal-content">
+<div class="modal">
+    <div class="gw-list-panel modal-content">
 
-        <h3>일정 등록</h3>
+<div class="cell center">
+    <h2>일정 등록</h2>
+</div>
 
         <div class="cell">
             <label>일정 제목</label>
-            <input type="text" name="eventTitle" class="field w-100">
+            <input type="text" name="eventTitle" class="gw-form-input field">
             <div class="success-feedback"></div>
             <div class="fail-feedback"></div>
         </div>
 
         <div class="cell">
             <label>일정 내용</label>
-            <textarea name="eventContent" class="field w-100"></textarea>
+            <textarea name="eventContent" class="gw-form-input field"></textarea>
         </div>
 
         <div class="cell">
             <label>시작일시</label>
-            <input type="datetime-local" name="eventStart" class="field w-100">
+            <input type="datetime-local" name="eventStart" class="gw-form-input field">
             <div class="success-feedback"></div>
             <div class="fail-feedback"></div>
         </div>
 
         <div class="cell">
             <label>종료일시</label>
-            <input type="datetime-local" name="eventEnd" class="field w-100">
+            <input type="datetime-local" name="eventEnd" class="gw-form-input field">
             <div class="success-feedback"></div>
             <div class="fail-feedback"></div>
         </div>
 
         <div class="cell">
             <label>일정 분류</label>
-            <select name="eventCategory" class="field w-100">
+            <select name="eventCategory" class="gw-form-input field">
                 <option value="개인일정">개인일정</option>
                 <option value="사내일정">사내일정</option>
             </select>
@@ -381,54 +414,89 @@
             <div class="fail-feedback"></div>
         </div>
 
-        <button type="submit" class="btn btn-positive save-btn">저장</button>
-        <button type="button" class="btn btn-neutral close-btn">닫기</button>
+        <div style="
+		    display:flex;
+		    justify-content:center;
+		    gap:10px;
+		    margin-top:20px;
+		">
+		
+		    <button type="button"
+		            class="gw-btn-primary save-btn">
+		        저장
+		    </button>
+		
+		    <button type="button"
+		            class="gw-btn-outline close-btn">
+		        닫기
+		    </button>
+
+</div>
 
     </div>
 </div>
 
-<div class="container detail-modal">
-    <div class="modal-content">
+<div class="detail-modal">
+    <div class="gw-list-panel modal-content">
 
-        <h3>일정 상세정보</h3>
+       <div class="cell center">
+		    <h2>일정 상세정보</h2>
+		</div>
 
         <div class="cell">
             <label>제목</label>
-            <input type="text" class="field w-100 detail-title">
+            <input type="text" class="gw-form-input field detail-title">
         </div>
 
         <div class="cell">
             <label>내용</label>
-            <textarea class="field w-100 detail-content"></textarea>
+            <textarea class="gw-form-input field detail-content" rows="4"></textarea>
         </div>
 
         <div class="cell">
             <label>시작일시</label>
-            <input type="datetime-local" class="field w-100 detail-start">
+            <input type="datetime-local" class="gw-form-input field detail-start">
         </div>
 
         <div class="cell">
             <label>종료일시</label>
-            <input type="datetime-local" class="field w-100 detail-end">
+            <input type="datetime-local" class="gw-form-input field detail-end">
         </div>
 
         <div class="cell">
         	<label>일정 분류</label>
-            <select class="field w-100 detail-category">
+            <select class="gw-form-select detail-category">
                 <option value="개인일정">개인일정</option>
                 <option value="사내일정">사내일정</option>
             </select>
         </div>
 
-		<button type="button" class="btn btn-positive edit-btn">
-    		수정
-		</button>
-		<button type="button" class="btn btn-negative delete-btn">
-    		삭제
-		</button>
-        <button type="button" class="btn btn-neutral detail-close-btn">
-            닫기
-        </button>
+		<div style="
+		    display:flex;
+		    justify-content:center;
+		    gap:10px;
+		    margin-top:20px;
+		    flex-wrap:wrap;
+		">
+		
+		    <button type="button"
+		            class="gw-btn-primary edit-btn">
+		        <i class="fa-solid fa-pen"></i>
+		        수정
+		    </button>
+		
+		    <button type="button"
+		            class="gw-btn-danger delete-btn">
+		        <i class="fa-solid fa-trash"></i>
+		        삭제
+		    </button>
+		
+		    <button type="button"
+		            class="gw-btn-outline detail-close-btn">
+		        닫기
+		    </button>
+
+</div>
 
     </div>
 </div>
@@ -438,4 +506,4 @@
 
 
 
-<jsp:include page="/WEB-INF/views/template/footer.jsp"></jsp:include>
+<jsp:include page="/WEB-INF/views/template/footer2.jsp"></jsp:include>
