@@ -12,7 +12,7 @@
     </div>
 
     <div class="gw-search-panel pds-width">
-        <form action="./list" method="get" class="gw-search-form">
+        <form action="./list" method="get" class="gw-search-form" autocomplete="off">
             <select name="column" class="gw-form-select">
                 <option value="pds_title" ${param.column == 'pds_title' ? 'selected':''}>제목</option>
                 <option value="title_content" ${param.column == 'title_content' ? 'selected':''}>제목+내용</option>

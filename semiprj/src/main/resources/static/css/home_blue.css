@@ -1518,6 +1518,121 @@ button {
 	margin-right: auto;
 }
 
+/* =========================
+   Notification List Page
+========================= */
+.gw-tab-panel {
+    margin-top: 24px;
+    padding: 0 0 10px;
+    border-bottom: 1px solid #dfe6f1;
+}
+
+.gw-tabs {
+    display: flex;
+    align-items: center;
+    gap: 34px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.gw-tab {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+
+    padding: 0 0 14px;
+    border: none;
+    background: transparent;
+
+    color: #5f6f85;
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+
+    cursor: pointer;
+    transition: 0.2s ease;
+    
+    list-style: none;
+}
+
+.gw-tab:hover {
+    color: #2563eb;
+}
+
+.gw-tab.active {
+    color: #2563eb;
+    font-weight: 700;
+}
+
+.gw-tab.active::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -11px;
+
+    height: 3px;
+    border-radius: 999px;
+    background-color: #2563eb;
+}
+
+.gw-tab i {
+    font-size: 15px;
+}
+
+.gw-tab-count {
+    color: inherit;
+    font-weight: 700;
+}
+
+.gw-read {
+    opacity: 0.6;
+}
+
+.gw-read td {
+    color: #8b95a1;
+}
+
+.gw-read a {
+    color: #8b95a1;
+}
+
+/* 무한스크롤 관련 */
+.gw-scroll-state {
+    padding: 18px 0 6px;
+}
+
+.gw-scroll-end {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    color: #6b7280;
+}
+
+.gw-scroll-end span {
+    width: 80px;
+    height: 1px;
+}
+
+.gw-scroll-end p {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+    white-space: nowrap;
+}
+
+.gw-scroll-end i {
+    font-size: 14px;
+    color: #2563eb;
+}
+
 /* 근태 카드 전용 */
 .attendance-summary{
     display:flex;
@@ -1631,6 +1746,7 @@ button {
     - 200px ~ 1200px까지 구현
     - w-* 로 구현
 */
+.w-150 { width:150px !important; }
 .w-200 { width:200px !important; }
 .w-250 { width:250px !important; }
 .w-300 { width:300px !important; }
