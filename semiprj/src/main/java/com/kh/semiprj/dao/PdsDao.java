@@ -100,6 +100,9 @@ public class PdsDao {
 		if(column.equals("title_content")) {
 		    column = "pds_title || ' ' || pds_content";
 		}
+		if(column.equals("pds_writer")) {
+		    column = "emp_name";
+		}
 		
 		String sql = "select * from ("
 				+ "select rownum rn, TMP.* from ("

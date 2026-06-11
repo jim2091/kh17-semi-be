@@ -135,11 +135,16 @@ public class PdsController {
 		return "redirect:./list";
 	}
 	@RequestMapping("/deleteAll")
-	public String deleteAll(@RequestParam List<Integer> pdsNoList) {
+	public String deleteAll(@RequestParam(required=false) List<Integer> pdsNoList) {
+		if (pdsNoList == null || pdsNoList.isEmpty()) {
+			return "redirect:./list";
+		}
+		
 		for(Integer pdsNo : pdsNoList)	{
 			PdsDto pdsDto = pdsDao.selectOne(pdsNo);
 			if(pdsDto == null) throw new TargetNotfoundException("존재하지 않는 게시글이 포함되어있습니다");
 		}
+		
 		for(Integer pdsNo : pdsNoList)	{
 			pdsDao.delete(pdsNo);
 		}
