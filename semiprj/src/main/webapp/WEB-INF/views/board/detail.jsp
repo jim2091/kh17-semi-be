@@ -1,23 +1,34 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-    
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-
-<jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
-<jsp:include page="/WEB-INF/views/template/side_board.jsp"></jsp:include>
+<jsp:include page="/WEB-INF/views/template/header2.jsp"></jsp:include>
 
 <style>
+	.board-head {
+	    display: inline-flex;
+	    justify-content: center;
+	    min-width: 58px;
+	    padding: 5px 9px;
+	    border-radius: 999px;
+	    background: var(--main-light);
+	    color: var(--main-color);
+	    font-size: 12px;
+	    font-weight: 900;
+	}
 	.reply-viewer, .reply-editor {
 		display:flex;
-		padding:15px;
-		box-shadow: 0 0 0 1px lightgray;
+		padding:20px;
+		border:1px solid #e5e7eb;
+	    border-radius:12px;
+	    margin-bottom:10px;
+	    background:white;
 	}
 	.reply-viewer > .profile-wrapper,
 	.reply-editor > .profile-wrapper {
-		width:100px;
-		min-width:100px;
+		width:60px;
+		min-width:60px;
 		flex-shrink:0;
 	}
 	.reply-viewer > .profile-wrapper > img,
@@ -30,32 +41,147 @@
 	.reply-editor > .content-wrapper {
 		flex-grow: 1;
 	}
-	.badge {
-	padding:0.2em;
-	border:1px solid gray;
-	border-radius:0.2em;
+	.field-reply{
+	    border-radius:12px !important;
 	}
-	.badge.blue { border-color: #0984e3 !important; }
-	.badge.silver { border-color: #BDC3C7 !important; }
-	.edited-tag {
-	    color: gray;
-	    font-size: 12px;
-	    margin-left: 5px;
+	
+	.reply-length{
+	    margin-top:8px;
+	
+	    text-align:right;
+	
+	    color:#64748b;
+	
+	    font-size:13px;
+	}
+	.board-writer{
+	    display:inline-block;
+	    margin-left:8px;
+	    padding:2px 8px;
+	    border-radius:999px;
+	    background:#dbeafe;
+	    color:#2563eb;
+	    font-size:11px;
+	    font-weight:700;
 	}
 	.child-reply{
-	    margin-left:60px;
-	    border-left:2px solid #ddd;
-	    padding-left:15px;
+	    margin-left:50px;
+	    padding-left:20px;
+	    border-left:3px solid #dbeafe;
+	    background:#fafcff;
+	}
+	.gw-like-btn{
+	    border:none;
+	    background:#fff1f2;
+	    color:#e11d48;
+	    border-radius:999px;
+	    padding:8px 16px;
 	}
 	.reply-content{
-    white-space: pre-wrap;
-    overflow-wrap: break-word;
+    	white-space: pre-wrap;
+    	overflow-wrap: break-word;
+	}
+
+
+.gw-content-box img{
+    max-width:100%;
+    border-radius:10px;
+}
+
+.gw-content-box p{
+    margin:10px 0;
+}
+.gw-reaction-bar{
+    display:flex;
+    align-items:center;
+    gap:15px;
+    padding:15px 0;
+}
+.gw-form-actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+
+    margin-top:25px;
+}
+.gw-reaction-item{
+    display:flex;
+    align-items:center;
+    gap:6px;
+
+    padding:8px 16px;
+
+    border-radius:999px;
+
+    background:#f8fafc;
+
+    font-weight:600;
+}
+
+.gw-reaction-item .fa-heart{
+    cursor:pointer;
+}
+.image-profile{
+    width:60px !important;
+    height:60px !important;
+
+    border-radius:50%;
+
+    object-fit:cover;
+}
+.reply-section-title{
+    margin:30px 0 15px;
+
+    font-size:18px;
+    font-weight:700;
+}
+
+.reply-section-title span{
+    color:var(--main-color);
+    font-weight:900;
+}
+.flex-area{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.button-wrapper{
+    display:flex;
+    justify-content:flex-end;
+    align-items:center;
+    gap:12px;
+}
+.reply-content{
+    margin-top:12px;
+    line-height:1.7;
+    white-space:pre-wrap;
+    font-size:14px;
+    border:none;
+    background:none;
+}
+.btn-reply-child{
+    cursor:pointer;
+    color:var(--main-color);
+    font-weight:600;
+    font-size:13px;
+}
+
+.btn-reply-child:hover{
+    text-decoration:underline;
+}
+.btn-reply-edit,
+.btn-reply-delete{
+    cursor:pointer;
+    padding:5px;
+    border-radius:6px;
+}
+
+.btn-reply-edit:hover,
+.btn-reply-delete:hover{
+    background:#f1f5f9;
 }
 </style>
-<script>
-	console.log("loginRole =", "${sessionScope.loginRole}");
-	console.log("masterToggle =", "${sessionScope.masterToggle}");
-</script>
 
 <!-- 게시글 삭제 시 한번 더 물어보는 확인창 -->
 <script>
@@ -336,7 +462,7 @@ $(function(){
 		<div class="content-wrapper ms-20">
 			<h3 class="mt-0 mb-0">
 				<span class="reply-writer">아이디</span>
-				<span class="board-writer red">(작성자)</span>
+				<span class="board-writer red">작성자</span>
 			</h3>
 			<pre class="mt-10 mb-0 reply-content">내용 샘플</pre>
 			<div class="mt-20 flex-area">
@@ -345,7 +471,7 @@ $(function(){
 					<span class="edited-tag"></span>
 				</div>
 				<div class="button-wrapper right w-50">
-				    <span class="btn-reply-child">답글</span>
+				    <span class="btn-reply-child"><i class="fa-solid fa-reply"></i>댓글</span>
 				    <span class="owner-menu">
 				        <i class="fa-solid fa-edit orange btn-reply-edit"></i>
 				        <i class="fa-solid fa-trash red btn-reply-delete"></i>
@@ -395,117 +521,151 @@ $(function(){
 	</div>
 </script>
 
-<div class="container w-800 mt-50 mb-50">
-	<div class="cell">
-		<div class="flex-area" style="align-items:end">
-			<div>
-				<h1 class="mt-0 mb-0">
-					<!-- 게시글 종류, 제목 -->
-					<div class="cell">
-						<span class="badge silver me-10">${boardDto.boardHead}</span> ${boardDto.boardTitle}
-					</div>
-				</h1>
-			</div>
-			<div class="ms-40">
-				<!-- 게시글 작성자 -->
-				<c:choose>
-					<c:when test="${boardDto.boardWriter == null}">
-						(퇴사한 사용자)
-					</c:when>
-				    <c:when test="${boardDto.boardType eq '익명'}">
-				        익명
-				    </c:when>
-				    <c:otherwise>
-				        <!-- 링크 누르면 사원 상세 정보 페이지로 이동 -->
-						<a href="/emp/detail?empNo=${boardDto.boardWriter}" class="link">
-							${boardDto.empName}
-						</a>
-				    </c:otherwise>
-				</c:choose>
-			</div>
-		</div>
-	</div>
-	
-	<!-- 작성일/조회수 -->
-	<div class="cell mt-20 flex-area">
-		<div><fmt:formatDate value="${boardDto.boardWtime}" pattern="yyyy-MM-dd HH:mm"></fmt:formatDate></div>
-		<div class="ms-20">조회수 ${boardDto.boardReadcount}</div>
-	</div>
-	
-	<!-- 관리자 + 작성자와 로그인 한 아이디가 같은 경우 보이는 버튼 -->
-	<div class="cell right">
-		<c:if test="${boardDto.empId == sessionScope.loginId || sessionScope.loginRole == '관리자'}">
-		<a class="btn btn-negative" href="./edit?boardNo=${boardDto.boardNo}">수정하기</a>
-		<a class="btn btn-negative btn-content-delete" href="./delete?boardNo=${boardDto.boardNo}">삭제하기</a>
-		</c:if>
-	</div>
-	
-	<hr>
-	
-	<!-- 게시글 본문 -->
-	<div class="cell" style="min-height:300px">
-		<c:out value="${boardDto.boardContent}" escapeXml="false"/>
-	</div>
-	
-	<!-- 좋아요/댓글수 -->
-	<div class="cell mt-20 flex-area">
-		<div>
-			<i class="fa-regular fa-comment"></i>
-			댓글 
-			<span class="reply-count">${boardDto.boardReplycount}</span>
-		</div>
-		<div class="ms-20">
-			<i class="fa-solid fa-heart red"></i>
-			좋아요
-			<span class="heart-count">?</span>
-		</div>
-	</div>
-	
-	<!-- 댓글 -->
-	<div class="cell reply-area"></div>
-	<!-- 로그인한 경우 -->
-	<c:if test="${sessionScope.loginId != null}">
-		<div class="cell">
-			<textarea class="field w-100 field-reply" rows="4" maxlength="1500" placeholder="댓글 내용 작성"></textarea>
-			<div class="reply-length">0 / 500</div>
-			<button type="button" class="btn btn-positive w-100 mt-10 btn-reply">
-				<i class="fa-solid fa-pen"></i>
-				<span>댓글 작성하기</span>
-			</button>
-		</div>
-	</c:if>
-	<!-- 비로그인인 경우 -->
-	<c:if test="${sessionScope.loginId == null}">
-		<div class="cell">
-			<h3>댓글 작성은 <a href="/emp/login">로그인</a> 한 사람만 가능합니다.</h3>
-		</div>
-	</c:if>
-	
-	<hr class="mt-20">
-	
-	<!-- 이전글/다음글 -->
-	<div class="cell">
-		<span class="badge blue me-10">이전글</span> 
-		<a href="./detail?boardNo=${prevBoardDto.boardNo}" class="link">${prevBoardDto.boardTitle}</a>	
-	</div>
-	<div class="cell">
-		<span class="badge blue me-10">다음글</span>
-		<a href="./detail?boardNo=${nextBoardDto.boardNo}" class="link">${nextBoardDto.boardTitle}</a>	
-	</div>
-	
-	<hr class="mb-20">
-	
-	<!-- 버튼 -->
-	<div class="cell right">
-		<!-- 로그인 한 경우 보이는 버튼 -->
-		<c:if test="${sessionScope.loginId != null}">
-			<a class="btn btn-positive" href="./write">글쓰기</a>
-			<c:if test="${!(boardDto.boardType eq '비밀' and boardDto.boardParent ne null)}">
-			<a class="btn btn-positive" href="./write?boardParent=${boardDto.boardNo}">답글쓰기</a>
-			</c:if>
-		</c:if>
-		<a class="btn btn-neutral" href="./list">목록으로</a>
-	</div>
-</div>
+	<div class="gw-detail-panel pds-width">
 
-<jsp:include page="/WEB-INF/views/template/footer.jsp"></jsp:include>
+        <div class="gw-page-head">
+		    <div class="gw-breadcrumb">홈 / 게시판 / 상세보기</div>
+			<span class="board-head">${boardDto.boardHead}</span>
+			<h1>${boardDto.boardTitle}</h1>
+		</div>
+		
+		<div class="gw-form-panel">
+		    
+		    <!-- 작성자 / 날짜 / 조회수 -->
+		    <div class="gw-detail-info">
+		        <div class="gw-detail-author">
+		            <i class="fa-regular fa-user"></i>
+
+					<!-- 게시글 작성자 -->
+					<c:choose>
+						<c:when test="${boardDto.boardWriter == null}">
+							<span class="gw-muted">(탈퇴한 사용자)</span>
+						</c:when>
+					    <c:when test="${boardDto.boardType eq '익명'}">
+					        <span class="gw-muted">익명</span>
+					    </c:when>
+					    <c:otherwise>
+					        <!-- 링크 누르면 사원 상세 정보 페이지로 이동 -->
+							<a href="/emp/detail?empNo=${boardDto.boardWriter}" class="gw-table-link">
+								${boardDto.empName}
+							</a>
+					    </c:otherwise>
+					</c:choose>
+				</div>
+				
+				<div class="gw-detail-meta">
+		            <span>
+		                <i class="fa-regular fa-calendar"></i>
+		                <fmt:formatDate value="${boardDto.boardWtime}" pattern="yyyy-MM-dd HH:mm"/>
+		            </span>
+		            <span>
+		                <i class="fa-regular fa-eye"></i>
+		                ${boardDto.boardReadcount}
+		            </span>
+		        </div>
+		    </div>
+		    
+		    <!-- 본문 -->
+		    <div class="gw-form-row">
+		        <label class="gw-form-label">내용</label>
+		        <div class="gw-content-box">
+		            <pre>${boardDto.boardContent}</pre>
+		        </div>
+		    </div>
+		    
+		    <!-- 좋아요/댓글수 -->
+			<div class="gw-reaction-bar">
+				<div class="gw-reaction-item">
+					<i class="fa-regular fa-comment"></i>
+						댓글 
+					<span class="reply-count">${boardDto.boardReplycount}</span>
+				</div>
+				<div class="gw-reaction-item">
+					<i class="fa-solid fa-heart red"></i> 
+					좋아요
+					<span class="heart-count">?</span>
+				</div>
+			</div>
+			
+			<!-- 댓글 -->
+			<h3 class="reply-section-title">
+			    댓글
+			    <span class="reply-count">
+			        ${boardDto.boardReplycount}
+			    </span>
+			</h3>
+			<div class="cell reply-area"></div>
+			<!-- 로그인한 경우 -->
+			<c:if test="${sessionScope.loginId != null}">
+				<div class="gw-form-row">
+					<textarea class="field w-100 field-reply" rows="4" maxlength="1500" placeholder="댓글 내용 작성"></textarea>
+					<div class="reply-length">0 / 500</div>
+					<button type="button" class="gw-btn-outline w-100 mt-10 btn-reply">
+						<i class="fa-solid fa-pen"></i>
+						<span>댓글 작성하기</span>
+					</button>
+				</div>
+			</c:if>
+			<!-- 비로그인인 경우 -->
+			<c:if test="${sessionScope.loginId == null}">
+				<div class="cell">
+					<h3>댓글 작성은 <a href="/emp/login">로그인</a> 한 사람만 가능합니다.</h3>
+				</div>
+			</c:if>
+		    
+		    <!-- 이전글 / 다음글 -->
+		    <div class="gw-form-row">
+		        <label class="gw-form-label">이전 글 / 다음 글</label>
+		        <div class="gw-nav-box">
+		
+		            <div class="gw-nav-row">
+		                <span class="gw-nav-label">이전글</span>
+		                <c:if test="${prevBoardDto != null}">
+		                    <a href="./detail?boardNo=${prevBoardDto.boardNo}" class="gw-table-link">
+		                        ${prevBoardDto.boardTitle}
+		                    </a>
+		                </c:if>
+		            </div>
+		
+		            <div class="gw-nav-row">
+		                <span class="gw-nav-label">다음글</span>
+		                <c:if test="${nextBoardDto != null}">
+		                    <a href="./detail?boardNo=${nextBoardDto.boardNo}" class="gw-table-link">
+		                        ${nextBoardDto.boardTitle}
+		                    </a>
+		                </c:if>
+		            </div>
+		        </div>
+		    </div>
+		    
+		    <!-- 버튼 -->
+		    <div class="gw-form-actions">
+				<!-- 로그인 한 경우 보이는 버튼 -->
+				<c:if test="${sessionScope.loginId != null}">
+				<a href="./write" class="gw-btn-outline">글쓰기</a>
+					<c:if test="${!(boardDto.boardType eq '비밀' and boardDto.boardParent ne null)}">
+					<a href="./write?boardParent=${boardDto.boardNo}" class="gw-btn-outline">답글쓰기</a>
+					</c:if>
+				</c:if>
+		    	
+		        <a href="./list" class="gw-btn-outline">
+		            <i class="fa-solid fa-list"></i>
+		            <span>목록으로</span>
+		        </a>
+				<c:if test="${boardDto.empId == sessionScope.loginId || sessionScope.loginRole == '관리자'}">
+		        <a href="./edit?boardNo=${boardDto.boardNo}" class="gw-btn-outline">
+		            <i class="fa-solid fa-pen"></i>
+		            <span>수정하기</span>
+		        </a>
+		
+		        <a href="./delete?boardNo=${boardDto.boardNo}"
+		           class="gw-btn-danger btn-content-delete">
+		            <i class="fa-regular fa-trash-can"></i>
+		            <span>삭제하기</span>
+		        </a>
+		        </c:if>
+		    </div>    
+		</div>
+	</div>
+
+<jsp:include page="/WEB-INF/views/template/footer2.jsp"></jsp:include>
