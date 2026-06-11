@@ -86,10 +86,6 @@
                                    class="gw-table-link">
                                     ${pdsDto.pdsTitle}
                                 </a>
-                                
-                                <c:if test="${pdsDto.newPost}">
-                                	<span class="gw-new-badge">NEW</span>
-                                </c:if>
                             </td>
 
                             <td>
@@ -164,17 +160,6 @@ $(function(){
         $(".check-all").prop("checked",
             $("input[name=pdsNoList]").length == $("input[name=pdsNoList]:checked").length
         );
-    });
-    
-    //삭제 버튼 관련 처리
-    $("form[action='./deleteAll']").submit(function(e){
-    	if($("input[name=pdsNoList]:checked").length == 0){
-    		alert("삭제할 자료를 선택하세요.");
-    		e.preventDefault();
-    		return;
-    	}
-    	
-    	return confirm("선택한 자료를 삭제하시겠습니까?");
     });
 });
 </script>

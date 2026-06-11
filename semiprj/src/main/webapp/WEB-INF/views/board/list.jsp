@@ -127,17 +127,17 @@
 	                <span>글쓰기</span>
 	            </a>
 	        </c:if>
-	    </div>
-	</div>
+		    </div>
+		</div>
 
     <table class="gw-table pds-table">
    		<thead>
    			<tr>
    				<th style="width:10%;">종류</th>
-                   <th style="width:50%;">제목</th>
-                   <th style="width:15%;">작성자</th>
-                   <th style="width:10%;">조회수</th>
-                   <th style="width:15%;">작성일</th>
+                <th style="width:50%;">제목</th>
+                <th style="width:15%;">작성자</th>
+                <th style="width:10%;">조회수</th>
+                <th style="width:15%;">작성일</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -179,7 +179,7 @@
 				<td>
 					<c:choose>
 						<c:when test="${boardDto.boardWriter == null}">
-							<span class="gw-muted">(탈퇴한 사용자)</span>
+							<span class="gw-muted">(퇴사한 사용자)</span>
 						</c:when>
 					    <c:when test="${boardDto.boardType eq '익명'}">
 					        <span class="gw-muted">익명</span>
@@ -201,9 +201,10 @@
 			
 			<c:if test="${empty list}">
 			    <tr>
-			        <td colspan="${sessionScope.loginRole == '관리자' ? 6 : 5}" class="gw-table-empty">
-			            조회된 자료가 없습니다.
-			        </td>
+			        <td colspan="5"
+						style="padding: 40px; text-align: center; color: #aaa;">
+						조회된 자료가 없습니다.
+					</td>
 			    </tr>
 			</c:if>
            </tbody>
