@@ -5,6 +5,10 @@
 
 <jsp:include page="/WEB-INF/views/template/header2.jsp"></jsp:include>
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightpick/1.6.2/css/lightpick.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lightpick/1.6.2/lightpick.min.js"></script>
+
 <script>
 function showSelected(order) {
     let select = document.getElementById("approver" + order);
@@ -24,16 +28,9 @@ function validateForm() {
     return true;
 }
 
-window.onload = function() {
-    let today = new Date();
-    let yyyy = today.getFullYear();
-    let mm = String(today.getMonth() + 1).padStart(2, '0');
-    let dd = String(today.getDate()).padStart(2, '0');
-    document.querySelector("input[name='appDate']").value = yyyy + "-" + mm + "-" + dd;
-};
 
 $(function(){
-    // 1. 기존 상태 객체에 휴가 날짜 상태 추가
+    // 1. 상태 객체
     var state = {
         vacStartDateValid : false,
         vacEndDateValid : false,
@@ -46,19 +43,45 @@ $(function(){
     };
 
     // 오늘 날짜를 기안일(appDate)에 기본값으로 세팅
-    var today = new Date().toISOString().split('T')[0];
+    var today = moment().format("YYYY-MM-DD");
     $("[name=appDate]").val(today);
+
+    var startPicker = new Lightpick({
+        field: $("[name=vacStartDate]")[0],
+        format: "YYYY-MM-DD",
+        firstDay: 7,
+        minDate: moment(), // 오늘부터 미래만 선택 가능
+        onError: function(message) {
+            console.error("Lightpick 에러:", message);
+            $("[name=vacStartDate]").val(moment().format("YYYY-MM-DD"));
+        },
+        onSelect: function(date){
+            $("[name=vacStartDate]").trigger("change");
+        }
+    });
+
+    var endPicker = new Lightpick({
+        field: $("[name=vacEndDate]")[0],
+        format: "YYYY-MM-DD",
+        firstDay: 7,
+        minDate: moment(), // 종료일도 기본적으로 오늘부터 선택 가능
+        onError: function(message) {
+            console.error("Lightpick 에러:", message);
+            $("[name=vacEndDate]").val(moment().format("YYYY-MM-DD"));
+        },
+        onSelect: function(date){
+            $("[name=vacEndDate]").trigger("change");
+        }
+    });
 
     // 2. 휴가 시작일 변경 시 검사
     $("[name=vacStartDate]").on("change", function(){
-        // [수정] vacDate -> appDate로 오타 수정
         var appDate = $("[name=appDate]").val() || today; 
         var startDate = $(this).val();
         var endDate = $("[name=vacEndDate]").val();
 
-        // 날짜를 입력 안 하고 지웠을 때의 방어 코드 추가
         if(!startDate) {
-            $(this).removeClass("success fail");
+            $(this).removeClass("success fail").removeAttr("data-error");
             state.vacStartDateValid = false;
             return;
         }
@@ -67,12 +90,12 @@ $(function(){
             $(this).removeClass("success fail").addClass("fail").attr("data-error", "1");
             state.vacStartDateValid = false;
         } else {
-            // [수정] removeAttribute -> removeAttr로 변경
             $(this).removeClass("success fail").addClass("success").removeAttr("data-error");
             state.vacStartDateValid = true;
+            
+            endPicker.setMinDate(moment(startDate));
         }
 
-        // [연쇄 반응] 시작일이 바뀌면 종료일도 다시 한번 검사해줘야 함
         if(endDate) {
             $("[name=vacEndDate]").trigger("change");
         }
@@ -84,40 +107,40 @@ $(function(){
         var endDate = $(this).val();
 
         if(!endDate) {
-            $(this).removeClass("success fail");
+            $(this).removeClass("success fail").removeAttr("data-error");
             state.vacEndDateValid = false;
             return;
         }
 
         if(!startDate) {
-            $(this).removeClass("success fail");
+            $(this).removeClass("success fail").removeAttr("data-error");
             state.vacEndDateValid = false;
             return;
         }
 
         if(endDate < startDate) {
-            $(this).removeClass("success fail").addClass("fail").attr("data-error", "2");
+            $(this).removeClass("success fail").addClass("fail").attr("data-error", "1");
             state.vacEndDateValid = false;
         } else {
-            // [수정] removeAttribute -> removeAttr로 변경
             $(this).removeClass("success fail").addClass("success").removeAttr("data-error");
             state.vacEndDateValid = true;
         }
     });
 
     // 4. 폼 서밋 시 최종 차단
-    // HTML의 <form id="vacationForm"> 과 ID가 일치하는지 확인 필수!
     $("#vacationForm").on("submit", function(e){
         if(state.ok() == false) {
-            e.preventDefault(); // 전송 막기
-            alert("휴가 신청 날짜 형식을 확인해 주세요.");
+            e.preventDefault(); 
+            $("[name=vacStartDate]").trigger("change");
+            $("[name=vacEndDate]").trigger("change");
+            $(".field.fail").first().focus();
         }
     });
 });
 </script>
 
-<form action="./vacInsert" method="post" autocomplete="off" id="vacationForm"
-	onsubmit="return validateForm();">
+<form action="./vacInsert" method="post" autocomplete="off"
+	id="vacationForm" onsubmit="return validateForm();">
 	<div class="cell center">
 		<h1>휴가신청서</h1>
 	</div>
@@ -156,8 +179,8 @@ $(function(){
 				</div>
 			</c:forEach>
 		</div>
-		
-		
+
+
 		<%-- 에러 메시지 --%>
 		<c:if test="${not empty errorMsg}">
 			<div
@@ -174,13 +197,23 @@ $(function(){
 			<label>기안일</label> <input type="date" name="appDate"
 				class="field w-60" readonly>
 		</div>
+
 		<div class="cell mt-40">
-			<label>휴가시작일</label> <input type="date" name="vacStartDate"
-				class="field w-60" required>
+			<label>휴가시작일</label> 
+			<input type="text" name="vacStartDate" class="field w-60" required placeholder="YYYY-MM-DD">
+
+			<div class="fail-feedback">
+				<div>휴가 시작일은 기안일(오늘) 이후여야 합니다.</div>
+			</div>
 		</div>
+
 		<div class="cell mt-40">
-			<label>휴가종료일</label> <input type="date" name="vacEndDate"
-				class="field w-60" required>
+			<label>휴가종료일</label> 
+			<input type="text" name="vacEndDate" class="field w-60" required placeholder="YYYY-MM-DD">
+
+			<div class="fail-feedback">
+				<div>휴가 종료일은 시작일보다 빠를 수 없습니다.</div>
+			</div>
 		</div>
 		<div class="form-row">
 			<label>휴가구분 <span class="required">*</span></label>
@@ -197,8 +230,6 @@ $(function(){
 				</label>
 			</div>
 		</div>
-
-
 
 		<div class="cell center">
 			<button class="btn" type="submit">기안</button>

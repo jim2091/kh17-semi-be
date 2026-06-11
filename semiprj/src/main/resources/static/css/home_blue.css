@@ -1741,4 +1741,8 @@ select.field {
 .field.fail {
     background-image: url("https://cdn.jsdelivr.net/gh/hiphop5782/cdn2/invalid.png");
     border-color: #d63031;
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> refs/heads/main

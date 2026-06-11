@@ -68,6 +68,10 @@
 	            <i class="fa-solid fa-clock"></i>
 	            <span>근태관리</span>
 	        </a>
+	        <a href="/admin/app/list">
+	           <i class="fa-solid fa-file-shield"></i>
+	            <span>결재관리</span>
+	        </a>
 		</c:if>
 		
     </div>
