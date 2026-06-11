@@ -5,6 +5,10 @@
 
 <jsp:include page="/WEB-INF/views/template/header2.jsp"></jsp:include>
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightpick/1.6.2/css/lightpick.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lightpick/1.6.2/lightpick.min.js"></script>
+
 <script>
 function showSelected(order) {
     let select = document.getElementById("approver" + order);
@@ -24,13 +28,6 @@ function validateForm() {
     return true;
 }
 
-window.onload = function() {
-    let today = new Date();
-    let yyyy = today.getFullYear();
-    let mm = String(today.getMonth() + 1).padStart(2, '0');
-    let dd = String(today.getDate()).padStart(2, '0');
-    document.querySelector("input[name='appDate']").value = yyyy + "-" + mm + "-" + dd;
-};
 
 $(function(){
     // 1. 상태 객체
@@ -46,8 +43,36 @@ $(function(){
     };
 
     // 오늘 날짜를 기안일(appDate)에 기본값으로 세팅
-    var today = new Date().toISOString().split('T')[0];
+    var today = moment().format("YYYY-MM-DD");
     $("[name=appDate]").val(today);
+
+    var startPicker = new Lightpick({
+        field: $("[name=vacStartDate]")[0],
+        format: "YYYY-MM-DD",
+        firstDay: 7,
+        minDate: moment(), // 오늘부터 미래만 선택 가능
+        onError: function(message) {
+            console.error("Lightpick 에러:", message);
+            $("[name=vacStartDate]").val(moment().format("YYYY-MM-DD"));
+        },
+        onSelect: function(date){
+            $("[name=vacStartDate]").trigger("change");
+        }
+    });
+
+    var endPicker = new Lightpick({
+        field: $("[name=vacEndDate]")[0],
+        format: "YYYY-MM-DD",
+        firstDay: 7,
+        minDate: moment(), // 종료일도 기본적으로 오늘부터 선택 가능
+        onError: function(message) {
+            console.error("Lightpick 에러:", message);
+            $("[name=vacEndDate]").val(moment().format("YYYY-MM-DD"));
+        },
+        onSelect: function(date){
+            $("[name=vacEndDate]").trigger("change");
+        }
+    });
 
     // 2. 휴가 시작일 변경 시 검사
     $("[name=vacStartDate]").on("change", function(){
@@ -62,14 +87,13 @@ $(function(){
         }
 
         if(startDate < appDate) {
-            // [작동] .fail 클래스가 붙고 data-error가 1이 되는 순간, 
-            // CSS에 의해 X 아이콘 배경이 깔리고 첫 번째 에러 div가 노출됩니다.
             $(this).removeClass("success fail").addClass("fail").attr("data-error", "1");
             state.vacStartDateValid = false;
         } else {
-            // [작동] .success 클래스가 붙는 순간, 체크 아이콘 배경이 깔리고 에러는 숨겨집니다.
             $(this).removeClass("success fail").addClass("success").removeAttr("data-error");
             state.vacStartDateValid = true;
+            
+            endPicker.setMinDate(moment(startDate));
         }
 
         if(endDate) {
@@ -95,7 +119,6 @@ $(function(){
         }
 
         if(endDate < startDate) {
-            // [작동] 종료일이 시작일보다 빠르면 에러 1번(첫 번째 자식 div) 표시
             $(this).removeClass("success fail").addClass("fail").attr("data-error", "1");
             state.vacEndDateValid = false;
         } else {
@@ -108,12 +131,8 @@ $(function(){
     $("#vacationForm").on("submit", function(e){
         if(state.ok() == false) {
             e.preventDefault(); 
-            
-            // 미입력 필드나 누락 필드에 에러 표시를 강제 트리거
             $("[name=vacStartDate]").trigger("change");
             $("[name=vacEndDate]").trigger("change");
-            
-            // 첫 번째 에러 필드로 포커스 이동 (방어 UX)
             $(".field.fail").first().focus();
         }
     });
@@ -180,8 +199,8 @@ $(function(){
 		</div>
 
 		<div class="cell mt-40">
-			<label>휴가시작일</label> <input type="date" name="vacStartDate"
-				class="field w-60" required>
+			<label>휴가시작일</label> 
+			<input type="text" name="vacStartDate" class="field w-60" required placeholder="YYYY-MM-DD">
 
 			<div class="fail-feedback">
 				<div>휴가 시작일은 기안일(오늘) 이후여야 합니다.</div>
@@ -189,8 +208,8 @@ $(function(){
 		</div>
 
 		<div class="cell mt-40">
-			<label>휴가종료일</label> <input type="date" name="vacEndDate"
-				class="field w-60" required>
+			<label>휴가종료일</label> 
+			<input type="text" name="vacEndDate" class="field w-60" required placeholder="YYYY-MM-DD">
 
 			<div class="fail-feedback">
 				<div>휴가 종료일은 시작일보다 빠를 수 없습니다.</div>
@@ -211,8 +230,6 @@ $(function(){
 				</label>
 			</div>
 		</div>
-
-
 
 		<div class="cell center">
 			<button class="btn" type="submit">기안</button>
