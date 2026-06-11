@@ -119,7 +119,13 @@ $(function(){
                     .trim();
 
                 $(".text-length span").text(text.length);
-            }
+            },
+			onImageUpload : function(files){
+				for(var i = 0; i < files.length; i++){
+					uploadImage(files[i]);
+				}
+			}
+
         }
     });
     
@@ -178,7 +184,9 @@ $(function(){
 
         return state.ok();
     });
-
+	
+    //함수들
+    
     function checkPdsContent(){
         var code = $("#summernote").summernote("code");
         var text = $("<div>").html(code).text().trim();
@@ -194,6 +202,30 @@ $(function(){
         state.pdsContentValid = valid;
 
         return valid;
+    }
+    
+    function uploadImage(file){
+    	//파일은 객체이기 때문에 data로 보낼때 폼을 객체로 만든 formData안에 넣어서 보내야함
+    	var formData = new FormData();
+    	formData.append("attach", file);
+    	
+    	$.ajax({
+    		url : "/rest/attach/upload",
+    		type : "post",
+    		data : formData,
+    		//파일 업로드시 거의 항상 붙는 설정
+    		processData : false,//jQuery가 FormData를 문자열로 바꾸지 않도록
+    		contentType : false,//브라우저가 자동으로 multipart/form-data 헤더를 설정하도록
+    		
+    		success : function(attachNo){
+				var imageUrl = "/download/image?attachNo=" + attachNo;
+				$("#summernote").summernote("insertImage", imageUrl);
+    		},
+    		error : function(){
+    			alert("이미지 업로드 실패")
+    		}
+    	});
+    	
     }
 
 });
