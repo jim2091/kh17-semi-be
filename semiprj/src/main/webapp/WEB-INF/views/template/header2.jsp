@@ -5,31 +5,46 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<title>KH 그룹웨어</title>
-
-<link rel="icon" href="/images/kh.jpg" type="image/jpeg">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
-<link rel="stylesheet" href="https://uicdn.toast.com/calendar/latest/toastui-calendar.min.css">
-
-<link rel="stylesheet" href="/css/home_blue.css" type="text/css">
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-<script src="https://uicdn.toast.com/tui.code-snippet/latest/tui-code-snippet.min.js"></script>
-<script src="https://uicdn.toast.com/calendar/latest/toastui-calendar.min.js"></script>
-
-<script>
-$(function(){
-    $("[name=managerToggle]").change(function(){
-        $.post("/menu/toggle", {
-            managerToggle : $(this).is(":checked")
-        }, function(){
-            location.reload();
-        });
-    });
-});
-</script>
-</head>
+	<meta charset="UTF-8">
+	<title>KH 그룹웨어</title>
+	<link rel="icon" href="/images/kh.jpg" type="image/jpeg">
+	
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+	<link rel="stylesheet" href="/css/home_blue.css" type="text/css">
+	
+	<!-- jQuery CDN -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+	
+	<!-- toastui-calendar CDN -->
+	<script src="https://uicdn.toast.com/tui.code-snippet/latest/tui-code-snippet.min.js"></script>
+	<script src="https://uicdn.toast.com/calendar/latest/toastui-calendar.min.js"></script>
+	<link rel="stylesheet" href="https://uicdn.toast.com/calendar/latest/toastui-calendar.min.css">
+	
+	<!-- lightpick CDN-->
+	<script src="https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/locale/ko.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/lightpick@1.6.2/lightpick.min.js"></script>
+	<link href="https://cdn.jsdelivr.net/npm/lightpick@1.6.2/css/lightpick.min.css" rel="stylesheet">
+	
+	<!-- Summernote -->
+	<link href="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote-lite.min.css" rel="stylesheet">
+	<script src="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote-lite.min.js"></script>
+	<!-- 한글 -->
+	<script src="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/lang/summernote-ko-KR.min.js"></script>
+	
+	
+	<script>
+		$(function(){
+		    $("[name=managerToggle]").change(function(){
+		        $.post("/menu/toggle", {
+		            managerToggle : $(this).is(":checked")
+		        }, function(){
+		            location.reload();
+		        });
+		    });
+		});
+	</script>
+	</head>
 
 <body>
 

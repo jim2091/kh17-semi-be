@@ -1219,6 +1219,257 @@ button {
     border-color: var(--main-color);
 }
 
+.gw-alert-panel {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--main-light);
+    color: var(--main-color);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 14px 18px;
+    margin-bottom: 18px;
+    font-weight: 700;
+}
+
+.gw-form-panel {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 18px;
+    box-shadow: 0 8px 22px var(--card-shadow);
+    padding: 26px;
+}
+
+.gw-form-row {
+    margin-bottom: 24px;
+}
+
+.gw-form-row:last-child {
+    margin-bottom: 0;
+}
+
+.gw-form-label-wrap {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.gw-form-label {
+    display: block;
+    color: var(--card-title-color);
+    font-size: 15px;
+    font-weight: 900;
+    margin-bottom: 10px;
+}
+
+.gw-form-label-wrap .gw-form-label {
+    margin-bottom: 0;
+}
+
+.required {
+    color: var(--danger-color);
+}
+
+.gw-form-input.full {
+    width: 100%;
+}
+
+.gw-form-file {
+    width: 100%;
+    min-height: 46px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 10px 14px;
+    background: var(--input-bg);
+    color: var(--input-text);
+    font-size: 15px;
+}
+
+.gw-form-help {
+    margin-top: 8px;
+    color: var(--sub-text);
+    font-size: 13px;
+}
+
+.gw-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top:40px;
+    padding-top:20px;
+    border-top:1px solid var(--border-color);
+}
+
+.fail-feedback {
+    color: var(--danger-color);
+    font-size: 13px;
+    font-weight: 700;
+    margin-top: 8px;
+    display: none;
+}
+
+.editor-bottom-row {
+    min-height: 24px;
+    margin-top: 8px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.editor-bottom-row .fail-feedback {
+    margin-top: 0;
+}
+
+.text-length {
+    color: var(--sub-text);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.gw-form-input.fail ~ .fail-feedback,
+.text-editor.fail ~ .editor-bottom-row .fail-feedback {
+    display: inline-block;
+}
+
+/* 파일 첨부 커스터마이징 */
+.gw-file-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    min-height: 48px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 8px 12px;
+
+    background: var(--input-bg);
+}
+
+.gw-file-input {
+    display: none;
+}
+
+.gw-file-btn {
+    height: 34px;
+    padding: 0 14px;
+    border-radius: 10px;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    background: var(--main-light);
+    color: var(--main-color);
+    font-weight: 800;
+    font-size: 14px;
+
+    cursor: pointer;
+}
+
+.gw-file-btn:hover {
+    background: var(--main-soft);
+}
+
+.gw-file-name {
+    color: var(--sub-text);
+    font-size: 14px;
+}
+
+/* 자료실 상세 추가 */
+.gw-detail-info{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding-bottom:20px;
+    margin-bottom:24px;
+    border-bottom:1px solid var(--border-color);
+}
+
+.gw-detail-author,
+.gw-detail-meta{
+    display:flex;
+    gap:18px;
+    align-items:center;
+    color:var(--sub-text);
+    font-size:14px;
+}
+
+.gw-content-box{
+    min-height:300px;
+    padding:20px;
+    border:1px solid var(--border-color);
+    border-radius:12px;
+    background:var(--input-bg);
+}
+
+.gw-content-box pre{
+    margin:0;
+    white-space:pre-wrap;
+    word-break:break-word;
+    font-family:inherit;
+}
+
+.gw-file-view{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.gw-file-download{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    color:var(--main-color);
+    font-weight:700;
+}
+
+.gw-nav-box{
+    border:1px solid var(--border-color);
+    border-radius:12px;
+    overflow:hidden;
+}
+
+.gw-nav-row{
+    display:flex;
+    gap:16px;
+    padding:14px 18px;
+}
+
+.gw-nav-row + .gw-nav-row{
+    border-top:1px solid var(--border-color);
+}
+
+.gw-nav-label{
+    width:60px;
+    font-weight:800;
+    color:var(--sub-text);
+}
+
+/* Summernote */
+.note-editor.note-frame {
+    border: 1px solid var(--border-color) !important;
+    border-radius: 14px !important;
+    overflow: hidden;
+    background: var(--card-bg);
+}
+
+.note-editor.note-frame:focus-within {
+    border-color: var(--main-color) !important;
+    box-shadow: 0 0 0 3px var(--main-light);
+}
+
+.note-toolbar {
+    background: var(--main-light) !important;
+    border-bottom: 1px solid var(--border-color) !important;
+}
+
+.note-editable {
+    background: var(--input-bg) !important;
+    color: var(--input-text) !important;
+}
+
 /* =========================
    PDS List Page
 ========================= */
@@ -1241,6 +1492,15 @@ button {
 .pds-table td:nth-child(6) {
     width: 90px;
 }
+/* =========================
+   PDS Insert Page
+========================= */
+.pds-width {
+	max-width: 1100px;
+    margin-left: auto;
+	margin-right: auto;
+}
+
 /* 근태 카드 전용 */
 .attendance-summary{
     display:flex;
