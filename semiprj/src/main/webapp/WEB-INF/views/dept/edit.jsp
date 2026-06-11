@@ -1,118 +1,310 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
-<jsp:include page="/WEB-INF/views/template/side_dept.jsp"></jsp:include>
+<jsp:include page="/WEB-INF/views/template/header2.jsp"/>
+<jsp:include page="/WEB-INF/views/template/side_home2.jsp"/>
 
-<form action="./edit" method="post" autocomplete="off">
-<input type="hidden" name="deptId" value="${deptDto.deptId}">
+<style>
+	.receiver-list{
+	    border:1px solid #ccc;
+	    max-height:200px;
+	    overflow:auto;
+	    background:white;
+	}
+	
+	.receiver-item{
+	    padding:8px;
+	    cursor:pointer;
+	}
+	
+	.receiver-item:hover{
+	    background:#f5f5f5;
+	}
+	.receiver-wrapper{
+	    position: relative;
+	    width: 100%;
+	}
+	
+	.receiver-selected-list{
+	    margin-top: 10px;
+	    display: flex;
+	    flex-wrap: wrap;
+	    gap: 8px;
+	}
+	
+	.receiver-tag{
+	    display: inline-flex;
+	    align-items: center;
+	    gap: 6px;
+	
+	    padding: 6px 12px;
+	
+	    border: 1px solid #d9d9d9;
+	    border-radius: 999px;
+	
+	    background-color: #f5f7fa;
+	
+	    font-size: 14px;
+	}
+	
+	.receiver-tag .delete-tag{
+	    border: none;
+	    background: transparent;
+	    cursor: pointer;
+	
+	    color: #999;
+	    font-size: 14px;
+	    padding: 0;
+	}
+	
+	.receiver-tag .delete-tag:hover{
+	    color: #e74c3c;
+	}
+
+	/* 드롭다운을 입력창과 정확히 동일한 폭으로 */
+	.receiver-list{
+	    position: absolute;
+	    top: 100%;
+	    left: 0;
+	    width: 100%;        /* ⭐ 핵심 */
+	    border: 1px solid #ccc;
+	    max-height: 200px;
+	    overflow: auto;
+	    background: white;
+	    z-index: 999;
+	}
+</style>
+
 
 <script>
-	
-	$(function(){
-		//원래 부서 이름 저장
-		var originalDeptName = $("[name=deptName]").val();
-		
-		var state = {
-			deptNameValid : true,
-			ok : function(){
-				return this.deptNameValid;
-			}	
-		};
-		
-		//부서명 입력창 검사
-		$("[name=deptName]").on("input",function(){
-			var deptName = $(this).val();
-			var valid = deptName.length > 0;
-			
-			//형식이 잘못되었다면 실패
-			if(!valid){
-				$(this).removeClass("success fail").addClass("fail");
-	            state.deptNameValid = false;
-	            return;
-			}
-			
-			// 입력한부서와 원래부서가 같을때 통과
-	        if(deptName === originalDeptName) {
-	            $(this).removeClass("success fail").addClass("success");
-	            state.deptNameValid = true;
-	            return;
-	        }
-	        $.ajax({
-	            url : "http://localhost:8080/rest/dept/validName",
-	            method : "post",
-	            data: { 
-	                deptName : deptName,
-	                deptId : $("[name=deptId]").val() 
-	            }, 
-	            success: function(response){
-	                if (response === true) {
-	                    $("[name=deptName]").removeClass("success fail").addClass("success");
-	                    state.deptNameValid = true;
-	                } else {
-	                    $("[name=deptName]").removeClass("success fail").addClass("fail");
-	                    state.deptNameValid = false;
-	                }
-	            }
-	            
-	        });
-		});
-		
-		$("form").on("submit", function(){
-	        $("[name=deptName]").trigger("input");
-	        return state.ok(); // state.ok()가 false를 리턴하면 submit이 취소됩니다.
-	    });
+$(function(){
+    var state = {
+        parentDeptIdValid : true,
+        deptNameValid     : true,
+        deptHeadIdValid   : true,
+        deptContentValid  : true,
+        ok : function() {
+            return Object.values(this)
+                .filter(v => typeof v === "boolean")
+                .every(v => v === true);
+        }
+    };
+
+    /* 초기 로드 시 유효성 표시 */
+    setTimeout(function(){
+        $("[name=parentDeptId]").trigger("change");
+        $("[name=deptHeadIdKeyword]").trigger("check");
+    }, 100);
+
+    /* 상위 부서 */
+    $("[name=parentDeptId]").on("change input", function(){
+        var valid = $(this).val().length > 0;
+        $(this).removeClass("success fail").addClass(valid ? "success" : "fail");
+        state.parentDeptIdValid = valid;
+    });
+
+    /* 부서명 중복 검사 (기존 이름은 통과) */
+    var originalDeptName = "${deptDto.deptName}";
+    $("[name=deptName]").on("input", function(){
+        var deptName = $(this).val();
+        var valid = deptName.length > 0;
+        $(this).removeClass("success fail").addClass(valid ? "success" : "fail");
+        state.deptNameValid = valid;
+        if (!valid) return;
+
+        if (deptName === originalDeptName) {
+            state.deptNameValid = true;
+            return;
+        }
+
+        $.ajax({
+            url    : "http://localhost:8080/rest/dept/validName",
+            method : "post",
+            data   : { deptName : deptName },
+            success: function(response){
+                var ok = response === true;
+                $("[name=deptName]").removeClass("success fail").addClass(ok ? "success" : "fail");
+                state.deptNameValid = ok;
+            }
+        });
+    });
+
+    /* 부서장 검사 */
+    $("[name=deptHeadIdKeyword]").on("input change check", function(){
+        var has = $("input[name=deptHeadId]").length > 0;
+        $(this).removeClass("success fail").addClass(has ? "success" : "fail");
+        state.deptHeadIdValid = has;
+    });
+
+    /* 자동완성 */
+    $("[name=deptHeadIdKeyword]").on("keyup", function(){
+        var keyword = $(this).val();
+        if (keyword.length < 1){ $(".deptHeadId-list").empty(); return; }
+
+        $.ajax({
+            url    : "http://localhost:8080/dept/searchEmp",
+            method : "get",
+            data   : { keyword : keyword },
+            success: function(response){
+                $(".deptHeadId-list").empty();
+                $.each(response, function(i, emp){
+                    $("<div>").addClass("deptHeadId-item")
+                        .text(emp.empName + " (" + (emp.empDeptName || "소속없음") + ")")
+                        .click(function(){
+                            selectHead(emp);
+                            $(".deptHeadId-list").empty();
+                        })
+                        .appendTo(".deptHeadId-list");
+                });
+            }
+        });
+    });
+
+    function selectHead(emp){
+        var label = emp.empDeptName || "소속없음";
+        $(".receiver-selected-list").html(
+            "<span class='receiver-tag'>"
+            + emp.empName + " (" + label + ")"
+            + "<button type='button' class='delete-tag'>✕</button>"
+            + "<input type='hidden' name='deptHeadId' value='" + emp.empNo + "'>"
+            + "</span>"
+        );
+        $("[name=deptHeadIdKeyword]").val("").trigger("check");
+    }
+
+    /* 모달 확인 */
+    $(document).on("click", ".confirm-btn", function(){
+        $(".receiver-selected-list").empty();
+        $(".emp-check:checked").each(function(){
+            var tr = $(this).closest("tr");
+            selectHead({
+                empNo      : $(this).data("no"),
+                empName    : $(this).data("name"),
+                empDeptName: tr.find("td").eq(4).text()
+            });
+        });
+        $(".modal-overlay").hide();
+    });
+
+    /* 태그 삭제 */
+    $(document).on("click", ".receiver-list .delete-tag", function(){
+        $(this).closest(".receiver-tag").remove();
+        setTimeout(function(){ $("[name=deptHeadIdKeyword]").trigger("check"); }, 50);
+    });
+
+    /* 업무내용 */
+    $("[name=deptContent]").on("blur", function(){
+        state.deptContentValid = true;
+        if ($(this).val().length > 0) $(this).removeClass("success fail").addClass("success");
+    });
+
+    /* 제출 */
+    $(".form-check").on("submit", function(){
+        state.deptHeadIdValid = $("input[name=deptHeadId]").length > 0;
+        $("[name=deptHeadIdKeyword]").trigger("check");
+        $("[name=parentDeptId]").trigger("change");
+        $("[name=deptName]").trigger("input");
+        $("[name=deptContent]").trigger("blur");
+        return state.ok();
+    });
 });
-
-
 </script>
 
-
-<div class="container w-400 mt-50 mb-50">
-	<div class="cell center">
-		<h1>부서 정보 수정</h1>
-	</div>
-	
-	<div class="cell">
-		<label>상위 부서 분류 <i class="fa-solid fa-asterisk red"></i></label>
-		<select class="field w-100" name="parentDeptId" required>
-            <option value="">선택하세요</option>
-            <option value="0" ${deptDto.parentDeptId == 0 ? 'selected' : ''}>
-                최상위 부서 (독립 부서)
-            </option>
-            
-            <c:forEach var="dept" items="${deptList}">
-                <c:if test="${dept.deptId != deptDto.deptId}">
-                    <option value="${dept.deptId}" ${deptDto.parentDeptId == dept.deptId ? 'selected' : ''}>
-                        ${dept.deptName}
-                    </option>
-                </c:if>
-		    </c:forEach>
-        </select>
-	</div>
-    
-	<div class="cell">
-	    <label>부서명 <i class="fa-solid fa-asterisk red"></i></label>
-	    <input type="text" name="deptName" value="${deptDto.deptName}" class="field w-100" required> 
-	    <div class="success-feedback">사용 가능한 부서명입니다.</div>
-	    <div class="fail-feedback">이미 다른 부서에서 사용 중인 이름입니다.</div>
-	</div>
-	<div class="cell">
-		<label>부서장 사번 <i class="fa-solid fa-asterisk red"></i></label>
-		<input type="text" name="deptHeadId" value="${deptDto.deptHeadId}"
-				class="field w-100" required> 
-	</div>
-	<div class="cell">
-		<label>업무내용</label>
-		<input type="text" name="deptContent" value="${deptDto.deptContent}"
-				class="field w-100">
-	</div>
-	
-	<div class="cell mt-50">
-		<button type="submit" class="btn btn-positive w-100">수정하기</button>
-	</div>
+<!-- ── 페이지 헤더 ── -->
+<div class="gw-page-head">
+    <h1>부서 정보 수정</h1>
+    <p>기존 부서 정보를 변경합니다.</p>
 </div>
 
+<!-- ── 수정 폼 ── -->
+<form action="./edit" method="post" autocomplete="off" class="form-check" style="max-width:800px;">
+    <input type="hidden" name="deptId" value="${deptDto.deptId}">
+
+    <div class="gw-form-panel">
+
+        <!-- 상위 부서 -->
+        <div class="gw-form-row">
+            <label class="gw-form-label">
+                상위 부서 분류 <span class="required">*</span>
+            </label>
+            <select name="parentDeptId" class="field gw-form-select w-100">
+                <option value="">선택하세요</option>
+                <option value="0" ${deptDto.parentDeptId == 0 ? 'selected' : ''}>최상위 부서 (독립 조직)</option>
+                <c:forEach var="dept" items="${deptList}">
+                    <c:if test="${dept.deptId != deptDto.deptId}">
+                        <option value="${dept.deptId}" ${deptDto.parentDeptId == dept.deptId ? 'selected' : ''}>
+                            ${dept.deptName}
+                        </option>
+                    </c:if>
+                </c:forEach>
+            </select>
+            <div class="fail-feedback">상위 분류를 선택해 주세요.</div>
+        </div>
+
+        <!-- 부서명 -->
+        <div class="gw-form-row">
+            <label class="gw-form-label">
+                부서명 <span class="required">*</span>
+            </label>
+            <input type="text" name="deptName"
+                   class="field gw-form-input full"
+                   value="${deptDto.deptName}">
+            <div class="success-feedback">사용 가능한 부서명입니다.</div>
+            <div class="fail-feedback">이미 존재하는 부서명입니다.</div>
+        </div>
+
+        <!-- 부서장 -->
+        <div class="gw-form-row deptHeadId-wrapper">
+            <label class="gw-form-label">
+                부서장 <span class="required">*</span>
+            </label>
+            <div style="display:flex; gap:10px; align-items:center;">
+                <input type="text" name="deptHeadIdKeyword"
+                       class="field gw-form-input"
+                       style="flex:1;"
+                       placeholder="변경할 사원 이름을 입력하세요">
+                <button type="button" class="gw-btn-outline open-search" style="height:46px; padding:0 18px;">
+                    <i class="fa-solid fa-user-tie"></i> 찾기
+                </button>
+            </div>
+            <div class="receiver-selected-list receiver-list mt-10">
+                <c:if test="${deptHeadEmp != null}">
+                    <span class="receiver-tag">
+                        ${deptHeadEmp.empName}
+                        (${deptHeadEmp.empDeptName != null ? deptHeadEmp.empDeptName : '소속없음'})
+                        <button type="button" class="delete-tag">✕</button>
+                        <input type="hidden" name="deptHeadId" value="${deptHeadEmp.empNo}">
+                    </span>
+                </c:if>
+            </div>
+            <div class="deptHeadId-list"></div>
+            <div class="fail-feedback">부서장을 선택해 주세요.</div>
+        </div>
+
+        <jsp:include page="/WEB-INF/views/template/employee-picker.jsp"/>
+        <script src="/js/employee-picker.js"></script>
+
+        <!-- 주요 업무 -->
+        <div class="gw-form-row">
+            <label class="gw-form-label">주요 업무 내용</label>
+            <input type="text" name="deptContent"
+                   class="gw-form-input full"
+                   value="${deptDto.deptContent}"
+                   placeholder="해당 부서의 주 업무 및 담당 역할을 기재하세요">
+            <div class="gw-form-help">선택 항목입니다.</div>
+        </div>
+
+        <!-- 액션 버튼 -->
+        <div class="gw-form-actions">
+            <a href="./list" class="gw-btn-outline">
+                <i class="fa-solid fa-arrow-left"></i> 목록으로
+            </a>
+            <button type="submit" class="gw-btn-primary">
+                <i class="fa-solid fa-pen"></i> 수정 완료
+            </button>
+        </div>
+
+    </div>
 </form>
 
-<jsp:include page="/WEB-INF/views/template/footer.jsp"></jsp:include>
+<jsp:include page="/WEB-INF/views/template/footer2.jsp"/>
