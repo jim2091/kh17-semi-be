@@ -33,7 +33,7 @@ window.onload = function() {
 };
 
 $(function(){
-    // 1. 기존 상태 객체에 휴가 날짜 상태 추가
+    // 1. 상태 객체
     var state = {
         vacStartDateValid : false,
         vacEndDateValid : false,
@@ -51,28 +51,27 @@ $(function(){
 
     // 2. 휴가 시작일 변경 시 검사
     $("[name=vacStartDate]").on("change", function(){
-        // [수정] vacDate -> appDate로 오타 수정
         var appDate = $("[name=appDate]").val() || today; 
         var startDate = $(this).val();
         var endDate = $("[name=vacEndDate]").val();
 
-        // 날짜를 입력 안 하고 지웠을 때의 방어 코드 추가
         if(!startDate) {
-            $(this).removeClass("success fail");
+            $(this).removeClass("success fail").removeAttr("data-error");
             state.vacStartDateValid = false;
             return;
         }
 
         if(startDate < appDate) {
+            // [작동] .fail 클래스가 붙고 data-error가 1이 되는 순간, 
+            // CSS에 의해 X 아이콘 배경이 깔리고 첫 번째 에러 div가 노출됩니다.
             $(this).removeClass("success fail").addClass("fail").attr("data-error", "1");
             state.vacStartDateValid = false;
         } else {
-            // [수정] removeAttribute -> removeAttr로 변경
+            // [작동] .success 클래스가 붙는 순간, 체크 아이콘 배경이 깔리고 에러는 숨겨집니다.
             $(this).removeClass("success fail").addClass("success").removeAttr("data-error");
             state.vacStartDateValid = true;
         }
 
-        // [연쇄 반응] 시작일이 바뀌면 종료일도 다시 한번 검사해줘야 함
         if(endDate) {
             $("[name=vacEndDate]").trigger("change");
         }
@@ -84,40 +83,45 @@ $(function(){
         var endDate = $(this).val();
 
         if(!endDate) {
-            $(this).removeClass("success fail");
+            $(this).removeClass("success fail").removeAttr("data-error");
             state.vacEndDateValid = false;
             return;
         }
 
         if(!startDate) {
-            $(this).removeClass("success fail");
+            $(this).removeClass("success fail").removeAttr("data-error");
             state.vacEndDateValid = false;
             return;
         }
 
         if(endDate < startDate) {
-            $(this).removeClass("success fail").addClass("fail").attr("data-error", "2");
+            // [작동] 종료일이 시작일보다 빠르면 에러 1번(첫 번째 자식 div) 표시
+            $(this).removeClass("success fail").addClass("fail").attr("data-error", "1");
             state.vacEndDateValid = false;
         } else {
-            // [수정] removeAttribute -> removeAttr로 변경
             $(this).removeClass("success fail").addClass("success").removeAttr("data-error");
             state.vacEndDateValid = true;
         }
     });
 
     // 4. 폼 서밋 시 최종 차단
-    // HTML의 <form id="vacationForm"> 과 ID가 일치하는지 확인 필수!
     $("#vacationForm").on("submit", function(e){
         if(state.ok() == false) {
-            e.preventDefault(); // 전송 막기
-            alert("휴가 신청 날짜 형식을 확인해 주세요.");
+            e.preventDefault(); 
+            
+            // 미입력 필드나 누락 필드에 에러 표시를 강제 트리거
+            $("[name=vacStartDate]").trigger("change");
+            $("[name=vacEndDate]").trigger("change");
+            
+            // 첫 번째 에러 필드로 포커스 이동 (방어 UX)
+            $(".field.fail").first().focus();
         }
     });
 });
 </script>
 
-<form action="./vacInsert" method="post" autocomplete="off" id="vacationForm"
-	onsubmit="return validateForm();">
+<form action="./vacInsert" method="post" autocomplete="off"
+	id="vacationForm" onsubmit="return validateForm();">
 	<div class="cell center">
 		<h1>휴가신청서</h1>
 	</div>
@@ -156,8 +160,8 @@ $(function(){
 				</div>
 			</c:forEach>
 		</div>
-		
-		
+
+
 		<%-- 에러 메시지 --%>
 		<c:if test="${not empty errorMsg}">
 			<div
@@ -174,13 +178,23 @@ $(function(){
 			<label>기안일</label> <input type="date" name="appDate"
 				class="field w-60" readonly>
 		</div>
+
 		<div class="cell mt-40">
 			<label>휴가시작일</label> <input type="date" name="vacStartDate"
 				class="field w-60" required>
+
+			<div class="fail-feedback">
+				<div>휴가 시작일은 기안일(오늘) 이후여야 합니다.</div>
+			</div>
 		</div>
+
 		<div class="cell mt-40">
 			<label>휴가종료일</label> <input type="date" name="vacEndDate"
 				class="field w-60" required>
+
+			<div class="fail-feedback">
+				<div>휴가 종료일은 시작일보다 빠를 수 없습니다.</div>
+			</div>
 		</div>
 		<div class="form-row">
 			<label>휴가구분 <span class="required">*</span></label>
