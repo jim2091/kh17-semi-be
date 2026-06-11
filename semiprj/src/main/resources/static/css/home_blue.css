@@ -1333,6 +1333,23 @@ button {
     display: inline-block;
 }
 
+.gw-new-badge {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 2px 7px;
+    border-radius: 999px;
+
+    background: linear-gradient(135deg, #f7d774, #d9a400);
+    color: #fff;
+
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.4;
+
+    box-shadow: 0 1px 4px rgba(217, 164, 0, 0.3);
+    vertical-align: middle;
+}
+
 /* 파일 첨부 커스터마이징 */
 .gw-file-box {
     display: flex;
@@ -1724,4 +1741,8 @@ select.field {
 .field.fail {
     background-image: url("https://cdn.jsdelivr.net/gh/hiphop5782/cdn2/invalid.png");
     border-color: #d63031;
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> refs/heads/main
