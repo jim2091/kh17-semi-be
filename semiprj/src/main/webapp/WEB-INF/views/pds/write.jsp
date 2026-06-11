@@ -5,16 +5,16 @@
 <jsp:include page="/WEB-INF/views/template/header2.jsp"></jsp:include>
 
 
-    <section class="gw-page-head pds-width">
+    <div class="gw-page-head pds-width">
         <div class="gw-breadcrumb">홈 / 자료실 / 글쓰기</div>
         <h1>자료 등록</h1>
         <p>사내 업무 자료를 작성하고 파일을 첨부할 수 있습니다.</p>
-    </section>
+    </div>
 
     <form action="./write" method="post" enctype="multipart/form-data"
           autocomplete="off" class="form-check">
 
-        <section class="gw-form-panel pds-width">
+        <div class="gw-form-panel pds-width">
 
             <div class="gw-form-row">
                 <label class="gw-form-label">
@@ -74,11 +74,11 @@
                 </button>
             </div>
 
-        </section>
+        </div>
 
     </form>
 
-</main>
+</div>
 
 <script type="text/javascript">
 $(function(){

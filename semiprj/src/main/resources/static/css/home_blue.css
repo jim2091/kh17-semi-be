@@ -1296,7 +1296,9 @@ button {
     display: flex;
     justify-content: flex-end;
     gap: 10px;
-    margin-top: 34px;
+    margin-top:40px;
+    padding-top:20px;
+    border-top:1px solid var(--border-color);
 }
 
 .fail-feedback {
@@ -1373,6 +1375,76 @@ button {
 .gw-file-name {
     color: var(--sub-text);
     font-size: 14px;
+}
+
+/* 자료실 상세 추가 */
+.gw-detail-info{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding-bottom:20px;
+    margin-bottom:24px;
+    border-bottom:1px solid var(--border-color);
+}
+
+.gw-detail-author,
+.gw-detail-meta{
+    display:flex;
+    gap:18px;
+    align-items:center;
+    color:var(--sub-text);
+    font-size:14px;
+}
+
+.gw-content-box{
+    min-height:300px;
+    padding:20px;
+    border:1px solid var(--border-color);
+    border-radius:12px;
+    background:var(--input-bg);
+}
+
+.gw-content-box pre{
+    margin:0;
+    white-space:pre-wrap;
+    word-break:break-word;
+    font-family:inherit;
+}
+
+.gw-file-view{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.gw-file-download{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    color:var(--main-color);
+    font-weight:700;
+}
+
+.gw-nav-box{
+    border:1px solid var(--border-color);
+    border-radius:12px;
+    overflow:hidden;
+}
+
+.gw-nav-row{
+    display:flex;
+    gap:16px;
+    padding:14px 18px;
+}
+
+.gw-nav-row + .gw-nav-row{
+    border-top:1px solid var(--border-color);
+}
+
+.gw-nav-label{
+    width:60px;
+    font-weight:800;
+    color:var(--sub-text);
 }
 
 /* Summernote */
