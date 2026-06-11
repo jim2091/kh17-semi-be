@@ -364,5 +364,7 @@ public class AppController {
 		model.addAttribute("list", appDao.selectMyList(empNo));
 		return "/app/list";
 	}
+	
+	
 
 }

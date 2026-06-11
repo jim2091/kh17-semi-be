@@ -35,6 +35,11 @@ public class EmpMapper implements RowMapper<EmpDto>{
 		empDto.setEmpMentor(rs.getString("emp_mentor"));
 		empDto.setEmpPwChange(rs.getTimestamp("emp_pw_change"));
 		empDto.setEmpEmailVerified(rs.getString("emp_email_verified"));
+		
+//		empDto.setPositionId(rs.getInt("position_id"));
+//		empDto.setPositionName(rs.getString("position_name"));
+//		empDto.setPositionLevel(rs.getInt("position_level"));
+//		
 		return empDto;
 	}
 }

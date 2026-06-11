@@ -22,7 +22,9 @@ public class AppDao {
 	private JdbcTemplate jdbcTemplate;
 	@Autowired
 	private AppMapper appMapper;
-
+	@Autowired
+	private EmpMapper empMapper;
+	
 	// 검색 허용
 	private Set<String> allowList = Set.of("app_type", "app_status");
 
@@ -361,7 +363,6 @@ public class AppDao {
         Object[] params = { empNo };
         return jdbcTemplate.query(sql, appMapper, params);
     }
-    
     
     
     
