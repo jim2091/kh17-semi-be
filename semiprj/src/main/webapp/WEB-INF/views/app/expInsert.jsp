@@ -125,9 +125,10 @@ $(function(){
 								${emp.appContent} (${emp.appType})</option>
 						</c:forEach>
 					</select> <span id="selectedName${i}" class="selected-name"></span>
-				</div>
+				</div>S
 			</c:forEach>
 		</div>
+
 		<%-- 에러 메시지 --%>
 		<c:if test="${not empty errorMsg}">
 			<div
