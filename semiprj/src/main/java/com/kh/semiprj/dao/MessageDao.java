@@ -454,4 +454,12 @@ public class MessageDao {
 		Object[] params = {messageNo};
 		return jdbcTemplate.update(sql, params) > 0;
 	}
+	
+	// dept_id가 아닌 dept_name 보이게하는 메소드
+	public String selectDetpNameById(int deptId) {
+		String sql = "select dept_name from dept where dept_id = ?";
+	    Object[] params = { deptId }; 
+	    return jdbcTemplate.queryForObject(sql, String.class, params);
+	}
+	
 }
