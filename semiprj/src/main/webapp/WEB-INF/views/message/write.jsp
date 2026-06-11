@@ -1,16 +1,13 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 
-<jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
-<jsp:include page="/WEB-INF/views/template/side_message.jsp"></jsp:include>
+<jsp:include page="/WEB-INF/views/template/header2.jsp"></jsp:include>
 
 <style>
 	.receiver-list{
-	    border:1px solid #ccc;
+	    /*border:1px solid #ccc;*/
 	    max-height:200px;
 	    overflow:auto;
 	    background:white;
@@ -43,7 +40,7 @@
 	
 	    padding: 6px 12px;
 	
-	    border: 1px solid #d9d9d9;
+	    /*border: 1px solid #d9d9d9;*/
 	    border-radius: 999px;
 	
 	    background-color: #f5f7fa;
@@ -70,8 +67,8 @@
 	    position: absolute;
 	    top: 100%;
 	    left: 0;
-	    width: 100%;        /* ⭐ 핵심 */
-	    border: 1px solid #ccc;
+	    /*width: 100%;  */    
+	   /* border: 1px solid #ccc;*/
 	    max-height: 200px;
 	    overflow: auto;
 	    background: white;
@@ -174,7 +171,7 @@ $(function(){
             $(this).val(cut);
             size = 1000;
         }
-    	var span = $(this).next(".right").children("span");
+    	var span = $(this).next(".editor-bottom-row").find(".current-length")
         span.text(size);
         span.toggleClass("red", size >= 1000);
     	var valid = size > 0;
@@ -196,31 +193,29 @@ $(function(){
 });
 </script>
 
-<form action="./write" method="post" autocomplete="off" class="form-check">
-	<div class="container w-800 mt-50 mb-50">
-		<!-- 페이지 제목 -->
-		<div class="cell center">
-			<h1 class="mt-0 mb-0">쪽지 보내기</h1>
-		</div>
-		
-		<!-- 경고문 -->
-		<div class="cell center mt-10">
-			<i class="fa-solid fa-circle-exclamation fa-fade red"></i>
-			타인에 대한 무분별한 비방글과 업무와 상관없는 내용들은 재제를 받을 수 있습니다.
-		</div>
+	<form action="./write" method="post" autocomplete="off" class="form-check">
 	
-		<!-- 제목 입력창 -->
-		<div class="cell mt-40">
-			<label>제목 <i class="fa-solid fa-asterisk red"></i></label>
-			<input type="text" name="messageTitle" value="${replyTitle}" class="field w-100">
+	<div class="gw-page-head pds-width">
+		<div class="gw-breadcrumb">홈 / 쪽지 / 쪽지 보내기</div>
+		<h1>쪽지 보내기</h1>
+		<p>쪽지를 보내고 싶은 사원을 지정해 해당 사원에게 쪽지를 보낼 수 있습니다.</p>
+	</div>
+	
+	<div class="gw-form-panel pds-width">
+		<div class="gw-form-row">
+			<label class="gw-form-label">
+				제목 <span class="required">*</span>
+			</label>
+			<input type="text" name="messageTitle" value="${replyTitle}" class="gw-form-input full">
 			<div class="fail-feedback">[필수] 제목을 입력해주세요.</div>
 		</div>
-	
-		<!-- 받는이 입력창 -->
-		<div class="cell receiver-wrapper">
-			<label>받는이 <i class="fa-solid fa-asterisk red"></i></label>
-			<input type="text" name="receiverKeyword" class="field">
-			<button type="button" class="btn btn-neutral ms-10 open-search">
+		
+		<div class="gw-form-row receiver-wrapper">
+			<label class="gw-form-label">
+				받는이 <span class="required">*</span>
+			</label>
+			<input type="text" name="receiverKeyword" class="gw-form-input">
+			<button type="button" class="gw-btn-primary ms-10 open-search">
                 <i class="fa-solid fa-user-tie"></i>
                 <span>찾기</span>
             </button>
@@ -248,28 +243,31 @@ $(function(){
 			<div class="fail-feedback">[필수] 받는이를 입력하세요.</div>
 		</div>
 	
-		<!-- 내용 입력창 -->
-		<div class="cell">
-			<label>내용 <i class="fa-solid fa-asterisk red"></i> </label>
-			<textarea name="messageContent" rows="10" class="field w-100"></textarea>
-			<div class="right">
-			    <span>0</span> / 1000
-			</div>
-			<div class="fail-feedback">[필수] 내용을 입력하세요.</div>
-		</div>
-		
-		<!-- 목록/등록 버튼 -->
-		<div class="cell mt-50 right">
-			<a href="./receiveList" class="btn btn-negative">
-				<i class="fa-solid fa-x"></i>
-				<span>취소</span>
-			</a>
-			<button type="submit" class="btn btn-positive">
-				<i class="fa-solid fa-paper-plane"></i>
-				<span>보내기</span>
-			</button>
-		</div>
-	</div>
-</form>
+		<div class="gw-form-row">
+                <label class="gw-form-label">
+                    내용 <span class="required">*</span>
+                </label>
+				<textarea name="messageContent" maxlength="1000" rows="10" class="text-editor w-100"></textarea>
+				<div class="editor-bottom-row">
+                    <span class="fail-feedback">[필수] 내용을 입력하세요.</span>
+	                <span class="text-length">
+	                    <span class="current-length">0</span> / 1000
+	                </span>
+	            </div>
+			</div> 
+			
+			<div class="gw-form-actions">
+                <a href="./receiveList" class="gw-btn-outline">
+                    <i class="fa-solid fa-x"></i>
+                    <span>취소</span>
+                </a>
 
-<jsp:include page="/WEB-INF/views/template/footer.jsp"></jsp:include>
+                <button type="submit" class="gw-btn-primary">
+                    <i class="fa-solid fa-paper-plane"></i>
+                    <span>보내기</span>
+                </button>
+            </div>
+		</div>
+	</form>
+
+<jsp:include page="/WEB-INF/views/template/footer2.jsp"></jsp:include>

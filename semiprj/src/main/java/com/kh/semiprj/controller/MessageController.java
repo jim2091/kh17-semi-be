@@ -84,10 +84,11 @@ public class MessageController {
 		String loginNo = (String)session.getAttribute("loginNo");
 		
 		List<MessageDto> list = messageDao.selectReceiveList(loginNo, pageVO);
-		
+		int unreadCount = messageDao.countUnread(loginNo);
 		int count = messageDao.countReceiveList(loginNo, pageVO);
 		pageVO.setCount(count);
 		
+		model.addAttribute("unreadCount", unreadCount);
 		model.addAttribute("list", list);
 		model.addAttribute("pageVO", pageVO);
 		
