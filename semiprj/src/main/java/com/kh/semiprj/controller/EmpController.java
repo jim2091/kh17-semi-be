@@ -260,6 +260,12 @@ public class EmpController {
 		
 		model.addAttribute("list", list);
 		
+		for(EmpDto empDto : list){
+		    DeptDto deptDto = deptDao.selectOne(empDto.getEmpDept());
+		    model.addAttribute("deptDto", deptDto);
+		}
+		
+		
 		return "emp/list";
 	}
 	@RequestMapping("/detail")

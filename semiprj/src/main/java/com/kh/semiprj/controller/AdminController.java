@@ -68,6 +68,10 @@ public class AdminController {
 		List<EmpDto> list = empDao.selectListByAdmin(column, keyword);
 
 		model.addAttribute("list", list);
+		for(EmpDto empDto : list){
+		    DeptDto deptDto = deptDao.selectOne(empDto.getEmpDept());
+		    model.addAttribute("deptDto", deptDto);
+		}
 
 		return "admin/list";
 	}

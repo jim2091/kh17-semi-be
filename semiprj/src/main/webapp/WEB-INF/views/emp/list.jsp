@@ -61,7 +61,7 @@
 				<tr align="center">
 						<td>${empDto.empName}</td>
 						<td>${empDto.empId}</td>
-						<td>${empDto.empDept}</td>
+						<td>${deptDto.deptName}</td>
 						<td>${empDto.empPosition}</td>
 						<td>${empDto.empMentor}</td>
 						<td><fmt:formatDate value = "${empDto.empHireDate}" pattern="yyyy-MM-dd"/></td>
