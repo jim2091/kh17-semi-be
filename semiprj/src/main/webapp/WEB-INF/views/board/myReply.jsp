@@ -55,7 +55,8 @@
 
 	<!-- 페이지네이션 -->
     <div class="cell mt-50">
-		<jsp:include page="/WEB-INF/views/template/pagination.jsp"></jsp:include>
+    	<c:set var="pageUrl" value="./myReply"/>
+		<jsp:include page="/WEB-INF/views/template/pagination_board.jsp"></jsp:include>
     </div>
 </div>
 

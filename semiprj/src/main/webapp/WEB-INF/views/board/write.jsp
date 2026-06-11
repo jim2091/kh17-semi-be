@@ -28,16 +28,47 @@ $(function(){
 	    lang : 'ko-KR',
 	    height : 400,
 	    callbacks : {
+	    	//- summernote에서 이미지 선택
+	    	onImageUpload : function(files){
+	            uploadImage(files[0]);
+	        },
 	        onKeyup : function(){
 	            var text = $(this)
 	                .summernote('code')
 	                .replace(/<[^>]*>/g, '')
 	                .trim();
-	            $(".text-length span")
-	                .text(text.length);
+	            
+	            var size = text.length;
+
+	            $(".current-length").text(size);
+
+	            $(".current-length").toggleClass(
+	                "red",
+	                size > 1000
+	            );
 	        }
 	    }
 	});
+	
+	//업로드 함수(AJAX 전송)
+	function uploadImage(file){
+	    var formData = new FormData();
+	    formData.append("attach", file);
+	    $.ajax({
+	        url : "${pageContext.request.contextPath}/rest/board/image",
+	        type : "post",
+	        data : formData,
+	        processData : false,
+	        contentType : false,
+
+	        success : function(response){
+	            $("#summernote").summernote(
+	                "insertImage",
+	                response.url
+	            );
+	        }
+	    });
+	}
 	
     //1. 상태 객체
     var state = {
@@ -87,10 +118,11 @@ $(function(){
     	var valid = content.length > 0;
 		if(!valid){
 			$(this).addClass("fail");
-		} else{
+		} 
+		else{
 			$(this).removeClass("fail");
 		}
-		state.boardContentValid = valid;;
+		state.boardContentValid = valid;
 	});
 	
     //3. 폼 검사
@@ -107,18 +139,12 @@ $(function(){
 	    var code = $("#summernote").summernote("code");
 	    var text = $("<div>").html(code).text().trim();
 
-	    var valid = text.length > 0;
-		console.log(valid);
-	    $("#summernote").removeClass("fail");
-
-	    if(!valid){
-	        $("#summernote").addClass("fail");
-	    }
+	    var valid = text.length > 0 && text.length <= 1000;
+	    $("#summernote").toggleClass("fail", !valid);
 
 	    state.boardContentValid = valid;
 	    return valid;
 	}
-    
 });
 </script>
 
@@ -190,9 +216,9 @@ $(function(){
 			<label>내용 <i class="fa-solid fa-asterisk red"></i> </label>
 			<textarea id="summernote" name="boardContent" rows="10" class="text-editor"></textarea>
 			<div class="justify">
-			    <span class="fail-feedback">[필수] 내용을 입력하세요.</span>
-			    <span class="text-length">
-			        <span>0</span> / 1000
+				<span class="fail-feedback">[필수] 내용을 입력하세요.</span>
+				<span class="right text-length">
+			        <span class="current-length">0</span> / 1000
 			    </span>
 			</div>
 		</div> 

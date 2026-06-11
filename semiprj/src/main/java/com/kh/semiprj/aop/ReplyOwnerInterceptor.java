@@ -53,6 +53,7 @@ public class ReplyOwnerInterceptor implements HandlerInterceptor{
         if(!loginNo.equals(replyDto.getReplyWriter())) {
         	throw new GetOutException();
         }
+        
         //(6) 위를 다 통과했다면 본인 소유의 글에 접근하는 것으로 간주하여 통과
 		return true;
 	}
