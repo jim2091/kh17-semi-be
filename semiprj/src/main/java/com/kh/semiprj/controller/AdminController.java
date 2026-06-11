@@ -62,12 +62,27 @@ public class AdminController {
 	}
 
 	@RequestMapping("/list")
-	public String list(@RequestParam(required = false) String column, @RequestParam(required = false) String keyword,
+	public String list(@RequestParam(required = false) String column, 
+						@RequestParam(required = false) String keyword, 
+						@RequestParam(required = false) String deptKeyword,
 			Model model) {
 		/* System.out.println("list 실행"); */
-		List<EmpDto> list = empDao.selectListByAdmin(column, keyword);
+//		List<EmpDto> list = empDao.selectListByAdmin(column, keyword);
+		
+		List<EmpDto> list;
+		
+		if("emp_dept".equals(column)) {
+	        list = empDao.selectListByAdminByDept(deptKeyword);
+	    }
+	    else {
+	        list = empDao.selectListByAdmin(column, keyword);
+	    }
 
 		model.addAttribute("list", list);
+		for(EmpDto empDto : list){
+		    DeptDto deptDto = deptDao.selectOne(empDto.getEmpDept());
+		    model.addAttribute("deptDto", deptDto);
+		}
 
 		return "admin/list";
 	}

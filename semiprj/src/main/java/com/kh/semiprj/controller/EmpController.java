@@ -255,10 +255,25 @@ public class EmpController {
 	@RequestMapping("/list")
 	public String list(@RequestParam(required = false) String column, 
 						@RequestParam(required = false) String keyword, 
+						@RequestParam(required = false) String deptKeyword,
 						Model model) {
-		List<EmpDto> list = empDao.selectListByUser(column, keyword);
+		List<EmpDto> list;
+		
+		if("emp_dept".equals(column)) {
+	        list = empDao.selectListByDept(deptKeyword);
+	    }
+	    else {
+	        list = empDao.selectListByUser(column, keyword);
+	    }
+		
 		
 		model.addAttribute("list", list);
+		
+		for(EmpDto empDto : list){
+		    DeptDto deptDto = deptDao.selectOne(empDto.getEmpDept());
+		    model.addAttribute("deptDto", deptDto);
+		}
+		
 		
 		return "emp/list";
 	}
