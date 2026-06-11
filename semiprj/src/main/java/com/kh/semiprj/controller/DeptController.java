@@ -1,7 +1,10 @@
 	package com.kh.semiprj.controller;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -15,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.kh.semiprj.dao.DeptDao;
 import com.kh.semiprj.dao.EmpDao;
+import com.kh.semiprj.dao.MessageDao;
 import com.kh.semiprj.dto.DeptDto;
 import com.kh.semiprj.dto.EmpDto;
 import com.kh.semiprj.exception.TargetNotfoundException;
@@ -30,6 +34,8 @@ public class DeptController {
 	private DeptDao deptDao;
 	@Autowired
 	private EmpDao empDao;
+	@Autowired
+	private MessageDao messageDao;
 
 	//목록 및 검색(페이징처리된것)
 	@RequestMapping("/list")
@@ -76,14 +82,9 @@ public class DeptController {
 		
 		
 	@PostMapping("/insert")
-	public String insert(@ModelAttribute DeptDto deptDto,
-	                     @RequestParam(value="messageReceiver", required=false) String messageReceiver) throws IllegalStateException, IOException {
+	public String insert(@ModelAttribute DeptDto deptDto)
+	                     throws IllegalStateException, IOException {
 		
-		// 화면의 공용 모달에서 넘어온 사원 번호(messageReceiver)를 부서장 ID로 매핑해줍니다.
-		if (messageReceiver != null) {
-	        deptDto.setDeptHeadId(messageReceiver);
-	    }
-	    
 		// 부서 번호 시퀀스 생성 및 인서트 작업 진행
 	    int deptId = deptDao.sequence();
 	    deptDto.setDeptId(deptId);
@@ -174,8 +175,34 @@ public class DeptController {
 	//사원찾기
 	@GetMapping("/searchEmp")
 	@ResponseBody
-	public List<EmpDto> searchEmp(@RequestParam String keyword){
-	    return empDao.searchByName(keyword);
+	public List<Map<String, Object>> searchEmp(@RequestParam String keyword){
+		List<EmpDto> originList = empDao.searchByName(keyword);
+	    
+	    List<Map<String, Object>> resultList = new ArrayList<>();
+	    
+	    for (EmpDto emp : originList) {
+	        Map<String, Object> map = new HashMap<>();
+	        
+	        map.put("empNo", emp.getEmpNo());
+	        map.put("empName", emp.getEmpName());
+	        map.put("empPosition", emp.getEmpPosition());
+	        map.put("empDept", emp.getEmpDept());
+	        
+	        if (emp.getEmpDept() != 0) {
+	            try {
+	                String deptName = messageDao.selectDetpNameById(emp.getEmpDept());
+	                map.put("empDeptName", deptName);
+	            } catch (Exception e) {
+	                map.put("empDeptName", "소속없음");
+	            }
+	        } else {
+	            map.put("empDeptName", "소속없음");
+	        }
+	        
+	        resultList.add(map);
+	    }
+
+		return resultList;
 	}
 		
 	
