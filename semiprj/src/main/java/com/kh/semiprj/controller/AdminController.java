@@ -13,14 +13,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.kh.semiprj.dao.AppDao;
+import com.kh.semiprj.dao.AppLineDao;
 import com.kh.semiprj.dao.DeptDao;
 import com.kh.semiprj.dao.EmpDao;
 import com.kh.semiprj.dao.EmpHistoryDao;
 import com.kh.semiprj.dto.AppDto;
+import com.kh.semiprj.dto.AppLineDto;
 import com.kh.semiprj.dto.AttnDto;
 import com.kh.semiprj.dto.DeptDto;
+import com.kh.semiprj.dto.DftAppDto;
 import com.kh.semiprj.dto.EmpDto;
 import com.kh.semiprj.dto.EmpHistoryDto;
+import com.kh.semiprj.dto.ExpAppDto;
+import com.kh.semiprj.dto.VacAppDto;
 import com.kh.semiprj.exception.TargetNotfoundException;
 import com.kh.semiprj.service.AdminAttnService;
 import com.kh.semiprj.vo.HistoryPageVO;
@@ -43,6 +48,9 @@ public class AdminController {
 
 	@Autowired
 	private AppDao appDao;
+	
+	@Autowired
+	private AppLineDao appLineDao;
 
 	@Autowired
 	private AdminAttnService adminAttnService;
@@ -62,12 +70,27 @@ public class AdminController {
 	}
 
 	@RequestMapping("/list")
-	public String list(@RequestParam(required = false) String column, @RequestParam(required = false) String keyword,
+	public String list(@RequestParam(required = false) String column, 
+						@RequestParam(required = false) String keyword, 
+						@RequestParam(required = false) String deptKeyword,
 			Model model) {
 		/* System.out.println("list 실행"); */
-		List<EmpDto> list = empDao.selectListByAdmin(column, keyword);
+//		List<EmpDto> list = empDao.selectListByAdmin(column, keyword);
+		
+		List<EmpDto> list;
+		
+		if("emp_dept".equals(column)) {
+	        list = empDao.selectListByAdminByDept(deptKeyword);
+	    }
+	    else {
+	        list = empDao.selectListByAdmin(column, keyword);
+	    }
 
 		model.addAttribute("list", list);
+		for(EmpDto empDto : list){
+		    DeptDto deptDto = deptDao.selectOne(empDto.getEmpDept());
+		    model.addAttribute("deptDto", deptDto);
+		}
 
 		return "admin/list";
 	}
@@ -207,7 +230,51 @@ public class AdminController {
 		model.addAttribute("list", list);
 		return "/admin/app/list";
 	}
+	// 상세
+	@RequestMapping("/app/detail")
+	public String detail(Model model, @RequestParam int appId, HttpSession session) {
+	    // [예외 처리] 세션 비어있을 경우 예외 처리 추가 (로그인하지 않은 유저 차단)
+	    String loginId = (String) session.getAttribute("loginId");
+	    if (loginId == null) {
+	        return "redirect:/login";
+	    }
 
+	    // [예외 처리] DAO 의존성 주입 실패 방어
+	    if (appDao == null || appLineDao == null) {
+	        return "redirect:/error";
+	    }
+
+	    String empNo = appDao.selectEmpNoById(loginId);
+	    AppDto appDto = appDao.selectOneById(appId);
+	    if (appDto == null) {
+	        // [수정] 절대 경로를 명시하여 리다이렉트 위치 오류 방지
+	        return "redirect:/app/list";
+	    }
+
+	    List<AppLineDto> lineList = appLineDao.selectByAppId(appId);
+	    model.addAttribute("appDto", appDto);
+	    model.addAttribute("lineList", lineList);
+	    model.addAttribute("loginEmpNo", empNo);
+
+	    // [예외 처리] 문서 종류(AppType)가 Null인 경우를 대비한 equals 위치 변경
+	    if (appDto.getAppType() == null) {
+	        return "app/detail";
+	    }
+
+	    // 문서 종류에 따라 추가 정보 조회
+	    if ("휴가신청서".equals(appDto.getAppType())) {
+	        VacAppDto vacAppDto = appDao.selectVacByAppId(appId);
+	        model.addAttribute("vacAppDto", vacAppDto);
+	    } else if ("품의서".equals(appDto.getAppType())) {
+	        ExpAppDto expAppDto = appDao.selectExpByAppId(appId);
+	        model.addAttribute("expAppDto", expAppDto);
+	    } else if ("업무기안서".equals(appDto.getAppType())) {
+	        DftAppDto dftAppDto = appDao.selectDftByAppId(appId);
+	        model.addAttribute("dftAppDto", dftAppDto);
+	    }
+
+	    return "app/detail";
+	}
 	// 근태관리 관리자 접근
 	@GetMapping("/attn/manage")
 	public String manage(@ModelAttribute("search") AttnDto searchDto, @ModelAttribute("pageVO") PageVO pageVO,

@@ -24,7 +24,7 @@ public class AppLineDao {
     
     
     
-    
+    //결재자 등록 
     public void insert(AppLineDto appLineDto) {
         String sql = "insert into app_line (app_line_id, app_id, app_app_id, "
                    + "app_line_order, app_line_type, app_line_status) "

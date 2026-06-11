@@ -86,6 +86,23 @@ public class EmpDao {
 		Object[] params = {keyword};
 		return jdbcTemplate.query(sql, empMapper, params);
 	}
+	public List<EmpDto> selectListByDept(String deptKeyword){
+
+	    if(deptKeyword == null || deptKeyword.isEmpty()) {
+	        return selectListByUser();
+	    }
+
+	    String sql =
+	            "select * from emp "
+	          + "where emp_dept = ? "
+	          + "and emp_level != '관리자' "
+	          + "and emp_approval_status = 'Y' "
+	          + "order by emp_no asc";
+
+	    Object[] params = {Integer.parseInt(deptKeyword)};
+
+	    return jdbcTemplate.query(sql, empMapper, params);
+	}
 	public List<EmpDto> selectListByAdmin(){
 		String sql = "select * from emp where emp_approval_status= 'Y' "
 				+ "order by emp_no asc";
@@ -104,6 +121,22 @@ public class EmpDao {
 						+ "order by "+column+" asc, emp_no asc";
 		Object[] params = {keyword};
 		return jdbcTemplate.query(sql, empMapper, params);
+	}
+	public List<EmpDto> selectListByAdminByDept(String deptKeyword){
+
+	    if(deptKeyword == null || deptKeyword.isEmpty()) {
+	        return selectListByAdmin();
+	    }
+
+	    String sql =
+	            "select * from emp "
+	          + "where emp_dept = ? "
+	          + "and emp_approval_status = 'Y' "
+	          + "order by emp_no asc";
+
+	    Object[] params = {Integer.parseInt(deptKeyword)};
+
+	    return jdbcTemplate.query(sql, empMapper, params);
 	}
 	
 	//관리자가 사원정보에서 수정해야할 부분 - 사원권한,사원부서,사원직위,사원담당사수,사원활성화,사원입사일,사원퇴사일

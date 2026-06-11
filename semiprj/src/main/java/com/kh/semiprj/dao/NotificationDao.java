@@ -91,6 +91,74 @@ public class NotificationDao {
 		return list.isEmpty() ? List.of() : list;
 	}
 	
+	public List<NotificationDto> selectListByPaging(String notificationReceiver, String type, int beginRow, int endRow){
+		String sql = "select * from("
+						+ "select rownum RN, TMP.* from("
+							+ "select * from notification "
+							+ "where notification_receiver = ? "
+							+ "order by notification_no desc"
+						+ ") TMP"
+					+ ") where RN between ? and ?";
+		if (type.equals("all")) {
+			sql = "select * from("
+					+ "select rownum RN, TMP.* from("
+						+ "select * from notification "
+						+ "where notification_receiver = ? "
+						+ "order by notification_time desc"
+					+ ") TMP"
+				+ ") where RN between ? and ?";
+		}
+		else if (type.equals("unread")) {
+			sql = "select * from("
+					+ "select rownum RN, TMP.* from("
+						+ "select * from notification "
+						+ "where notification_receiver = ? "
+						+ "and notification_read = 'N' "
+						+ "order by notification_time desc"
+					+ ") TMP"
+				+ ") where RN between ? and ?";
+		}
+		else if (type.equals("read")) {
+			sql = "select * from("
+					+ "select rownum RN, TMP.* from("
+						+ "select * from notification "
+						+ "where notification_receiver = ? "
+						+ "and notification_read = 'Y' "
+						+ "order by notification_time desc"
+					+ ") TMP"
+				+ ") where RN between ? and ?";
+		}
+		else if (type.equals("board")) {
+			sql = "select * from("
+					+ "select rownum RN, TMP.* from("
+						+ "select * from notification "
+						+ "where notification_receiver = ? "
+						+ "and (notification_type = 'board_reply' or notification_type = 'comment' or notification_type = 'reply' or notification_type = 'like') "
+						+ "order by notification_time desc"
+					+ ") TMP"
+				+ ") where RN between ? and ?";
+		}
+		else if (type.equals("app")) {
+			sql = "select * from("
+					+ "select rownum RN, TMP.* from("
+						+ "select * from notification "
+						+ "where notification_receiver = ? "
+						+ "and (notification_type = 'approval' or notification_type = 'reject') "
+						+ "order by notification_time desc"
+					+ ") TMP"
+				+ ") where RN between ? and ?";
+		}
+		Object[] params = {
+				notificationReceiver,
+				beginRow,
+				endRow
+		};
+		
+		List<NotificationDto> list = jdbcTemplate.query(sql, notificationMapper, params);
+		return list.isEmpty() ? List.of() : list;
+	}
+	
+	
 	public List<NotificationDto> selectRecent(String notificationReceiver){
 		String sql = "select rownum, TMP.* from ("
 				+ "select * from notification where notification_receiver = ? "

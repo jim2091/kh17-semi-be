@@ -1,0 +1,345 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+
+<style>
+.modal-overlay {
+    display: none;
+    position: fixed;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+}
+.emp-picker-modal {
+    width: 800px;
+    max-height: 80vh;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+}
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid #ddd;
+}
+.modal-header h3 {
+    margin: 0;
+    color: var(--main-color);
+    font-size: 16px;
+}
+.close-btn {
+    border: none;
+    background: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: #888;
+}
+.close-btn:hover { color: #333; }
+.selected-emp-area {
+    padding: 15px 20px;
+    border-bottom: 1px solid #eee;
+    background: #fafafa;
+}
+.selected-title {
+    font-weight: bold;
+    font-size: 13px;
+    color: #555;
+    margin-bottom: 10px;
+}
+.selected-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-height: 32px;
+}
+.selected-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 12px;
+    background: white;
+    border: 1px solid var(--main-color);
+    border-radius: 20px;
+    font-size: 13px;
+    color: var(--main-color);
+}
+.selected-remove {
+    cursor: pointer;
+    font-weight: bold;
+    color: #c62828;
+    margin-left: 4px;
+}
+.search-area {
+    padding: 15px 20px;
+    display: flex;
+    gap: 10px;
+    border-bottom: 1px solid #eee;
+}
+.search-area input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 13px;
+}
+.search-emp-btn {
+    padding: 8px 16px;
+    background: var(--main-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+}
+.search-emp-result {
+    padding: 0 20px;
+    overflow-y: auto;
+    flex: 1;
+    max-height: 300px;
+}
+.emp-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+.emp-table th {
+    padding: 12px;
+    border-bottom: 2px solid var(--main-color);
+    text-align: center;
+    color: var(--main-color);
+    font-weight: 600;
+    background: white;
+}
+.emp-table td {
+    padding: 12px;
+    border-bottom: 1px solid #f0f0f0;
+    text-align: center;
+}
+.emp-table thead { position: sticky; top: 0; background: white; }
+.emp-table tbody tr:hover { background: #f8f9ff; cursor: pointer; }
+.modal-footer {
+    padding: 15px 20px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    border-top: 1px solid #ddd;
+}
+.select-btn {
+    padding: 6px 14px;
+    background: var(--main-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+}
+.cancel-btn {
+    padding: 8px 20px;
+    background: #f0f0f0;
+    color: #333;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+}
+.confirm-btn {
+    padding: 8px 20px;
+    background: var(--main-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+}
+.empty-result {
+    padding: 30px;
+    text-align: center;
+    color: #aaa;
+    font-size: 13px;
+}
+</style>
+
+<div class="modal-overlay">
+    <div class="emp-picker-modal">
+
+        <%-- 헤더 --%>
+        <div class="modal-header">
+            <h3>결재자 선택 (<span class="approver-order-label">1</span>순위)</h3>
+            <button type="button" class="close-btn">✕</button>
+        </div>
+
+        <%-- 선택된 결재자 목록 --%>
+        <div class="selected-emp-area">
+            <div class="selected-title">
+                선택된 결재자 (<span class="selected-count">0</span>명)
+            </div>
+            <div class="selected-list"></div>
+        </div>
+
+        <%-- 검색창 --%>
+        <div class="search-area">
+            <input type="text" class="keyword" placeholder="이름 또는 부서 입력">
+            <button type="button" class="search-emp-btn">🔍 검색</button>
+        </div>
+
+        <%-- 검색 결과 --%>
+        <div class="search-emp-result">
+            <table class="emp-table">
+                <thead>
+                    <tr>
+                        <th>선택</th>
+                        <th>사번</th>
+                        <th>이름</th>
+                        <th>직급</th>
+                        <th>부서</th>
+                    </tr>
+                </thead>
+                <tbody class="emp-result-body">
+                    <tr>
+                        <td colspan="5" class="empty-result">검색어를 입력해주세요.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <%-- 푸터 --%>
+        <div class="modal-footer">
+            <button type="button" class="cancel-btn">취소</button>
+            <button type="button" class="confirm-btn">선택 완료</button>
+        </div>
+
+    </div>
+</div>
+
+<script>
+(function(){
+
+    let currentIndex = 1;      // 현재 선택 중인 결재자 순서
+    let selectedEmp = null;    // 현재 선택된 사원
+
+    const overlay   = document.querySelector('.modal-overlay');
+    const keyword   = document.querySelector('.keyword');
+    const resultBody = document.querySelector('.emp-result-body');
+    const selectedList = document.querySelector('.selected-list');
+    const selectedCount = document.querySelector('.selected-count');
+    const orderLabel = document.querySelector('.approver-order-label');
+
+    // 팝업 열기
+    window.openApproverPopup = function(index) {
+        currentIndex = index;
+        selectedEmp = null;
+        keyword.value = '';
+        orderLabel.textContent = index;
+        resultBody.innerHTML = '<tr><td colspan="5" class="empty-result">검색어를 입력해주세요.</td></tr>';
+        updateSelectedArea();
+        overlay.style.display = 'flex';
+    };
+
+    // 팝업 닫기
+    function closePopup() {
+        overlay.style.display = 'none';
+        selectedEmp = null;
+    }
+
+    // 선택된 결재자 영역 업데이트
+    function updateSelectedArea() {
+        selectedList.innerHTML = '';
+        let count = 0;
+
+        for (let i = 1; i <= window.approverCount; i++) {
+            const no   = document.getElementById('approverNo_' + i);
+            const name = document.getElementById('approverName_' + i);
+            if (no && no.value) {
+                count++;
+                const item = document.createElement('span');
+                item.className = 'selected-item';
+                item.innerHTML = i + '순위 ' + name.value;
+                selectedList.appendChild(item);
+            }
+        }
+        selectedCount.textContent = count;
+    }
+
+    // 검색 실행
+    function doSearch() {
+        const kw = keyword.value.trim();
+
+        let url;
+
+        if (currentIndex === 1) {
+            url = '/app/searchApprover1?keyword=' + encodeURIComponent(kw);
+        } else {
+            const prevLevel = parseInt(document.getElementById('approverLevel_' + (currentIndex - 1)).value) || 0;
+            let excludes = [];
+            for (let i = 1; i < currentIndex; i++) {
+                const no = document.getElementById('approverNo_' + i);
+                if (no && no.value) excludes.push(no.value);
+            }
+            const excludeParams = excludes.map(e => 'excludes=' + encodeURIComponent(e)).join('&');
+            url = '/app/searchApproverNext?keyword=' + encodeURIComponent(kw)
+                + '&' + excludeParams + '&minLevel=' + prevLevel;
+        }
+
+        fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                if (!data || data.length === 0) {
+                    resultBody.innerHTML = '<tr><td colspan="5" class="empty-result">검색 결과가 없습니다.</td></tr>';
+                    return;
+                }
+                resultBody.innerHTML = data.map(emp => `
+                    <tr>
+                        <td>
+                            <button type="button" class="select-btn"
+                                    onclick="pickEmp('${emp.empNo}', '${emp.empName}', ${emp.positionLevel})">
+                                선택
+                            </button>
+                        </td>
+                        <td>${emp.empNo}</td>
+                        <td>${emp.empName}</td>
+                        <td>${emp.empPosition}</td>
+                        <td>${emp.empDept}</td>
+                    </tr>
+                `).join('');
+            });
+    }
+
+    // 사원 선택
+    window.pickEmp = function(empNo, empName, positionLevel) {
+        selectedEmp = { empNo, empName, positionLevel };
+
+        // 선택된 항목 시각적 표시
+        document.querySelectorAll('.emp-table tbody tr').forEach(tr => {
+            tr.style.background = '';
+        });
+        event.target.closest('tr').style.background = '#e8f5e9';
+    };
+
+    // 선택 완료
+        document.getElementById('approverNo_'    + currentIndex).value = selectedEmp.empNo;
+        document.getElementById('approverName_'  + currentIndex).value = selectedEmp.empName;
+        document.getElementById('approverLevel_' + currentIndex).value = selectedEmp.positionLevel;
+        closePopup();
+    });
+
+    // 닫기 버튼들
+    document.querySelector('.close-btn').addEventListener('click', closePopup);
+    document.querySelector('.cancel-btn').addEventListener('click', closePopup);
+
+    // 검색 버튼
+    document.querySelector('.search-emp-btn').addEventListener('click', doSearch);
+
+    // 엔터키
+    keyword.addEventListener('keydown', function(e){
+        if (e.key === 'Enter') doSearch();
+    });
+
+})();
+</script>

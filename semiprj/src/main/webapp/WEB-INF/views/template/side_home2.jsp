@@ -2,6 +2,24 @@
     pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
+<script>
+$(function(){
+
+    $(".admin-menu").click(function(e){
+        e.preventDefault();
+
+        $(this).next(".admin-submenu").slideToggle(200);
+    });
+    
+    $(".calendar-menu").click(function(e){
+        e.preventDefault();
+
+        $(this).next(".calendar-submenu").slideToggle(200);
+    });
+
+});
+</script>
+
 <div class="gw-sidebar">
     <div class="gw-logo">
         <img src="/images/kh.jpg">
@@ -36,10 +54,21 @@
             <i class="fa-solid fa-business-time"></i>
             <span>근태관리</span>
         </a>
-        <a href="/event/calendar">
+        <a href="/event/calendar" class="calendar-menu">
             <i class="fa-solid fa-calendar-day"></i>
             <span>일정</span>
         </a>
+        <div class="calendar-submenu" style="display:none; padding-left:25px;">
+		        <a href="/event/calendar">
+		            <i class="fa-solid fa-calendar-day"></i>
+		            <span>캘린더</span>
+		        </a>
+		
+		        <a href="/event/calendarList">
+		            <i class="fa-solid fa-list"></i>
+		            <span>일정 목록</span>
+		        </a>
+		</div>
         <a href="/board/list">
             <i class="fa-solid fa-clipboard-list"></i>
             <span>게시판</span>
@@ -56,10 +85,21 @@
 		
 		<c:if test="${sessionScope.loginRole == '관리자'}">
 	        <div class="gw-menu-title">MANAGEMENT</div>
-	        <a href="/admin/list">
+	        <a href="/admin/list" class="admin-menu">
 	            <i class="fa-solid fa-users"></i>
 	            <span>직원관리</span>
 	        </a>
+	        <div class="admin-submenu" style="display:none; padding-left:25px;">
+		        <a href="/admin/list">
+		            <i class="fa-solid fa-list"></i>
+		            <span>전체 직원</span>
+		        </a>
+		
+		        <a href="/admin/waitingList">
+		            <i class="fa-solid fa-user-clock"></i>
+		            <span>대기 직원 목록</span>
+		        </a>
+		    </div>
 	        <a href="/dept/list">
 	            <i class="fa-solid fa-sitemap"></i>
 	            <span>부서관리</span>
