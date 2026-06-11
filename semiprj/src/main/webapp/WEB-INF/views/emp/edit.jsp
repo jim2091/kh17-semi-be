@@ -2,24 +2,18 @@
     pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
-<jsp:include page="/WEB-INF/views/template/side_user.jsp"></jsp:include>
+<jsp:include page="/WEB-INF/views/template/header2.jsp"></jsp:include>
 
 
 
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="/kh.png" type="image/jpeg">
-    <link rel="stylesheet" 
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
-        type="text/css">
-    <link rel="stylesheet" href="/css/commons_semi.css" type="text/css">
-    
+      
     <!-- lightpick CDN -->
     <link href="https://cdn.jsdelivr.net/npm/lightpick@1.6.2/css/lightpick.min.css" rel="stylesheet">
+    
+    
     <script src="https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lightpick@1.6.2/lightpick.min.js"></script>
     
@@ -229,18 +223,13 @@
                     $("[name=empPost]").val(data.zonecode);
                     $("[name=empAddress1]").val(addr);
                     
-                    $(".btn-address-clear").fadeIn();
                     $("[name=empAddress2]").trigger("focus");
                     checkAddress(); // 주소 입력 후 즉시 유효성 검사 실행
                 }
                }).open(); 
             });
         
-        $(".btn-address-clear").on("click", function(){
-            $("[name=empPost], [name=empAddress1], [name=empAddress2]").val("").removeClass("success fail");
-            state.empAddressValid = true;
-            $(this).fadeOut();
-        });
+        
             
         var datePicker = new Lightpick({ 
             field : $("[name=empBirth]")[0],
@@ -293,108 +282,241 @@
     </script>
 </head>
 <body>
+<div class="gw-page-head">
+    <div class="gw-breadcrumb">
+        마이페이지 > 내 정보 수정
+    </div>
+
+    <h1>내 정보 수정</h1>
+    <p>프로필 및 개인정보를 수정할 수 있습니다.</p>
+</div>
     <form action="./edit" method="post" autocomplete="off" enctype="multipart/form-data" class="form-check">
 	<input type="hidden" name="empNo" value="${empDto.empNo}">
-	<div class="container w-600 mt-50 mb-50">
-        <div class="cell center">
-            <h1>[${empDto.empName}]님 정보 수정</h1>
-        </div>
-        <div class="cell preview-area">
-			<img src="./profile?empNo=${empDto.empNo}" width="150" class="preview">
-        </div>
-        <div class="cell">
-            <label><i class="fa-solid fa-asterisk red"></i>사진</label>
-        	<input type="file" name="attach" accept=".png, .jpeg" class="field w-100 preview-input">
-            <div class="success-feedback"></div>
-            <div class="fail-feedback"></div>
-        </div>
-        
-        <div class="cell">
-            <span>사원실명 : ${empDto.empName}</span>
-        </div>
-        <div class="cell">
-            <span>사원부서 : ${empDto.empDept}</span>
-        </div>
-        <div class="cell">
-            <span>사원직위 : ${empDto.empPosition}</span>
-        </div>
-        <div class="cell">
-            <span>담당사수 : ${empDto.empMentor}</span>
-        </div>
-        <div class="cell">
-            <span>사원아이디 : ${empDto.empId}</span>
-        </div>
-        <div class="cell">
-            <label><i class="fa-solid fa-asterisk red"></i>생년월일 : </label>
-            <div class="cell">            
-                <input type="text" name="empBirth" value="${empDto.empBirth}" class="field w-100">
-            </div>
-            <div class="success-feedback"></div>
-            <div class="fail-feedback">필수 입력사항입니다</div>
-        </div>
-        <div class="cell">
-            <label><i class="fa-solid fa-asterisk red"></i>이메일주소 : </label>
-            <div class="cell mt-0 flex-area" style="flex-wrap: wrap;">
-                <input type="text" name="empEmail" value="${empDto.empEmail}" class="field">
-                <c:if test="${empDto.empEmailVerified == null || empDto.empEmailVerified == 'N'}">
-                
-                <button type="button" class="btn btn-neutral btn-cert-send ms-10">
-                    <i class="fa-solid fa-envelope"></i>
-                    <span>인증메일보내기</span>
-                </button>
-                <button type="button" class="btn btn-negative btn-cert-retry ms-10" 
-                        style="display: none;">
-                    <i class="fa-solid fa-rotate-right"></i>
-                    <span>다시 이메일 인증하기</span>
-                </button>
-                <div class="success-feedback w-100">사용할 수 있는 이메일입니다</div>
-                <div class="fail-feedback w-100">
-                    <div>형식에 맞지 않는 이메일입니다</div>
-                    <div>이미 사용중인 이메일입니다</div>
-                </div>
-                </c:if>
-            </div>
-            <div class="cell cert-area">
-                
-            </div>
-        </div>
-        <div class="cell">
-            <label><i class="fa-solid fa-asterisk red"></i>연락처 : </label>
-            <div class="cell"> 
-                <input type="text" name="empContact" value="${empDto.empContact}" class="field field-numeric w-100">
-            </div>
-            <div class="success-feedback"></div>
-            <div class="fail-feedback"></div>
-        </div>
-        <div class="cell mt-0">
-            <label><i class="fa-solid fa-asterisk red"></i>주소</label>
-            <div class="cell">
-                <input type="text" inputmode="numeric" name="empPost" 
-                value="${empDto.empPost}" size="6" maxlength="6" placeholder="우편번호" class="field field-numeric" readonly>
-                <button type="button" class="btn btn-neutral btn-post">
-                    <i class="fa-solid fa-magnifying-glass"></i></button>
-            </div>
-            <div class="cell">
-                <input type="text" name="empAddress1" value="${empDto.empAddress1}" placeholder="기본주소" class="field w-100">
-            </div>
-            <div class="cell">
-                <input type="text" name="empAddress2" value="${empDto.empAddress2}" placeholder="상세주소" class="field w-100">
-            </div>
-            <div class="success-feedback"></div>
-            <div class="fail-feedback"></div>
-        </div>
-        <div class="cell">
-            <span>입사일 :<fmt:formatDate value = "${empDto.empHireDate}" pattern="yyyy-MM-dd"/></span>
-        </div>
-        <div class="cell">
-        	
-        <button type="submit" class="btn btn-positive">수정하기</button>
-			<a href="./mypage" class="btn btn-neutral">돌아가기</a>
-			<a href="./password" class="btn btn-neutral">비밀번호 변경하기</a>
-		</div>
+	<div style="
+    display:grid;
+    grid-template-columns:280px 1fr;
+    gap:20px;">
+
+	
+	
+	
+	<div class="gw-list-panel center">
+
+    <img src="./profile?empNo=${empDto.empNo}"
+         class="preview"
+         width="160"
+         height="160"
+         style="
+            border-radius:50%;
+            object-fit:cover;
+            border:4px solid var(--main-light);
+         ">
+
+    <h2 class="mt-20">
+        ${empDto.empName}
+    </h2>
+
+    <div class="gw-muted">
+        ${deptDto.deptName}
+    </div>
+
+    <div class="gw-muted">
+        ${empDto.empPosition}
+    </div>
+
+    <div class="field mt-20">
+        <input type="file"
+               name="attach"
+               class="gw-form-input field w-100">
+        <div class="success-feedback"></div>
+        <div class="fail-feedback"></div>       
+    </div>
+
 </div>
+
+<div class="gw-list-panel">
+
+    <table class="gw-table">
+        <tbody>
+
+            <tr>
+                <th width="180">사원아이디</th>
+                <td>
+                <div style="display:flex; gap:10px;">
+                ${empDto.empId}
+                </div>
+                </td>
+            </tr>
+
+            <tr>
+                <th>생년월일</th>
+                <td>
+                <div style="display:flex; gap:10px;">
+                    <input type="text"
+                           name="empBirth"
+                           value="${empDto.empBirth}"
+                           class="gw-form-input field">
+                    <div class="success-feedback"></div>
+            		<div class="fail-feedback">필수 입력사항입니다</div>       
+                </div>
+                
+                </td>
+            </tr>
+
+            <tr>
+                <th>이메일</th>
+                <td>
+                    <div style="display:flex; gap:10px;">
+                        <input type="text"
+                               name="empEmail"
+                               value="${empDto.empEmail}"
+                               class="gw-form-input field">
+                        <c:if test="${empDto.empEmailVerified == null || empDto.empEmailVerified == 'N'}">       
+
+                        <button type="button"
+                                class="gw-btn-outline btn-cert-send">
+                            인증
+                        </button>
+                         <button type="button" class="gw-btn-outline btn-cert-retry ms-10" 
+	                        style="display: none;">
+	                    <i class="fa-solid fa-rotate-right"></i>
+	                    <span>다시 이메일 인증하기</span>
+	                	</button>
+	                	<div class="success-feedback w-100">사용할 수 있는 이메일입니다</div>
+		                <div class="fail-feedback w-100">
+		                    <div>형식에 맞지 않는 이메일입니다</div>
+		                    <div>이미 사용중인 이메일입니다</div>
+		                </div>
+                        </c:if>
+                    </div>
+
+                    <div class="cert-area mt-10"></div>
+                </td>
+            </tr>
+
+            <tr>
+                <th>연락처</th>
+                <td>
+                <div style="display:flex; gap:10px;">
+                    <input type="text"
+                           name="empContact"
+                           value="${empDto.empContact}"
+                           class="gw-form-input field">
+                <div class="success-feedback"></div>
+            	<div class="fail-feedback"></div>
+                </div>           
+                </td>
+            </tr>
+
+            <tr>
+                <th>주소</th>
+                <td>
+
+                    <div style="display:flex; gap:10px;">
+                        <input type="text"
+                               name="empPost"
+                               value="${empDto.empPost}"
+                               class="gw-form-input field">
+
+                        <div class="success-feedback"></div>
+            			<div class="fail-feedback"></div>
+                        <button type="button"
+                                class="gw-btn-outline btn-post">
+                            주소검색
+                        </button>
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                    <input type="text"
+                           name="empAddress1"
+                           value="${empDto.empAddress1}"
+                           class="gw-form-input mt-10 field">
+
+                    <input type="text"
+                           name="empAddress2"
+                           value="${empDto.empAddress2}"
+                           class="gw-form-input mt-10 field">
+                    </div>
+                    <div class="success-feedback"></div>
+            		<div class="fail-feedback"></div>       
+                </td>
+            </tr>
+
+            <tr>
+                <th>입사일</th>
+                <td>
+                <div style="display:flex; gap:10px;">
+                    <fmt:formatDate
+                        value="${empDto.empHireDate}"
+                        pattern="yyyy-MM-dd"/>
+                </div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+
+</div>
+</div>
+<div class="mt-30"
+     style="
+        display:flex;
+        justify-content:center;
+        gap:10px;
+        flex-wrap:wrap;
+     ">
+
+    <button type="submit"
+            class="gw-btn-primary">
+        <i class="fa-solid fa-floppy-disk"></i>
+        수정하기
+    </button>
+
+    <a href="./password"
+       class="gw-btn-outline">
+        <i class="fa-solid fa-key"></i>
+        비밀번호 변경
+    </a>
+
+    <a href="./mypage"
+       class="gw-btn-outline">
+        <i class="fa-solid fa-arrow-left"></i>
+        돌아가기
+    </a>
+
+</div>
+
+	
 	
 </form>
 </body>
 </html>
-<jsp:include page="/WEB-INF/views/template/footer.jsp"></jsp:include>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<jsp:include page="/WEB-INF/views/template/footer2.jsp"></jsp:include>

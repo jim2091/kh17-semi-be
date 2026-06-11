@@ -80,6 +80,19 @@
             });
         });
         
+        // 부서장 검사
+        $("[name=deptHeadIdKeyword]").on("input change check", function(){
+            var hasHead = $("input[name=deptHeadId]").length > 0;
+            
+            if(hasHead) {
+                $(this).removeClass("fail").addClass("success");
+                state.deptHeadIdValid = true;
+            } else {
+                $(this).removeClass("success").addClass("fail");
+                state.deptHeadIdValid = false;
+            }
+        });
+        
         // 키워드 자동완성 타이핑 검색 구현
         $("[name=deptHeadIdKeyword]").on("keyup", function(){
     	    var keyword = $(this).val();
@@ -98,25 +111,24 @@
     	
     	            $.each(response, function(index, emp){
     	                var div = $("<div>").addClass("deptHeadId-item");
-    	                div.text(emp.empName + " (" + emp.empDept + ")");
+    	                div.text(emp.empName + " (" + (emp.empDeptName || "소속없음") + ")");
     	                
     	                div.click(function(){
-                            // 자동완성 클릭 시에도 모달과 동일한 형태의 태그를 생성해 매칭 유도
     	                    $(".receiver-selected-list").empty();
 
     	                    var html = "";
     	                    html += "<span class='receiver-tag'>";
-    	                    html += emp.empName;
+    	                    html += emp.empName + " (" + (emp.empDeptName || "소속없음") + ")";
     	                    html += "<button type='button' class='delete-tag'>✕</button>";
-                            // name 속성을 messageReceiver 로 일치시킵니다.
-    	                    html += "<input type='hidden' name='messageReceiver' value='" + emp.empNo + "'>";
+    	                    html += "<input type='hidden' name='deptHeadId' value='" + emp.empNo + "'>";
     	                    html += "</span>";
 
     	                    $(".receiver-selected-list").append(html);
     	                    $("[name=deptHeadIdKeyword]").val("");
     	                    $(".deptHeadId-list").empty();
 
-    	                    state.deptHeadIdValid = true;
+    	                    // 값이 바뀌었으므로 검사 이벤트를 트리거합니다.
+    	                    $("[name=deptHeadIdKeyword]").trigger("check");
     	                });
     	
     	                $(".deptHeadId-list").append(div);
@@ -125,15 +137,38 @@
     	    });
     	});
         
-        // 부서장은 단 한 명이어야 하므로, 모달창에서 다중 선택 완료 후 창이 닫혔을 때 
-        // 여러 개가 누적되어 있다면 가장 마지막에 선택된 하나만 남기고 정리해 주는 안전 장치
+        // 공용 모달창(엠플로이-피커) 연동 및 부서명 가로채기
         $(document).on("click", ".confirm-btn", function() {
-            setTimeout(function() {
-                var tags = $(".receiver-selected-list .receiver-tag");
-                if (tags.length > 1) {
-                    // 가장 마지막에 추가된 사원 태그 하나만 남기고 전부 지웁니다.
-                    tags.not(':last').remove();
-                }
+            $(".receiver-selected-list").empty();
+            
+            $(".emp-check:checked").each(function() {
+                var empNo = $(this).data("no");
+                var empName = $(this).data("name");
+                
+                var tr = $(this).closest("tr");
+                var deptName = tr.find("td").eq(4).text() || "소속없음";
+                
+                var html = "";
+                html += "<span class='receiver-tag'>";
+                html += empName + " (" + deptName + ")";
+                html += "<button type='button' class='delete-tag'>✕</button>";
+                html += "<input type='hidden' name='deptHeadId' value='" + empNo + "'>";
+                html += "</span>";
+                
+                $(".receiver-selected-list").append(html);
+            });
+            
+            //모달창 선택 완료 시에도 검사 이벤트를 트리거합니다.
+            $("[name=deptHeadIdKeyword]").trigger("check");
+            $(".modal-overlay").hide();
+        });
+
+        //태그의 X 버튼을 눌러 부서장을 지웠을 때도 실시간 검사 트리거
+        $(document).on("click", ".receiver-list .delete-tag", function(){
+        	$(this).closest(".receiver-tag").remove();
+            
+        	setTimeout(function(){
+                $("[name=deptHeadIdKeyword]").trigger("check");
             }, 50);
         });
         
@@ -150,20 +185,20 @@
             state.deptContentValid = valid;
         });
         
-        // 폼 전송 시 검사
+     // 폼 전송 시 검사
         $(".form-check").on("submit", function(){
-            // hidden input의 name이 messageReceiver로 잡히기 때문에 변경
-            state.deptHeadIdValid = $("input[name=messageReceiver]").length > 0;
-
+            state.deptHeadIdValid = $("input[name=deptHeadId]").length > 0;
+            
+            $("[name=deptHeadIdKeyword]").trigger("check");
             $("[name=parentDeptId]").trigger("change");
             $("[name=deptName]").trigger("input");
             $("[name=deptContent]").trigger("blur");
 
+            
             return state.ok();
         });
     }); 
 </script>
-
 <form action="./insert" method="post" autocomplete="off" class="form-check">
     <div class="container w-600 mt-50 mb-50">
         <div class="cell center">
@@ -174,7 +209,7 @@
             <label>상위 부서 분류 <i class="fa-solid fa-asterisk red"></i></label>            
             <select name="parentDeptId" class="field w-100">
                 <option value="">선택하세요</option>
-                <option value="0">최상위 부서 (독립 부서) 추가</option>
+                <option value="0">최상위 부서 추가</option>
                 <c:forEach var="deptDto" items="${deptList}">
                 	<option value="${deptDto.deptId}">${deptDto.deptName}</option>
                 </c:forEach>
@@ -200,10 +235,8 @@
 		            <span>찾기</span>
 		        </button>
 		    </div>
-		    
-		    <div class="receiver-selected-list"></div>
+		    <div class="receiver-selected-list receiver-list"></div>
 		    <div class="deptHeadId-list"></div>
-		    <div class="fail-feedback">부서장을 필수적으로 선택해야 합니다!</div>
 		</div>
 
         <jsp:include page="/WEB-INF/views/template/employee-picker.jsp"/>
@@ -219,5 +252,4 @@
         </div>
     </div>
 </form>
-
 <jsp:include page="/WEB-INF/views/template/footer.jsp"></jsp:include>

@@ -154,7 +154,7 @@
                 state.empNameValid = valid;
             });
             $("[name=empDept]").on("input", function(){
-                var regex = /^(회사|경영지원본부|인사팀|총무감사팀|총무팀|개발본부|백엔드개발팀|프론트엔드개발팀|영업마케팅본부|국내영업팀)$/;
+                var regex = /^(0|10|20|21|30|40|50|60|70|80)$/;
                 var valid = regex.test($(this).val());
                 $(this).removeClass("success fail").addClass(valid? "success": "fail");
 
