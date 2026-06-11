@@ -62,8 +62,8 @@ window.onload = function() {
 							test="${i == 1}">
 							<span class="required">*</span>
 						</c:if>
-					</span> <select id="approver${i}" name="approver${i}" class="field w-30 mt-20"
-						onchange="showSelected(${i})">
+					</span> <select id="approver${i}" name="approver${i}"
+						class="field w-30 mt-20" onchange="showSelected(${i})">
 						<option value="">-- 선택 --</option>
 						<c:forEach var="emp" items="${empList}">
 							<option value="${emp.appReqId}">${emp.appTitle}/
@@ -73,15 +73,20 @@ window.onload = function() {
 				</div>
 			</c:forEach>
 		</div>
-
+		<%-- 에러 메시지 --%>
+		<c:if test="${not empty errorMsg}">
+			<div
+				style="background: #ffebee; color: #c62828; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-size: 14px;">
+				⚠️ ${errorMsg}</div>
+		</c:if>
 
 		<div class="cell mt-40">
 			<label>결재내용</label> <input type="text" name="appContent"
 				class="field w-60" required maxlength="1000">
 		</div>
 		<div class="cell mt-40">
-			<label>기안일</label> 
-			<input type="date" name="appDate" class="field w-60" readonly>
+			<label>기안일</label> <input type="date" name="appDate"
+				class="field w-60" readonly>
 		</div>
 		<div class="cell mt-40">
 			<label>휴가시작일</label> <input type="date" name="vacStartDate"

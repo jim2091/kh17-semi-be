@@ -31,7 +31,65 @@ window.onload = function() {
     document.querySelector("input[name='appDate']").value = yyyy + "-" + mm + "-" + dd;
 };
 </script>
+<script>
+$(function(){
+    var state = {
+        expPriceValid: false, 
+        
+        
+        ok: function() {
+            return Object.values(this) 
+                    .filter(v => typeof v === "boolean") 
+                    .every(v => v === true); 
+        }
+    };
 
+    $("[name=expPrice]").on("input", function(){
+        var $input = $(this); 
+        var rawValue = $input.val(); 
+
+        var hasNonNumeric = /[^0-9]/g.test(rawValue);
+
+        var cleanValue = rawValue.replace(/[^0-9]/g, '');
+
+        if (cleanValue === '') {
+            $input.val('');
+            $("#realPrice").val(''); 
+            $input.removeClass("success fail"); 
+            state.expPriceValid = false; 
+            return;
+        }
+
+        if (hasNonNumeric) {
+            $input.removeClass("success fail")
+                  .addClass("fail")
+                  .attr("data-error", "1"); 
+            
+            state.expPriceValid = false;
+        } else {
+            $input.removeClass("success fail")
+                  .addClass("success")
+                  .removeAttribute("data-error"); 
+            
+            state.expPriceValid = true;
+        }
+
+        
+        
+        $("#realPrice").val(cleanValue);
+
+        var formattedValue = Number(cleanValue).toLocaleString('ko-KR');
+        $input.val(formattedValue);
+    });
+
+    $("#approvalForm").on("submit", function(e){
+        if (state.ok() === false) {
+            e.preventDefault(); 
+            alert("입력 항목을 다시 확인해 주세요.");
+        }
+    });
+});
+</script>
 <form action="./expInsert" method="post" autocomplete="off">
 	<div class="cell center">
 		<h1>품의서</h1>
@@ -59,8 +117,8 @@ window.onload = function() {
 							test="${i == 1}">
 							<span class="required">*</span>
 						</c:if>
-					</span> <select id="approver${i}" name="approver${i}" class="field w-30 mt-20"
-						onchange="showSelected(${i})">
+					</span> <select id="approver${i}" name="approver${i}"
+						class="field w-30 mt-20" onchange="showSelected(${i})">
 						<option value="">-- 선택 --</option>
 						<c:forEach var="emp" items="${empList}">
 							<option value="${emp.appReqId}">${emp.appTitle}/
@@ -70,13 +128,19 @@ window.onload = function() {
 				</div>
 			</c:forEach>
 		</div>
+		<%-- 에러 메시지 --%>
+		<c:if test="${not empty errorMsg}">
+			<div
+				style="background: #ffebee; color: #c62828; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-size: 14px;">
+				⚠️ ${errorMsg}</div>
+		</c:if>
 		<div class="cell mt-40">
 			<label>결재내용</label> <input type="text" name="appContent"
 				class="field w-60" required maxlength="1000">
 		</div>
 		<div class="cell mt-40">
-			<label>기안일</label> 
-			<input type="date" name="appDate" class="field w-60" readonly>
+			<label>기안일</label> <input type="date" name="appDate"
+				class="field w-60" readonly>
 		</div>
 
 		<%-- 품의서 전용 항목 --%>
@@ -85,8 +149,8 @@ window.onload = function() {
 				class="field w-60" required>
 		</div>
 		<div class="cell mt-40">
-			<label>지출금액</label> <input type="number" name="expPrice"
-				class="field w-60" required>
+			<label>지출금액</label> <input type="text" name="expPrice"
+				inputmode="numeric" class="field w-60" required>
 		</div>
 		<div class="cell mt-40">
 			<label>지출내역</label> <input type="text" name="expHistory"
@@ -106,4 +170,5 @@ window.onload = function() {
 			<button class="btn" type="button" onclick="location.href='./list';">취소</button>
 		</div>
 	</div>
+
 </form>
