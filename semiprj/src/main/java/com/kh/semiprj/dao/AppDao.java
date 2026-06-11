@@ -92,7 +92,6 @@ public class AppDao {
         String sql = "select emp_no from emp where emp_id = ?";
         Object[] params = { loginId };
         List<String> list = jdbcTemplate.queryForList(sql, String.class, params);
-        
         return list.isEmpty() ? null : list.get(0);
     }
 	
@@ -102,6 +101,47 @@ public class AppDao {
 		Object[] params = { appId };
 		return jdbcTemplate.update(sql, params) > 0;
 	}
+	
+	//  추가 정보
+	public VacAppDto selectVacByAppId(int appId) {
+	    String sql = "select * from vac_app where app_id = ?";
+	    List<VacAppDto> list = jdbcTemplate.query(sql, (rs, rn) -> {
+	        VacAppDto dto = new VacAppDto();
+	        dto.setAppId(rs.getInt("app_id"));
+	        dto.setVacStartDate(rs.getString("vac_start_date"));
+	        dto.setVacEndDate(rs.getString("vac_end_date"));
+	        dto.setVacType(rs.getString("vac_type"));
+	        return dto;
+	    }, appId);
+	    return list.isEmpty() ? null : list.get(0);
+	}
+	
+	public ExpAppDto selectExpByAppId(int appId) {
+	    String sql = "select * from exp_app where app_id = ?";
+	    List<ExpAppDto> list = jdbcTemplate.query(sql, (rs, rn) -> {
+	        ExpAppDto dto = new ExpAppDto();
+	        dto.setAppId(rs.getInt("app_id"));
+	        dto.setExpDate(rs.getString("exp_date"));
+	        dto.setExpPrice(rs.getInt("exp_price"));
+	        dto.setExpHistory(rs.getString("exp_history"));
+	        dto.setExpHow(rs.getString("exp_how"));
+	        dto.setExpPurpose(rs.getString("exp_purpose"));
+	        return dto;
+	    }, appId);
+	    return list.isEmpty() ? null : list.get(0);
+	}
+	
+	public DftAppDto selectDftByAppId(int appId) {
+	    String sql = "select * from dft_app where app_id = ?";
+	    List<DftAppDto> list = jdbcTemplate.query(sql, (rs, rn) -> {
+	        DftAppDto dto = new DftAppDto();
+	        dto.setAppId(rs.getInt("app_id"));
+	        dto.setDftDate(rs.getString("dft_date"));
+	        return dto;
+	    }, appId);
+	    return list.isEmpty() ? null : list.get(0);
+	}
+	
 	
 	// 휴가신청서 품의서 업무기안서 등록
 	public void insert(VacAppDto vacAppDto) {
@@ -183,7 +223,16 @@ public class AppDao {
 	    Object[] params = { beginRow, endRow };
 	    return jdbcTemplate.query(sql, appMapper, params);
 	}
+	// 문서 상태 변경
+	public void updateAppStatus(int appId, String status) {
+		String sql = "update app set app_status = ? where app_id = ?";
+		jdbcTemplate.update(sql, status, appId);
+	}
 
+	
+	
+	
+	
 	//뭐든 해당 사원이 포함되는걸로 검색
 	public AppDto selectOne(String appReqId) {
 	    String sql = "select a.*, e.emp_name from app a "
@@ -203,6 +252,8 @@ public class AppDao {
 	    return list.isEmpty() ? null : list.get(0);
 	}
 	
+	
+	//추후 쓰지 않거나 과한 기능은 정리
 	
 	//내 서류를 타입에 따라 필터링
 	public List<AppDto> selectMyListByType(String appReqId, String appType) {
@@ -269,11 +320,6 @@ public class AppDao {
 	    return jdbcTemplate.query(sql, appMapper, params);
 	}
 	
-	 // 문서 상태 변경
-    public void updateAppStatus(int appId, String status) {
-        String sql = "update app set app_status = ? where app_id = ?";
-        jdbcTemplate.update(sql, status, appId);
-    }
     
     //검색
     public List<AppDto> searchList(String empNo, String column, String keyword) {

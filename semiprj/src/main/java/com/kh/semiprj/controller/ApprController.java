@@ -14,6 +14,9 @@ import com.kh.semiprj.dao.AppDao;
 import com.kh.semiprj.dao.AppLineDao;
 import com.kh.semiprj.dto.AppDto;
 import com.kh.semiprj.dto.AppLineDto;
+import com.kh.semiprj.dto.DftAppDto;
+import com.kh.semiprj.dto.ExpAppDto;
+import com.kh.semiprj.dto.VacAppDto;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -45,6 +48,7 @@ public class ApprController {
 
 		model.addAttribute("list", list);
 		model.addAttribute("appList", appList);
+		model.addAttribute("currentTab", "appr");
 		return "/appr/list";
 	}
 
@@ -100,6 +104,18 @@ public class ApprController {
 				myTurn = line;
 				break;
 			}
+		}
+
+		// 문서 종류에 따라 추가 정보 조회
+		if ("휴가신청서".equals(appDto.getAppType())) {
+			VacAppDto vacAppDto = appDao.selectVacByAppId(appId);
+			model.addAttribute("vacAppDto", vacAppDto);
+		} else if ("품의서".equals(appDto.getAppType())) {
+			ExpAppDto expAppDto = appDao.selectExpByAppId(appId);
+			model.addAttribute("expAppDto", expAppDto);
+		} else if ("업무기안서".equals(appDto.getAppType())) {
+			DftAppDto dftAppDto = appDao.selectDftByAppId(appId);
+			model.addAttribute("dftAppDto", dftAppDto);
 		}
 
 		model.addAttribute("appDto", appDto);

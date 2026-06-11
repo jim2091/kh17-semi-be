@@ -3,8 +3,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
-<jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
-<jsp:include page="/WEB-INF/views/template/side_app.jsp"></jsp:include>
+<jsp:include page="/WEB-INF/views/template/header2.jsp"></jsp:include>
 
 <script>
 function showSelected(order) {
@@ -32,9 +31,92 @@ window.onload = function() {
     let dd = String(today.getDate()).padStart(2, '0');
     document.querySelector("input[name='appDate']").value = yyyy + "-" + mm + "-" + dd;
 };
+
+$(function(){
+    // 1. 기존 상태 객체에 휴가 날짜 상태 추가
+    var state = {
+        vacStartDateValid : false,
+        vacEndDateValid : false,
+        
+        ok : function() {
+            return Object.values(this)
+                    .filter(v => typeof v === "boolean")
+                    .every(v => v === true);
+        }
+    };
+
+    // 오늘 날짜를 기안일(appDate)에 기본값으로 세팅
+    var today = new Date().toISOString().split('T')[0];
+    $("[name=appDate]").val(today);
+
+    // 2. 휴가 시작일 변경 시 검사
+    $("[name=vacStartDate]").on("change", function(){
+        // [수정] vacDate -> appDate로 오타 수정
+        var appDate = $("[name=appDate]").val() || today; 
+        var startDate = $(this).val();
+        var endDate = $("[name=vacEndDate]").val();
+
+        // 날짜를 입력 안 하고 지웠을 때의 방어 코드 추가
+        if(!startDate) {
+            $(this).removeClass("success fail");
+            state.vacStartDateValid = false;
+            return;
+        }
+
+        if(startDate < appDate) {
+            $(this).removeClass("success fail").addClass("fail").attr("data-error", "1");
+            state.vacStartDateValid = false;
+        } else {
+            // [수정] removeAttribute -> removeAttr로 변경
+            $(this).removeClass("success fail").addClass("success").removeAttr("data-error");
+            state.vacStartDateValid = true;
+        }
+
+        // [연쇄 반응] 시작일이 바뀌면 종료일도 다시 한번 검사해줘야 함
+        if(endDate) {
+            $("[name=vacEndDate]").trigger("change");
+        }
+    });
+
+    // 3. 휴가 종료일 변경 시 검사
+    $("[name=vacEndDate]").on("change", function(){
+        var startDate = $("[name=vacStartDate]").val();
+        var endDate = $(this).val();
+
+        if(!endDate) {
+            $(this).removeClass("success fail");
+            state.vacEndDateValid = false;
+            return;
+        }
+
+        if(!startDate) {
+            $(this).removeClass("success fail");
+            state.vacEndDateValid = false;
+            return;
+        }
+
+        if(endDate < startDate) {
+            $(this).removeClass("success fail").addClass("fail").attr("data-error", "2");
+            state.vacEndDateValid = false;
+        } else {
+            // [수정] removeAttribute -> removeAttr로 변경
+            $(this).removeClass("success fail").addClass("success").removeAttr("data-error");
+            state.vacEndDateValid = true;
+        }
+    });
+
+    // 4. 폼 서밋 시 최종 차단
+    // HTML의 <form id="vacationForm"> 과 ID가 일치하는지 확인 필수!
+    $("#vacationForm").on("submit", function(e){
+        if(state.ok() == false) {
+            e.preventDefault(); // 전송 막기
+            alert("휴가 신청 날짜 형식을 확인해 주세요.");
+        }
+    });
+});
 </script>
 
-<form action="./vacInsert" method="post" autocomplete="off"
+<form action="./vacInsert" method="post" autocomplete="off" id="vacationForm"
 	onsubmit="return validateForm();">
 	<div class="cell center">
 		<h1>휴가신청서</h1>
@@ -63,8 +145,8 @@ window.onload = function() {
 							test="${i == 1}">
 							<span class="required">*</span>
 						</c:if>
-					</span> <select id="approver${i}" name="approver${i}" class="field w-30 mt-20"
-						onchange="showSelected(${i})">
+					</span> <select id="approver${i}" name="approver${i}"
+						class="field w-30 mt-20" onchange="showSelected(${i})">
 						<option value="">-- 선택 --</option>
 						<c:forEach var="emp" items="${empList}">
 							<option value="${emp.appReqId}">${emp.appTitle}/
@@ -74,6 +156,14 @@ window.onload = function() {
 				</div>
 			</c:forEach>
 		</div>
+		
+		
+		<%-- 에러 메시지 --%>
+		<c:if test="${not empty errorMsg}">
+			<div
+				style="background: #ffebee; color: #c62828; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-size: 14px;">
+				⚠️ ${errorMsg}</div>
+		</c:if>
 
 
 		<div class="cell mt-40">
@@ -81,8 +171,8 @@ window.onload = function() {
 				class="field w-60" required maxlength="1000">
 		</div>
 		<div class="cell mt-40">
-			<label>기안일</label> 
-			<input type="date" name="appDate" class="field w-60" readonly>
+			<label>기안일</label> <input type="date" name="appDate"
+				class="field w-60" readonly>
 		</div>
 		<div class="cell mt-40">
 			<label>휴가시작일</label> <input type="date" name="vacStartDate"
