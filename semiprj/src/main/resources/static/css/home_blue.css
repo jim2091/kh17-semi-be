@@ -761,13 +761,15 @@ button {
 }
 
 .dashboard-card {
-    min-height: 240px;
+    height: 300px;
     padding: 22px;
     background: var(--card-bg);
     border: 1px solid var(--card-border);
     border-radius: 16px;
     box-shadow: 0 8px 22px var(--card-shadow);
     transition: box-shadow .18s ease, transform .18s ease;
+
+    overflow: hidden;
 }
 
 .dashboard-card:hover {
@@ -781,6 +783,15 @@ button {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 18px;
+
+    flex: 0 0 auto;
+}
+
+.card-body {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding-right: 4px;
 }
 
 .card-title {
@@ -916,6 +927,8 @@ button {
     );
     color: var(--quick-text-color);
     border: none;
+    height: unset;
+    min-height: 300px;
 }
 
 .quick-menu .card-title {
@@ -1487,28 +1500,6 @@ button {
     color: var(--input-text) !important;
 }
 
-/* =========================
-   PDS List Page
-========================= */
-.pds-table th:nth-child(2),
-.pds-table td:nth-child(2) {
-    width: 90px;
-}
-
-.pds-table th:nth-child(4),
-.pds-table td:nth-child(4) {
-    width: 140px;
-}
-
-.pds-table th:nth-child(5),
-.pds-table td:nth-child(5) {
-    width: 150px;
-}
-
-.pds-table th:nth-child(6),
-.pds-table td:nth-child(6) {
-    width: 90px;
-}
 /* =========================
    PDS Insert Page
 ========================= */

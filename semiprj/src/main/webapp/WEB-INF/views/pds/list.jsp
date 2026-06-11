@@ -62,10 +62,10 @@
                                 <input type="checkbox" class="check-all">
                             </th>
                         </c:if>
-                        <th>번호</th>
-                        <th>제목</th>
-                        <th>작성자</th>
-                        <th>작성일</th>
+                        <th style="width: 90px">번호</th>
+                        <th style="width: 530px">제목</th>
+                        <th style="width: 140px">작성자</th>
+                        <th style="width: 150px">작성일</th>
                         <th>조회수</th>
                     </tr>
                 </thead>
