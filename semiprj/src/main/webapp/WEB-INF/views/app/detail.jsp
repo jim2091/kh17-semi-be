@@ -105,6 +105,80 @@ $(function(){
             </tr>
         </table>
     </div>
+    
+    <%-- 휴가신청서 추가 정보 --%>
+<c:if test="${not empty vacAppDto}">
+    <div style="background:white; border-radius:10px;
+                box-shadow:0 1px 4px rgba(0,0,0,0.08); padding:24px; margin-bottom:16px;">
+        <h3 style="margin:0 0 16px 0; font-size:15px; color:var(--main-color); font-weight:600;">
+            휴가 정보
+        </h3>
+        <table style="width:100%; border-collapse:collapse; font-size:14px;">
+            <tr style="border-bottom:1px solid #f0f0f0;">
+                <th style="padding:12px 16px; text-align:left; color:#888;
+                           font-weight:600; width:120px; background:#fafafa;">휴가 구분</th>
+                <td style="padding:12px 16px;">${vacAppDto.vacType}</td>
+                <th style="padding:12px 16px; text-align:left; color:#888;
+                           font-weight:600; width:120px; background:#fafafa;">휴가 기간</th>
+                <td style="padding:12px 16px;">
+                    ${vacAppDto.vacStartDate} ~ ${vacAppDto.vacEndDate}
+                </td>
+            </tr>
+        </table>
+    </div>
+</c:if>
+
+<%-- 품의서 추가 정보 --%>
+<c:if test="${not empty expAppDto}">
+    <div style="background:white; border-radius:10px;
+                box-shadow:0 1px 4px rgba(0,0,0,0.08); padding:24px; margin-bottom:16px;">
+        <h3 style="margin:0 0 16px 0; font-size:15px; color:var(--main-color); font-weight:600;">
+            품의 정보
+        </h3>
+        <table style="width:100%; border-collapse:collapse; font-size:14px;">
+            <tr style="border-bottom:1px solid #f0f0f0;">
+                <th style="padding:12px 16px; text-align:left; color:#888;
+                           font-weight:600; width:120px; background:#fafafa;">지출일</th>
+                <td style="padding:12px 16px;">${expAppDto.expDate}</td>
+                <th style="padding:12px 16px; text-align:left; color:#888;
+                           font-weight:600; width:120px; background:#fafafa;">지출금액</th>
+                <td style="padding:12px 16px;">
+                    <fmt:formatNumber value="${expAppDto.expPrice}" pattern="#,###"/>원
+                </td>
+            </tr>
+            <tr style="border-bottom:1px solid #f0f0f0;">
+                <th style="padding:12px 16px; text-align:left; color:#888;
+                           font-weight:600; background:#fafafa;">지출내역</th>
+                <td style="padding:12px 16px;" colspan="3">${expAppDto.expHistory}</td>
+            </tr>
+            <tr style="border-bottom:1px solid #f0f0f0;">
+                <th style="padding:12px 16px; text-align:left; color:#888;
+                           font-weight:600; background:#fafafa;">지출방법</th>
+                <td style="padding:12px 16px;">${expAppDto.expHow}</td>
+                <th style="padding:12px 16px; text-align:left; color:#888;
+                           font-weight:600; background:#fafafa;">지출목적</th>
+                <td style="padding:12px 16px;">${expAppDto.expPurpose}</td>
+            </tr>
+        </table>
+    </div>
+</c:if>
+
+<%-- 업무기안서 추가 정보 --%>
+<c:if test="${not empty dftAppDto}">
+    <div style="background:white; border-radius:10px;
+                box-shadow:0 1px 4px rgba(0,0,0,0.08); padding:24px; margin-bottom:16px;">
+        <h3 style="margin:0 0 16px 0; font-size:15px; color:var(--main-color); font-weight:600;">
+            업무기안 정보
+        </h3>
+        <table style="width:100%; border-collapse:collapse; font-size:14px;">
+            <tr>
+                <th style="padding:12px 16px; text-align:left; color:#888;
+                           font-weight:600; width:120px; background:#fafafa;">업무일</th>
+                <td style="padding:12px 16px;">${dftAppDto.dftDate}</td>
+            </tr>
+        </table>
+    </div>
+</c:if>
 
     <%-- 결재선 --%>
     <div style="background:white; border-radius:10px;

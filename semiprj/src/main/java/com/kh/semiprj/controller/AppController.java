@@ -44,17 +44,30 @@ public class AppController {
 	// 상세
 	@RequestMapping("/detail")
 	public String detail(Model model, @RequestParam int appId, HttpSession session) {
-		AppDto appDto = appDao.selectOneById(appId);
-		if (appDto == null)
-			return "redirect:./list";
-		List<AppLineDto> lineList = appLineDao.selectByAppId(appId);
-		// loginEmpNo 추가!
-		String loginId = (String) session.getAttribute("loginId");
-		String empNo = appDao.selectEmpNoById(loginId);
-		model.addAttribute("appDto", appDto);
-		model.addAttribute("lineList", lineList);
-		model.addAttribute("loginEmpNo", empNo);
-		return "app/detail";
+	    String loginId = (String) session.getAttribute("loginId");
+	    String empNo = appDao.selectEmpNoById(loginId);
+
+	    AppDto appDto = appDao.selectOneById(appId);
+	    if (appDto == null) return "redirect:./list";
+
+	    List<AppLineDto> lineList = appLineDao.selectByAppId(appId);
+	    model.addAttribute("appDto", appDto);
+	    model.addAttribute("lineList", lineList);
+	    model.addAttribute("loginEmpNo", empNo);
+
+	 // 문서 종류에 따라 추가 정보 조회
+	    if ("휴가신청서".equals(appDto.getAppType())) {
+	        VacAppDto vacAppDto = appDao.selectVacByAppId(appId);
+	        model.addAttribute("vacAppDto", vacAppDto);
+	    } else if ("품의서".equals(appDto.getAppType())) {
+	        ExpAppDto expAppDto = appDao.selectExpByAppId(appId);
+	        model.addAttribute("expAppDto", expAppDto);
+	    } else if ("업무기안서".equals(appDto.getAppType())) {
+	        DftAppDto dftAppDto = appDao.selectDftByAppId(appId);
+	        model.addAttribute("dftAppDto", dftAppDto);
+	    }
+
+	    return "app/detail";
 	}
 	
 	

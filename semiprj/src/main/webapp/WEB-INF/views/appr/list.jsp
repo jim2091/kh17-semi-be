@@ -11,12 +11,12 @@
         <a href="/app/list"
            style="padding:12px 28px; text-decoration:none; font-size:14px; font-weight:600;
                   background:#f8f9fa; color:#888; border-radius:8px 8px 0 0;">
-            📄 기안 문서함
+             기안 문서함
         </a>
         <a href="/appr/list"
            style="padding:12px 28px; text-decoration:none; font-size:14px; font-weight:600;
                   background:var(--main-color); color:white; border-radius:8px 8px 0 0;">
-            ✅ 결재 문서함
+             결재 문서함
         </a>
     </div>
 
