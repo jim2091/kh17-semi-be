@@ -45,6 +45,7 @@ public class ApprController {
 
 		model.addAttribute("list", list);
 		model.addAttribute("appList", appList);
+		model.addAttribute("currentTab", "appr");
 		return "/appr/list";
 	}
 

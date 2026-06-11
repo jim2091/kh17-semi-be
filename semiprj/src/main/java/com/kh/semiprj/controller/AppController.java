@@ -291,6 +291,7 @@ public class AppController {
 		String empNo = appDao.selectEmpNoById(loginId);
 		String empName = appDao.selectEmpNameById(loginId);
 		model.addAttribute("empName", empName);
+		model.addAttribute("currentTab", "app");
 
 		List<AppDto> list;
 

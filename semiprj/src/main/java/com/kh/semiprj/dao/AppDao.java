@@ -92,7 +92,6 @@ public class AppDao {
         String sql = "select emp_no from emp where emp_id = ?";
         Object[] params = { loginId };
         List<String> list = jdbcTemplate.queryForList(sql, String.class, params);
-        
         return list.isEmpty() ? null : list.get(0);
     }
 	
@@ -183,7 +182,16 @@ public class AppDao {
 	    Object[] params = { beginRow, endRow };
 	    return jdbcTemplate.query(sql, appMapper, params);
 	}
+	// 문서 상태 변경
+	public void updateAppStatus(int appId, String status) {
+		String sql = "update app set app_status = ? where app_id = ?";
+		jdbcTemplate.update(sql, status, appId);
+	}
 
+	
+	
+	
+	
 	//뭐든 해당 사원이 포함되는걸로 검색
 	public AppDto selectOne(String appReqId) {
 	    String sql = "select a.*, e.emp_name from app a "
@@ -203,6 +211,8 @@ public class AppDao {
 	    return list.isEmpty() ? null : list.get(0);
 	}
 	
+	
+	//추후 쓰지 않거나 과한 기능은 정리
 	
 	//내 서류를 타입에 따라 필터링
 	public List<AppDto> selectMyListByType(String appReqId, String appType) {
@@ -269,11 +279,6 @@ public class AppDao {
 	    return jdbcTemplate.query(sql, appMapper, params);
 	}
 	
-	 // 문서 상태 변경
-    public void updateAppStatus(int appId, String status) {
-        String sql = "update app set app_status = ? where app_id = ?";
-        jdbcTemplate.update(sql, status, appId);
-    }
     
     //검색
     public List<AppDto> searchList(String empNo, String column, String keyword) {
