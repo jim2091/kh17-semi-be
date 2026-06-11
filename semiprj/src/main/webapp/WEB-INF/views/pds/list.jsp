@@ -5,13 +5,13 @@
 
 <jsp:include page="/WEB-INF/views/template/header2.jsp"></jsp:include>
 
-	<div class="gw-page-head">
-        <div class="gw-breadcrumb">홈 / 게시판 / 자료실</div>
+	<div class="gw-page-head pds-width">
+        <div class="gw-breadcrumb">홈 / 자료실 / 목록</div>
         <h1>자료실</h1>
         <p>필요한 자료를 찾지 못한 경우 관리자에게 문의하세요</p>
     </div>
 
-    <div class="gw-search-panel">
+    <div class="gw-search-panel pds-width">
         <form action="./list" method="get" class="gw-search-form">
             <select name="column" class="gw-form-select">
                 <option value="pds_title" ${param.column == 'pds_title' ? 'selected':''}>제목</option>
@@ -30,7 +30,7 @@
     </div>
 
     <form action="./deleteAll" method="post">
-        <div class="gw-list-panel">
+        <div class="gw-list-panel pds-width">
 
             <div class="gw-table-top">
                 <div>
