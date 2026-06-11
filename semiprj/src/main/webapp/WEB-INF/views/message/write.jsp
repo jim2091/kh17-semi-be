@@ -260,7 +260,7 @@ $(function(){
 		
 		<!-- 목록/등록 버튼 -->
 		<div class="cell mt-50 right">
-			<a href="./list" class="btn btn-negative">
+			<a href="./receiveList" class="btn btn-negative">
 				<i class="fa-solid fa-x"></i>
 				<span>취소</span>
 			</a>
