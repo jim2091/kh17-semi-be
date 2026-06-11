@@ -272,6 +272,11 @@ public class EmpController {
 		
 		model.addAttribute("empDto", empDto);
 		
+		 int deptNo = empDto.getEmpDept();
+
+		DeptDto deptDto = deptDao.selectOne(deptNo);
+		model.addAttribute("deptDto", deptDto);
+		
 		
 		return "emp/detail";
 	}
@@ -281,6 +286,12 @@ public class EmpController {
 		EmpDto empDto = empDao.selectOneByDetail(empNo);
 		if(empDto == null) throw new TargetNotfoundException("대상이 존재하지 않습니다");
 		model.addAttribute("empDto", empDto);
+		
+		 int deptNo = empDto.getEmpDept();
+
+		DeptDto deptDto = deptDao.selectOne(deptNo);
+		model.addAttribute("deptDto", deptDto);
+	
 //		System.out.println(empDto);
 		return "emp/edit";
 	}
@@ -292,9 +303,13 @@ public class EmpController {
 	    if(findEmpDto == null) throw new TargetNotfoundException("존재하지 않는 회원");
 	    
 	  
+	   
+		
+	    
 	    empDao.updateByUser(empDto); 
 	    
 	    String empNo = empDto.getEmpNo();
+	    
 	    
 	    if(!attach.isEmpty()) {
 	    	try {
