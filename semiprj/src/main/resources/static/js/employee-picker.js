@@ -64,7 +64,7 @@ $(".search-emp-btn").click(function(){
 				html += "<td>" + emp.empNo + "</td>";
 				html += "<td>" + emp.empName + "</td>";
 				html += "<td>" + emp.empPosition + "</td>";
-				html += "<td>" + emp.empDept + "</td>";
+				html += "<td>" + (emp.empDeptName || "소속없음" )+ "</td>";
 				html += "</tr>";
 				
 				$(".emp-result-body").append(html);

@@ -27,6 +27,9 @@ public class EmpDto {
 	private String empMentor;
 	private Timestamp empPwChange;
 	private String empEmailVerified;
+	
+	//화면 부서이름 출력용(사원찾기)
+	private String empDeptName;
 }
 
 
