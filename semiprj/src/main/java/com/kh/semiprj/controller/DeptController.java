@@ -120,6 +120,7 @@ public class DeptController {
 	    model.addAttribute("childDeptList",childDeptList);
 	    model.addAttribute("memberList", memberList);
 		model.addAttribute("deptDto",deptDto);
+		model.addAttribute("empDto",empDto);
 		
 		return "dept/detail";
 	}

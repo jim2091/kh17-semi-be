@@ -1,6 +1,9 @@
 package com.kh.semiprj.controller;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -133,10 +136,35 @@ public class MessageController {
 	//3. 쪽지 사원 검색 매핑
 	@GetMapping("/searchEmp")
 	@ResponseBody
-	public List<EmpDto> searchEmp(@RequestParam String keyword){
-	    return empDao.searchByName(keyword);
-	}
-	
+	public List<Map<String, Object>> searchEmp(@RequestParam String keyword){
+		List<EmpDto> originList = empDao.searchByName(keyword);
+			    
+			    List<Map<String, Object>> resultList = new ArrayList<>();
+			    
+			    for (EmpDto emp : originList) {
+			        Map<String, Object> map = new HashMap<>();
+			        
+			        map.put("empNo", emp.getEmpNo());
+			        map.put("empName", emp.getEmpName());
+			        map.put("empPosition", emp.getEmpPosition());
+			        map.put("empDept", emp.getEmpDept());
+			        
+			        if (emp.getEmpDept() != 0) {
+			            try {
+			                String deptName = messageDao.selectDetpNameById(emp.getEmpDept());
+			                map.put("empDeptName", deptName);
+			            } catch (Exception e) {
+			                map.put("empDeptName", "소속없음");
+			            }
+			        } else {
+			            map.put("empDeptName", "소속없음");
+			        }
+			        
+			        resultList.add(map);
+			    }
+		
+				return resultList;
+		}
 	//4. 쪽지 상세 매핑
 	@RequestMapping("/detail")
 	public String detail(Model model, HttpSession session, 
