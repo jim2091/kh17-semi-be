@@ -2,61 +2,118 @@
     pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
-<jsp:include page="/WEB-INF/views/template/side_user.jsp"></jsp:include>
+<jsp:include page="/WEB-INF/views/template/header2.jsp"></jsp:include>
 
-<div class="container w-80 mt-50">
-        <div class="cell left">
-            <h1>[${empDto.empName}]사원 상세 정보</h1>
-        </div>
-        <div class="cell">
-        	<input type="hidden" name="empNo" value="${empDto.empNo}">
-            <img src="/emp/profile?empNo=${empDto.empNo}" width="100">
-        </div>
-        
-        <div class="cell">
-            <span>사원실명 : ${empDto.empName}</span>
-        </div>
-        <div class="cell">
-            <span>사원부서 : ${deptDto.deptName}</span>
-        </div>
-        <div class="cell">
-            <span>사원직위 : ${empDto.empPosition}</span>
-        </div>
-        <div class="cell">
-            <span>담당사수 : ${empDto.empMentor}</span>
-        </div>
-        <div class="cell">
-            <span>사원아이디 : ${empDto.empId}</span>
-        </div>
-        <div class="cell">
-            <span>생년월일 : ${empDto.empBirth}</span>
-        </div>
-        <div class="cell">
-            <span>이메일주소 : ${empDto.empEmail}</span>
-        </div>
-        <div class="cell">
-            <span>연락처 : ${empDto.empContact}</span>
-        </div>
-        <div class="cell">
-            <span>주소 : [${empDto.empPost}]  ${empDto.empAddress1}  ${empDto.empAddress2}</span>
-        </div>
-        <div class="cell">
-            <span>입사일 :<fmt:formatDate value = "${empDto.empHireDate}" pattern="yyyy-MM-dd"/></span>
-        </div>
-        <div class="cell">
-        	<c:if test="${sessionScope.loginNo != null && sessionScope.loginNo == empDto.empNo}">
-            <a href="./edit?empNo=${empDto.empNo}" class="btn btn-neutral">내정보수정</a>
-            </c:if>
-            <a href="./list" class="btn btn-neutral">목록으로</a>
-        </div>
-        
-<div class="left">
-		<h1>최근 로그인 이력</h1>
-		<a href = "./history?empNo=${empDto.empNo}">더보기</a>
+<style>
+.gw-profile-wrap{
+    display:flex;
+    gap:30px;
+    align-items:flex-start;
+}
+
+.gw-profile-image img{
+    width:180px;
+    height:180px;
+    object-fit:cover;
+    border-radius:20px;
+}
+
+.gw-profile-info{
+    flex:1;
+}
+
+.gw-info-row{
+    display:flex;
+    padding:12px 0;
+    border-bottom:1px solid #eee;
+}
+
+.gw-info-row strong{
+    width:120px;
+    color:#666;
+}
+
+.gw-info-row span{
+    flex:1;
+}
+</style>
+
+<div class="gw-page-head">
+    <div class="gw-breadcrumb">
+        사용자 > 마이페이지
+    </div>
+
+    <h1>내 정보</h1>
+    <p>[${empDto.empName}]의 상세 프로필 정보입니다.</p>
 </div>
-	<div class="cell">
- 		<table class="table table-stripe">
+
+
+<div class="gw-card">
+
+    <div class="gw-profile-wrap">
+
+        <div class="gw-profile-image">
+            <img src="/emp/profile?empNo=${empDto.empNo}">
+        </div>
+
+        <div class="gw-profile-info">
+
+            <div class="gw-info-row">
+                <strong>사원명</strong>
+                <span>${empDto.empName}</span>
+            </div>
+
+            <div class="gw-info-row">
+                <strong>부서</strong>
+                <span>${deptDto.deptName}</span>
+            </div>
+
+            <div class="gw-info-row">
+                <strong>직위</strong>
+                <span>${empDto.empPosition}</span>
+            </div>
+
+            <div class="gw-info-row">
+                <strong>담당사수</strong>
+                <span>${empDto.empMentor}</span>
+            </div>
+
+            <div class="gw-info-row">
+                <strong>이메일</strong>
+                <span>${empDto.empEmail}</span>
+            </div>
+
+            <div class="gw-info-row">
+                <strong>연락처</strong>
+                <span>${empDto.empContact}</span>
+            </div>
+
+            <div class="gw-info-row">
+                <strong>주소</strong>
+                <span>
+                    [${empDto.empPost}]
+                    ${empDto.empAddress1}
+                    ${empDto.empAddress2}
+                </span>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="gw-card">
+
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3>최근 로그인 이력</h3>
+        <a href="./history?empNo=${empDto.empNo}"
+           class="gw-btn-outline">
+            전체보기
+        </a>
+    </div>
+
+    <table class="gw-table">
 			<thead>
 			<tr>
 				<th>일시</th>
@@ -73,30 +130,47 @@
 			</tr>
 		</c:forEach>
 		</tbody>
-		</table>
-		
-	</div>
-<div class="cell">
-<h1>보안설정</h1>
+    </table>
+    
+
+
 </div>
-<div class="cell">
- 		<table class="table table-stripe">
-			<thead>
-			<tr>
-				<th>비밀번호 변경일시</th>
-			</tr>
-			</thead>
-		<tbody>
-			<tr>
-			<td>${empDto.empPwChange}</td>
-			</tr>
-		</tbody>
-		</table>
-		
-	</div>
+<div class="gw-card">
+
+    <h3>보안 설정</h3>
+
+    <div class="gw-info-row">
+        <strong>비밀번호 변경일</strong>
+        <span>
+            <fmt:formatDate
+                value="${empDto.empPwChange}"
+                pattern="yyyy-MM-dd HH:mm"/>
+        </span>
+    </div>
 
 </div>
 
+<div class="center mt-30">
+
+    <c:if test="${sessionScope.loginNo == empDto.empNo}">
+        <a href="./edit?empNo=${empDto.empNo}"
+           class="gw-btn-primary">
+            <i class="fa-solid fa-user-pen"></i>
+            내정보수정
+        </a>
+    </c:if>
+
+    <a href="./list"
+       class="gw-btn-outline">
+        <i class="fa-solid fa-list"></i>
+        목록으로
+    </a>
+
+</div>
 
 
-<jsp:include page="/WEB-INF/views/template/footer.jsp"></jsp:include>
+
+
+
+
+<jsp:include page="/WEB-INF/views/template/footer2.jsp"></jsp:include>
