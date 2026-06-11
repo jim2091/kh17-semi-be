@@ -36,11 +36,11 @@
                 <td>${empDto.empNo}</td>
             </tr>
         	<tr>
-                <th width="20%">사원실명</th>
+                <th>사원실명</th>
                 <td>${empDto.empName}</td>
             </tr>
             <tr>
-                <th width="20%">부서</th>
+                <th>부서</th>
                 <td>${deptDto.deptName}</td>
             </tr>
             <tr>

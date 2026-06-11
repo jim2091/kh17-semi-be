@@ -320,10 +320,12 @@
             border:4px solid var(--main-light);
          ">
 
-    <h2 class="mt-20">
-        ${empDto.empName}
+    <h2>
+        ${empDto.empName}님
     </h2>
-
+	<div class="gw-muted">
+        ${empDto.empNo}
+    </div>
     <div class="gw-muted">
         ${deptDto.deptName}
     </div>
