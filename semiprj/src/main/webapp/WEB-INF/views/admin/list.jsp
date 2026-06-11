@@ -71,7 +71,7 @@ $(function(){
 				<span>검색</span>
 			</button>
 		</form>
-		<div class="right">
+		<div class="right mb-50">
 		<a href="./register" class="gw-btn-outline">사원등록하기</a>
 		</div>
 	</div>
@@ -118,7 +118,7 @@ $(function(){
 				</tbody>
 		</table>
 </div>
-	<div class=gw-pagination">
+	<div class="gw-pagination">
    		<jsp:include page="/WEB-INF/views/template/pagination.jsp"></jsp:include>
 	</div>
 
