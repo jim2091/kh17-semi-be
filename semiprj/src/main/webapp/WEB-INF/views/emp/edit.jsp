@@ -65,6 +65,14 @@
                 $(".preview").attr("src", "https://dummyimage.com/200x200?text=NO");
             }
         });
+        $(".attach").on("change", function(){
+
+            const fileName = this.files.length > 0
+                ? this.files[0].name
+                : "";
+
+            $(".file-name").text(fileName);
+        });
 
         // 2. 생년월일 검증 함수
         function checkBirth() {
@@ -327,7 +335,14 @@
     <div class="field mt-20">
         <input type="file"
                name="attach"
-               class="gw-form-input field w-100">
+               class="gw-form-input field w-100 attach" style="display:none;">
+               
+        <label for="attach" class="gw-btn-outline">
+    	<i class="fa-solid fa-image"></i>
+    		프로필 사진 선택
+		</label>
+
+		<span class="file-name"></span>
         <div class="success-feedback"></div>
         <div class="fail-feedback"></div>       
     </div>
