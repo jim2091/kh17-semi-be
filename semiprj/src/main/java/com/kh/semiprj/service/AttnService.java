@@ -1,6 +1,5 @@
 package com.kh.semiprj.service;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,32 +11,47 @@ import com.kh.semiprj.vo.PageVO;
 
 @Service
 public class AttnService {
+
     @Autowired private AttnDao attnDao;
 
+    // 근태 목록 관련
     public Map<String, Object> getVacationInfo(String empNo) {
         return attnDao.selectVacationInfo(empNo);
+    }
+
+    public List<AttnDto> getAttendanceList(AttnDto attnDto, PageVO pageVO) {
+        return attnDao.selectListByMonth(attnDto, pageVO);
     }
 
     public int countAttendance(AttnDto attnDto) {
         return attnDao.countAttendance(attnDto);
     }
 
-    public List<AttnDto> getAttendanceList(AttnDto attnDto, PageVO pageVO) {
-        if (attnDto.getYear() == null) attnDto.setYear(String.valueOf(LocalDate.now().getYear()));
-        if (attnDto.getMonth() == null) attnDto.setMonth(String.format("%02d", LocalDate.now().getMonthValue()));
-        List<AttnDto> list = attnDao.selectListByMonth(attnDto, pageVO);
-        for (AttnDto dto : list) {
-            if (dto.getAttnInTime() != null && dto.getAttnOutTime() == null) {
-                dto.setAttnRecord("결근");
-            }
-        }
-        return list;
-    }
-
     public int getWorkTimeSum(String empNo, String startDate, String endDate) {
         return attnDao.getWorkTimeSum(empNo, startDate, endDate);
     }
 
+    public String checkTodayStatus(String empNo) {
+        return attnDao.checkTodayStatus(empNo);
+    }
+
+    // 출퇴근 처리
+    @Transactional
+    public void insertAttendance(AttnDto attnDto) {
+        attnDao.insertCheckIn(attnDto);
+    }
+
+    @Transactional
+    public void updateCheckOut(String empNo) {
+        attnDao.updateCheckOut(empNo);
+    }
+
+    @Transactional
+    public void deleteAttendance(String empNo) {
+        attnDao.deleteAttendanceByEmpNo(empNo);
+    }
+
+    // 스케줄러용 메서드 (오류 해결 핵심)
     @Transactional
     public void processDailyAttendance() {
         attnDao.updateStatusToAbsent();
