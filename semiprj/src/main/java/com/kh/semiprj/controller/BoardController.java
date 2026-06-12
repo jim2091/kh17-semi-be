@@ -141,6 +141,7 @@ public class BoardController {
 		pageVO.setCount(count);
 		model.addAttribute("list", list);
 		model.addAttribute("pageVO", pageVO);
+		model.addAttribute("type", "my");
 
 		return "board/my";
 	}
@@ -154,6 +155,7 @@ public class BoardController {
 		pageVO.setCount(count);
 		model.addAttribute("list", list);
 		model.addAttribute("pageVO", pageVO);
+		model.addAttribute("type", "myReply");
 
 		return "board/myReply";
 	}

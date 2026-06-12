@@ -1,12 +1,9 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 
-<jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
-<jsp:include page="/WEB-INF/views/template/side_message.jsp"></jsp:include>
+<jsp:include page="/WEB-INF/views/template/header2.jsp"></jsp:include>
 
 <style>
 	.profile-image {
@@ -20,10 +17,6 @@
 	    align-items:center;
 	    gap:8px;
 	    justify-content:center;
-	}
-	.table{
-	    width:100%;
-	    table-layout:fixed;
 	}
 </style>
 
@@ -41,47 +34,56 @@ $(function(){
 });
 </script>
 
-<div class="container w-900 mt-50 mb-50">
-	<!-- 페이지 제목 -->
-    <div class="cell center">
-        <h1 class="mt-0 mb-0">전체 쪽지함</h1>
+	<div class="gw-page-head pds-width">
+        <div class="gw-breadcrumb">홈 / 쪽지 / 전체 쪽지함</div>
+        <h1>전체 쪽지함</h1>
+        <p>사원들이 보내고 받은 쪽지들을 한 곳에 모아 볼 수 있습니다.</p>
     </div>
     
-    <!-- 검색창 -->
-    <div class="cell center">
-	<form action="./adminList" method="get">
-		<select name="column" class="field">
-			<option value="message_title" ${param.column == 'message_title' ? 'selected':''}>제목</option>
-			<option value="title_content" ${param.column == 'title_content' ? 'selected':''}>제목+내용</option>
-			<option value="sender_name" ${param.column == 'sender_name' ? 'selected':''}>보낸이</option>
-			<option value="receiver_name" ${param.column == 'receiver_name' ? 'selected':''}>받는이</option>
-		</select>
-		<input type="text" name="keyword" class="field" placeholder="검색어" value="${param.keyword}">
-		<button type="submit" class="btn btn-positive">
-			<i class="fa-solid fa-magnifying-glass"></i>
-			<span>검색</span>
-		</button>
-	</form>
+    <div class="gw-search-panel pds-width">
+		<form action="./adminList" method="get" class="gw-search-form">
+			<select name="column" class="gw-form-select">
+				<option value="message_title" ${param.column == 'message_title' ? 'selected':''}>제목</option>
+				<option value="title_content" ${param.column == 'title_content' ? 'selected':''}>제목+내용</option>
+				<option value="sender_name" ${param.column == 'sender_name' ? 'selected':''}>보낸이</option>
+				<option value="receiver_name" ${param.column == 'receiver_name' ? 'selected':''}>받는이</option>
+			</select>
+			<input type="text" name="keyword" class="gw-form-input" 
+				placeholder="검색어를 입력하세요." value="${param.keyword}">
+			<button type="submit" class="gw-btn-primary">
+				<i class="fa-solid fa-magnifying-glass"></i>
+				<span>검색</span>
+			</button>
+		</form>
 	</div>
 	
-	<!-- 삭제 버튼 -->
 	<form action="./deleteAll" method="post">
-	    <div class="cell right">
-	     	<button type="submit" class="btn btn-negative">삭제하기 <i class="fa-regular fa-trash-can"></i></button>
-	    </div>	
-	
-		<!-- 총 쪽지 수 -->
-		<div class="cell right">
-	        ${pageVO.beginRownum}-${pageVO.endRownum} / 총 ${pageVO.count}개의 쪽지
-	    </div>
-	
-		<!-- 게시글 목록 -->
-	    <div class="cell">
-	    	<table class="table">
+        <div class="gw-list-panel pds-width">
+        	<div class="gw-table-top">
+                <div>
+                    <div class="gw-table-title">전체 쪽지 목록</div>
+                    <div class="gw-table-sub">
+                        ${pageVO.beginRownum}-${pageVO.endRownum} / 총 ${pageVO.count}개의 쪽지
+                    </div>
+                </div>
+                
+                <div class="gw-table-actions">
+                    <c:if test="${sessionScope.loginRole == '관리자'}">
+                        <button type="submit" class="gw-btn-danger">
+                            <i class="fa-regular fa-trash-can"></i>
+                            <span>삭제하기</span>
+                        </button>
+                    </c:if>
+                </div>
+            </div>
+
+	    	<table class="gw-table pds-table">
 	    		<thead>
 	    			<tr>
 	    				<c:if test="${sessionScope.loginRole == '관리자'}">
-	                		<th style="width:5%;"><input type="checkbox" class="check-all"></th>
+	                		<th style="width:5%;">
+	                			<input type="checkbox" class="check-all">
+	                		</th>
 	                	</c:if>
 	    				<th style="width:15%;">보낸이</th>
 	                    <th style="width:15%;">받는이</th>
@@ -91,8 +93,7 @@ $(function(){
 				</thead>
 				<tbody>
 					<c:forEach var="messageDto" items="${list}" varStatus="stat">
-					<tr>
-						<!-- 체크박스 -->
+					<tr class="gw-check-col">
 						<c:if test="${sessionScope.loginRole == '관리자'}">
 	                		<td>
 		                		<input type="checkbox" name="messageNoList" value="${messageDto.messageNo}">
@@ -102,12 +103,11 @@ $(function(){
 						<td>
 							<div class="flex center">
 								<c:if test="${messageDto.messageSender == null}">
-									(퇴사한 사용자)
+									<span class="gw-muted">(퇴사한 사용자)</span>
 								</c:if>
 								<c:if test="${messageDto.messageSender != null}">
 									<img src="/emp/profile?empNo=${messageDto.messageSender}" class="profile-image">
-									<!-- 링크 누르면 사원 상세 정보 페이지로 이동 -->
-									<a href="/emp/detail?empNo=${messageDto.messageSender}" class="link">
+									<a href="/emp/detail?empNo=${messageDto.messageSender}" class="gw-table-link">
 										${messageDto.senderName}
 									</a>
 								</c:if>
@@ -117,12 +117,11 @@ $(function(){
 						<td>
 							<div class="flex center">
 								<c:if test="${messageDto.messageReceiver == null}">
-									(퇴사한 사용자)
+									<span class="gw-muted">(퇴사한 사용자)</span>
 								</c:if>
 								<c:if test="${messageDto.messageReceiver != null}">
 									<img src="/emp/profile?empNo=${messageDto.messageReceiver}" class="profile-image">
-									<!-- 링크 누르면 사원 상세 정보 페이지로 이동 -->
-									<a href="/emp/detail?empNo=${messageDto.messageReceiver}" class="link">
+									<a href="/emp/detail?empNo=${messageDto.messageReceiver}" class="gw-table-link">
 										${messageDto.receiverName}
 									</a>
 								</c:if>
@@ -130,21 +129,29 @@ $(function(){
 						</td>
 						<!-- 쪽지 제목 -->
 						<td>
-							<a href="./detail?messageNo=${messageDto.messageNo}&page=${pageVO.page}&${pageVO.searchParams}&type=admin" class="link">${messageDto.messageTitle}</a>
+							<a href="./detail?messageNo=${messageDto.messageNo}&page=${pageVO.page}&${pageVO.searchParams}&type=admin" class="gw-table-link">${messageDto.messageTitle}</a>
 						</td>
 						<!-- 쪽지 작성일 -->
 						<td>${messageDto.getMessageWtimeString()}</td>
 					</tr>
 					</c:forEach>
+					
+					<c:if test="${empty list}">
+                        <tr>
+                            <td colspan="${sessionScope.loginRole == '관리자' ? 6 : 5}" class="gw-table-empty">
+                                조회된 내용이 없습니다.
+                            </td>
+                        </tr>
+                    </c:if>
+                    
 	            </tbody>
 	        </table>
+	        
+	        <div class="gw-pagination">
+	        	<c:set var="pageUrl" value="./adminList"/>
+                <jsp:include page="/WEB-INF/views/template/pagination_board.jsp"></jsp:include>
+            </div>
 	    </div>
 	</form>
 
-	<!-- 페이지네이션 -->
-    <div class="cell mt-50">
-    	<c:set var="pageUrl" value="./adminList"/>
-		<jsp:include page="/WEB-INF/views/template/pagination_board.jsp"></jsp:include>
-    </div>
-</div>
-<jsp:include page="/WEB-INF/views/template/footer.jsp"></jsp:include>
+<jsp:include page="/WEB-INF/views/template/footer2.jsp"></jsp:include>

@@ -314,6 +314,10 @@
 				            <input type="checkbox" class="quick-check" value="admin-attn" checked>
 				            근태관리
 				        </label>
+				        <label>
+				            <input type="checkbox" class="quick-check" value="admin-attn" checked>
+				           	쪽지관리
+				        </label>
 				        </c:if>
 				    </div>
 				</div>
@@ -353,7 +357,7 @@
 			        자료실
 			    </a>
 			    <a href="/message/receiveList" data-quick-id="message">
-			        <i class="fa-solid fa-envelope"></i>
+			        <i class="fa-solid fa-paper-plane"></i>
 			        쪽지함
 			    </a>
 			    <c:if test="${sessionScope.loginRole == '관리자'}">
@@ -372,6 +376,10 @@
 		        <a href="/admin/app/list" data-quick-id="admin-app">
 			        <i class="fa-solid fa-file-shield"></i>
 			        결재관리
+			    </a>
+			    <a href="/message/adminList" data-quick-id="admin-app">
+			        <i class="fa-solid fa-envelope"></i>
+			        쪽지관리
 			    </a>
 		        </c:if>
 			</div>

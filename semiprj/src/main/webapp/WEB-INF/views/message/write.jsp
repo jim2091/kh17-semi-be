@@ -124,7 +124,7 @@ $(function(){
 	                var div = $("<div>");
 	                div.addClass("receiver-item");
 	                div.text(
-	                    emp.empName + " (" + emp.empDept + ")"
+	                    emp.empName + " (" + emp.empDeptName + ")"
 	                );
 	                div.click(function(){
 
@@ -148,12 +148,11 @@ $(function(){
 	                    html += "</span>";
 
 	                    $(".receiver-selected-list").append(html);
-
 	                    $("[name=receiverKeyword]").val("");
-
 	                    $(".receiver-list").empty();
 
 	                    state.messageReceiverValid = true;
+	                    $(".receiver-feedback").hide();
 	                });
 	
 	                $(".receiver-list").append(div);
@@ -182,6 +181,12 @@ $(function(){
 	//3. 폼 검사
     $(".form-check").on("submit", function(){
     	state.messageReceiverValid = $("input[name=messageReceiver]").length > 0;
+    	if(state.messageReceiverValid){
+            $(".receiver-feedback").hide();
+        }
+        else{
+            $(".receiver-feedback").show();
+        }
         $(this).find("input[name], textarea[name]").trigger("blur");
         return state.ok();
     });
@@ -189,6 +194,10 @@ $(function(){
 	//태그 삭제
     $(".receiver-selected-list").on("click", ".delete-tag", function(){
         $(this).closest(".receiver-tag").remove();
+        if($("input[name=messageReceiver]").length == 0){
+            state.messageReceiverValid = false;
+            $(".receiver-feedback").show();
+        }
     });
 });
 </script>
@@ -207,18 +216,21 @@ $(function(){
 				제목 <span class="required">*</span>
 			</label>
 			<input type="text" name="messageTitle" value="${replyTitle}" class="gw-form-input full">
-			<div class="fail-feedback">[필수] 제목을 입력해주세요.</div>
+			<div class="fail-feedback"><i class="fa-solid fa-circle-exclamation"></i> 제목을 입력하세요.</div>
 		</div>
 		
 		<div class="gw-form-row receiver-wrapper">
 			<label class="gw-form-label">
 				받는이 <span class="required">*</span>
 			</label>
-			<input type="text" name="receiverKeyword" class="gw-form-input">
-			<button type="button" class="gw-btn-primary ms-10 open-search">
-                <i class="fa-solid fa-user-tie"></i>
-                <span>찾기</span>
-            </button>
+			<div>
+				<input type="text" name="receiverKeyword" class="gw-form-input fail">
+				<button type="button" class="gw-btn-primary ms-10 open-search">
+	                <i class="fa-solid fa-user-tie"></i>
+	                <span>찾기</span>
+	            </button>
+            </div>
+            <div class="fail-feedback receiver-feedback"><i class="fa-solid fa-circle-exclamation"></i> 받는이를 입력하세요.</div>
 			<div class="receiver-selected-list">
 			    <c:if test="${messageDto != null}">
 			        <span class="receiver-tag">
@@ -239,17 +251,15 @@ $(function(){
             <!-- 해당 모달 JS -->
             <script src="/js/employee-picker.js"></script>
 			<div class="receiver-list"></div>
-			
-			<div class="fail-feedback">[필수] 받는이를 입력하세요.</div>
 		</div>
 	
 		<div class="gw-form-row">
-                <label class="gw-form-label">
-                    내용 <span class="required">*</span>
-                </label>
-				<textarea name="messageContent" maxlength="1000" rows="10" class="text-editor w-100"></textarea>
+			<label class="gw-form-label">
+				내용 <span class="required">*</span>
+			</label>
+				<textarea name="messageContent" maxlength="1000" rows="20" class="gw-content-box text-editor w-100"></textarea>
 				<div class="editor-bottom-row">
-                    <span class="fail-feedback">[필수] 내용을 입력하세요.</span>
+                    <span class="fail-feedback"><i class="fa-solid fa-circle-exclamation"></i> 내용을 입력하세요.</span>
 	                <span class="text-length">
 	                    <span class="current-length">0</span> / 1000
 	                </span>

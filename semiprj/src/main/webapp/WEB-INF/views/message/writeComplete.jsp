@@ -1,23 +1,87 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 
-<jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
-<jsp:include page="/WEB-INF/views/template/side_message.jsp"></jsp:include>
+<jsp:include page="/WEB-INF/views/template/header2.jsp"></jsp:include>
 
-<div class="cell center">
-	<i class="fa-solid fa-bounce fa-3x fa-plus yellow"></i>
-	<div>
-		<h1>쪽지 보내기를 성공적으로 마쳤습니다.</h1>
+<style>
+.success-panel{
+    max-width:700px;
+    margin:50px auto;
+
+    padding:60px 40px;
+
+    background:white;
+
+    border:1px solid #e5e7eb;
+    border-radius:16px;
+
+    text-align:center;
+}
+
+.success-icon{
+    width:90px;
+    height:90px;
+
+    margin:0 auto 24px;
+
+    border-radius:50%;
+
+    background:#eff6ff;
+    color:#2563eb;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.success-title{
+    font-size:28px;
+    font-weight:700;
+    color:#111827;
+
+    margin-bottom:12px;
+}
+
+.success-desc{
+    font-size:15px;
+    color:#6b7280;
+
+    line-height:1.7;
+    margin-bottom:32px;
+}
+
+.success-actions{
+    display:flex;
+    justify-content:center;
+    gap:12px;
+}
+</style>
+
+	<div class="success-panel">
+	    <div class="success-icon">
+	        <i class="fa-solid fa-circle-check fa-2x"></i>
+	    </div>
+	
+	    <div class="success-title">
+	        쪽지를 성공적으로 보냈습니다!
+	    </div>
+	    <div class="success-desc">
+	        수신자에게 쪽지가 정상적으로 전달되었습니다.<br>
+	        잠시 후 받은 쪽지함으로 이동합니다.
+	    </div>
+	
+	    <div class="success-actions">
+	        <a href="./write" class="gw-btn-primary">
+	            <i class="fa-solid fa-plus"></i>
+	            <span>추가로 보내기</span>
+	        </a>
+	    </div>
 	</div>
-		<a href = "./write" class="btn btn-positive" >
-			<i class="fa-solid fa-plus"></i>
-			<span>추가로 보내기</span>
-		</a>
-		
-		<a href = "./receiveList" class="btn btn-neutral">
-			<i class="fa-solid fa-list"></i>
-			<span>목록가기</span>
-		</a>
-</div>
+	
+<script>
+setTimeout(function(){
+    location.href="./receiveList";
+}, 3000);
+</script>
 
-<jsp:include page="/WEB-INF/views/template/footer.jsp"></jsp:include>
+<jsp:include page="/WEB-INF/views/template/footer2.jsp"></jsp:include>

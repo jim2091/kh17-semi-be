@@ -93,7 +93,7 @@ $(function(){
             <span>자료실</span>
         </a>
         <a href="/message/receiveList">
-            <i class="fa-solid fa-envelope"></i>
+            <i class="fa-solid fa-paper-plane"></i>
             <span>쪽지함</span>
         </a>
 
@@ -136,6 +136,10 @@ $(function(){
 	        <a href="/admin/app/list">
 	           <i class="fa-solid fa-file-shield"></i>
 	            <span>결재관리</span>
+	        </a>
+	        <a href="/message/adminList">
+	           <i class="fa-solid fa-envelope"></i>
+	           <span>쪽지관리</span>
 	        </a>
 		</c:if>
 		

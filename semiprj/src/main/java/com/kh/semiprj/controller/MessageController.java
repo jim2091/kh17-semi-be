@@ -94,6 +94,7 @@ public class MessageController {
 		model.addAttribute("unreadCount", unreadCount);
 		model.addAttribute("list", list);
 		model.addAttribute("pageVO", pageVO);
+		model.addAttribute("type", "receive");
 		
 		return "message/receiveList";
 	}
@@ -110,6 +111,7 @@ public class MessageController {
 
 	    model.addAttribute("list", list);
 	    model.addAttribute("pageVO", pageVO);
+	    model.addAttribute("type", "send");
 
 	    return "message/sendList";
 	}
@@ -130,6 +132,7 @@ public class MessageController {
 		
 		model.addAttribute("list", list);
 	    model.addAttribute("pageVO", pageVO);
+	    model.addAttribute("type", "admin");
 
 	    return "message/adminList";
 	}
@@ -179,19 +182,15 @@ public class MessageController {
 	    MessageDto nextMessageDto = null;
 	    if(type.equals("receive")) {
 	        prevMessageDto = messageDao.selectPreviousReceive(messageNo, loginNo);
-
-	        nextMessageDto =
-	                messageDao.selectNextReceive(
-	                        messageNo, loginNo);
+	        nextMessageDto = messageDao.selectNextReceive(messageNo, loginNo);
 	    }
 	    else if(type.equals("send")) {
-	        prevMessageDto =
-	                messageDao.selectPreviousSend(
-	                        messageNo, loginNo);
-
-	        nextMessageDto =
-	                messageDao.selectNextSend(
-	                        messageNo, loginNo);
+	        prevMessageDto = messageDao.selectPreviousSend(messageNo, loginNo);
+	        nextMessageDto = messageDao.selectNextSend(messageNo, loginNo);
+	    }
+	    else if(type.equals("admin")) {
+	        prevMessageDto = messageDao.selectPreviousOne(messageNo);
+	        nextMessageDto = messageDao.selectNextOne(messageNo);
 	    }
 
 	    model.addAttribute("messageDto", messageDto);

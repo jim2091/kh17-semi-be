@@ -160,23 +160,25 @@ $(function(){
                     제목 <span class="required">*</span>
                 </label>
 				<input type="text" name="boardTitle" class="gw-form-input full">
-                <div class="fail-feedback">[필수] 제목을 입력해주세요.</div>
+                <div class="fail-feedback"><i class="fa-solid fa-circle-exclamation"></i> 제목을 입력하세요.</div>
             </div>
 
 			<div class="gw-form-row">
                 <label class="gw-form-label">
                     종류 <span class="required">*</span>
                 </label>
-                <select name="boardHead" class="gw-form-select">
-					<option value="">-- 선택하세요 --</option>
-					<c:if test="${sessionScope.loginRole == '관리자'}">
-						<option>공지</option>
-					</c:if>
-					<option>자유</option>
-					<option>정보</option>	
-					<option>질문</option>		
-				</select>
-				<div class="fail-feedback">[필수] 종류를 선택하세요.</div>
+                <div>
+	                <select name="boardHead" class="gw-form-select">
+						<option value="">-- 선택하세요 --</option>
+						<c:if test="${sessionScope.loginRole == '관리자'}">
+							<option>공지</option>
+						</c:if>
+						<option>자유</option>
+						<option>정보</option>	
+						<option>질문</option>		
+					</select>
+					<div class="fail-feedback"><i class="fa-solid fa-circle-exclamation"></i> 종류를 선택하세요.</div>
+				</div>
 			</div>
 		
 			<div class="gw-form-row">
@@ -194,7 +196,6 @@ $(function(){
 		                <input type="radio" name="boardType" value="일반" checked> <span>일반</span>
 		            </label>
 	            </div>
-				<div class="fail-feedback">[필수] 유형을 선택하세요.</div>
 			</div>
 			
 			<div class="gw-form-row">
@@ -203,7 +204,7 @@ $(function(){
                 </label>
 				<textarea id="summernote" name="boardContent" maxlength="1000" rows="10" class="text-editor"></textarea>
 				<div class="editor-bottom-row">
-                    <span class="fail-feedback">[필수] 내용을 입력하세요.</span>
+                    <span class="fail-feedback"><i class="fa-solid fa-circle-exclamation"></i> 내용을 입력하세요.</span>
 	                <span class="text-length">
 	                    <span class="current-length">0</span> / 1000
 	                </span>

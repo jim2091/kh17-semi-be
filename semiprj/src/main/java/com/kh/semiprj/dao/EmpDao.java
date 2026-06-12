@@ -228,10 +228,14 @@ public class EmpDao {
     }
 	
 	public List<EmpDto> searchByName(String keyword) {
-		String sql = "select * from emp "
-				+ "where instr(emp_name, ?) > 0 "
-				+ "and emp_use_yn = 'Y' "
-				+ "order by emp_name asc";
+		String sql = "select e.*, "
+				+ "d.dept_name emp_dept_name "
+				+ "from emp e "
+				+ "left join dept d "
+				+ "on e.emp_dept = d.dept_id "
+			+ "where instr(e.emp_name, ?) > 0"
+			+ "and emp_use_yn = 'Y' "
+			+ "order by emp_name asc";
 		Object[] params = {keyword};
 		return jdbcTemplate.query(sql, empMapper, params);
 	}

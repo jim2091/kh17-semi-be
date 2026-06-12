@@ -1076,7 +1076,8 @@ button {
 }
 
 .gw-form-select:focus,
-.gw-form-input:focus {
+.gw-form-input:focus,
+.gw-content-box:focus {
     border-color: var(--main-color);
     box-shadow: 0 0 0 3px var(--main-light);
 }
@@ -1346,6 +1347,10 @@ button {
     display: inline-block;
 }
 
+.gw-form-select.fail ~ .fail-feedback {
+	display: block;
+}
+
 .gw-new-badge {
     display: inline-block;
     margin-left: 6px;
@@ -1440,6 +1445,7 @@ button {
     word-break:break-word;
     font-family:inherit;
 }
+
 
 .gw-file-view{
     display:flex;
