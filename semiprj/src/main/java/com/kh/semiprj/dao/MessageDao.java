@@ -462,4 +462,5 @@ public class MessageDao {
 	    return jdbcTemplate.queryForObject(sql, String.class, params);
 	}
 	
+	
 }

@@ -1,9 +1,29 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <jsp:include page="/WEB-INF/views/template/header2.jsp"></jsp:include>
-
+<style>
+/* 카드 범위 넘어가는 부분 흐릿하게 자연스럽게 지워지게 */
+.calendar-card {
+    position: relative;
+}
+.calendar-card::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 55px;
+    pointer-events: none;
+    background: linear-gradient(
+        to bottom,
+        rgba(255,255,255,0),
+        rgba(255,255,255,1)
+    );
+}
+</style>
 
     <div class="gw-hero">
         <div>
@@ -37,21 +57,21 @@
         <div class="summary-card">
             <div class="summary-icon"><i class="fa-solid fa-file-circle-check"></i></div>
             <div class="summary-title">미결재 문서</div>
-            <div class="summary-value">3건</div>
+            <div class="summary-value">${penddingAppCount}건</div>
             <a href="#" class="summary-link">결재하러 가기 ></a>
         </div>
 
         <div class="summary-card">
             <div class="summary-icon"><i class="fa-solid fa-envelope-open-text"></i></div>
             <div class="summary-title">안 읽은 쪽지</div>
-            <div class="summary-value">7건</div>
+            <div class="summary-value">${unreadMessageCount}건</div>
             <a href="/message/receiveList" class="summary-link">쪽지함 ></a>
         </div>
 
         <div class="summary-card">
             <div class="summary-icon"><i class="fa-solid fa-calendar-day"></i></div>
             <div class="summary-title">오늘 일정</div>
-            <div class="summary-value">2건</div>
+            <div class="summary-value">${todayEventCount}건</div>
             <a href="#" class="summary-link">일정보기 ></a>
         </div>
 
@@ -101,21 +121,17 @@
 			    </div>
             </div>
 			<div class="card-body">
-	            <div class="list-row">
-	                <div>
-	                    <div>2025년 하반기 워크숍 안내</div>
-	                    <div class="list-sub">공지사항</div>
+	            <c:forEach var="board" items="${noticeList}">
+	                <div class="list-row" onclick="location.href='/board/detail?boardNo=${board.boardNo}'" style="cursor:pointer;">
+	                    <div>
+	                        <div>${board.boardTitle}</div>
+	                        <div class="list-sub">${board.boardType}</div>
+	                    </div>
 	                </div>
-	                <span class="list-sub">08.01</span>
-	            </div>
-	
-	            <div class="list-row">
-	                <div>
-	                    <div>그룹웨어 업데이트 안내</div>
-	                    <div class="list-sub">시스템</div>
-	                </div>
-	                <span class="list-sub">07.28</span>
-	            </div>
+	            </c:forEach>
+	            <c:if test="${empty boardList}">
+	                <div class="empty-text">공지가 없습니다.</div>
+	            </c:if>
            </div>
         </div>
 
@@ -130,25 +146,22 @@
                 
             </div>
 			<div class="card-body">
-	            <div class="list-row">
-	                <div><b style="color:var(--main-color)">10:00</b></div>
-	                <div>
-	                    <div>프로젝트 회의</div>
-	                    <div class="list-sub">회의실 A</div>
+	            <c:forEach var="event" items="${todayEventList}">
+	                <div class="list-row" onclick="location.href='/event/calendar'" style="cursor:pointer;">
+	                    <div><fmt:formatDate value="${event.eventStart}" pattern="HH:mm"/></div>
+	                    <div style="margin-left:auto; text-align:right;">
+	                        <div>${event.eventTitle}</div>
+	                        <div class="list-sub">${event.eventCategory}</div>
+	                    </div>
 	                </div>
-	            </div>
-	
-	            <div class="list-row">
-	                <div><b style="color:var(--main-color)">14:00</b></div>
-	                <div>
-	                    <div>디자인 리뷰</div>
-	                    <div class="list-sub">회의실 B</div>
-	                </div>
-	            </div>
+	            </c:forEach>
+	            <c:if test="${empty todayEventList}">
+	                <div class="empty-text">일정이 없습니다.</div>
+	            </c:if>
 	        </div>
         </div>
 
-        <div class="dashboard-card dashboard-widget" data-widget-id="calendar">
+        <div class="dashboard-card dashboard-widget calendar-card" data-widget-id="calendar">
             <div class="card-header">
                 <div class="card-title">캘린더</div>
                 <div class="card-actions">
@@ -172,7 +185,7 @@
 			    </div>
             </div>
 			<div class="card-body">
-	            <c:forEach var="app" items="${myAppList}" begin="0" end="2">
+	            <c:forEach var="app" items="${myAppList}">
 	                <div class="list-row" onclick="location.href='/app/detail?appId=${app.appId}'" style="cursor:pointer;">
 	                    <div>
 	                        <div>${app.appTitle}</div>
@@ -211,14 +224,17 @@
 			    </div>
             </div>
 			<div class="card-body">
-	            <div class="list-row">
-	                <div>프로젝트 진행 현황 공유</div>
-	                <span class="list-sub">07.09</span>
-	            </div>
-	            <div class="list-row">
-	                <div>업무 효율화 팁 공유</div>
-	                <span class="list-sub">07.08</span>
-	            </div>
+	            <c:forEach var="board" items="${boardList}">
+	                <div class="list-row" onclick="location.href='/board/detail?boardNo=${board.boardNo}'" style="cursor:pointer;">
+	                    <div>
+	                        <div>${board.boardTitle}</div>
+	                        <div class="list-sub">${board.boardType}</div>
+	                    </div>
+	                </div>
+	            </c:forEach>
+	            <c:if test="${empty boardList}">
+	                <div class="empty-text">게시글이 없습니다.</div>
+	            </c:if>
 	        </div>
         </div>
 
@@ -499,7 +515,7 @@ $(function(){
 	    applyQuickMenu();
 	    saveQuickMenu();
 	});
-	
+	<%-- 작은 카드에서는 어차피 일정 제대로 안보여서 안찍도록 숨겼어요
     $.ajax({
         url : "/event/api/events",
         type : "get",
@@ -530,6 +546,7 @@ $(function(){
             homeCalendar.createEvents(events);
         }
     });
+    --%>
 });
 </script>
 
