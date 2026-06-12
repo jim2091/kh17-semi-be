@@ -244,7 +244,7 @@
 	        </div>
         </div>
 
-        <div class="dashboard-card dashboard-widget" data-widget-id="quick-menu">
+        <div class="dashboard-card dashboard-widget quick-menu" data-widget-id="quick-menu">
             <div class="card-header">
 			    <div class="card-title">빠른 메뉴</div>
 			
