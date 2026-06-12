@@ -1,57 +1,141 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
-<jsp:include page="/WEB-INF/views/template/attn_side_home.jsp"></jsp:include>
+<jsp:include page="/WEB-INF/views/template/header2.jsp"></jsp:include>
+<jsp:include page="/WEB-INF/views/template/side_home2.jsp"></jsp:include>
 
 <style>
-    .circle-graph {
-        width: 250px; height: 250px; border-radius: 50%;
-        background: conic-gradient(#d32f2f calc(var(--percent) * 1%), #eee 0);
-        display: flex; align-items: center; justify-content: center;
-        transition: background 0.5s ease;
-    }
-    .inner-circle {
-        width: 200px; height: 200px; border-radius: 50%; background: white;
-        display: flex; flex-direction: column; align-items: center; justify-content: center;
-        font-weight: bold; font-size: 20px;
-    }
+/* 근태 페이지 전체 레이아웃 정렬 - 디자인 시스템 프레임 유지 */
+.attn-width {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* 원형 그래프 테마 컬러 커스텀 보정 */
+.circle-graph {
+    width: 240px; 
+    height: 240px; 
+    border-radius: 50%;
+    /* 배경색을 시스템 기본 회색에서 메인 테마 강조 컬러로 동적 반영 */
+    background: conic-gradient(var(--main-color) calc(var(--percent) * 1%), var(--card-border) 0);
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    transition: background 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+}
+
+.inner-circle {
+    width: 190px; 
+    height: 190px; 
+    border-radius: 50%; 
+    background: #ffffff;
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center;
+    font-size: 14px;
+    color: var(--sub-text);
+}
+
+.inner-circle span {
+    font-weight: 800; 
+    font-size: 32px;
+    color: var(--main-color);
+    line-height: 1.2;
+}
+
+/* 계산기 결과 정보 카드 카드 */
+.calc-info-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 24px;
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    background: #ffffff;
+    min-width: 280px;
+}
+
+.calc-info-card i {
+    font-size: 24px;
+}
+
+.calc-info-card .card-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.calc-info-card .card-label {
+    font-size: 13px;
+    color: var(--sub-text);
+    margin-bottom: 2px;
+}
+
+.calc-info-card .card-value {
+    font-size: 20px;
+    font-weight: 700;
+}
 </style>
 
-<div class="attn-content-body" style="flex-grow: 1; padding: 40px; font-family: 'Malgun Gothic', sans-serif;">
-    <div style="border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 30px;">
-        <h1 style="margin: 0; font-size: 28px;">근태 기록 계산기</h1>
-    </div>
+<!-- 상단 헤드 영역 디자인 일치화 -->
+<div class="gw-page-head attn-width">
+    <div class="gw-breadcrumb">홈 / 근태관리 / 근태기록 계산기</div>
+    <h1>근태 기록 계산기</h1>
+    <p>지정한 설정 기간 내 평일(근무일) 기준 총 기준 시간 대비 본인의 근무 달성률을 시각적으로 확인합니다.</p>
+</div>
 
-    <div style="margin-bottom: 40px; display: flex; align-items: center; gap: 10px;">
-        <input type="date" id="startDate" value="${startDate}" onchange="fetchData()"
-               style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
-        <span>~</span>
-        <input type="date" id="endDate" value="${endDate}" onchange="fetchData()"
-               style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
-    </div>
+<!-- 검색 패널 내 날짜 선택 디자인 일치화 -->
+<div class="gw-search-panel attn-width">
+    <form id="calcForm" onsubmit="return false;" class="gw-search-form" style="gap: 10px;">
+        <i class="fa-solid fa-calendar-week" style="color: var(--sub-text); margin-right: 4px;"></i>
+        <input type="date" id="startDate" value="${startDate}" class="gw-form-select" style="width: 160px;" onchange="fetchData()">
+        <span style="color: var(--sub-text); font-weight: bold;">~</span>
+        <input type="date" id="endDate" value="${endDate}" class="gw-form-select" style="width: 160px;" onchange="fetchData()">
+    </form>
+</div>
 
-    <div style="display: flex; gap: 50px; align-items: center;">
+<!-- 리스트 패널 레이아웃 적용 및 대시보드 구조 정렬 -->
+<div class="gw-list-panel attn-width" style="padding: 40px;">
+    <div style="display: flex; gap: 60px; align-items: center; flex-wrap: wrap;">
+        
+        <!-- 원형 차트 영역 -->
         <div class="circle-graph" id="workGraph" style="--percent: 0;">
             <div class="inner-circle">
-                <span id="totalTime">${empty totalWorkTime ? 0 : totalWorkTime}</span> 시간
+                <span id="totalTime">${empty totalWorkTime ? 0 : totalWorkTime}</span>
+                <span>누적 근무시간</span>
             </div>
         </div>
 
-        <div style="display: flex; flex-direction: column; gap: 20px;">
-            <div style="padding: 15px 30px; border: 1px solid #ddd; border-radius: 8px; font-size: 18px;">
-                누적 근무시간 : <strong id="totalWorkTimeDisplay" style="color: #d32f2f;">${empty totalWorkTime ? 0 : totalWorkTime}</strong> 시간
+        <!-- 우측 텍스트 정보 스코어 보드 박스 -->
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+            
+            <div class="calc-info-card">
+                <i class="fa-solid fa-business-time" style="color: var(--main-color);"></i>
+                <div class="card-content">
+                    <span class="card-label">기간 내 누적 근무시간</span>
+                    <span class="card-value"><strong id="totalWorkTimeDisplay" style="color: var(--main-color);">${empty totalWorkTime ? 0 : totalWorkTime}</strong> 시간</span>
+                </div>
             </div>
-            <div style="padding: 15px 30px; border: 1px solid #ddd; border-radius: 8px; font-size: 18px;">
-                잔여 연차일수: <strong style="color: #2e7d32;">${empty vacInfo ? 0 : vacInfo.VAC_CNT}</strong> 일
+
+            <div class="calc-info-card">
+                <i class="fa-solid fa-umbrella-beach" style="color: var(--warning-color);"></i>
+                <div class="card-content">
+                    <span class="card-label">현재 잔여 연차일수</span>
+                    <span class="card-value"><strong style="color: var(--warning-color);">${empty vacInfo ? 0 : vacInfo.VAC_CNT}</strong> 일</span>
+                </div>
             </div>
+            
         </div>
     </div>
 
-    <div style="margin-top: 50px; font-weight: bold; color: #555;">
-        * 근무제 기준: 주 ${empty maxHours ? 40 : maxHours}시간 (일 8시간 기준)
-        <br>
-        * 현재 설정 기간(평일 기준) 총 기준 시간: <span id="infoMaxHours">0</span>시간 대비 달성률
+    <!-- 하단 하이라이트 문구 안내 영역 -->
+    <div style="margin-top: 40px; padding-top: 20px; border-top: 1px dashed var(--card-border); font-size: 13px; line-height: 1.6; color: var(--sub-text);">
+        <i class="fa-solid fa-circle-info" style="margin-right: 4px; color: var(--main-color);"></i> 
+        근무제 기준: <strong>주 ${empty maxHours ? 40 : maxHours}시간</strong> (일 평일 기준 8시간 기본 계산)<br>
+        <i class="fa-solid fa-chart-pie" style="margin-right: 4px; color: var(--main-color);"></i> 
+        현재 설정된 평일(월~금) 기준 총 소요 기준 시간: <span id="infoMaxHours" style="font-weight: bold; color: #111;">0</span>시간 대비 현재 달성률을 나타냅니다.
     </div>
 </div>
 
@@ -91,7 +175,6 @@
         }
         
         // 2. 기준 시간 계산 (주 5일 기준, 하루 8시간 = 주 40시간 가정)
-        // 만약 주 52시간제라면 하루 10.4시간으로 계산됩니다.
         const dailyStandard = WEEKLY_MAX_HOURS / 5;
         const dynamicMaxHours = weekdays * dailyStandard;
         
@@ -107,4 +190,4 @@
     }
 </script>
 
-<jsp:include page="/WEB-INF/views/template/footer.jsp"></jsp:include>
+<jsp:include page="/WEB-INF/views/template/footer2.jsp"></jsp:include>

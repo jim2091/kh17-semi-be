@@ -20,21 +20,23 @@ public class AttnController {
     @Autowired private AttnService attnService;
     @Autowired private AdminAttnService adminAttnService;
 
+    @GetMapping("/status")
+    @ResponseBody
+    public String getAttnStatus(HttpSession session) {
+        String empNo = (String) session.getAttribute("loginNo");
+        return attnService.checkTodayStatus(empNo);
+    }
+
     @GetMapping("/list")
     public String list(@ModelAttribute("search") AttnDto attnDto, 
                        @ModelAttribute("pageVO") PageVO pageVO, 
                        HttpSession session, Model model) {
-        
         String empNo = (String) session.getAttribute("loginNo");
         attnDto.setEmpNo(empNo);
-        
-        // 연차 정보 조회 및 모델 추가
         Map<String, Object> vacInfo = attnService.getVacationInfo(empNo);
         model.addAttribute("vacInfo", vacInfo);
-        
         List<AttnDto> list = attnService.getAttendanceList(attnDto, pageVO);
         pageVO.setCount(attnService.countAttendance(attnDto));
-        
         model.addAttribute("maxHours", adminAttnService.getActiveMaxHours());
         model.addAttribute("attnList", list);
         return "attn/list";
@@ -44,15 +46,12 @@ public class AttnController {
     public String calculator(@RequestParam(required = false) String startDate, 
                              @RequestParam(required = false) String endDate, 
                              HttpSession session, Model model) {
-        
         String empNo = (String) session.getAttribute("loginNo");
-        
         if (startDate == null || endDate == null) {
             LocalDate now = LocalDate.now();
             startDate = now.withDayOfMonth(1).toString();
             endDate = now.withDayOfMonth(now.lengthOfMonth()).toString();
         }
-        
         model.addAttribute("totalWorkTime", attnService.getWorkTimeSum(empNo, startDate, endDate));
         model.addAttribute("maxHours", adminAttnService.getActiveMaxHours());
         model.addAttribute("startDate", startDate);
@@ -85,13 +84,11 @@ public class AttnController {
         pageVO.setPage(page);
         pageVO.setSize(size);
         pageVO.setCount(adminAttnService.countAdminAttendanceCustom(searchDto, startDate, endDate));
-
         model.addAttribute("startDate", startDate);
         model.addAttribute("endDate", endDate);
         model.addAttribute("pageVO", pageVO);
         model.addAttribute("attnList", adminAttnService.getAdminAttendanceListCustom(searchDto, pageVO, startDate, endDate));
         model.addAttribute("empList", adminAttnService.getAllEmployees());
-
         return "admin/attn/list";
     }
 
@@ -107,5 +104,40 @@ public class AttnController {
             adminAttnService.updateActiveWorkSystem(workCode);
         }
         return "redirect:/attn/admin/manage";
+    }
+
+    @PostMapping("/checkIn")
+    @ResponseBody
+    public String checkIn(HttpSession session) {
+        String empNo = (String) session.getAttribute("loginNo");
+        if (empNo == null) return "fail";
+        try {
+            AttnDto dto = new AttnDto();
+            dto.setEmpNo(empNo);
+            attnService.insertAttendance(dto); 
+            return "success";
+        } catch (Exception e) { e.printStackTrace(); return "fail"; }
+    }
+
+    @PostMapping("/checkOut")
+    @ResponseBody
+    public String checkOut(HttpSession session) {
+        String empNo = (String) session.getAttribute("loginNo");
+        if (empNo == null) return "fail";
+        try {
+            attnService.updateCheckOut(empNo);
+            return "success";
+        } catch (Exception e) { e.printStackTrace(); return "fail"; }
+    }
+
+    @PostMapping("/clearAttn")
+    @ResponseBody
+    public String clearAttn(HttpSession session) {
+        String empNo = (String) session.getAttribute("loginNo");
+        if (empNo == null) return "fail";
+        try {
+            attnService.deleteAttendance(empNo);
+            return "success";
+        } catch (Exception e) { e.printStackTrace(); return "fail"; }
     }
 }

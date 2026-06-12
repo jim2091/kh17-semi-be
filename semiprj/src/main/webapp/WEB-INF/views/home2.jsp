@@ -4,7 +4,6 @@
 
 <jsp:include page="/WEB-INF/views/template/header2.jsp"></jsp:include>
 
-
     <div class="gw-hero">
         <div>
             <h1>${loginUser.empName}님, 좋은 하루 보내세요! 👋</h1>
@@ -57,7 +56,6 @@
 
         <div class="summary-card attendance-summary">
 		
-		    <!-- 첫 줄 -->
 		    <div class="attendance-top">
 		        <div class="attendance-title-wrap">
 		            <div class="summary-icon">
@@ -69,24 +67,29 @@
 		            </div>
 		        </div>
 		
-		        <div class="attendance-status working">
-		            ● 정상근무
+		        <div id="attnStatusText" class="attendance-status working">
+		            ● 미출근
 		        </div>
 		    </div>
 		
-		    <!-- 시간 -->
 		    <div class="attendance-time">
-		        <div>출근 <strong>09:02</strong></div>
+		        <div>출근 <strong id="inTimeDisplay">-</strong></div>
 		        <div>퇴근 <strong>-</strong></div>
 		    </div>
 		
-		    <!-- 버튼 -->
-		    <a href="#" class="attendance-toggle on">
-		        <span class="toggle-light"></span>
-		        출근하기
-		    </a>
-		
-		</div>
+            <div style="display: flex; gap: 8px;">
+                <button type="button" id="mainCheckInBtn" class="gw-btn-primary" onclick="ajaxCheckIn()"
+                    style="padding: 10px 20px; border-radius: 8px; font-size: 14px; cursor: pointer; flex: 1;">
+                    <span class="toggle-light"></span>
+                    <span id="mainCheckInBtnText">출근하기</span>
+                </button>
+                <button type="button" class="gw-btn-secondary" onclick="ajaxClearAttn()"
+                    style="padding: 10px 15px; border-radius: 8px; font-size: 14px; cursor: pointer; background-color: #ef4444; color: white; border: none;">
+                    기록 삭제
+                </button>
+            </div>
+
+	</div>
     </div>
 
     <div class="dashboard-grid">
@@ -222,7 +225,7 @@
 	        </div>
         </div>
 
-        <div class="dashboard-card dashboard-widget quick-menu" data-widget-id="quick-menu">
+        <div class="dashboard-card dashboard-widget" data-widget-id="quick-menu">
             <div class="card-header">
 			    <div class="card-title">빠른 메뉴</div>
 			
@@ -359,6 +362,68 @@
 </div>
 
 <script>
+function ajaxCheckIn() {
+    let userKey = "${sessionScope.loginNo}";
+    if(!userKey || userKey.trim() === "") {
+        userKey = "TEMP_USER"; 
+    }
+
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const currentTimeStr = hours + ":" + minutes;
+    const todayStr = now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, '0') + "-" + String(now.getDate()).padStart(2, '0');
+    
+    localStorage.setItem("gw_date_" + userKey, todayStr);
+    localStorage.setItem("gw_time_" + userKey, currentTimeStr);
+
+    document.getElementById("inTimeDisplay").innerText = currentTimeStr;
+    document.getElementById("attnStatusText").innerText = "● 정상근무";
+    document.getElementById("mainCheckInBtn").disabled = true;
+    document.getElementById("mainCheckInBtnText").innerText = "출근 완료";
+
+    $.ajax({
+        url: "${pageContext.request.contextPath}/attn/checkIn",
+        type: "POST",
+        success: function(res) {
+            if(res === "success") {
+                location.reload(); 
+            } else {
+                console.error("서버 DB 출근 처리 실패 반환");
+            }
+        },
+        error: function(err) {
+            console.error("근태 서버 통신 연결 실패", err);
+        }
+    });
+}
+
+// [신규 추가] 화면과 DB 데이터를 통째로 날려주는 비동기 클렌징 함수
+function ajaxClearAttn() {
+    if(!confirm("현재 사원의 모든 출근 기록을 초기화하시겠습니까?")) return;
+
+    let userKey = "${sessionScope.loginNo}";
+    if(!userKey || userKey.trim() === "") userKey = "TEMP_USER";
+
+    $.ajax({
+        url: "${pageContext.request.contextPath}/attn/clearAttn",
+        type: "POST",
+        success: function(res) {
+            if(res === "success") {
+                // 브라우저 캐시 완전 파괴 후 화면 원복 리로드
+                localStorage.removeItem("gw_date_" + userKey);
+                localStorage.removeItem("gw_time_" + userKey);
+                location.reload();
+            } else {
+                alert("기록 삭제 처리에 실패했습니다.");
+            }
+        },
+        error: function(err) {
+            console.error("근태 삭제 서버 통신 실패", err);
+        }
+    });
+}
+
 const homeCalendar = new tui.Calendar('#home-calendar', {
     defaultView: 'month',
     useFormPopup: false,
@@ -367,8 +432,29 @@ const homeCalendar = new tui.Calendar('#home-calendar', {
 });
 
 $(function(){
-	
-	// 저장된 테마 불러오기
+    let userKey = "${sessionScope.loginNo}";
+    if(!userKey || userKey.trim() === "") {
+        userKey = "TEMP_USER";
+    }
+
+    const now = new Date();
+    const todayStr = now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, '0') + "-" + String(now.getDate()).padStart(2, '0');
+    
+    const savedDate = localStorage.getItem("gw_date_" + userKey);
+    const savedTime = localStorage.getItem("gw_time_" + userKey);
+    
+    if(savedDate === todayStr && savedTime) {
+        document.getElementById("inTimeDisplay").innerText = savedTime;
+        document.getElementById("attnStatusText").innerText = "● 정상근무";
+        document.getElementById("mainCheckInBtn").disabled = true;
+        document.getElementById("mainCheckInBtnText").innerText = "출근 완료";
+    } else {
+        document.getElementById("inTimeDisplay").innerText = "-";
+        document.getElementById("attnStatusText").innerText = "● 미출근";
+        document.getElementById("mainCheckInBtn").disabled = false;
+        document.getElementById("mainCheckInBtnText").innerText = "출근하기";
+    }
+
 	var savedTheme = localStorage.getItem("gwTheme");
 
 	if(savedTheme){
@@ -378,12 +464,10 @@ $(function(){
 	    $("body").addClass("theme-blue");
 	}
 
-	// 테마 버튼 클릭 시 팝업 열고 닫기
 	$(".theme-btn").click(function(){
 	    $(".theme-popup").toggle();
 	});
 
-	// 테마 선택
 	$(".theme-item").click(function(){
 	    var theme = $(this).data("theme");
 
@@ -396,7 +480,6 @@ $(function(){
 	    $(".theme-popup").hide();
 	});
 	
-	// 저장된 위젯 순서 불러오기
 	var savedWidgetOrder = localStorage.getItem("gwWidgetOrder");
 
 	if(savedWidgetOrder){
@@ -408,7 +491,6 @@ $(function(){
 	    }
 	}
 
-	// 위젯 순서 저장 함수
 	function saveWidgetOrder(){
 	    var order = [];
 
@@ -419,7 +501,6 @@ $(function(){
 	    localStorage.setItem("gwWidgetOrder", order.join(","));
 	}
 
-	// 위로 이동
 	$(".widget-up").click(function(){
 	    var card = $(this).closest(".dashboard-widget");
 	    var prev = card.prev(".dashboard-widget");
@@ -430,7 +511,6 @@ $(function(){
 	    }
 	});
 
-	// 아래로 이동
 	$(".widget-down").click(function(){
 	    var card = $(this).closest(".dashboard-widget");
 	    var next = card.next(".dashboard-widget");
@@ -441,12 +521,10 @@ $(function(){
 	    }
 	});
 	
-	// 빠른 메뉴 설정창 열고 닫기
 	$(".quick-setting-btn").click(function(){
 	    $(".quick-setting-panel").toggle();
 	});
 
-	// 빠른 메뉴 상태 적용 함수
 	function applyQuickMenu(){
 	    $(".quick-check").each(function(){
 	        var quickId = $(this).val();
@@ -461,7 +539,6 @@ $(function(){
 	    });
 	}
 
-	// 빠른 메뉴 설정 저장 함수
 	function saveQuickMenu(){
 	    var selected = [];
 
@@ -472,7 +549,6 @@ $(function(){
 	    localStorage.setItem("gwQuickMenu", selected.join(","));
 	}
 
-	// 저장된 빠른 메뉴 불러오기
 	var savedQuickMenu = localStorage.getItem("gwQuickMenu");
 
 	if(savedQuickMenu){
@@ -487,7 +563,6 @@ $(function(){
 
 	applyQuickMenu();
 
-	// 체크박스 변경 시 반영
 	$(".quick-check").change(function(){
 	    var checkedCount = $(".quick-check:checked").length;
 	
