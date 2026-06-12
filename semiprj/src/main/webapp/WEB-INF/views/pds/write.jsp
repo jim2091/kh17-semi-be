@@ -4,6 +4,17 @@
 
 <jsp:include page="/WEB-INF/views/template/header2.jsp"></jsp:include>
 
+<!-- 에디터 아래 글자수 표기 위치 때문에 여기서만 이렇게 적용 -->
+<style>
+.fail-feedback {
+    display: inline-block;
+    visibility: hidden;
+}
+.gw-form-input.fail ~ .fail-feedback,
+.text-editor.fail ~ .editor-bottom-row .fail-feedback {
+    visibility: visible;
+}
+</style>
 
     <div class="gw-page-head pds-width">
         <div class="gw-breadcrumb">홈 / 자료실 / 글쓰기</div>

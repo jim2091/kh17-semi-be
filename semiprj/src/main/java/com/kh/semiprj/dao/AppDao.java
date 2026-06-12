@@ -352,18 +352,27 @@ public class AppDao {
     }
     
     
- // 최근 5개만 가져오기
+ // 최근 3개만 가져오기
     public List<AppDto> selectMyRecentList(String empNo) {
         String sql = "select * from ("
                    + "  select a.*, e.emp_name from app a "
                    + "  join emp e on a.app_req_id = e.emp_no "
                    + "  where a.app_req_id = ? "
                    + "  order by a.app_id desc"
-                   + ") where rownum <= 5";
+                   + ") where rownum <= 3";
         Object[] params = { empNo };
         return jdbcTemplate.query(sql, appMapper, params);
     }
     
+    //내 미결재 문서 count
+    public int countMyPenddingApp(String empNo) {
+    	String sql = "select count(*) from app a join app_line al "
+    			+ "on a.app_id = al.app_id "
+    			+ "where al.app_app_id = ? and al.app_line_status = '진행중'";
+    	Object[] params = { empNo };
+    	return jdbcTemplate.queryForObject(sql, int.class, params);
+    }
+
     
     
 }
