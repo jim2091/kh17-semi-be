@@ -4,6 +4,7 @@
 
 <jsp:include page="/WEB-INF/views/template/header2.jsp"></jsp:include>
 
+
     <div class="gw-hero">
         <div>
             <h1>${loginUser.empName}님, 좋은 하루 보내세요! 👋</h1>
@@ -358,9 +359,7 @@
 			</div>
         </div>
 
-    </div>
 </div>
-
 <script>
 function ajaxCheckIn() {
     let userKey = "${sessionScope.loginNo}";
@@ -398,7 +397,6 @@ function ajaxCheckIn() {
     });
 }
 
-// [신규 추가] 화면과 DB 데이터를 통째로 날려주는 비동기 클렌징 함수
 function ajaxClearAttn() {
     if(!confirm("현재 사원의 모든 출근 기록을 초기화하시겠습니까?")) return;
 
@@ -410,7 +408,6 @@ function ajaxClearAttn() {
         type: "POST",
         success: function(res) {
             if(res === "success") {
-                // 브라우저 캐시 완전 파괴 후 화면 원복 리로드
                 localStorage.removeItem("gw_date_" + userKey);
                 localStorage.removeItem("gw_time_" + userKey);
                 location.reload();
