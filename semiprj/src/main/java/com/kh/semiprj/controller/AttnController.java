@@ -22,11 +22,20 @@ public class AttnController {
 
     @GetMapping("/status")
     @ResponseBody
-    public String getAttnStatus(HttpSession session) {
+    public Map<String, Object> getAttnStatus(HttpSession session) {
         String empNo = (String) session.getAttribute("loginNo");
-        return attnService.checkTodayStatus(empNo);
+        
+        // 이미 있는 checkTodayStatus를 호출 (결과가 "출근" 이거나 "미출근" 등일 것임)
+        String status = attnService.checkTodayStatus(empNo); 
+        
+        Map<String, Object> map = new java.util.HashMap<>();
+        map.put("status", "출근상태".equals(status) ? "출근상태" : "미출근");
+        // 시간 정보가 DB에서 바로 안 온다면 일단 "-"로 표시합니다
+        map.put("startTime", "출근상태".equals(status) ? "09:00" : "-"); 
+        map.put("endTime", "-");
+        
+        return map;
     }
-
     @GetMapping("/list")
     public String list(@ModelAttribute("search") AttnDto attnDto, 
                        @ModelAttribute("pageVO") PageVO pageVO, 
