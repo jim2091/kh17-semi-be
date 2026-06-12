@@ -53,6 +53,7 @@
 	    color:#64748b;
 	
 	    font-size:13px;
+	    margin-bottom: 16px;
 	}
 	.board-writer{
 	    display:inline-block;
@@ -97,6 +98,11 @@
     gap:15px;
     padding:15px 0;
 }
+.action-group {
+    margin-left: auto;
+    display: flex;
+    gap: 8px;
+}
 .gw-form-actions{
     display:flex;
     justify-content:flex-end;
@@ -104,22 +110,38 @@
 
     margin-top:25px;
 }
-.gw-reaction-item{
-    display:flex;
-    align-items:center;
-    gap:6px;
+	.gw-reaction-item{
+	    display:flex;
+	    align-items:center;
+	    gap:6px;
+	    padding:8px 16px;
+	    border-radius:999px;
+	    background:#f8fafc;
+	    font-weight:600;
+	}
+	
+	.gw-reaction-item .fa-heart{
+	    cursor:pointer;
+	    transition:0.2s;
+	}
+	
+	/* 좋아요 안 눌렀을 때 */
+.gw-reaction-item .fa-heart.fa-regular{
+    color:#666;
+}
 
-    padding:8px 16px;
+/* 좋아요 눌렀을 때 */
+.gw-reaction-item .fa-heart.fa-solid{
+    color:#2563eb;
+}
 
-    border-radius:999px;
-
-    background:#f8fafc;
-
+.gw-reaction-item .heart-count{
     font-weight:600;
 }
 
-.gw-reaction-item .fa-heart{
-    cursor:pointer;
+/* 숫자도 파랗게 */
+.gw-reaction-item.active .heart-count{
+    color:#2563eb;
 }
 .image-profile{
     width:60px !important;
@@ -181,6 +203,49 @@
 .btn-reply-delete:hover{
     background:#f1f5f9;
 }
+.btn-reply {
+width: 220px;
+margin-left:auto;
+display:block;
+}
+.field-child-content{
+    width: 100%;
+    resize: none;
+    padding: 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+}
+.field-child-content:focus{
+    outline: none;
+    border-color: #2563eb;
+}
+.reply-child-editor{
+    margin-left: 60px;
+    margin-top: 10px;
+
+    padding: 15px;
+
+    border-left: 3px solid #dbeafe;
+    background-color: #f8fbff;
+    border-radius: 8px;
+}
+.reply-editor{
+    margin-top: 10px;
+    padding: 15px;
+
+    background: #fafafa;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+}
+.reply-write-length,
+.reply-edit-length,
+.reply-child-length{
+    text-align:right;
+    color:#9ca3af;
+    font-size:12px;
+    margin-top:5px;
+}
 </style>
 
 <!-- 게시글 삭제 시 한번 더 물어보는 확인창 -->
@@ -210,6 +275,8 @@ $(function(){
 				$(".fa-heart").removeClass("fa-regular fa-solid")
 					.addClass(response.action ? "fa-solid" : "fa-regular");
 				$(".fa-heart").next(".heart-count").text(response.count);
+				$(".like-item")
+		        .toggleClass("active", response.action);
 			}
 		});
 		//(2) 하트 클릭시 토글이 발생하도록 처리
@@ -266,8 +333,7 @@ $(function(){
 						}
 						var wtime = moment(response[i].replyWtime).fromNow();
 						$(html).find(".reply-wtime").text(wtime);
-						
-						<!-- 수정됨 표시 -->
+
 						if(response[i].replyEtime != null){
 						    $(html).find(".reply-wtime").append(
 						        " <span class='edited-tag' style='color:gray; font-size:12px;'>(수정됨)</span>"
@@ -311,6 +377,7 @@ $(function(){
 				},
 				success: function(){
 					$(".field-reply").val("");
+					$(".reply-length:first").text("0 / 500");
 					var count = Number($(".reply-count").text());
 				    $(".reply-count").text(count + 1);
 					loadList();
@@ -358,6 +425,9 @@ $(function(){
 			$(html).find(".field-reply-edit").val(replyContent);
 			$(html).find(".reply-wtime").text(replyWtime);
 			
+			$(html).find(".reply-edit-length")
+		       .text(replyContent.length + " / 500");
+			
 			$(this).closest(".reply-viewer").hide().after(html);
 		});
 		
@@ -390,18 +460,26 @@ $(function(){
 			});
 		});
 
-		$(".field-reply, .field-child-content, .field-reply-edit").on("input", function(){
+		// 댓글 작성
+		$(document).on("input", ".field-reply", function(){
+		    $(".reply-write-length")
+		        .text($(this).val().length + " / 500");
+		});
 
-		    var len = $(this).val().length;
+		// 댓글 수정
+		$(document).on("input", ".field-reply-edit", function(){
+		    $(this)
+		        .closest(".reply-editor")
+		        .find(".reply-edit-length")
+		        .text($(this).val().length + " / 500");
+		});
 
-		    $(".reply-length").text(len + " / 500");
-
-		    if(len >= 500){
-		        $(".reply-length").css("color", "red");
-		    }
-		    else{
-		        $(".reply-length").css("color", "");
-		    }
+		// 대댓글
+		$(document).on("input", ".field-child-content", function(){
+		    $(this)
+		        .closest(".reply-child-editor")
+		        .find(".reply-child-length")
+		        .text($(this).val().length + " / 500");
 		});
 		
 		//대댓글 입력창
@@ -473,8 +551,8 @@ $(function(){
 				<div class="button-wrapper right w-50">
 				    <span class="btn-reply-child"><i class="fa-solid fa-reply"></i>댓글</span>
 				    <span class="owner-menu">
-				        <i class="fa-solid fa-edit orange btn-reply-edit"></i>
-				        <i class="fa-solid fa-trash red btn-reply-delete"></i>
+				        <i class="fa-solid fa-edit btn-reply-edit"></i>
+				        <i class="fa-solid fa-trash btn-reply-delete"></i>
 				    </span>
 				</div>
 			</div>
@@ -482,21 +560,18 @@ $(function(){
 	</div>
 </script>
 <script type="text/template" id="reply-child-template">
-<div class="reply-child-editor ms-50">
-    <textarea class="field field-child-content w-100"
-              rows="3"
-			maxlength="1500"
-              placeholder="답글을 입력하세요"></textarea>
-	<div class="reply-length">0 / 500</div>
-    <div class="right mt-10">
-        <button type="button" class="btn btn-negative btn-child-cancel">
-            취소
-        </button>
-
-        <button type="button" class="btn btn-positive btn-child-save">
-            등록
-        </button>
-    </div>
+<div class="reply-child-editor ms-50t mb-10">
+    <textarea class="field field-child-content w-100" 
+			rows="4"
+			maxlength="500"
+             placeholder="답글을 입력하세요"></textarea>
+	<div class="reply-child-footer flex-area">
+		<div class="reply-length reply-child-length">0 / 500</div>
+		<div class="button-wrapper right w-50">
+			<i class="fa-solid fa-xmark btn-child-cancel"></i>
+			<i class="fa-solid fa-check btn-child-save"></i>
+		</div>
+	</div>
 </div>
 </script>
 <script type="text/template" id="reply-editor-template">
@@ -507,14 +582,14 @@ $(function(){
 		<div class="content-wrapper ms-20">
 			<h3 class="mb-10 mt-0 mb-0 reply-writer">작성자</h3>
 			<textarea class="field w-100 field-reply-edit" rows="3" maxlength="1500">내용 샘플</textarea>
-			<div class="reply-length">0 / 500</div>
+			<div class="reply-length reply-edit-length">0 / 500</div>
 			<div class="mt-20 flex-area">
 				<div class="w-50">
 					<span class="gray reply-wtime">yyyy-MM-dd HH:mm</span>
 				</div>
 				<div class="button-wrapper right w-50">
-					<i class="fa-solid fa-xmark red btn-reply-cancel"></i>
-					<i class="fa-solid fa-check blue btn-reply-save"></i>
+					<i class="fa-solid fa-xmark btn-reply-cancel"></i>
+					<i class="fa-solid fa-check btn-reply-save"></i>
 				</div>
 			</div>
 		</div>
@@ -572,19 +647,27 @@ $(function(){
 		            <pre>${boardDto.boardContent}</pre>
 		        </div>
 		    </div>
-		    
-		    <!-- 좋아요/댓글수 -->
+
 			<div class="gw-reaction-bar">
-				<div class="gw-reaction-item">
-					<i class="fa-regular fa-comment"></i>
-						댓글 
-					<span class="reply-count">${boardDto.boardReplycount}</span>
-				</div>
-				<div class="gw-reaction-item">
-					<i class="fa-solid fa-heart red"></i> 
+				<div class="gw-reaction-item like-item">
+					<i class="fa-solid fa-heart"></i> 
 					좋아요
 					<span class="heart-count">?</span>
 				</div>
+				
+				<c:if test="${boardDto.empId == sessionScope.loginId || sessionScope.loginRole == '관리자'}">
+		        <div class="action-group">
+			        <a href="./edit?boardNo=${boardDto.boardNo}" class="gw-btn-outline">
+			        	<i class="fa-solid fa-edit"></i>
+			            <span>수정하기</span>
+			        </a>
+			        <a href="./delete?boardNo=${boardDto.boardNo}"
+			           class="gw-btn-danger btn-content-delete">
+			            <i class="fa-regular fa-trash-can"></i>
+			            <span>삭제하기</span>
+			        </a>
+		        </div>
+		        </c:if>
 			</div>
 			
 			<!-- 댓글 -->
@@ -598,9 +681,9 @@ $(function(){
 			<!-- 로그인한 경우 -->
 			<c:if test="${sessionScope.loginId != null}">
 				<div class="gw-form-row">
-					<textarea class="field w-100 field-reply" rows="4" maxlength="1500" placeholder="댓글 내용 작성"></textarea>
-					<div class="reply-length">0 / 500</div>
-					<button type="button" class="gw-btn-outline w-100 mt-10 btn-reply">
+					<textarea class="field w-100 field-reply" rows="4" maxlength="1500" placeholder="댓글을 입력하세요"></textarea>
+					<div class="reply-length reply-write-length">0 / 500</div>
+					<button type="button" class="gw-btn-outline mt-10 btn-reply">
 						<i class="fa-solid fa-pen"></i>
 						<span>댓글 작성하기</span>
 					</button>
@@ -615,7 +698,6 @@ $(function(){
 		    
 		    <!-- 이전글 / 다음글 -->
 		    <div class="gw-form-row">
-		        <label class="gw-form-label">이전 글 / 다음 글</label>
 		        <div class="gw-nav-box">
 		
 		            <div class="gw-nav-row">
@@ -642,28 +724,16 @@ $(function(){
 		    <div class="gw-form-actions">
 				<!-- 로그인 한 경우 보이는 버튼 -->
 				<c:if test="${sessionScope.loginId != null}">
-				<a href="./write" class="gw-btn-outline">글쓰기</a>
+				<a href="./write" class="gw-btn-outline"><i class="fa-solid fa-pen"></i>글쓰기</a>
 					<c:if test="${!(boardDto.boardType eq '비밀' and boardDto.boardParent ne null)}">
-					<a href="./write?boardParent=${boardDto.boardNo}" class="gw-btn-outline">답글쓰기</a>
+					<a href="./write?boardParent=${boardDto.boardNo}" class="gw-btn-outline"><i class="fa-solid fa-share"></i>답글쓰기</a>
 					</c:if>
 				</c:if>
-		    	
-		        <a href="./list" class="gw-btn-outline">
+
+		        <a href="./list" class="gw-btn-primary">
 		            <i class="fa-solid fa-list"></i>
 		            <span>목록으로</span>
 		        </a>
-				<c:if test="${boardDto.empId == sessionScope.loginId || sessionScope.loginRole == '관리자'}">
-		        <a href="./edit?boardNo=${boardDto.boardNo}" class="gw-btn-outline">
-		            <i class="fa-solid fa-pen"></i>
-		            <span>수정하기</span>
-		        </a>
-		
-		        <a href="./delete?boardNo=${boardDto.boardNo}"
-		           class="gw-btn-danger btn-content-delete">
-		            <i class="fa-regular fa-trash-can"></i>
-		            <span>삭제하기</span>
-		        </a>
-		        </c:if>
 		    </div>    
 		</div>
 	</div>

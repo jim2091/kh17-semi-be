@@ -122,6 +122,10 @@
 		    </div>
     		<div class="gw-table-actions">
 	        <c:if test="${sessionScope.loginId != null}">
+	        	<a href="/board/my" class="gw-btn-outline">
+			        <i class="fa-solid fa-file-pen"></i>
+			        <span>내 활동</span>
+			    </a>
 	            <a href="./write" class="gw-btn-outline">
 	                <i class="fa-solid fa-pencil"></i>
 	                <span>글쓰기</span>
@@ -199,12 +203,12 @@
 			</tr>
 			</c:forEach>
 			
-			<c:if test="${empty list}">
+			<c:if test="${pageVO.isSearch() && list.size() == noticeCount}">
 			    <tr>
 			        <td colspan="5"
-						style="padding: 40px; text-align: center; color: #aaa;">
-						조회된 자료가 없습니다.
-					</td>
+			            style="padding:40px;text-align:center;color:#aaa;">
+			            검색 결과가 없습니다.
+			        </td>
 			    </tr>
 			</c:if>
            </tbody>
