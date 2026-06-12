@@ -1510,6 +1510,14 @@ button {
 }
 
 /* =========================
+   dept Page
+========================= */
+.dept-screen {
+	width:1100px; 
+	margin:0 auto;
+}
+
+/* =========================
    Notification List Page
 ========================= */
 .gw-tab-panel {

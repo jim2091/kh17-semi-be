@@ -2,6 +2,17 @@
     pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
+<style>
+	.dept-submenu{
+	    display:none;
+	    padding-left:25px;
+	}
+	
+	.menu-group:hover .dept-submenu{
+	    display:block;
+	}
+</style>
+
 <script>
 $(function(){
 
@@ -34,14 +45,19 @@ $(function(){
 
         <div class="gw-menu-title">WORK</div>
 		
-		<a href="/dept/listTree">
-            <i class="fa-solid fa-sitemap"></i>
-            <span>조직도</span>
-        </a>
-        <a href="/dept/list">
-            <i class="fa-solid fa-building"></i>
-            <span>부서목록</span>
-        </a>
+		<div class="menu-group">
+		    <a href="/dept/listTree" class="dept-menu">
+		        <i class="fa-solid fa-sitemap"></i>
+		        <span>조직도</span>
+		    </a>
+		
+		    <div class="dept-submenu">
+		        <a href="/dept/list">
+		        	<i class="fa-solid fa-building"></i>
+		        	<span>부서목록</span>
+		        </a>
+		    </div>
+		</div>
         <a href="/emp/list">
             <i class="fa-solid fa-users"></i>
             <span>직원목록</span>

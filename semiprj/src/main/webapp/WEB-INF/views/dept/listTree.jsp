@@ -69,6 +69,7 @@
     .Treant .collapse-switch { display: none !important; }
 </style>
 
+<div class="dept-screen">
 <div class="gw-hero">
     <div>
         <h1>회사 조직도 🌲</h1>
@@ -88,13 +89,54 @@
 <div class="org-panel">
     <div id="org-tree"></div>
 </div>
+</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.3.0/raphael.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/treant-js/1.0/Treant.js"></script>
 
 <script>
+$(function() {
+	var savedTheme = localStorage.getItem("gwTheme");
+
+	if (savedTheme) {
+		$("body").addClass(savedTheme);
+	} else {
+		$("body").addClass("theme-blue");
+	}
+
+	$(".theme-btn").click(function() {
+		$(".theme-popup").toggle();
+	});
+
+	$(".theme-item").click(
+			function() {
+				var theme = $(this).data("theme");
+
+				$("body").removeClass(
+						"theme-blue theme-green theme-purple theme-dark")
+						.addClass(theme);
+
+				localStorage.setItem("gwTheme", theme);
+
+				$(".theme-popup").hide();
+			});
+
+	$(".check-all").change(function() {
+		$("input[name=pdsNoList]").prop("checked", this.checked);
+	});
+
+	$("input[name=pdsNoList]")
+			.change(
+					function() {
+						$(".check-all")
+								.prop(
+										"checked",
+										$("input[name=pdsNoList]").length == $("input[name=pdsNoList]:checked").length);
+					});
+});
+
 (function () {
-    // JSTL 데이터를 이용한 데이터 바인딩
+    // 외부 라이브러리를 이용한 조직도 표현
     var rawList = [
         <c:forEach var="dept" items="${list}" varStatus="s">
         { id: ${dept.deptId}, parentId: ${dept.parentDeptId}, name: "${dept.deptName}" }${!s.last ? ',' : ''}
@@ -156,17 +198,6 @@
         }
     });
 })();
-</script>
-
-<script>
-$(function(){
-    var savedTheme = localStorage.getItem("gwTheme");
-    if(savedTheme){
-        $("body").removeClass("theme-blue theme-green theme-purple theme-dark").addClass(savedTheme);
-    } else {
-        $("body").addClass("theme-blue");
-    }
-});
 </script>
 
 <jsp:include page="/WEB-INF/views/template/footer2.jsp"></jsp:include>

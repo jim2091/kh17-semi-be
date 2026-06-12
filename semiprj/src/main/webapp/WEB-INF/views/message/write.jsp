@@ -124,7 +124,7 @@ $(function(){
 	                var div = $("<div>");
 	                div.addClass("receiver-item");
 	                div.text(
-	                    emp.empName + " (" + emp.empDept + ")"
+	                    emp.empName + " (" + emp.empDeptName + ")"
 	                );
 	                div.click(function(){
 
