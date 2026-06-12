@@ -9,6 +9,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.kh.semiprj.dao.AppDao;
+import com.kh.semiprj.dao.BoardDao;
+import com.kh.semiprj.dao.EventDao;
+import com.kh.semiprj.dao.MessageDao;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -16,6 +19,12 @@ import jakarta.servlet.http.HttpSession;
 public class HomeController {
 	@Autowired
 	private AppDao appDao;
+	@Autowired
+	private BoardDao boardDao;
+	@Autowired
+	private MessageDao messageDao;
+	@Autowired
+	private EventDao eventDao;
 	
 	
 	@RequestMapping("/")
@@ -23,8 +32,14 @@ public class HomeController {
 		String loginId = (String) session.getAttribute("loginId");
 	    String empNo = appDao.selectEmpNoById(loginId);
 	    
-	    // 내 전자결재 최근 5개만
+	    // 내 전자결재 최근 3개만
 	    model.addAttribute("myAppList", appDao.selectMyRecentList(empNo));
+	    model.addAttribute("boardList", boardDao.selectRecentList());
+	    model.addAttribute("noticeList", boardDao.selectRecentNoticeList());
+	    model.addAttribute("penddingAppCount", appDao.countMyPenddingApp(empNo));
+	    model.addAttribute("unreadMessageCount", messageDao.countUnread(empNo));
+	    model.addAttribute("todayEventCount", eventDao.countTodayEvent(empNo));
+	    model.addAttribute("todayEventList" , eventDao.selectTodayEvent(empNo));
 		return "/home2";
 	}
     @PostMapping("/menu/toggle")

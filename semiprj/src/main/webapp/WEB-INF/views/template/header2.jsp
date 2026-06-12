@@ -42,6 +42,22 @@
 		            location.reload();
 		        });
 		    });
+		    $(".notification-url").on("click", function(e){
+				e.preventDefault();
+				
+				var url = $(this).attr("href");
+				var notificationNo = $(this).data("notification-no");
+				$.ajax({
+					url: "${pageContext.request.contextPath}/rest/notification/read",
+		            type: "post",
+		            data: {
+		                notificationNo: notificationNo
+		            },
+		            success: function(){
+		            	location.href = url;
+		            }
+				})
+			});
 		});
 	</script>
 	</head>
@@ -90,12 +106,41 @@
 	                <i class="fa-solid fa-paper-plane"></i>
 	            </a>
 	
-	            <a href="/notification/list" class="gw-icon-btn">
-	                <i class="fa-solid fa-bell"></i>
-	                <c:if test="${unreadCount > 0}">
-	                    <span class="gw-badge">${unreadCount}</span>
-	                </c:if>
-	            </a>
+	            <div class="notification-area">
+				
+				    <a href="/notification/list" class="gw-icon-btn notification-btn">
+				        <i class="fa-solid fa-bell"></i>
+				
+				        <c:if test="${unreadNotificationCount > 0}">
+				            <span class="gw-badge">${unreadNotificationCount}</span>
+				        </c:if>
+				    </a>
+				
+				    <div class="notification-dropdown">
+				        <div class="notification-dropdown-head">
+				            <span>최근 알림</span>
+				            <a href="/notification/list">전체보기</a>
+				        </div>
+				
+				        <div class="notification-dropdown-body">
+				            <c:forEach var="notification" items="${recentNotificationList}">
+				                <div class="notification-item">
+				                    <div class="notification-sub">
+				                        <a href="${notification.notificationUrl}" class="notification-url" data-notification-no="${notification.notificationNo}">
+				                        ${notification.notificationContent}</a>
+				                    </div>
+				                </div>
+				            </c:forEach>
+				
+				            <c:if test="${empty recentNotificationList}">
+				                <div class="notification-empty">
+				                    최근 알림이 없습니다.
+				                </div>
+				            </c:if>
+				        </div>
+				    </div>
+				
+				</div>
 	
 	            <a href="/emp/logout">
 	            	<span class="gw-login-out">로그아웃</span>

@@ -24,7 +24,7 @@ public class GlobalModelAdvice {
 		//로그인 안되어있으면
 		if (empDto == null) return;
 		
-		model.addAttribute("recentList", notificationDao.selectRecent(empDto.getEmpNo()));
-		model.addAttribute("unreadCount", notificationDao.countUnread(empDto.getEmpNo()));
+		model.addAttribute("recentNotificationList", notificationDao.selectRecent(empDto.getEmpNo()));
+		model.addAttribute("unreadNotificationCount", notificationDao.countUnread(empDto.getEmpNo()));
 	}
 }
