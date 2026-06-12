@@ -87,6 +87,7 @@ $(function() {
 });
 </script>
 
+<div class="dept-screen">
 <div class="gw-hero">
     <div>
         <h1>부서 목록 및 검색 🏢</h1>
@@ -182,8 +183,8 @@ $(function() {
     </table>
 </div> 
 
-<div class="cell center mt-30">
-    <jsp:include page="/WEB-INF/views/template/pagination.jsp"></jsp:include>
+	<div class="gw-pagination">
+	   <jsp:include page="/WEB-INF/views/template/pagination.jsp"></jsp:include>
+	</div>
 </div>
-
 <jsp:include page="/WEB-INF/views/template/footer2.jsp"></jsp:include>

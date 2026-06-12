@@ -5,34 +5,15 @@
 <jsp:include page="/WEB-INF/views/template/side_home2.jsp"/>
 
 <style>
-	.receiver-list{
-	    border:1px solid #ccc;
-	    max-height:200px;
-	    overflow:auto;
-	    background:white;
-	}
 	
-	.receiver-item{
-	    padding:8px;
-	    cursor:pointer;
-	}
-	
-	.receiver-item:hover{
-	    background:#f5f5f5;
-	}
-	.receiver-wrapper{
-	    position: relative;
-	    width: 100%;
-	}
-	
-	.receiver-selected-list{
+	.dept-selected{
 	    margin-top: 10px;
 	    display: flex;
 	    flex-wrap: wrap;
 	    gap: 8px;
 	}
 	
-	.receiver-tag{
+	.dept-tag{
 	    display: inline-flex;
 	    align-items: center;
 	    gap: 6px;
@@ -47,7 +28,7 @@
 	    font-size: 14px;
 	}
 	
-	.receiver-tag .delete-tag{
+	.dept-tag .delete-tag{
 	    border: none;
 	    background: transparent;
 	    cursor: pointer;
@@ -57,26 +38,58 @@
 	    padding: 0;
 	}
 	
-	.receiver-tag .delete-tag:hover{
+	.dept-tag .delete-tag:hover{
 	    color: #e74c3c;
 	}
 
-	/* 드롭다운을 입력창과 정확히 동일한 폭으로 */
-	.receiver-list{
-	    position: absolute;
-	    top: 100%;
-	    left: 0;
-	    width: 100%;        /* ⭐ 핵심 */
-	    border: 1px solid #ccc;
-	    max-height: 200px;
-	    overflow: auto;
-	    background: white;
-	    z-index: 999;
+	.screen{
+		width:800px;
+    	margin:0 auto;
 	}
 </style>
 
 
 <script>
+$(function() {
+	var savedTheme = localStorage.getItem("gwTheme");
+
+	if (savedTheme) {
+		$("body").addClass(savedTheme);
+	} else {
+		$("body").addClass("theme-blue");
+	}
+
+	$(".theme-btn").click(function() {
+		$(".theme-popup").toggle();
+	});
+
+	$(".theme-item").click(
+			function() {
+				var theme = $(this).data("theme");
+
+				$("body").removeClass(
+						"theme-blue theme-green theme-purple theme-dark")
+						.addClass(theme);
+
+				localStorage.setItem("gwTheme", theme);
+
+				$(".theme-popup").hide();
+			});
+
+	$(".check-all").change(function() {
+		$("input[name=pdsNoList]").prop("checked", this.checked);
+	});
+
+	$("input[name=pdsNoList]")
+			.change(
+					function() {
+						$(".check-all")
+								.prop(
+										"checked",
+										$("input[name=pdsNoList]").length == $("input[name=pdsNoList]:checked").length);
+					});
+});
+
 $(function(){
     var state = {
         parentDeptIdValid : true,
@@ -89,12 +102,6 @@ $(function(){
                 .every(v => v === true);
         }
     };
-
-    /* 초기 로드 시 유효성 표시 */
-    setTimeout(function(){
-        $("[name=parentDeptId]").trigger("change");
-        $("[name=deptHeadIdKeyword]").trigger("check");
-    }, 100);
 
     /* 상위 부서 */
     $("[name=parentDeptId]").on("change input", function(){
@@ -131,50 +138,87 @@ $(function(){
 
     /* 부서장 검사 */
     $("[name=deptHeadIdKeyword]").on("input change check", function(){
-        var has = $("input[name=deptHeadId]").length > 0;
-        $(this).removeClass("success fail").addClass(has ? "success" : "fail");
-        state.deptHeadIdValid = has;
-    });
+	    var valid = $("input[name=deptHeadId]").length > 0;
+	    
+	    $(this)
+	        .removeClass("success fail")
+	        .addClass(valid ? "success" : "fail");
+	    $(".deptHeadId-wrapper .fail-feedback")
+	        .toggle(!valid);
+	    state.deptHeadIdValid = valid;
+	});
 
     /* 자동완성 */
     $("[name=deptHeadIdKeyword]").on("keyup", function(){
         var keyword = $(this).val();
-        if (keyword.length < 1){ $(".deptHeadId-list").empty(); return; }
+        
+        if (keyword.length < 1){ 
+        	$(".deptHeadId").empty(); 
+        	return;}
 
         $.ajax({
             url    : "http://localhost:8080/dept/searchEmp",
             method : "get",
             data   : { keyword : keyword },
             success: function(response){
-                $(".deptHeadId-list").empty();
-                $.each(response, function(i, emp){
-                    $("<div>").addClass("deptHeadId-item")
-                        .text(emp.empName + " (" + (emp.empDeptName || "소속없음") + ")")
-                        .click(function(){
-                            selectHead(emp);
-                            $(".deptHeadId-list").empty();
-                        })
-                        .appendTo(".deptHeadId-list");
+                $(".deptHeadId").empty();
+
+                $.each(response, function(index, emp){
+
+                    var div = $("<div>");
+
+                    div.addClass("deptHeadId-item");
+
+                    div.text(
+                        emp.empName + " (" +
+                        (emp.empDeptName || "소속없음") +
+                        ")"
+                    );
+
+                    div.click(function(){
+
+                        selectHead(emp);
+
+                        $("[name=deptHeadIdKeyword]").val("");
+
+                        $(".deptHeadId").empty();
+
+                        state.deptHeadIdValid = true;
+                    });
+
+                    $(".deptHeadId").append(div);
                 });
             }
         });
     });
 
     function selectHead(emp){
-        var label = emp.empDeptName || "소속없음";
-        $(".receiver-selected-list").html(
-            "<span class='receiver-tag'>"
-            + emp.empName + " (" + label + ")"
-            + "<button type='button' class='delete-tag'>✕</button>"
-            + "<input type='hidden' name='deptHeadId' value='" + emp.empNo + "'>"
-            + "</span>"
-        );
+
+        var html = "";
+
+        html += "<span class='dept-tag'>";
+
+        html += emp.empName;
+        html += " (" + (emp.empDeptName || "소속없음") + ")";
+
+        html += "<button type='button' class='delete-tag'>";
+        html += "✕";
+        html += "</button>";
+
+        html += "<input type='hidden' ";
+        html += "name='deptHeadId' ";
+        html += "value='" + emp.empNo + "'>";
+
+        html += "</span>";
+
+        $(".dept-selected").html(html);
+
         $("[name=deptHeadIdKeyword]").val("").trigger("check");
     }
 
     /* 모달 확인 */
     $(document).on("click", ".confirm-btn", function(){
-        $(".receiver-selected-list").empty();
+        $(".dept-selected").empty();
         $(".emp-check:checked").each(function(){
             var tr = $(this).closest("tr");
             selectHead({
@@ -187,10 +231,11 @@ $(function(){
     });
 
     /* 태그 삭제 */
-    $(document).on("click", ".receiver-list .delete-tag", function(){
-        $(this).closest(".receiver-tag").remove();
-        setTimeout(function(){ $("[name=deptHeadIdKeyword]").trigger("check"); }, 50);
-    });
+    $(".dept-selected").on("click", ".delete-tag", function(){
+	    $(this).closest(".dept-tag").remove();
+	    state.deptHeadIdValid = false;
+	    $("[name=deptHeadIdKeyword]").trigger("check");
+	});
 
     /* 업무내용 */
     $("[name=deptContent]").on("blur", function(){
@@ -209,7 +254,7 @@ $(function(){
     });
 });
 </script>
-
+<div class="screen">
 <!-- ── 페이지 헤더 ── -->
 <div class="gw-page-head">
     <h1>부서 정보 수정</h1>
@@ -254,10 +299,10 @@ $(function(){
         </div>
 
         <!-- 부서장 -->
-        <div class="gw-form-row deptHeadId-wrapper">
             <label class="gw-form-label">
                 부서장 <span class="required">*</span>
             </label>
+        <div class="gw-form-row deptHeadId-wrapper">
             <div style="display:flex; gap:10px; align-items:center;">
                 <input type="text" name="deptHeadIdKeyword"
                        class="field gw-form-input"
@@ -267,9 +312,10 @@ $(function(){
                     <i class="fa-solid fa-user-tie"></i> 찾기
                 </button>
             </div>
-            <div class="receiver-selected-list receiver-list mt-10">
+                <div class="fail-feedback">부서장을 선택해 주세요.</div>                
+            <div class="dept-selected mt-10">
                 <c:if test="${deptHeadEmp != null}">
-                    <span class="receiver-tag">
+                    <span class="dept-tag">
                         ${deptHeadEmp.empName}
                         (${deptHeadEmp.empDeptName != null ? deptHeadEmp.empDeptName : '소속없음'})
                         <button type="button" class="delete-tag">✕</button>
@@ -277,13 +323,11 @@ $(function(){
                     </span>
                 </c:if>
             </div>
-            <div class="deptHeadId-list"></div>
-            <div class="fail-feedback">부서장을 선택해 주세요.</div>
-        </div>
-
-        <jsp:include page="/WEB-INF/views/template/employee-picker.jsp"/>
-        <script src="/js/employee-picker.js"></script>
-
+            <div class="deptHeadId"></div>
+            
+	        <jsp:include page="/WEB-INF/views/template/employee-picker.jsp"/>
+	        <script src="/js/employee-picker.js"></script>
+		</div>
         <!-- 주요 업무 -->
         <div class="gw-form-row">
             <label class="gw-form-label">주요 업무 내용</label>
@@ -306,5 +350,5 @@ $(function(){
 
     </div>
 </form>
-
+</div>
 <jsp:include page="/WEB-INF/views/template/footer2.jsp"/>
