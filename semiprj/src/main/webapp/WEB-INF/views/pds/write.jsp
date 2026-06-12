@@ -107,24 +107,64 @@ $(function(){
 
         $(".theme-popup").hide();
     });
-
+	
+  	//1000글자 이상 입력 막기
+	//기존 subString방법 : 서식이 전부 깨짐
+	//1000글자 이상일 때 삭제,이동 관련 키 말고 막기 : onChange로 못막음 onKeydown으로 막아야하는데
+	//한글의 경우 한글 입력 조합(IME)때문에 안막힘
+	//최종적으로 입력을 계속 저장하다가 1000글자 초과 입력시 이전상태로 복구하는 방식 채택
+	//이 경우 1000글자 넘어갈 시 커서 맨앞으로감. 이것도 해결하면 또 뭐하나 더하고 하는 방식이라 일단 여기까지
+    var restoring = false;
     $("#summernote").summernote({
         lang : "ko-KR",
         height : 400,
         callbacks : {
-            onKeyup : function(){
-                var text = $(this)
-                    .summernote("code")
-                    .replace(/<[^>]*>/g, "")
-                    .trim();
-
-                $(".text-length span").text(text.length);
+            onChange : function(contents){
+                if (restoring) return;
+                
+                var text = $("<div>").html(contents).text();
+                
+                if(text.length <= 1000){
+                	lastCode = contents;
+                	$(".text-length span").text(text.length);
+                	checkPdsContent();
+                }
+                else{
+                	restoring = true;
+                	$("#summernote").summernote("code", lastCode);
+                	restoring = false;
+                	
+                	$(".text-length span").text(
+                		$("<div>").html(lastCode).text().length		
+                	);
+                }
             },
+            
+            onPaste : function(e) {
+            	var currentCode = $("#summernote").summernote("code");
+            	var currentText = $("<div>").html(currentCode).text();
+            	
+            	var pasteText = "";
+            	
+            	if(e.originalEvent.clipboardData) {
+            		pasteText = e.originalEvent.clipboardData.getData("text");
+            	}
+            	
+            	if(currentText.length + pasteText.length > 1000) {
+            		e.preventDefault();
+            		alert("내용은 1000자 이하로 입력할 수 있습니다.");
+            	}
+            	
+            },
+            
 			onImageUpload : function(files){
 				for(var i = 0; i < files.length; i++){
 					uploadImage(files[i]);
 				}
-			}
+			},
+		
+
+
 
         }
     });
@@ -227,6 +267,25 @@ $(function(){
     	});
     	
     }
+    <%--
+    //1000글자 넘으면 자르기
+    //순수 텍스트로 만들어버리기 때문에 서식 등이 사라짐
+    
+    function limitSummernoteText(){
+    	var code = $("#summernote").summernote("code");
+    	var text = $("<div>").html(code).text();
+    	
+    	if (text.length > 1000) {
+    		var cut = text.substring(0, 1000);
+    		
+    		$("#summernote").summernote("code", cut);
+    	}
+    	
+    	$(".text-length span").text(
+    		Math.min(text.length, 1000)		
+    	);
+    }
+    --%>
 
 });
 </script>
