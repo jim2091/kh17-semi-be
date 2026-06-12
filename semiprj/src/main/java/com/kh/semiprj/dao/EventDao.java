@@ -146,6 +146,23 @@ public class EventDao {
 		
 	}
 	
+	//오늘 일정 count
+	public int countTodayEvent(String empId) {
+		String sql = "select count(*) from event "
+				+ "where event_start < trunc(sysdate) + 1 and event_end >= trunc(sysdate) "
+				+ "and event_origin = ?";
+		Object[] params = { empId };
+		return jdbcTemplate.queryForObject(sql, int.class, params);
+	}
+	
+	public List<EventDto> selectTodayEvent(String empId){
+		String sql = "select * from event "
+				+ "where event_start < trunc(sysdate) + 1 and event_end > = trunc(sysdate) "
+				+ "and event_origin = ?";
+		Object[] params = { empId };
+		return jdbcTemplate.query(sql, eventMapper, params);
+	}
+	
 	
 	
 	

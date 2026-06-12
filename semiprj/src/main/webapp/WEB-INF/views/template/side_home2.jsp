@@ -16,8 +16,16 @@ $(function(){
 
         $(this).next(".calendar-submenu").slideToggle(200);
     });
+    
+	$(".attn-container").hover(function() {
+			// 마우스를 올렸을 때 (Stop을 주어 마우스를 마구 움직여도 애니메이션이 꼬이지 않게 함)
+			$(this).find(".attn-submenu").stop(true, true).slideDown(200);
+		}, function() {
+			// 마우스가 벗어났을 때
+			$(this).find(".attn-submenu").stop(true, true).slideUp(200);
+		});
 
-});
+	});
 </script>
 
 <div class="gw-sidebar">
@@ -50,10 +58,17 @@ $(function(){
             <i class="fa-solid fa-file-signature"></i>
             <span>전자결재</span>
         </a>
-        <a href="/attn/list">
-            <i class="fa-solid fa-business-time"></i>
-            <span>근태관리</span>
-        </a>
+        <div class="attn-container">
+            <a href="/attn/list" class="attn-menu">
+                <i class="fa-solid fa-business-time"></i>
+                <span>근태관리</span>
+            </a>
+            <div class="attn-submenu" style="display:none; padding-left:25px;">
+		        <a href="/attn/calculator"> <i class="fa-solid fa-calculator"></i>
+		            <span>근태 계산기</span>
+		        </a>
+		    </div>
+        </div>
         <a href="/event/calendar" class="calendar-menu">
             <i class="fa-solid fa-calendar-day"></i>
             <span>일정</span>
@@ -104,10 +119,20 @@ $(function(){
 	            <i class="fa-solid fa-sitemap"></i>
 	            <span>부서관리</span>
 	        </a>
-	        <a href="/attn/list">
-	            <i class="fa-solid fa-clock"></i>
-	            <span>근태관리</span>
+	        
+	        
+	        <div class="attn-container">
+            <a href="/attn/admin/list" class="attn-menu">
+	            <i class="fa-solid fa-clock" ></i>
+	            <span>근태기록</span>
 	        </a>
+            <div class="attn-submenu" style="display:none; padding-left:25px;">
+		        <a href="/admin/attn/manage"> <i class="fa-solid fa-sliders"></i>
+		            <span>근무제도</span>
+		        </a>
+		    </div>
+        </div>
+	        
 	        <a href="/admin/app/list">
 	           <i class="fa-solid fa-file-shield"></i>
 	            <span>결재관리</span>

@@ -13,7 +13,6 @@ public class AttnDao {
     @Autowired private JdbcTemplate jdbcTemplate;
     @Autowired private AttnMapper attnMapper;
 
-    // --- 기존 메서드 ---
     public List<Map<String, String>> selectAllEmployees() {
         String sql = "SELECT emp_no, emp_name FROM emp ORDER BY emp_name ASC";
         return jdbcTemplate.query(sql, (rs, rowNum) -> {
@@ -29,7 +28,6 @@ public class AttnDao {
         try { return jdbcTemplate.queryForMap(sql, empNo); } catch (Exception e) { return Map.of("VAC_TOT", 0, "VAC_CNT", 0); }
     }
 
-    // [추가] 관리자용 전체 연차 조회
     public List<Map<String, Object>> selectAllVacations() {
         return jdbcTemplate.queryForList("SELECT emp_no, vac_tot, vac_cnt FROM vac_info");
     }
@@ -44,13 +42,11 @@ public class AttnDao {
         return jdbcTemplate.queryForObject(sql, Integer.class, attnDto.getEmpNo(), attnDto.getYear(), attnDto.getMonth());
     }
 
-    // [추가] 관리자 기본 목록 조회 메서드
     public List<AttnDto> selectAdminList(AttnDto s, PageVO p) {
         String sql = "SELECT * FROM (SELECT ROWNUM RN, T.* FROM (SELECT * FROM ATTN ORDER BY ATTN_WORK_DATE DESC) T) WHERE RN BETWEEN ? AND ?";
         return jdbcTemplate.query(sql, attnMapper, p.getBeginRownum(), p.getEndRownum());
     }
 
-    // [추가] 관리자 카운트 메서드
     public int countAdminAttendance(AttnDto s) {
         return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM ATTN", Integer.class);
     }
@@ -74,14 +70,12 @@ public class AttnDao {
         StringBuilder sql = new StringBuilder("SELECT * FROM (SELECT ROWNUM AS RN, T.* FROM ( ");
         sql.append(" SELECT A.ATTN_ID, A.EMP_NO, A.ATTN_WORK_DATE, A.ATTN_WORK_TIME, A.ATTN_STATUS, A.ATTN_IN_TIME, A.ATTN_OUT_TIME, E.EMP_NAME, E.EMP_DEPT, E.EMP_POSITION ");
         sql.append(" FROM ATTN A JOIN EMP E ON A.EMP_NO = E.EMP_NO WHERE 1=1 ");
-
         List<Object> params = new ArrayList<>();
         if(searchDto.getDeptCode() != null && !searchDto.getDeptCode().isEmpty()) { sql.append(" AND E.EMP_DEPT = ? "); params.add(searchDto.getDeptCode()); }
         if(searchDto.getPositionCode() != null && !searchDto.getPositionCode().isEmpty()) { sql.append(" AND E.EMP_POSITION = ? "); params.add(searchDto.getPositionCode()); }
         if(searchDto.getEmpName() != null && !searchDto.getEmpName().isEmpty()) { sql.append(" AND E.EMP_NAME = ? "); params.add(searchDto.getEmpName()); }
         if(startDate != null && !startDate.isEmpty()) { sql.append(" AND A.ATTN_WORK_DATE >= TO_DATE(?, 'YYYY-MM-DD') "); params.add(startDate); }
         if(endDate != null && !endDate.isEmpty()) { sql.append(" AND A.ATTN_WORK_DATE <= TO_DATE(?, 'YYYY-MM-DD') "); params.add(endDate); }
-
         sql.append(" ORDER BY A.ATTN_WORK_DATE DESC ) T ) WHERE RN BETWEEN ? AND ?");
         params.add(pageVO.getBeginRownum());
         params.add(pageVO.getEndRownum());
@@ -109,4 +103,25 @@ public class AttnDao {
 
     public void updateAllWorkSystemDisable() { jdbcTemplate.update("UPDATE work_system SET is_active = 'N'"); }
     public void updateWorkSystemEnable(String workCode) { jdbcTemplate.update("UPDATE work_system SET is_active = 'Y' WHERE LOWER(work_code) = LOWER(?)", workCode); }
+
+    public void insertCheckIn(AttnDto attnDto) {
+        String sql = "INSERT INTO attn(attn_id, emp_no, attn_work_date, attn_in_time, attn_status, attn_record) "
+                   + "VALUES(attn_seq.nextval, ?, SYSDATE, SYSDATE, '출근중', '정상출근')";
+        jdbcTemplate.update(sql, attnDto.getEmpNo());
+    }
+
+    public void updateCheckOut(String empNo) {
+        String sql = "UPDATE attn SET attn_out_time = SYSDATE, attn_status = '퇴근' WHERE emp_no = ? AND TRUNC(attn_work_date) = TRUNC(SYSDATE)";
+        jdbcTemplate.update(sql, empNo);
+    }
+
+    public String checkTodayStatus(String empNo) {
+        Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM attn WHERE emp_no = ? AND TRUNC(attn_work_date) = TRUNC(SYSDATE) AND attn_out_time IS NULL", Integer.class, empNo);
+        return (count != null && count > 0) ? "IN" : "OUT";
+    }
+
+    public void deleteAttendanceByEmpNo(String empNo) {
+        String sql = "DELETE FROM attn WHERE emp_no = ?";
+        jdbcTemplate.update(sql, empNo);
+    }
 }

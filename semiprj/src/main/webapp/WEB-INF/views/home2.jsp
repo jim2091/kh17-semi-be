@@ -1,8 +1,30 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <jsp:include page="/WEB-INF/views/template/header2.jsp"></jsp:include>
+
+<style>
+/* 카드 범위 넘어가는 부분 흐릿하게 자연스럽게 지워지게 */
+.calendar-card {
+    position: relative;
+}
+.calendar-card::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 55px;
+    pointer-events: none;
+    background: linear-gradient(
+        to bottom,
+        rgba(255,255,255,0),
+        rgba(255,255,255,1)
+    );
+}
+</style>
 
 
     <div class="gw-hero">
@@ -37,27 +59,26 @@
         <div class="summary-card">
             <div class="summary-icon"><i class="fa-solid fa-file-circle-check"></i></div>
             <div class="summary-title">미결재 문서</div>
-            <div class="summary-value">3건</div>
+            <div class="summary-value">${penddingAppCount}건</div>
             <a href="#" class="summary-link">결재하러 가기 ></a>
         </div>
 
         <div class="summary-card">
             <div class="summary-icon"><i class="fa-solid fa-envelope-open-text"></i></div>
             <div class="summary-title">안 읽은 쪽지</div>
-            <div class="summary-value">7건</div>
+            <div class="summary-value">${unreadMessageCount}건</div>
             <a href="/message/receiveList" class="summary-link">쪽지함 ></a>
         </div>
 
         <div class="summary-card">
             <div class="summary-icon"><i class="fa-solid fa-calendar-day"></i></div>
             <div class="summary-title">오늘 일정</div>
-            <div class="summary-value">2건</div>
+            <div class="summary-value">${todayEventCount}건</div>
             <a href="#" class="summary-link">일정보기 ></a>
         </div>
 
         <div class="summary-card attendance-summary">
 		
-		    <!-- 첫 줄 -->
 		    <div class="attendance-top">
 		        <div class="attendance-title-wrap">
 		            <div class="summary-icon">
@@ -69,24 +90,29 @@
 		            </div>
 		        </div>
 		
-		        <div class="attendance-status working">
-		            ● 정상근무
+		        <div id="attnStatusText" class="attendance-status working">
+		            ● 미출근
 		        </div>
 		    </div>
 		
-		    <!-- 시간 -->
 		    <div class="attendance-time">
-		        <div>출근 <strong>09:02</strong></div>
+		        <div>출근 <strong id="inTimeDisplay">-</strong></div>
 		        <div>퇴근 <strong>-</strong></div>
 		    </div>
 		
-		    <!-- 버튼 -->
-		    <a href="#" class="attendance-toggle on">
-		        <span class="toggle-light"></span>
-		        출근하기
-		    </a>
-		
-		</div>
+            <div style="display: flex; gap: 8px;">
+                <button type="button" id="mainCheckInBtn" class="gw-btn-primary" onclick="ajaxCheckIn()"
+                    style="padding: 10px 20px; border-radius: 8px; font-size: 14px; cursor: pointer; flex: 1;">
+                    <span class="toggle-light"></span>
+                    <span id="mainCheckInBtnText">출근하기</span>
+                </button>
+                <button type="button" class="gw-btn-secondary" onclick="ajaxClearAttn()"
+                    style="padding: 10px 15px; border-radius: 8px; font-size: 14px; cursor: pointer; background-color: #ef4444; color: white; border: none;">
+                    기록 삭제
+                </button>
+            </div>
+
+	</div>
     </div>
 
     <div class="dashboard-grid">
@@ -101,21 +127,17 @@
 			    </div>
             </div>
 			<div class="card-body">
-	            <div class="list-row">
-	                <div>
-	                    <div>2025년 하반기 워크숍 안내</div>
-	                    <div class="list-sub">공지사항</div>
+	            <c:forEach var="board" items="${noticeList}">
+	                <div class="list-row" onclick="location.href='/board/detail?boardNo=${board.boardNo}'" style="cursor:pointer;">
+	                    <div>
+	                        <div>${board.boardTitle}</div>
+	                        <div class="list-sub">${board.boardType}</div>
+	                    </div>
 	                </div>
-	                <span class="list-sub">08.01</span>
-	            </div>
-	
-	            <div class="list-row">
-	                <div>
-	                    <div>그룹웨어 업데이트 안내</div>
-	                    <div class="list-sub">시스템</div>
-	                </div>
-	                <span class="list-sub">07.28</span>
-	            </div>
+	            </c:forEach>
+	            <c:if test="${empty boardList}">
+	                <div class="empty-text">공지가 없습니다.</div>
+	            </c:if>
            </div>
         </div>
 
@@ -130,25 +152,22 @@
                 
             </div>
 			<div class="card-body">
-	            <div class="list-row">
-	                <div><b style="color:var(--main-color)">10:00</b></div>
-	                <div>
-	                    <div>프로젝트 회의</div>
-	                    <div class="list-sub">회의실 A</div>
+	            <c:forEach var="event" items="${todayEventList}">
+	                <div class="list-row" onclick="location.href='/event/calendar'" style="cursor:pointer;">
+	                    <div><fmt:formatDate value="${event.eventStart}" pattern="HH:mm"/></div>
+	                    <div style="margin-left:auto; text-align:right;">
+	                        <div>${event.eventTitle}</div>
+	                        <div class="list-sub">${event.eventCategory}</div>
+	                    </div>
 	                </div>
-	            </div>
-	
-	            <div class="list-row">
-	                <div><b style="color:var(--main-color)">14:00</b></div>
-	                <div>
-	                    <div>디자인 리뷰</div>
-	                    <div class="list-sub">회의실 B</div>
-	                </div>
-	            </div>
+	            </c:forEach>
+	            <c:if test="${empty todayEventList}">
+	                <div class="empty-text">일정이 없습니다.</div>
+	            </c:if>
 	        </div>
         </div>
 
-        <div class="dashboard-card dashboard-widget" data-widget-id="calendar">
+        <div class="dashboard-card dashboard-widget calendar-card" data-widget-id="calendar">
             <div class="card-header">
                 <div class="card-title">캘린더</div>
                 <div class="card-actions">
@@ -172,7 +191,7 @@
 			    </div>
             </div>
 			<div class="card-body">
-	            <c:forEach var="app" items="${myAppList}" begin="0" end="2">
+	            <c:forEach var="app" items="${myAppList}">
 	                <div class="list-row" onclick="location.href='/app/detail?appId=${app.appId}'" style="cursor:pointer;">
 	                    <div>
 	                        <div>${app.appTitle}</div>
@@ -211,14 +230,17 @@
 			    </div>
             </div>
 			<div class="card-body">
-	            <div class="list-row">
-	                <div>프로젝트 진행 현황 공유</div>
-	                <span class="list-sub">07.09</span>
-	            </div>
-	            <div class="list-row">
-	                <div>업무 효율화 팁 공유</div>
-	                <span class="list-sub">07.08</span>
-	            </div>
+	            <c:forEach var="board" items="${boardList}">
+	                <div class="list-row" onclick="location.href='/board/detail?boardNo=${board.boardNo}'" style="cursor:pointer;">
+	                    <div>
+	                        <div>${board.boardTitle}</div>
+	                        <div class="list-sub">${board.boardType}</div>
+	                    </div>
+	                </div>
+	            </c:forEach>
+	            <c:if test="${empty boardList}">
+	                <div class="empty-text">게시글이 없습니다.</div>
+	            </c:if>
 	        </div>
         </div>
 
@@ -367,6 +389,68 @@
 </div>
 
 <script>
+function ajaxCheckIn() {
+    let userKey = "${sessionScope.loginNo}";
+    if(!userKey || userKey.trim() === "") {
+        userKey = "TEMP_USER"; 
+    }
+
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const currentTimeStr = hours + ":" + minutes;
+    const todayStr = now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, '0') + "-" + String(now.getDate()).padStart(2, '0');
+    
+    localStorage.setItem("gw_date_" + userKey, todayStr);
+    localStorage.setItem("gw_time_" + userKey, currentTimeStr);
+
+    document.getElementById("inTimeDisplay").innerText = currentTimeStr;
+    document.getElementById("attnStatusText").innerText = "● 정상근무";
+    document.getElementById("mainCheckInBtn").disabled = true;
+    document.getElementById("mainCheckInBtnText").innerText = "출근 완료";
+
+    $.ajax({
+        url: "${pageContext.request.contextPath}/attn/checkIn",
+        type: "POST",
+        success: function(res) {
+            if(res === "success") {
+                location.reload(); 
+            } else {
+                console.error("서버 DB 출근 처리 실패 반환");
+            }
+        },
+        error: function(err) {
+            console.error("근태 서버 통신 연결 실패", err);
+        }
+    });
+}
+
+// [신규 추가] 화면과 DB 데이터를 통째로 날려주는 비동기 클렌징 함수
+function ajaxClearAttn() {
+    if(!confirm("현재 사원의 모든 출근 기록을 초기화하시겠습니까?")) return;
+
+    let userKey = "${sessionScope.loginNo}";
+    if(!userKey || userKey.trim() === "") userKey = "TEMP_USER";
+
+    $.ajax({
+        url: "${pageContext.request.contextPath}/attn/clearAttn",
+        type: "POST",
+        success: function(res) {
+            if(res === "success") {
+                // 브라우저 캐시 완전 파괴 후 화면 원복 리로드
+                localStorage.removeItem("gw_date_" + userKey);
+                localStorage.removeItem("gw_time_" + userKey);
+                location.reload();
+            } else {
+                alert("기록 삭제 처리에 실패했습니다.");
+            }
+        },
+        error: function(err) {
+            console.error("근태 삭제 서버 통신 실패", err);
+        }
+    });
+}
+
 const homeCalendar = new tui.Calendar('#home-calendar', {
     defaultView: 'month',
     useFormPopup: false,
@@ -375,8 +459,29 @@ const homeCalendar = new tui.Calendar('#home-calendar', {
 });
 
 $(function(){
-	
-	// 저장된 테마 불러오기
+    let userKey = "${sessionScope.loginNo}";
+    if(!userKey || userKey.trim() === "") {
+        userKey = "TEMP_USER";
+    }
+
+    const now = new Date();
+    const todayStr = now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, '0') + "-" + String(now.getDate()).padStart(2, '0');
+    
+    const savedDate = localStorage.getItem("gw_date_" + userKey);
+    const savedTime = localStorage.getItem("gw_time_" + userKey);
+    
+    if(savedDate === todayStr && savedTime) {
+        document.getElementById("inTimeDisplay").innerText = savedTime;
+        document.getElementById("attnStatusText").innerText = "● 정상근무";
+        document.getElementById("mainCheckInBtn").disabled = true;
+        document.getElementById("mainCheckInBtnText").innerText = "출근 완료";
+    } else {
+        document.getElementById("inTimeDisplay").innerText = "-";
+        document.getElementById("attnStatusText").innerText = "● 미출근";
+        document.getElementById("mainCheckInBtn").disabled = false;
+        document.getElementById("mainCheckInBtnText").innerText = "출근하기";
+    }
+
 	var savedTheme = localStorage.getItem("gwTheme");
 
 	if(savedTheme){
@@ -386,12 +491,10 @@ $(function(){
 	    $("body").addClass("theme-blue");
 	}
 
-	// 테마 버튼 클릭 시 팝업 열고 닫기
 	$(".theme-btn").click(function(){
 	    $(".theme-popup").toggle();
 	});
 
-	// 테마 선택
 	$(".theme-item").click(function(){
 	    var theme = $(this).data("theme");
 
@@ -404,7 +507,6 @@ $(function(){
 	    $(".theme-popup").hide();
 	});
 	
-	// 저장된 위젯 순서 불러오기
 	var savedWidgetOrder = localStorage.getItem("gwWidgetOrder");
 
 	if(savedWidgetOrder){
@@ -416,7 +518,6 @@ $(function(){
 	    }
 	}
 
-	// 위젯 순서 저장 함수
 	function saveWidgetOrder(){
 	    var order = [];
 
@@ -427,7 +528,6 @@ $(function(){
 	    localStorage.setItem("gwWidgetOrder", order.join(","));
 	}
 
-	// 위로 이동
 	$(".widget-up").click(function(){
 	    var card = $(this).closest(".dashboard-widget");
 	    var prev = card.prev(".dashboard-widget");
@@ -438,7 +538,6 @@ $(function(){
 	    }
 	});
 
-	// 아래로 이동
 	$(".widget-down").click(function(){
 	    var card = $(this).closest(".dashboard-widget");
 	    var next = card.next(".dashboard-widget");
@@ -449,12 +548,10 @@ $(function(){
 	    }
 	});
 	
-	// 빠른 메뉴 설정창 열고 닫기
 	$(".quick-setting-btn").click(function(){
 	    $(".quick-setting-panel").toggle();
 	});
 
-	// 빠른 메뉴 상태 적용 함수
 	function applyQuickMenu(){
 	    $(".quick-check").each(function(){
 	        var quickId = $(this).val();
@@ -469,7 +566,6 @@ $(function(){
 	    });
 	}
 
-	// 빠른 메뉴 설정 저장 함수
 	function saveQuickMenu(){
 	    var selected = [];
 
@@ -480,7 +576,6 @@ $(function(){
 	    localStorage.setItem("gwQuickMenu", selected.join(","));
 	}
 
-	// 저장된 빠른 메뉴 불러오기
 	var savedQuickMenu = localStorage.getItem("gwQuickMenu");
 
 	if(savedQuickMenu){
@@ -495,7 +590,6 @@ $(function(){
 
 	applyQuickMenu();
 
-	// 체크박스 변경 시 반영
 	$(".quick-check").change(function(){
 	    var checkedCount = $(".quick-check:checked").length;
 	
@@ -507,7 +601,7 @@ $(function(){
 	    applyQuickMenu();
 	    saveQuickMenu();
 	});
-	
+	<%-- 작은 카드에서는 어차피 일정 제대로 안보여서 안찍도록 숨겼어요
     $.ajax({
         url : "/event/api/events",
         type : "get",
@@ -538,6 +632,7 @@ $(function(){
             homeCalendar.createEvents(events);
         }
     });
+    --%>
 });
 </script>
 
