@@ -69,26 +69,28 @@
     .Treant .collapse-switch { display: none !important; }
 </style>
 
-<div class="dept-screen">
-<div class="gw-hero">
-    <div>
-        <h1>회사 조직도 🌲</h1>
-        <p>우리 회사의 구조와 부서 체계를 한눈에 확인하세요.</p>
-    </div>
-</div>
+		<div class="dept-screen">
+			<div class="gw-hero">
+			    <div>
+			        <h1>회사 조직도 🌲</h1>
+			        <p>우리 회사의 구조와 부서 체계를 한눈에 확인하세요.</p>
+			    </div>
+			</div>
 
-<div class="gw-table-top mt-20">
-    <div class="gw-table-title">구조 트리</div>
-    <div class="gw-table-actions">
-        <a href="./list" class="gw-btn-outline">
-            <i class="fa-solid fa-list"></i> 목록 보기
-        </a>
-    </div>
-</div>
-
-<div class="org-panel">
-    <div id="org-tree"></div>
-</div>
+			<div class="gw-table-top mt-20">
+			    <div class="gw-table-title">구조 트리</div>
+			    <div class="gw-table-actions">
+			        <a href="./list" class="gw-btn-outline">
+			            <i class="fa-solid fa-list"></i> 목록 보기
+			        </a>
+			    </div>
+			</div>
+			
+			<div class="org-panel">
+			    <div id="org-tree"></div>
+			</div>
+		</div>
+	</div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.3.0/raphael.min.js"></script>

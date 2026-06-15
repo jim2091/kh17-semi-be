@@ -10,15 +10,18 @@ public class AttnDto {
     private Timestamp attnWorkDate;
     private Timestamp attnInTime;    // DB 저장용
     private Timestamp attnOutTime;   // DB 저장용
-    private int attnWorkTime;
+    
+    // 💡 기존 int에서 double로 변경 (NUMBER(4,2) 데이터 유실 방지)
+    private double attnWorkTime;     
+    
     private String attnStatus;       // '출근전', '출근중', '퇴근', '결근'
     private String attnRecord;       // '미확인', '정상출근', '지각', '조퇴', '결근'
 
-    // --- 추가: 시간 입력을 위한 필드 ---
+    // --- 시간 입력을 위한 필드 ---
     private String inTime;           // "HH:mm" 형태 입력용
     private String outTime;          // "HH:mm" 형태 입력용
     
-    // 기존 필드들
+    // 기존 검색 및 통계용 필드들
     private String year;
     private String month;
     private Integer planWorkTime;

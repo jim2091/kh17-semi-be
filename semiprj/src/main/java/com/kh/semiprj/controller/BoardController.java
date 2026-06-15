@@ -97,7 +97,7 @@ public class BoardController {
 	
 	//2. 게시글 목록 매핑
 	@RequestMapping("/list")
-	public String list(Model model, @ModelAttribute PageVO pageVO) {
+	public String list(Model model, @ModelAttribute PageVO pageVO, @RequestParam(required = false) String boardHead) {
 		//(1) 목록 조회
 		List<BoardDto> noticeList = boardDao.selectNoticeList();
 		for(BoardDto boardDto : noticeList) {

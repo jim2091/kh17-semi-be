@@ -262,87 +262,88 @@ $(function(){
     });
 });
 </script>
-<div class="dept-screen">
-<!-- ── 페이지 헤더 ── -->
-<div class="gw-page-head">
-    <h1>부서 신규 등록</h1>
-    <p>회사의 조직 체계에 맞춰 새로운 부서 정보를 생성합니다.</p>
-</div>
+		<div class="dept-screen">
+			<!-- ── 페이지 헤더 ── -->
+			<div class="gw-page-head">
+			    <h1>부서 신규 등록</h1>
+			    <p>회사의 조직 체계에 맞춰 새로운 부서 정보를 생성합니다.</p>
+			</div>
 
-<!-- ── 등록 폼 ── -->
-<form action="./insert" method="post" autocomplete="off" class="form-check" style="max-width:1100px">
-    <div class="gw-form-panel">
-
-        <!-- 상위 부서 -->
-        <div class="gw-form-row">
-            <label class="gw-form-label">
-                상위 부서 분류 <span class="required">*</span>
-            </label>
-            <select name="parentDeptId" class="field gw-form-select w-100">
-                <option value="">부서를 선택하세요</option>
-                <option value="0">최상위 부서 추가 (독립 조직)</option>
-                <c:forEach var="deptDto" items="${deptList}">
-                    <option value="${deptDto.deptId}">${deptDto.deptName}</option>
-                </c:forEach>
-            </select>
-            <div class="fail-feedback">상위 분류를 선택해 주세요.</div>
-        </div>
-
-        <!-- 부서명 -->
-        <div class="gw-form-row">
-            <label class="gw-form-label">
-                부서명 <span class="required">*</span>
-            </label>
-            <input type="text" name="deptName"
-                   class="field gw-form-input full"
-                   placeholder="생성할 부서 이름을 입력하세요">
-            <div class="success-feedback">사용 가능한 부서명입니다.</div>
-            <div class="fail-feedback">이미 등록되었거나 올바르지 않은 이름입니다.</div>
-        </div>
-
-        <!-- 부서장 -->
-            <label class="gw-form-label">
-                부서장 <span class="required">*</span>
-            </label>
-        <div class="gw-form-row deptHeadId-wrapper">
-            <div style="display:flex; gap:10px; align-items:center;">
-                <input type="text" name="deptHeadIdKeyword"
-                       class="field gw-form-input"
-                       style="flex:1;"
-                       placeholder="사원 이름으로 검색하세요">
-                <button type="button" class="gw-btn-outline open-search" style="height:46px; padding:0 18px;">
-                    <i class="fa-solid fa-user-tie"></i> 찾기
-                </button>
-            </div>
-            <div class="fail-feedback" style="display:none;">부서장을 선택해 주세요.</div>
-            
-            <div class="receiver-list receiver-selected-list"></div>
-			<div class="deptHeadId"></div>
-        
-
-        	<jsp:include page="/WEB-INF/views/template/employee-picker.jsp"/>
-        	<script src="/js/employee-picker.js"></script>
+			<!-- ── 등록 폼 ── -->
+			<form action="./insert" method="post" autocomplete="off" class="form-check" style="max-width:1100px">
+			    <div class="gw-form-panel">
+			
+			        <!-- 상위 부서 -->
+			        <div class="gw-form-row">
+			            <label class="gw-form-label">
+			                상위 부서 분류 <span class="required">*</span>
+			            </label>
+			            <select name="parentDeptId" class="field gw-form-select w-100">
+			                <option value="">부서를 선택하세요</option>
+			                <option value="0">최상위 부서 추가 (독립 조직)</option>
+			                <c:forEach var="deptDto" items="${deptList}">
+			                    <option value="${deptDto.deptId}">${deptDto.deptName}</option>
+			                </c:forEach>
+			            </select>
+			            <div class="fail-feedback">상위 분류를 선택해 주세요.</div>
+			        </div>
+			
+			        <!-- 부서명 -->
+			        <div class="gw-form-row">
+			            <label class="gw-form-label">
+			                부서명 <span class="required">*</span>
+			            </label>
+			            <input type="text" name="deptName"
+			                   class="field gw-form-input full"
+			                   placeholder="생성할 부서 이름을 입력하세요">
+			            <div class="success-feedback">사용 가능한 부서명입니다.</div>
+			            <div class="fail-feedback">이미 등록되었거나 올바르지 않은 이름입니다.</div>
+			        </div>
+			
+			        <!-- 부서장 -->
+			            <label class="gw-form-label">
+			                부서장 <span class="required">*</span>
+			            </label>
+			        <div class="gw-form-row deptHeadId-wrapper">
+			            <div style="display:flex; gap:10px; align-items:center;">
+			                <input type="text" name="deptHeadIdKeyword"
+			                       class="field gw-form-input"
+			                       style="flex:1;"
+			                       placeholder="사원 이름으로 검색하세요">
+			                <button type="button" class="gw-btn-outline open-search" style="height:46px; padding:0 18px;">
+			                    <i class="fa-solid fa-user-tie"></i> 찾기
+			                </button>
+			            </div>
+			            	<div class="fail-feedback">부서장을 선택해 주세요.</div>
+			            <div class="dept-selected"></div>
+						<div class="deptHeadId"></div>
+			        
+			
+			        	<jsp:include page="/WEB-INF/views/template/employee-picker.jsp"/>
+			        	<script src="/js/employee-picker.js"></script>
+					</div>
+			        <!-- 주요 업무 -->
+			        <div class="gw-form-row">
+			            <label class="gw-form-label">주요 업무 내용</label>
+			            <input type="text" name="deptContent"
+			                   class="gw-form-input full"
+			                   placeholder="해당 부서의 주 업무 및 담당 역할을 기재하세요">
+			            <div class="gw-form-help">선택 항목입니다. 부서의 역할을 간략히 설명해 주세요.</div>
+			        </div>
+			
+			        <!-- 액션 버튼 -->
+			        <div class="gw-form-actions">
+			            <a href="./list" class="gw-btn-outline">
+			                <i class="fa-solid fa-arrow-left"></i> 목록으로
+			            </a>
+			            <button type="submit" class="gw-btn-primary">
+			                <i class="fa-solid fa-check"></i> 신규 부서 등록
+			            </button>
+			        </div>
+			
+			    </div>
+			</form>
 		</div>
-        <!-- 주요 업무 -->
-        <div class="gw-form-row">
-            <label class="gw-form-label">주요 업무 내용</label>
-            <input type="text" name="deptContent"
-                   class="gw-form-input full"
-                   placeholder="해당 부서의 주 업무 및 담당 역할을 기재하세요">
-            <div class="gw-form-help">선택 항목입니다. 부서의 역할을 간략히 설명해 주세요.</div>
-        </div>
-
-        <!-- 액션 버튼 -->
-        <div class="gw-form-actions">
-            <a href="./list" class="gw-btn-outline">
-                <i class="fa-solid fa-arrow-left"></i> 목록으로
-            </a>
-            <button type="submit" class="gw-btn-primary">
-                <i class="fa-solid fa-check"></i> 신규 부서 등록
-            </button>
-        </div>
-
-    </div>
-</form>
+	</div>
 </div>
 <jsp:include page="/WEB-INF/views/template/footer2.jsp"/>

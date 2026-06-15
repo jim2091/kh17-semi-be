@@ -1,8 +1,5 @@
 package com.kh.semiprj.service;
 
-import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -20,49 +17,51 @@ public class AttnService {
 
     @Autowired private AttnDao attnDao;
     
-    // 시간 입력을 위한 포맷터 (HH:mm 형태)
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
-    // 근태 목록 관련 메서드들
     public Map<String, Object> getVacationInfo(String empNo) { return attnDao.selectVacationInfo(empNo); }
-    public List<AttnDto> getAttendanceList(AttnDto attnDto, PageVO pageVO) { return attnDao.selectListByMonth(attnDto, pageVO); }
+    
+    // 🛠️ Dao의 진짜 메서드 명인 getAttendanceList와 확실하게 묶었습니다.
+    public List<AttnDto> getAttendanceList(AttnDto attnDto, PageVO pageVO) { 
+        return attnDao.getAttendanceList(attnDto, pageVO); 
+    }
+    
     public int countAttendance(AttnDto attnDto) { return attnDao.countAttendance(attnDto); }
-    public int getWorkTimeSum(String empNo, String startDate, String endDate) { return attnDao.getWorkTimeSum(empNo, startDate, endDate); }
-    public String checkTodayStatus(String empNo) { return attnDao.checkTodayStatus(empNo); }
+    public double getWorkTimeSum(String empNo, String startDate, String endDate) { return attnDao.getWorkTimeSum(empNo, startDate, endDate); }
 
-    // 지각 로직이 반영된 출근 처리
+    public Map<String, Object> getTodayAttnDetails(String empNo) { 
+        return attnDao.selectTodayAttnDetails(empNo); 
+    }
+
     @Transactional
-    public void insertAttendance(AttnDto attnDto) {
+    public void registerOrUpdateAttendance(AttnDto attnDto, Map<String, Object> todayData) {
         String inTimeStr = attnDto.getInTime(); 
+        attnDto.setAttnStatus("출근중");
         
-        if (inTimeStr != null && !inTimeStr.isEmpty()) {
-            try {
-                // 1. 입력받은 시간 문자열 파싱
-                LocalTime inTime = LocalTime.parse(inTimeStr, TIME_FORMATTER);
-                LocalTime standardTime = LocalTime.of(9, 0); // 09:00 기준
+        LocalTime standardTime = LocalTime.of(9, 0);
+        LocalTime compareTime = null;
 
-                // 2. 결과 기록(record) 판별
-                if (inTime.isAfter(standardTime)) {
-                    attnDto.setAttnRecord("지각");
-                } else {
-                    attnDto.setAttnRecord("정상출근");
-                }
-                
-                // 3. 상태(status) 설정
-                attnDto.setAttnStatus("출근중");
-                
-                // 4. Timestamp 변환 (오늘 날짜와 입력받은 시간을 조합)
-                LocalDateTime localDateTime = LocalDateTime.of(LocalDate.now(), inTime);
-                attnDto.setAttnInTime(Timestamp.valueOf(localDateTime));
-                
+        if (inTimeStr != null && !inTimeStr.trim().isEmpty()) {
+            try {
+                compareTime = LocalTime.parse(inTimeStr, TIME_FORMATTER);
             } catch (DateTimeParseException e) {
-                // 시간 형식이 잘못되었을 경우 로그 출력 및 기본값 처리 가능
-                System.err.println("시간 파싱 오류: " + inTimeStr);
+                compareTime = LocalTime.now();
             }
+        } else {
+            compareTime = LocalTime.now(); 
+        }
+
+        if (compareTime.isAfter(standardTime)) {
+            attnDto.setAttnRecord("지각");
+        } else {
+            attnDto.setAttnRecord("정상출근");
         }
         
-        // DAO의 insert 문 호출
-        attnDao.insertCheckIn(attnDto);
+        if (todayData == null || todayData.isEmpty()) {
+            attnDao.insertNewAttendance(attnDto); 
+        } else {
+            attnDao.updateCheckIn(attnDto); 
+        }
     }
 
     @Transactional

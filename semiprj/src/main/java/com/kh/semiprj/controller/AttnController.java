@@ -3,10 +3,13 @@ package com.kh.semiprj.controller;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
 import com.kh.semiprj.dto.AttnDto;
 import com.kh.semiprj.service.AttnService;
 import com.kh.semiprj.service.AdminAttnService;
@@ -24,28 +27,71 @@ public class AttnController {
     @ResponseBody
     public Map<String, Object> getAttnStatus(HttpSession session) {
         String empNo = (String) session.getAttribute("loginNo");
+        Map<String, Object> map = new HashMap<>();
         
-        // 이미 있는 checkTodayStatus를 호출 (결과가 "출근" 이거나 "미출근" 등일 것임)
-        String status = attnService.checkTodayStatus(empNo); 
+        if (empNo == null) {
+            map.put("status", "미출근");
+            map.put("startTime", "-");
+            map.put("endTime", "-");
+            return map;
+        }
         
-        Map<String, Object> map = new java.util.HashMap<>();
-        map.put("status", "출근상태".equals(status) ? "출근상태" : "미출근");
-        // 시간 정보가 DB에서 바로 안 온다면 일단 "-"로 표시합니다
-        map.put("startTime", "출근상태".equals(status) ? "09:00" : "-"); 
-        map.put("endTime", "-");
+        Map<String, Object> todayData = attnService.getTodayAttnDetails(empNo); 
+        
+        if (todayData == null || todayData.isEmpty()) {
+            map.put("status", "미출근");
+            map.put("startTime", "-");
+            map.put("endTime", "-");
+        } else {
+            String dbStatus = (String) todayData.get("ATTN_STATUS");
+            String inTime = (String) todayData.get("IN_TIME");
+            String outTime = (String) todayData.get("OUT_TIME");
+
+            if ("퇴근".equals(dbStatus)) {
+                map.put("status", "퇴근");
+            } else if ("출근중".equals(dbStatus)) {
+                map.put("status", "출근상태");
+            } else {
+                map.put("status", "미출근");
+            }
+            
+            map.put("startTime", inTime != null ? inTime : "-");
+            map.put("endTime", outTime != null ? outTime : "-");
+        }
         
         return map;
     }
+
+    // 🛠️ [방어 코드 강화] 사용자 근태 리스트 출력 구역
     @GetMapping("/list")
     public String list(@ModelAttribute("search") AttnDto attnDto, 
                        @ModelAttribute("pageVO") PageVO pageVO, 
                        HttpSession session, Model model) {
         String empNo = (String) session.getAttribute("loginNo");
         attnDto.setEmpNo(empNo);
+        
+        // PageVO의 기본값 안전화 보장 (혹시 모를 파라미터 유실 차단)
+        if (pageVO.getPage() <= 0) pageVO.setPage(1);
+        if (pageVO.getSize() <= 0) pageVO.setSize(10);
+        
+        if (attnDto.getYear() == null || String.valueOf(attnDto.getYear()).trim().isEmpty() || "0".equals(String.valueOf(attnDto.getYear())) ||
+            attnDto.getMonth() == null || attnDto.getMonth().trim().isEmpty()) {
+            
+            LocalDate now = LocalDate.now();
+            attnDto.setYear(String.valueOf(now.getYear())); 
+            String currentMonth = String.format("%02d", now.getMonthValue());
+            attnDto.setMonth(currentMonth);
+        }
+
         Map<String, Object> vacInfo = attnService.getVacationInfo(empNo);
         model.addAttribute("vacInfo", vacInfo);
+        
+        // 전체 카운트를 먼저 세팅해야 PageVO가 내부적으로 올바른 rownum 연산을 수행합니다.
+        int totalCount = attnService.countAttendance(attnDto);
+        pageVO.setCount(totalCount);
+        
         List<AttnDto> list = attnService.getAttendanceList(attnDto, pageVO);
-        pageVO.setCount(attnService.countAttendance(attnDto));
+        
         model.addAttribute("maxHours", adminAttnService.getActiveMaxHours());
         model.addAttribute("attnList", list);
         return "attn/list";
@@ -70,17 +116,17 @@ public class AttnController {
 
     @GetMapping("/calculator/data")
     @ResponseBody
-    public int getCalculatorData(@RequestParam String startDate, 
-                                 @RequestParam String endDate, 
-                                 HttpSession session) {
+    public double getCalculatorData(@RequestParam String startDate, 
+                                    @RequestParam String endDate, 
+                                    HttpSession session) {
         String empNo = (String) session.getAttribute("loginNo");
         return attnService.getWorkTimeSum(empNo, startDate, endDate);
     }
 
+    // 🛠️ [구조 정돈] 관리자 근태 목록 조회 시 PageVO 커맨드 객체 매핑 통일화
     @GetMapping("/admin/list")
     public String adminList(@ModelAttribute("search") AttnDto searchDto,
-                            @RequestParam(value = "page", defaultValue = "1") int page,
-                            @RequestParam(value = "size", defaultValue = "10") int size,
+                            @ModelAttribute("pageVO") PageVO pageVO,
                             @RequestParam(required = false) String startDate,
                             @RequestParam(required = false) String endDate,
                             Model model) {
@@ -89,10 +135,13 @@ public class AttnController {
             startDate = now.withDayOfMonth(1).toString();
             endDate = now.withDayOfMonth(now.lengthOfMonth()).toString();
         }
-        PageVO pageVO = new PageVO();
-        pageVO.setPage(page);
-        pageVO.setSize(size);
-        pageVO.setCount(adminAttnService.countAdminAttendanceCustom(searchDto, startDate, endDate));
+        
+        if (pageVO.getPage() <= 0) pageVO.setPage(1);
+        if (pageVO.getSize() <= 0) pageVO.setSize(10);
+        
+        int totalAdminCount = adminAttnService.countAdminAttendanceCustom(searchDto, startDate, endDate);
+        pageVO.setCount(totalAdminCount);
+        
         model.addAttribute("startDate", startDate);
         model.addAttribute("endDate", endDate);
         model.addAttribute("pageVO", pageVO);
@@ -117,15 +166,30 @@ public class AttnController {
 
     @PostMapping("/checkIn")
     @ResponseBody
-    public String checkIn(HttpSession session) {
+    public String checkIn(@RequestParam(value="inTime", required=false) String inTime, HttpSession session) {
         String empNo = (String) session.getAttribute("loginNo");
         if (empNo == null) return "fail";
+        
         try {
+            Map<String, Object> todayData = attnService.getTodayAttnDetails(empNo);
+            
+            if (todayData != null && !todayData.isEmpty()) {
+                String currentStatus = (String) todayData.get("ATTN_STATUS");
+                if ("출근중".equals(currentStatus) || "퇴근".equals(currentStatus)) {
+                    return "already"; 
+                }
+            }
+            
             AttnDto dto = new AttnDto();
             dto.setEmpNo(empNo);
-            attnService.insertAttendance(dto); 
+            dto.setInTime(inTime); 
+            
+            attnService.registerOrUpdateAttendance(dto, todayData); 
             return "success";
-        } catch (Exception e) { e.printStackTrace(); return "fail"; }
+        } catch (Exception e) { 
+            e.printStackTrace(); 
+            return "fail"; 
+        }
     }
 
     @PostMapping("/checkOut")

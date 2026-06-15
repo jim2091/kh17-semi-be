@@ -3,7 +3,6 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <jsp:include page="/WEB-INF/views/template/header2.jsp"></jsp:include>
-<jsp:include page="/WEB-INF/views/template/side_home2.jsp"></jsp:include>
 
 <style>
 /* 근태 페이지 전체 레이아웃 정렬 */
@@ -26,7 +25,7 @@
     font-weight: 900;
 }
 
-/* 상태별 배지 디자인 분기 */
+/* 상태별 배지 디자인 완벽 분기 */
 .status-vacation {
     background: #fffbeb;
     color: var(--warning-color);
@@ -37,7 +36,13 @@
     color: #16a34a;
 }
 
-/* [수정] 하단 정렬 컨테이너: 원본 구조처럼 relative를 활용해 완벽한 좌/우/중앙 정렬 구현 */
+/* 지각, 조퇴 등 경고성 상태 배지 스타일 */
+.status-late {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+/* 하단 정렬 컨테이너: relative를 활용해 완벽한 좌/우/중앙 정렬 구현 */
 .attn-bottom-wrapper {
     position: relative;
     margin-top: 30px;
@@ -181,8 +186,8 @@
                             </td>
                             <td>
                                 <c:choose>
-                                    <c:when test="${dto.attnRecord == '연차'}">
-                                        <span style="color:var(--warning-color); font-weight: bold;">○ 연차</span>
+                                    <c:when test="${dto.attnRecord == '연차' || dto.attnRecord == '반차' || dto.attnRecord == '휴가'}">
+                                        <span style="color:var(--warning-color); font-weight: bold;">○ ${dto.attnRecord}</span>
                                     </c:when>
                                     <c:otherwise><span class="gw-muted">-</span></c:otherwise>
                                 </c:choose>
@@ -207,9 +212,17 @@
                             </td>
                             <td>
                                 <c:if test="${not empty dto.attnRecord}">
-                                    <span class="attn-head ${dto.attnRecord == '연차' ? 'status-vacation' : 'status-normal'}">
-                                        ${dto.attnRecord}
-                                    </span>
+                                    <c:choose>
+                                        <c:when test="${dto.attnRecord == '지각' || dto.attnRecord == '조퇴' || dto.attnRecord == '결근'}">
+                                            <span class="attn-head status-late">${dto.attnRecord}</span>
+                                        </c:when>
+                                        <c:when test="${dto.attnRecord == '연차' || dto.attnRecord == '반차' || dto.attnRecord == '휴가'}">
+                                            <span class="attn-head status-vacation">${dto.attnRecord}</span>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <span class="attn-head status-normal">${dto.attnRecord}</span>
+                                        </c:otherwise>
+                                    </c:choose>
                                 </c:if>
                             </td>
                         </tr>

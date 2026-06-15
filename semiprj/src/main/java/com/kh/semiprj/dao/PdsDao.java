@@ -50,17 +50,17 @@ public class PdsDao {
 	//수정
 	public boolean update(PdsDto pdsDto) {
 		String sql = "update pds set "
-						+ "pds_title, pds_content"
-					+ "where pds_no";
+						+ "pds_title = ?, pds_content = ? "
+					+ "where pds_no = ?";
 		Object[] params = {
-				pdsDto.getPdsTitle(), pdsDto.getPdsContent()
+				pdsDto.getPdsTitle(), pdsDto.getPdsContent(), pdsDto.getPdsNo()
 		};
 		return jdbcTemplate.update(sql, params) > 0;
 	}
 	//조쇠수 증가
 	public boolean updatePdsReadcount(int pdsNo) {
 		String sql = "update pds set "
-						+ "pds_readcount = pds_readcount + 1"
+						+ "pds_readcount = pds_readcount + 1 "
 					+ "where pds_no = ?";
 		Object[] params = { pdsNo };
 		return jdbcTemplate.update(sql, params) > 0;
@@ -165,6 +165,12 @@ public class PdsDao {
 		String sql = "insert into pds_files(pds_no, attach_no) values(?, ?)";
 		Object[] params = { pdsNo, attachNo };
 		jdbcTemplate.update(sql, params);
+	}
+	
+	public boolean disconnect(int pdsNo, int attachNo) {
+		String sql = "delete pds_files where pds_no = ? and attach_no = ?";
+		Object[] params = {pdsNo, attachNo };
+		return jdbcTemplate.update(sql, params) > 0;
 	}
 	
 	public List<AttachDto> searchFiles(int pdsNo) {

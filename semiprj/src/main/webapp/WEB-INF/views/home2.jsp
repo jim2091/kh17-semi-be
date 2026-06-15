@@ -77,42 +77,44 @@
             <a href="#" class="summary-link">일정보기 ></a>
         </div>
 
-        <div class="summary-card attendance-summary">
-		
+       <div class="summary-card attendance-summary" style="display: flex; flex-direction: column; justify-content: space-between; min-height: 200px;">
 		    <div class="attendance-top">
-		        <div class="attendance-title-wrap">
+		        <div class="attendance-title-wrap" style="display: flex; align-items: center; gap: 8px;">
 		            <div class="summary-icon">
 		                <i class="fa-solid fa-business-time"></i>
 		            </div>
-		
-		            <div class="summary-title">
-		                근태 현황
-		            </div>
+		            <div class="summary-title" style="font-weight: bold; font-size: 16px;">근태 현황</div>
 		        </div>
-		
-		        <div id="attnStatusText" class="attendance-status working">
-		            ● 미출근
-		        </div>
+		        <div id="attnStatusText" class="attendance-status working" style="margin-left: auto; font-weight: bold;">● 미출근</div>
 		    </div>
 		
-		    <div class="attendance-time">
-		        <div>출근 <strong id="inTimeDisplay">-</strong></div>
-		        <div>퇴근 <strong>-</strong></div>
+		    <div class="attendance-time" style="display: flex; justify-content: space-between; margin: 15px 0; font-size: 15px;">
+		        <div>출근 <strong id="inTimeDisplay" style="color: #2563eb; margin-left: 4px;">-</strong></div>
+		        <div>퇴근 <strong id="outTimeDisplay" style="color: #ef4444; margin-left: 4px;">-</strong></div>
 		    </div>
 		
-            <div style="display: flex; gap: 8px;">
-                <button type="button" id="mainCheckInBtn" class="gw-btn-primary" onclick="ajaxCheckIn()"
-                    style="padding: 10px 20px; border-radius: 8px; font-size: 14px; cursor: pointer; flex: 1;">
-                    <span class="toggle-light"></span>
-                    <span id="mainCheckInBtnText">출근하기</span>
-                </button>
+            <!-- 💡 버튼 그리드 영역 최적화 (출퇴근 좌우 정렬 / 삭제 하단 배치) -->
+            <div style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
+                <div style="display: flex; gap: 8px; width: 100%;">
+                    <!-- 출근 버튼 -->
+                    <button type="button" id="mainCheckInBtn" class="gw-btn-primary" onclick="ajaxCheckIn()"
+                        style="padding: 12px; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; flex: 1; border: none;">
+                        <span id="mainCheckInBtnText">출근하기</span>
+                    </button>
+                    <!-- 퇴근 버튼 (새로 주입됨) -->
+                    <button type="button" id="mainCheckOutBtn" class="gw-btn-primary" onclick="ajaxCheckOut()"
+                        style="padding: 12px; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; flex: 1; background-color: #3b82f6; border: none; color: white;">
+                        <span id="mainCheckOutBtnText">퇴근하기</span>
+                    </button>
+                </div>
+                
+                <!-- 기록 삭제 버튼 -->
                 <button type="button" class="gw-btn-secondary" onclick="ajaxClearAttn()"
-                    style="padding: 10px 15px; border-radius: 8px; font-size: 14px; cursor: pointer; background-color: #ef4444; color: white; border: none;">
-                    기록 삭제
+                    style="padding: 6px; border-radius: 6px; font-size: 12px; cursor: pointer; background-color: #f3f4f6; color: #6b7280; border: 1px solid #e5e7eb; width: 100%;">
+                    기록 초기화
                 </button>
             </div>
-
-	</div>
+	    </div>
     </div>
 
     <div class="dashboard-grid">
@@ -387,216 +389,230 @@
 
 </div>
 <script>
-function ajaxCheckIn() {
-    let userKey = "${sessionScope.loginNo}";
-    if(!userKey || userKey.trim() === "") {
-        userKey = "TEMP_USER"; 
+let homeCalendar = null;
+
+// 💡 [클린 UI 제어] 불필요한 예외 처리 요소를 지우고, 오직 서버 상태로만 버튼을 켜고 끕니다.
+// 💡 [클린 UI 제어] 서버 상태값에만 의존하지 않고, 실제 시간이 들어왔는지 체크하여 완벽하게 방어합니다.
+function updateAttendanceUI(status, startTime, endTime) {
+    const inTimeDisplay = document.getElementById("inTimeDisplay");
+    const outTimeDisplay = document.getElementById("outTimeDisplay");
+    const statusText = document.getElementById("attnStatusText");
+    const checkInBtn = document.getElementById("mainCheckInBtn");
+    const checkInBtnText = document.getElementById("mainCheckInBtnText");
+    const checkOutBtn = document.getElementById("mainCheckOutBtn");
+    const checkOutBtnText = document.getElementById("mainCheckOutBtnText");
+
+    // 기본 스타일 및 활성화 상태 초기화 리셋
+    if(checkInBtn) { checkInBtn.disabled = false; checkInBtn.style.opacity = "1"; checkInBtn.style.cursor = "pointer"; }
+    if(checkOutBtn) { checkOutBtn.disabled = false; checkOutBtn.style.opacity = "1"; checkOutBtn.style.cursor = "pointer"; }
+
+    // 1. 퇴근 완료 상태 (상태값이 퇴근이거나, 퇴근 시간이 명확히 찍혀있을 때)
+    if (status === "퇴근" || status === "OUT" || (endTime && endTime !== "-")) {
+        if(inTimeDisplay) inTimeDisplay.innerText = startTime && startTime !== "-" ? startTime : "-";
+        if(outTimeDisplay) outTimeDisplay.innerText = endTime && endTime !== "-" ? endTime : "-";
+        if(statusText) statusText.innerText = "● 퇴근 완료";
+        if(checkInBtn) { checkInBtn.disabled = true; checkInBtn.style.opacity = "0.5"; checkInBtn.style.cursor = "not-allowed"; }
+        if(checkInBtnText) checkInBtnText.innerText = "출근 완료";
+        if(checkOutBtn) { checkOutBtn.disabled = true; checkOutBtn.style.opacity = "0.5"; checkOutBtn.style.cursor = "not-allowed"; }
+        if(checkOutBtnText) checkOutBtnText.innerText = "퇴근 완료";
+    } 
+    // 2. 🛡️ [핵심 보완] 정상 근무 상태 (상태 문자열 매핑이 꼬여도, 출근 시간 데이터만 있으면 강제 활성화)
+    else if (status === "출근상태" || status === "출근중" || status === "출근" || status === "IN" || (startTime && startTime !== "-")) {
+        if(inTimeDisplay) inTimeDisplay.innerText = startTime && startTime !== "-" ? startTime : "-";
+        if(outTimeDisplay) outTimeDisplay.innerText = "-";
+        if(statusText) statusText.innerText = "● 정상근무";
+        if(checkInBtn) { checkInBtn.disabled = true; checkInBtn.style.opacity = "0.5"; checkInBtn.style.cursor = "not-allowed"; }
+        if(checkInBtnText) checkInBtnText.innerText = "출근 완료";
+        if(checkOutBtn) { checkOutBtn.disabled = false; }
+        if(checkOutBtnText) checkOutBtnText.innerText = "퇴근하기";
+    } 
+    // 3. 미출근 상태
+    else { 
+        if(inTimeDisplay) inTimeDisplay.innerText = "-";
+        if(outTimeDisplay) outTimeDisplay.innerText = "-";
+        if(statusText) statusText.innerText = "● 미출근";
+        if(checkInBtn) { checkInBtn.disabled = false; }
+        if(checkInBtnText) checkInBtnText.innerText = "출근하기";
+        if(checkOutBtn) { checkOutBtn.disabled = true; checkOutBtn.style.opacity = "0.5"; checkOutBtn.style.cursor = "not-allowed"; }
+        if(checkOutBtnText) checkOutBtnText.innerText = "퇴근하기";
     }
+}
 
-    const now = new Date();
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const currentTimeStr = hours + ":" + minutes;
-    const todayStr = now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, '0') + "-" + String(now.getDate()).padStart(2, '0');
-    
-    localStorage.setItem("gw_date_" + userKey, todayStr);
-    localStorage.setItem("gw_time_" + userKey, currentTimeStr);
-
-    document.getElementById("inTimeDisplay").innerText = currentTimeStr;
-    document.getElementById("attnStatusText").innerText = "● 정상근무";
-    document.getElementById("mainCheckInBtn").disabled = true;
-    document.getElementById("mainCheckInBtnText").innerText = "출근 완료";
-
+// 💡 화면 갱신 시 실시간 DB 데이터 매핑
+function loadAttendanceStatus() {
     $.ajax({
-        url: "${pageContext.request.contextPath}/attn/checkIn",
-        type: "POST",
+        url: "${pageContext.request.contextPath}/attn/status",
+        type: "GET",
+        dataType: "json",
         success: function(res) {
-            if(res === "success") {
-                location.reload(); 
-            } else {
-                console.error("서버 DB 출근 처리 실패 반환");
-            }
+            updateAttendanceUI(res.status, res.startTime, res.endTime);
         },
-        error: function(err) {
-            console.error("근태 서버 통신 연결 실패", err);
+        error: function() {
+            updateAttendanceUI("미출근", "-", "-");
         }
     });
 }
 
-function ajaxClearAttn() {
-    if(!confirm("현재 사원의 모든 출근 기록을 초기화하시겠습니까?")) return;
+// [출근 비동기 처리]
+function ajaxCheckIn() {
+    const now = new Date();
+    const currentTimeStr = String(now.getHours()).padStart(2, '0') + ":" + String(now.getMinutes()).padStart(2, '0');
+    
+    $.ajax({
+        url: "${pageContext.request.contextPath}/attn/checkIn",
+        type: "POST",
+        data: { inTime: currentTimeStr }, 
+        success: function(res) {
+            if(res === "success") {
+                alert("출근 처리가 완료되었습니다!");
+                loadAttendanceStatus(); // 화면 상태 즉시 재갱신
+            } else if(res === "already") {
+                alert("이미 오늘 출근 혹은 퇴근 처리가 완료되었습니다.");
+                loadAttendanceStatus();
+            } else {
+                alert("출근 처리에 실패했습니다. (금일 근태 데이터 존재 여부 확인 필요)");
+            }
+        },
+        error: function(err) { 
+            alert("서버 통신 중 오류가 발생했습니다.");
+            console.error(err); 
+        }
+    });
+}
 
-    let userKey = "${sessionScope.loginNo}";
-    if(!userKey || userKey.trim() === "") userKey = "TEMP_USER";
+// [퇴근 비동기 처리]
+function ajaxCheckOut() {
+    if(!confirm("퇴근 처리하시겠습니까? 오늘 업무를 마감합니다.")) return;
+
+    $.ajax({
+        url: "${pageContext.request.contextPath}/attn/checkOut",
+        type: "POST",
+        success: function(res) {
+            if(res === "success") {
+                alert("퇴근 마감 처리가 완료되었습니다. 수고하셨습니다!");
+                loadAttendanceStatus(); 
+            } else {
+                alert("퇴근 처리 실패 (출근 내역이 존재하는지 확인바랍니다.)");
+            }
+        },
+        error: function(err) { 
+            alert("서버 통신 중 오류가 발생했습니다.");
+            console.error(err); 
+        }
+    });
+}
+
+// [기록 초기화]
+function ajaxClearAttn() {
+    if(!confirm("현재 사원의 오늘 근태 기록을 전체 삭제하시겠습니까?")) return;
 
     $.ajax({
         url: "${pageContext.request.contextPath}/attn/clearAttn",
         type: "POST",
         success: function(res) {
             if(res === "success") {
-                localStorage.removeItem("gw_date_" + userKey);
-                localStorage.removeItem("gw_time_" + userKey);
-                location.reload();
+                alert("오늘 자 근태 기록이 초기화되었습니다.");
+                loadAttendanceStatus();
             } else {
-                alert("기록 삭제 처리에 실패했습니다.");
+                alert("기록 초기화 처리에 실패했습니다.");
             }
         },
-        error: function(err) {
-            console.error("근태 삭제 서버 통신 실패", err);
-        }
+        error: function(err) { console.error(err); }
     });
 }
 
-const homeCalendar = new tui.Calendar('#home-calendar', {
-    defaultView: 'month',
-    useFormPopup: false,
-    useDetailPopup: false,
-    isReadOnly: true
+// DOM 로드 후 실행 구역 (테마 및 위젯 기능은 그대로 유지)
+$(function(){
+    loadAttendanceStatus();
+
+    try {
+        if(document.getElementById('home-calendar')) {
+            homeCalendar = new tui.Calendar('#home-calendar', {
+                defaultView: 'month',
+                useFormPopup: false,
+                useDetailPopup: false,
+                isReadOnly: true
+            });
+        }
+    } catch(e) {
+        console.warn("캘린더 인스턴스 초기화 지연", e);
+    }
+
+    var savedTheme = localStorage.getItem("gwTheme") || "theme-blue";
+    $("body").addClass(savedTheme);
+
+    $(".theme-btn").click(function(){ $(".theme-popup").toggle(); });
+    $(".theme-item").click(function(){
+        var theme = $(this).data("theme");
+        $("body").removeClass("theme-blue theme-green theme-purple theme-dark").addClass(theme);
+        localStorage.setItem("gwTheme", theme);
+        $(".theme-popup").hide();
+    });
+    
+    var savedWidgetOrder = localStorage.getItem("gwWidgetOrder");
+    if(savedWidgetOrder){
+        var widgetIds = savedWidgetOrder.split(",");
+        for(var i = 0; i < widgetIds.length; i++){
+            var widget = $(".dashboard-widget[data-widget-id='" + widgetIds[i] + "']");
+            $(".dashboard-grid").append(widget);
+        }
+    }
+
+    function saveWidgetOrder(){
+        var order = [];
+        $(".dashboard-widget").each(function(){ order.push($(this).data("widget-id")); });
+        localStorage.setItem("gwWidgetOrder", order.join(","));
+    }
+
+    $(".widget-up").click(function(){
+        var card = $(this).closest(".dashboard-widget");
+        var prev = card.prev(".dashboard-widget");
+        if(prev.length > 0){ prev.before(card); saveWidgetOrder(); }
+    });
+
+    $(".widget-down").click(function(){
+        var card = $(this).closest(".dashboard-widget");
+        var next = card.next(".dashboard-widget");
+        if(next.length > 0){ next.after(card); saveWidgetOrder(); }
+    });
+    
+    $(".quick-setting-btn").click(function(){ $(".quick-setting-panel").toggle(); });
+
+    function applyQuickMenu(){
+        $(".quick-check").each(function(){
+            var quickId = $(this).val();
+            var checked = $(this).prop("checked");
+            $(".quick-grid [data-quick-id='" + quickId + "']").toggle(checked);
+        });
+    }
+
+    function saveQuickMenu(){
+        var selected = [];
+        $(".quick-check:checked").each(function(){ selected.push($(this).val()); });
+        localStorage.setItem("gwQuickMenu", selected.join(","));
+    }
+
+    var savedQuickMenu = localStorage.getItem("gwQuickMenu");
+    if(savedQuickMenu){
+        var quickIds = savedQuickMenu.split(",");
+        $(".quick-check").prop("checked", false);
+        for(var i = 0; i < quickIds.length; i++){
+            $(".quick-check[value='" + quickIds[i] + "']").prop("checked", true);
+        }
+    }
+
+    applyQuickMenu();
+
+    $(".quick-check").change(function(){
+        if($(".quick-check:checked").length > 9){
+            $(this).prop("checked", false);
+            return;
+        }
+        applyQuickMenu();
+        saveQuickMenu();
+    });
 });
 
-$(function(){
-    let userKey = "${sessionScope.loginNo}";
-    if(!userKey || userKey.trim() === "") {
-        userKey = "TEMP_USER";
-    }
-
-    const now = new Date();
-    const todayStr = now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, '0') + "-" + String(now.getDate()).padStart(2, '0');
-    
-    const savedDate = localStorage.getItem("gw_date_" + userKey);
-    const savedTime = localStorage.getItem("gw_time_" + userKey);
-    
-    if(savedDate === todayStr && savedTime) {
-        document.getElementById("inTimeDisplay").innerText = savedTime;
-        document.getElementById("attnStatusText").innerText = "● 정상근무";
-        document.getElementById("mainCheckInBtn").disabled = true;
-        document.getElementById("mainCheckInBtnText").innerText = "출근 완료";
-    } else {
-        document.getElementById("inTimeDisplay").innerText = "-";
-        document.getElementById("attnStatusText").innerText = "● 미출근";
-        document.getElementById("mainCheckInBtn").disabled = false;
-        document.getElementById("mainCheckInBtnText").innerText = "출근하기";
-    }
-
-	var savedTheme = localStorage.getItem("gwTheme");
-
-	if(savedTheme){
-	    $("body").addClass(savedTheme);
-	}
-	else{
-	    $("body").addClass("theme-blue");
-	}
-
-	$(".theme-btn").click(function(){
-	    $(".theme-popup").toggle();
-	});
-
-	$(".theme-item").click(function(){
-	    var theme = $(this).data("theme");
-
-	    $("body")
-	        .removeClass("theme-blue theme-green theme-purple theme-dark")
-	        .addClass(theme);
-
-	    localStorage.setItem("gwTheme", theme);
-
-	    $(".theme-popup").hide();
-	});
-	
-	var savedWidgetOrder = localStorage.getItem("gwWidgetOrder");
-
-	if(savedWidgetOrder){
-	    var widgetIds = savedWidgetOrder.split(",");
-
-	    for(var i = 0; i < widgetIds.length; i++){
-	        var widget = $(".dashboard-widget[data-widget-id='" + widgetIds[i] + "']");
-	        $(".dashboard-grid").append(widget);
-	    }
-	}
-
-	function saveWidgetOrder(){
-	    var order = [];
-
-	    $(".dashboard-widget").each(function(){
-	        order.push($(this).data("widget-id"));
-	    });
-
-	    localStorage.setItem("gwWidgetOrder", order.join(","));
-	}
-
-	$(".widget-up").click(function(){
-	    var card = $(this).closest(".dashboard-widget");
-	    var prev = card.prev(".dashboard-widget");
-
-	    if(prev.length > 0){
-	        prev.before(card);
-	        saveWidgetOrder();
-	    }
-	});
-
-	$(".widget-down").click(function(){
-	    var card = $(this).closest(".dashboard-widget");
-	    var next = card.next(".dashboard-widget");
-
-	    if(next.length > 0){
-	        next.after(card);
-	        saveWidgetOrder();
-	    }
-	});
-	
-	$(".quick-setting-btn").click(function(){
-	    $(".quick-setting-panel").toggle();
-	});
-
-	function applyQuickMenu(){
-	    $(".quick-check").each(function(){
-	        var quickId = $(this).val();
-	        var checked = $(this).prop("checked");
-
-	        if(checked){
-	            $(".quick-grid [data-quick-id='" + quickId + "']").show();
-	        }
-	        else{
-	            $(".quick-grid [data-quick-id='" + quickId + "']").hide();
-	        }
-	    });
-	}
-
-	function saveQuickMenu(){
-	    var selected = [];
-
-	    $(".quick-check:checked").each(function(){
-	        selected.push($(this).val());
-	    });
-
-	    localStorage.setItem("gwQuickMenu", selected.join(","));
-	}
-
-	var savedQuickMenu = localStorage.getItem("gwQuickMenu");
-
-	if(savedQuickMenu){
-	    var quickIds = savedQuickMenu.split(",");
-
-	    $(".quick-check").prop("checked", false);
-
-	    for(var i = 0; i < quickIds.length; i++){
-	        $(".quick-check[value='" + quickIds[i] + "']").prop("checked", true);
-	    }
-	}
-
-	applyQuickMenu();
-
-	$(".quick-check").change(function(){
-	    var checkedCount = $(".quick-check:checked").length;
-	
-	    if(checkedCount > 9){
-	        $(this).prop("checked", false);
-	        return;
-	    }
-	
-	    applyQuickMenu();
-	    saveQuickMenu();
-	});
 	<%-- 작은 카드에서는 어차피 일정 제대로 안보여서 안찍도록 숨겼어요
     $.ajax({
         url : "/event/api/events",
@@ -629,7 +645,6 @@ $(function(){
         }
     });
     --%>
-});
 </script>
 
 <jsp:include page="/WEB-INF/views/template/footer2.jsp"></jsp:include>

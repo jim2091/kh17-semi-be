@@ -2,8 +2,7 @@
     pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
-<jsp:include page="/WEB-INF/views/template/header.jsp"></jsp:include>
-<jsp:include page="/WEB-INF/views/template/side_home.jsp"></jsp:include>
+<jsp:include page="/WEB-INF/views/template/header2.jsp"></jsp:include>
 
 <script>
 	$(function(){
@@ -58,32 +57,34 @@
 	});
 </script>
 
-<div class="container w-600 mt-20 mb-20">
-    <div class="cell center">
-        <h1>비밀번호 찾기</h1>
-    </div>
-    <form action="./cert_pw" method="post" autocomplete="off">
-	<div class="flex-area flex-center mt-40">
-		<input type="text" inputmode="numeric" name="num1" class="number-wrapper" maxlength="1">
-		<input type="text" inputmode="numeric" name="num2" class="number-wrapper" maxlength="1">
-		<input type="text" inputmode="numeric" name="num3" class="number-wrapper" maxlength="1">
-		<input type="text" inputmode="numeric" name="num4" class="number-wrapper" maxlength="1">
-		<input type="text" inputmode="numeric" name="num5" class="number-wrapper" maxlength="1">
-		<input type="text" inputmode="numeric" name="num6" class="number-wrapper" maxlength="1">
+		<div class="container w-600 mt-20 mb-20">
+		    <div class="cell center">
+		        <h1>비밀번호 찾기</h1>
+		    </div>
+		    <form action="./cert_pw" method="post" autocomplete="off">
+			<div class="flex-area flex-center mt-40">
+				<input type="text" inputmode="numeric" name="num1" class="number-wrapper" maxlength="1">
+				<input type="text" inputmode="numeric" name="num2" class="number-wrapper" maxlength="1">
+				<input type="text" inputmode="numeric" name="num3" class="number-wrapper" maxlength="1">
+				<input type="text" inputmode="numeric" name="num4" class="number-wrapper" maxlength="1">
+				<input type="text" inputmode="numeric" name="num5" class="number-wrapper" maxlength="1">
+				<input type="text" inputmode="numeric" name="num6" class="number-wrapper" maxlength="1">
+			</div>
+			<div class="cell red center" style="min-height: 1.5em">
+				<c:if test="${param.error != null}">
+		            인증번호가 일치하지 않거나 인증 시간을 초과했습니다
+		        </c:if>
+			</div>
+			<div class="cell right">
+		    	<button type="button" class="btn btn-neutral btn-cert-send">
+		            <i class="fa-solid fa-envelope"></i>
+		            <span>인증메일 다시 보내기</span>
+		        </button>
+		        <button type="submit" class="btn btn-positive">다음</button>
+		    </div>
+		    </form>
+		</div>
 	</div>
-	<div class="cell red center" style="min-height: 1.5em">
-		<c:if test="${param.error != null}">
-            인증번호가 일치하지 않거나 인증 시간을 초과했습니다
-        </c:if>
-	</div>
-	<div class="cell right">
-    	<button type="button" class="btn btn-neutral btn-cert-send">
-            <i class="fa-solid fa-envelope"></i>
-            <span>인증메일 다시 보내기</span>
-        </button>
-        <button type="submit" class="btn btn-positive">다음</button>
-    </div>
-    </form>
 </div>
 
-<jsp:include page="/WEB-INF/views/template/footer.jsp"></jsp:include>
+<jsp:include page="/WEB-INF/views/template/footer2.jsp"></jsp:include>

@@ -58,6 +58,18 @@
 		            }
 				})
 			});
+		    $(".notification-btn").click(function(e){
+		        e.stopPropagation();
+		        $(".notification-area").toggleClass("open");
+		    });
+
+		    $(".notification-dropdown").click(function(e){
+		        e.stopPropagation();
+		    });
+
+		    $(document).click(function(){
+		        $(".notification-area").removeClass("open");
+		    });
 		});
 	</script>
 	</head>
@@ -108,13 +120,13 @@
 	
 	            <div class="notification-area">
 				
-				    <a href="/notification/list" class="gw-icon-btn notification-btn">
+				    <button type="button" class="gw-icon-btn notification-btn">
 				        <i class="fa-solid fa-bell"></i>
 				
 				        <c:if test="${unreadNotificationCount > 0}">
 				            <span class="gw-badge">${unreadNotificationCount}</span>
 				        </c:if>
-				    </a>
+				    </button>
 				
 				    <div class="notification-dropdown">
 				        <div class="notification-dropdown-head">

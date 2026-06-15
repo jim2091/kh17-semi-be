@@ -106,22 +106,44 @@ public class PdsController {
 	}
 	
 	//수정
-	@GetMapping
+	@GetMapping("/edit")
 	public String edit(@RequestParam int pdsNo, Model model) {
 		PdsDto pdsDto = pdsDao.selectOne(pdsNo);
 		
 		if (pdsDto == null) throw new TargetNotfoundException("존재하지 않는 게시글입니다");
+		
+		List<AttachDto> attachList = pdsDao.searchFiles(pdsNo);
+		
 		model.addAttribute("pdsDto", pdsDto);
+		model.addAttribute("attachList", attachList);
+		
 		return "pds/edit";
 	}
-	@PostMapping
-	public String edit(@ModelAttribute PdsDto pdsDto, HttpSession session) {
+	@PostMapping("/edit")
+	public String edit(@ModelAttribute PdsDto pdsDto, HttpSession session, 
+					@RequestParam(required = false) List<Integer> deleteAttachNoList, 
+					@RequestParam MultipartFile[] attach) throws IllegalStateException, IOException {
 		String loginRole = (String)session.getAttribute("loginRole");
 		if (!loginRole.equals("관리자")) throw new GetOutException();
 		
 		PdsDto findPdsDto = pdsDao.selectOne(pdsDto.getPdsNo());
 		if (findPdsDto == null) throw new TargetNotfoundException("존재하지 않는 게시글입니다");
+		
 		pdsDao.update(pdsDto);
+		
+		if (deleteAttachNoList != null) {
+			for(int attachNo : deleteAttachNoList) {
+				pdsDao.disconnect(pdsDto.getPdsNo(), attachNo);
+				attachService.delete(attachNo);
+			}
+		}
+		
+		for(MultipartFile file : attach) {
+			if(file.isEmpty()) continue;
+			
+			int attachNo = attachService.save(file);
+			pdsDao.connect(pdsDto.getPdsNo(), attachNo);
+		}
 		
 		return "redirect:./detail?pdsNo=" + pdsDto.getPdsNo();
 	}
