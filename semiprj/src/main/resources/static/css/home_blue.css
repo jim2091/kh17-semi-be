@@ -1457,6 +1457,9 @@ button {
     font-family:inherit;
 }
 
+.gw-page-head h1 {
+	word-break:break-word;
+}
 
 .gw-file-view{
     display:flex;
