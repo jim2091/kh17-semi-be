@@ -41,7 +41,8 @@
 	.reply-editor > .content-wrapper {
 		flex-grow: 1;
 	}
-	.field-reply{
+	.field-reply, 
+	.field-reply-edit {
 	    border-radius:12px !important;
 	}
 	
@@ -58,7 +59,7 @@
 	.board-writer{
 	    display:inline-block;
 	    margin-left:8px;
-	    padding:2px 8px;
+	    padding:4px 8px;
 	    border-radius:999px;
 	    background:#dbeafe;
 	    color:#2563eb;
@@ -66,11 +67,13 @@
 	    font-weight:700;
 	}
 	.child-reply{
+		position: relative;
 	    margin-left:50px;
 	    padding-left:20px;
 	    border-left:3px solid #dbeafe;
 	    background:#fafcff;
 	}
+
 	.gw-like-btn{
 	    border:none;
 	    background:#fff1f2;
@@ -172,7 +175,7 @@
     display:flex;
     justify-content:flex-end;
     align-items:center;
-    gap:12px;
+    gap:10px;
 }
 .reply-content{
     margin-top:12px;
@@ -182,32 +185,7 @@
     border:none;
     background:none;
 }
-.btn-reply-child{
-    cursor:pointer;
-    color:var(--main-color);
-    font-weight:600;
-    font-size:13px;
-}
 
-.btn-reply-child:hover{
-    text-decoration:underline;
-}
-.btn-reply-edit,
-.btn-reply-delete{
-    cursor:pointer;
-    padding:5px;
-    border-radius:6px;
-}
-
-.btn-reply-edit:hover,
-.btn-reply-delete:hover{
-    background:#f1f5f9;
-}
-.btn-reply {
-width: 220px;
-margin-left:auto;
-display:block;
-}
 .field-child-content{
     width: 100%;
     resize: none;
@@ -245,6 +223,53 @@ display:block;
     color:#9ca3af;
     font-size:12px;
     margin-top:5px;
+}
+
+.btn-reply {
+width: 220px;
+margin-left:auto;
+display:block;
+}
+/* 댓글 액션 영역 */
+.owner-menu {
+    display: flex;
+    gap: 12px;
+}
+
+/* 답글 / 수정 / 삭제 공통 */
+.btn-reply-child,
+.btn-reply-edit,
+.btn-reply-delete {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--sub-text);
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.btn-reply-cancel,
+.btn-reply-save,
+.btn-child-cancel,
+.btn-child-save {
+	color: var(--sub-text);
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+/* hover */
+.btn-reply-child:hover,
+.btn-reply-edit:hover,
+.btn-reply-delete:hover,
+.btn-reply-cancel:hover,
+.btn-reply-save:hover,
+.btn-child-cancel:hover,
+.btn-child-save:hover {
+    color: var(--main-color);
+}
+.reply-wtime {
+    color: #64748b;
+    font-size: 12px;
+    letter-spacing: -0.3px;
 }
 </style>
 
@@ -319,8 +344,14 @@ $(function(){
 						var html = $.parseHTML(template);
 
 						$(html).attr("data-key", response[i].replyNo);
-						$(html).find(".image-profile")
-							.attr("src", "/emp/profile?empNo="+response[i].replyWriter);
+						if(response[i].empName.startsWith("익명")){
+						    $(html).find(".image-profile")
+						        .attr("src", "/images/no_profile.jpg");
+						}
+						else{
+						    $(html).find(".image-profile")
+						        .attr("src", "/emp/profile?empNo="+response[i].replyWriter);
+						}
 						$(html).find(".reply-writer").text(response[i].empName);
 						$(html).find(".reply-content").text(response[i].replyContent);
 						if(response[i].replyParent == null){
@@ -350,8 +381,7 @@ $(function(){
 							$(html).find(".board-writer").remove();
 						}
 						if(response[i].replyParent != null){
-							$(html).addClass("child-reply")
-								.prepend("↳ ");;
+							$(html).addClass("child-reply");
 						}
 						$(".reply-area").append(html);
 					}
@@ -377,7 +407,7 @@ $(function(){
 				},
 				success: function(){
 					$(".field-reply").val("");
-					$(".reply-length:first").text("0 / 500");
+					$(".reply-write-length").text("0 / 500");
 					var count = Number($(".reply-count").text());
 				    $(".reply-count").text(count + 1);
 					loadList();
@@ -540,7 +570,7 @@ $(function(){
 		<div class="content-wrapper ms-20">
 			<h3 class="mt-0 mb-0">
 				<span class="reply-writer">아이디</span>
-				<span class="board-writer red">작성자</span>
+				<span class="board-writer">작성자</span>
 			</h3>
 			<pre class="mt-10 mb-0 reply-content">내용 샘플</pre>
 			<div class="mt-20 flex-area">
@@ -549,10 +579,12 @@ $(function(){
 					<span class="edited-tag"></span>
 				</div>
 				<div class="button-wrapper right w-50">
-				    <span class="btn-reply-child"><i class="fa-solid fa-reply"></i>댓글</span>
+				    <span class="btn-reply-child">
+						<i class="fa-solid fa-reply"></i>댓글
+					</span>
 				    <span class="owner-menu">
-				        <i class="fa-solid fa-edit btn-reply-edit"></i>
-				        <i class="fa-solid fa-trash btn-reply-delete"></i>
+				        <span class="btn-reply-edit reply-action">수정</span>
+    					<span class="btn-reply-delete reply-action">삭제</span>
 				    </span>
 				</div>
 			</div>
@@ -566,7 +598,7 @@ $(function(){
 			maxlength="500"
              placeholder="답글을 입력하세요"></textarea>
 	<div class="reply-child-footer flex-area">
-		<div class="reply-length reply-child-length">0 / 500</div>
+		<div class="reply-child-length">0 / 500</div>
 		<div class="button-wrapper right w-50">
 			<i class="fa-solid fa-xmark btn-child-cancel"></i>
 			<i class="fa-solid fa-check btn-child-save"></i>
@@ -581,8 +613,8 @@ $(function(){
 		</div>
 		<div class="content-wrapper ms-20">
 			<h3 class="mb-10 mt-0 mb-0 reply-writer">작성자</h3>
-			<textarea class="field w-100 field-reply-edit" rows="3" maxlength="1500">내용 샘플</textarea>
-			<div class="reply-length reply-edit-length">0 / 500</div>
+			<textarea class="field w-100 field-reply-edit" rows="3" maxlength="500">내용 샘플</textarea>
+			<div class="reply-edit-length">0 / 500</div>
 			<div class="mt-20 flex-area">
 				<div class="w-50">
 					<span class="gray reply-wtime">yyyy-MM-dd HH:mm</span>
@@ -681,7 +713,7 @@ $(function(){
 			<!-- 로그인한 경우 -->
 			<c:if test="${sessionScope.loginId != null}">
 				<div class="gw-form-row">
-					<textarea class="field w-100 field-reply" rows="4" maxlength="1500" placeholder="댓글을 입력하세요"></textarea>
+					<textarea class="field w-100 field-reply" rows="4" maxlength="500" placeholder="댓글을 입력하세요"></textarea>
 					<div class="reply-length reply-write-length">0 / 500</div>
 					<button type="button" class="gw-btn-outline mt-10 btn-reply">
 						<i class="fa-solid fa-pen"></i>

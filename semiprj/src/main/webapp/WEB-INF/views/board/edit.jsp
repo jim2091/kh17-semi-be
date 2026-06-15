@@ -5,12 +5,26 @@
 <jsp:include page="/WEB-INF/views/template/header2.jsp"></jsp:include>
 
 <style>
+.text-length {
+    color: var(--sub-text);
+    font-size: 13px;
+    font-weight: 700;
+    margin-left: auto;
+}
+.text-length.warning {
+    color: #ff9800;
+}
 
+.text-length.danger {
+    color: var(--danger-color);
+}
 </style>
 
 <script type="text/javascript">
 $(function(){
 	//(+) 입력창 summernote 적용
+	var restoring = false;
+	var lastCode = "";
 	$('#summernote').summernote({
 	    lang : 'ko-KR',
 	    height : 400,
@@ -18,16 +32,57 @@ $(function(){
 	    	onImageUpload : function(files){
 	            uploadImage(files[0]);
 	        },
-	        onKeyup : function(){
-	        	var code = $('#summernote').summernote('code');
-	            var text = $("<div>").html(code).text().trim();
-	            var size = text.length;
+	        onChange : function(contents){
+	        	updateLength();
+                if (restoring) return;
+                
+                var text = $("<div>").html(contents).text();
+                
+                var length = text.length;
 
-	            $(".current-length").text(size);
-	            $(".current-length").toggleClass("red",
-	                size >= 1000
-	            );
-	        }
+                $(".text-length span").text(length);
+
+                $(".text-length")
+                    .removeClass("warning danger");
+
+                if(length >= 950){
+                    $(".text-length").addClass("danger");
+                }
+                else if(length >= 800){
+                    $(".text-length").addClass("warning");
+                }
+                
+                if(text.length <= 1000){
+                	lastCode = contents;
+                	$(".text-length span").text(text.length);
+                	checkBoardContent();
+                }
+                else{
+                	restoring = true;
+                	$("#summernote").summernote("code", lastCode);
+                	restoring = false;
+                	
+                	$(".text-length span").text(
+                		$("<div>").html(lastCode).text().length		
+                	);
+                }
+            },
+            
+            onPaste : function(e) {
+            	var currentCode = $("#summernote").summernote("code");
+            	var currentText = $("<div>").html(currentCode).text();
+            	
+            	var pasteText = "";
+            	
+            	if(e.originalEvent.clipboardData) {
+            		pasteText = e.originalEvent.clipboardData.getData("text");
+            	}
+            	
+            	if(currentText.length + pasteText.length > 1000) {
+            		e.preventDefault();
+            		alert("내용은 1000자 이하로 입력할 수 있습니다.");
+            	}
+            }
 	    }
 	});
 	
@@ -114,22 +169,50 @@ $(function(){
     });
     
   //기존 text-area와 달라 별도로 검사 및 피드백
-	function checkBoardContent(){
+    function checkBoardContent(){
 	    var code = $("#summernote").summernote("code");
 	    var text = $("<div>").html(code).text().trim();
 
 	    var valid = text.length > 0 && text.length <= 1000;
-	    $("#summernote").toggleClass("fail", !valid);
+	    
+	    $("#summernote").removeClass("fail");
+
+        if(!valid){
+            $("#summernote").addClass("fail");
+        }
 
 	    state.boardContentValid = valid;
 	    return valid;
 	}
+  
+    function updateLength() {
+        var text = $("<div>")
+            .html($("#summernote").summernote("code"))
+            .text()
+            .trim();
+
+        var length = text.length;
+
+        $(".text-length span").text(length);
+
+        $(".text-length")
+            .removeClass("warning danger");
+
+        if(length >= 950){
+            $(".text-length").addClass("danger");
+        }
+        else if(length >= 800){
+            $(".text-length").addClass("warning");
+        }
+    }
     
 	// 수정 페이지 진입 시 기존 값 검증
     $("[name=boardTitle]").trigger("blur");
     $("[name=boardContent]").trigger("blur");
     $("[name=boardHead]").trigger("input");
     $("input[name=boardType]:checked").trigger("input");
+ 	// 기존 글자 수 표시
+    updateLength();
 });
 </script>
 
@@ -197,11 +280,11 @@ $(function(){
 	                <label class="gw-form-label">
 	                    내용 <span class="required">*</span>
 	                </label>
-					<textarea id="summernote" name="boardContent" rows="10" maxlength="1000" class="text-editor">${boardDto.boardContent}</textarea>
+					<textarea id="summernote" name="boardContent" class="text-editor">${boardDto.boardContent}</textarea>
 					<div class="editor-bottom-row">
 	                    <span class="fail-feedback">[필수] 내용을 입력하세요.</span>
 		                <div class="text-length">
-		                    <span class="current-length">0</span> / 1000
+		                    <span>0</span> / 1000
 		                </div>
 		            </div>
 				</div> 

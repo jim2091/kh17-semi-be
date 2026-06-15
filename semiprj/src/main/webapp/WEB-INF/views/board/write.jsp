@@ -5,17 +5,25 @@
 <jsp:include page="/WEB-INF/views/template/header2.jsp"></jsp:include>
 
 <style>
-.text-length{
-    display:block;
-    text-align:right;
-    margin-top:8px;
-    color:#64748b;
+.text-length {
+    color: var(--sub-text);
+    font-size: 13px;
+    font-weight: 700;
+    margin-left: auto;
+}
+.text-length.warning {
+    color: #ff9800;
+}
+
+.text-length.danger {
+    color: var(--danger-color);
 }
 </style>
 
 <script type="text/javascript">
 $(function(){
 	//(+) 입력창 summernote 적용
+	var restoring = false;
 	$('#summernote').summernote({
 	    lang : 'ko-KR',
 	    height : 400,
@@ -23,16 +31,56 @@ $(function(){
 	    	onImageUpload : function(files){
 	            uploadImage(files[0]);
 	        },
-	        onKeyup : function(){
-	        	var code = $('#summernote').summernote('code');
-	            var text = $("<div>").html(code).text().trim();
-	            var size = text.length;
+	        onChange : function(contents){
+                if (restoring) return;
+                
+                var text = $("<div>").html(contents).text();
+                
+                var length = text.length;
 
-	            $(".current-length").text(size);
-	            $(".current-length").toggleClass("red",
-	                size >= 1000
-	            );
-	        }
+                $(".text-length span").text(length);
+
+                $(".text-length")
+                    .removeClass("warning danger");
+
+                if(length >= 950){
+                    $(".text-length").addClass("danger");
+                }
+                else if(length >= 800){
+                    $(".text-length").addClass("warning");
+                }
+                
+                if(text.length <= 1000){
+                	lastCode = contents;
+                	$(".text-length span").text(text.length);
+                	checkBoardContent();
+                }
+                else{
+                	restoring = true;
+                	$("#summernote").summernote("code", lastCode);
+                	restoring = false;
+                	
+                	$(".text-length span").text(
+                		$("<div>").html(lastCode).text().length		
+                	);
+                }
+            },
+            
+            onPaste : function(e) {
+            	var currentCode = $("#summernote").summernote("code");
+            	var currentText = $("<div>").html(currentCode).text();
+            	
+            	var pasteText = "";
+            	
+            	if(e.originalEvent.clipboardData) {
+            		pasteText = e.originalEvent.clipboardData.getData("text");
+            	}
+            	
+            	if(currentText.length + pasteText.length > 1000) {
+            		e.preventDefault();
+            		alert("내용은 1000자 이하로 입력할 수 있습니다.");
+            	}
+            }
 	    }
 	});
 	
@@ -126,7 +174,12 @@ $(function(){
 	    var text = $("<div>").html(code).text().trim();
 
 	    var valid = text.length > 0 && text.length <= 1000;
-	    $("#summernote").toggleClass("fail", !valid);
+	    
+	    $("#summernote").removeClass("fail");
+
+        if(!valid){
+            $("#summernote").addClass("fail");
+        }
 
 	    state.boardContentValid = valid;
 	    return valid;
@@ -152,9 +205,8 @@ $(function(){
         <p>타인에 대한 무분별한 비방글은 예고 없이 삭제될 수 있습니다.</p>
     </div>
 
-	
-	
 		<div class="gw-form-panel pds-width">
+		
             <div class="gw-form-row">
                 <label class="gw-form-label">
                     제목 <span class="required">*</span>
@@ -202,11 +254,11 @@ $(function(){
                 <label class="gw-form-label">
                     내용 <span class="required">*</span>
                 </label>
-				<textarea id="summernote" name="boardContent" maxlength="1000" rows="10" class="text-editor"></textarea>
+				<textarea id="summernote" name="boardContent" class="text-editor"></textarea>
 				<div class="editor-bottom-row">
                     <span class="fail-feedback"><i class="fa-solid fa-circle-exclamation"></i> 내용을 입력하세요.</span>
 	                <span class="text-length">
-	                    <span class="current-length">0</span> / 1000
+	                    <span>0</span> / 1000
 	                </span>
 	            </div>
 			</div> 

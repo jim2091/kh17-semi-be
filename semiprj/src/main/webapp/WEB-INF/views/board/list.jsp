@@ -88,51 +88,53 @@
 .muted-text {
     color: var(--sub-text);
 }
+
 </style>
 
-	<div class="gw-page-head pds-width">
-        <div class="gw-breadcrumb">홈 / 게시판 / 목록</div>
-        <h1>사내 게시판</h1>
-        <p>타인에 대한 무분별한 비방글은 예고 없이 삭제될 수 있습니다.</p>
-    </div>
+	<div class="pds-width">
+		<div class="gw-page-head">
+	        <div class="gw-breadcrumb">홈 / 게시판 / 목록</div>
+	        <h1>사내 게시판</h1>
+	        <p>타인에 대한 무분별한 비방글은 예고 없이 삭제될 수 있습니다.</p>
+	    </div>
 
-    <div class="gw-search-panel pds-width">
-	<form action="./list" method="get" class="gw-search-form">
-		<select name="column" class="gw-form-select">
-			<option value="board_title" ${param.column == 'board_title' ? 'selected':''}>제목</option>
-			<option value="title_content" ${param.column == 'title_content' ? 'selected':''}>제목+내용</option>
-			<option value="board_writer" ${param.column == 'board_writer' ? 'selected':''}>작성자</option>
-		</select>
-		<input type="text" name="keyword" class="gw-form-input" 
-			placeholder="검색어를 입력하세요." value="${param.keyword}">
-		<button type="submit" class="gw-btn-primary">
-			<i class="fa-solid fa-magnifying-glass"></i>
-			<span>검색</span>
-		</button>
-	</form>
-	</div>
-	
-	<div class="gw-list-panel pds-width">
-		<div class="gw-table-top">
-		    <div>
-		        <div class="gw-table-title">게시판 목록</div>
-		        <div class="gw-table-sub">
-		            ${pageVO.beginRownum}-${pageVO.endRownum} / 총 ${pageVO.count}개의 글
-		        </div>
-		    </div>
-    		<div class="gw-table-actions">
-	        <c:if test="${sessionScope.loginId != null}">
-	        	<a href="/board/my" class="gw-btn-outline">
-			        <i class="fa-solid fa-file-pen"></i>
-			        <span>내 활동</span>
-			    </a>
-	            <a href="./write" class="gw-btn-outline">
-	                <i class="fa-solid fa-pencil"></i>
-	                <span>글쓰기</span>
-	            </a>
-	        </c:if>
-		    </div>
+	    <div class="gw-search-panel pds-width">
+		<form action="./list" method="get" class="gw-search-form">
+			<select name="column" class="gw-form-select">
+				<option value="board_title" ${param.column == 'board_title' ? 'selected':''}>제목</option>
+				<option value="title_content" ${param.column == 'title_content' ? 'selected':''}>제목+내용</option>
+				<option value="board_writer" ${param.column == 'board_writer' ? 'selected':''}>작성자</option>
+			</select>
+			<input type="text" name="keyword" class="gw-form-input" 
+				placeholder="검색어를 입력하세요." value="${param.keyword}">
+			<button type="submit" class="gw-btn-primary">
+				<i class="fa-solid fa-magnifying-glass"></i>
+				<span>검색</span>
+			</button>
+		</form>
 		</div>
+	
+		<div class="gw-list-panel pds-width">
+			<div class="gw-table-top">
+			    <div>
+			        <div class="gw-table-title">게시판 목록</div>
+			        <div class="gw-table-sub">
+			            ${pageVO.beginRownum}-${pageVO.endRownum} / 총 ${pageVO.count}개의 글
+			        </div>
+			    </div>
+	    		<div class="gw-table-actions">
+		        <c:if test="${sessionScope.loginId != null}">
+		        	<a href="/board/my" class="gw-btn-outline">
+				        <i class="fa-solid fa-file-pen"></i>
+				        <span>내 활동</span>
+				    </a>
+		            <a href="./write" class="gw-btn-outline">
+		                <i class="fa-solid fa-pencil"></i>
+		                <span>글쓰기</span>
+		            </a>
+		        </c:if>
+			    </div>
+			</div>
 
     <table class="gw-table pds-table">
    		<thead>
@@ -217,6 +219,7 @@
        <div class="gw-pagination">
             <jsp:include page="/WEB-INF/views/template/pagination.jsp"></jsp:include>
        </div>
+   </div>
    </div>
 
 <script>

@@ -43,6 +43,12 @@ public class ReplyOwnerInterceptor implements HandlerInterceptor{
 			throw new TargetNotfoundException("존재하지 않는 댓글입니다");
 		}
 		
+		//(+추가) 관리자는 무조건 통과(수정/삭제 가능)
+        String loginRole = (String) session.getAttribute("loginRole");
+        if ("관리자".equals(loginRole)) {
+            return true;
+        }
+		
 		//(4) 작성자가 탈퇴했다면 차단
         if(replyDto.getReplyWriter() == null) {
         	throw new GetOutException();
