@@ -127,7 +127,7 @@
             <i class="fa-solid fa-list"></i>
             목록으로
         </a>
-        <a href="./list"
+        <a href="javascript:history.back();"
            class="gw-btn-outline">
             <i class="fa-solid fa-arrow-left"></i>
             뒤로가기
