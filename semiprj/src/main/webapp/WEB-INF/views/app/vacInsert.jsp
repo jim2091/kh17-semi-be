@@ -16,7 +16,6 @@
 	src="https://cdnjs.cloudflare.com/ajax/libs/lightpick/1.6.2/lightpick.min.js"></script>
 
 <style>
-/* 기존 스타일 전부 그대로 */
 .vac-type-item input[type="radio"] {
 	display: none;
 }
@@ -236,88 +235,66 @@
 .btn-cancel:hover {
 	background-color: #e2e8f0;
 }
-</style>
 
-<script>
-window.approverCount = 1;
-
-function validateForm() {
-    var approver1 = document.getElementById('approverNo_1').value;
-    if (!approver1) {
-        alert("결재자는 필수 선택 사항입니다.");
-        return false;
-    }
-    return true;
+.approval-row-flex {
+	display: flex;
+	align-items: stretch;
+	gap: 12px;
+	width: 100%;
 }
-</script>
 
-<script>
-$(function(){
-    var state = {
-        vacStartDateValid : false,
-        vacEndDateValid   : false,
-        ok : function() {
-            return Object.values(this).filter(v => typeof v === "boolean").every(v => v === true);
-        }
-    };
+.appr-box-item {
+	flex: 1;
+	position: relative;
+	display: flex;
+	flex-direction: column;
+}
 
-    var today = moment().format("YYYY-MM-DD");
-    $("[name=appDate]").val(today);
+.appr-box-item .input-field {
+	padding-top: 24px; /* 배지 공간 확보 */
+	font-size: 14px;
+	text-align: center;
+	background-color: #f8fafc;
+}
 
-    var startEl = $("[name=vacStartDate]")[0];
-    var endEl   = $("[name=vacEndDate]")[0];
+.appr-badge {
+	position: absolute;
+	top: 6px;
+	left: 8px;
+	font-size: 11px;
+	font-weight: 700;
+	padding: 2px 8px;
+	background: #64748b;
+	color: white;
+	border-radius: 4px;
+	z-index: 2;
+}
 
-    var startPicker, endPicker;
+.appr-badge.gold {
+	background: #3b82f6;
+}
 
-    if(startEl && endEl) {
-        startPicker = new Lightpick({
-            field: startEl, format: "YYYY-MM-DD", firstDay: 7, minDate: moment(),
-            onSelect: function(){ $("[name=vacStartDate]").trigger("change"); }
-        });
-        endPicker = new Lightpick({
-            field: endEl, format: "YYYY-MM-DD", firstDay: 7, minDate: moment(),
-            onSelect: function(){ $("[name=vacEndDate]").trigger("change"); }
-        });
-    }
+.btn-search-unified {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	background-color: #1e293b;
+	color: #ffffff;
+	border: none;
+	padding: 0 24px;
+	border-radius: 8px;
+	font-size: 14px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background 0.2s;
+	white-space: nowrap;
+}
 
-    $("[name=vacStartDate]").on("change", function(){
-        var appDate   = $("[name=appDate]").val() || today;
-        var startDate = $(this).val();
-        var endDate   = $("[name=vacEndDate]").val();
-        if(!startDate){ $(this).removeClass("success fail"); state.vacStartDateValid = false; return; }
-        if(startDate < appDate){ $(this).removeClass("success").addClass("fail"); state.vacStartDateValid = false; }
-        else { $(this).removeClass("fail").addClass("success"); state.vacStartDateValid = true; if(endPicker) endPicker.setMinDate(moment(startDate)); }
-        if(endDate) $("[name=vacEndDate]").trigger("change");
-    });
-
-    $("[name=vacEndDate]").on("change", function(){
-        var startDate = $("[name=vacStartDate]").val();
-        var endDate   = $(this).val();
-        if(!endDate || !startDate){ $(this).removeClass("success fail"); state.vacEndDateValid = false; return; }
-        if(endDate < startDate){ $(this).removeClass("success").addClass("fail"); state.vacEndDateValid = false; }
-        else { $(this).removeClass("fail").addClass("success"); state.vacEndDateValid = true; }
-    });
-
-    $("#vacationForm").on("submit", function(e){
-        if(!state.ok()){
-            e.preventDefault();
-            $("[name=vacStartDate]").trigger("change");
-            $("[name=vacEndDate]").trigger("change");
-            $(".input-field.fail").first().focus();
-            return false;
-        }
-        if(!validateForm()){
-            e.preventDefault();
-            return false;
-        }
-    });
-});
-
-
-ㄴ
-</script>
-
-
+.btn-search-unified:hover {
+	background-color: #0f172a;
+}
+</style>
 
 <div class="gw-page-head pds-width">
 	<div class="gw-breadcrumb">홈 / 전자결재 / 휴가신청서</div>
@@ -339,35 +316,50 @@ $(function(){
 				class="input-field" readonly> <input type="hidden"
 				value="${empId}" name="appReqId">
 		</div>
-		
-		
-		
-		<c:forEach begin="1" end="3" var="i">
-			<div class="form-group">
-				<label>결재자 ${i}순위 <c:if test="${i == 1}">
-						<span class="required">*</span>
-					</c:if>
-				</label>
-				<div class="approval-search-wrap">
-					<input type="text" id="approverDisplay_${i}" class="input-field"
-						placeholder="찾기 버튼으로 결재자를 선택하세요." readonly>
-					<button type="button" class="btn-search"
-						onclick="window.openApproverPopup(${i})">
-						<i class="fa-solid fa-user-tie"></i> <span>찾기</span>
-					</button>
+
+		<div class="form-group">
+			<label>결재자 설정<span class="required">*</span></label>
+			<div class="approval-row-flex">
+
+				<div class="appr-box-item">
+					<span class="appr-badge gold">1순위</span> <input type="text"
+						id="approverDisplay_1" class="input-field" placeholder="미지정"
+						readonly> <input type="hidden" id="approverNo_1"
+						name="approver1" value=""> <input type="hidden"
+						id="approverName_1" name="approverName1" value=""> <input
+						type="hidden" id="approverLevel_1" name="approverLevel1" value="">
+					<input type="hidden" id="approverDept_1" value="">
 				</div>
-				<input type="hidden" id="approverNo_${i}" name="approver${i}"
-					value=""> <input type="hidden" id="approverName_${i}"
-					name="approverName${i}" value=""> <input type="hidden"
-					id="approverLevel_${i}" name="approverLevel${i}" value="">
+
+				<div class="appr-box-item">
+					<span class="appr-badge">2순위</span> <input type="text"
+						id="approverDisplay_2" class="input-field" placeholder="미지정"
+						readonly> <input type="hidden" id="approverNo_2"
+						name="approver2" value=""> <input type="hidden"
+						id="approverName_2" name="approverName2" value=""> <input
+						type="hidden" id="approverLevel_2" name="approverLevel2" value="">
+					<input type="hidden" id="approverDept_2" value="">
+				</div>
+
+				<div class="appr-box-item">
+					<span class="appr-badge">3순위</span> <input type="text"
+						id="approverDisplay_3" class="input-field" placeholder="미지정"
+						readonly> <input type="hidden" id="approverNo_3"
+						name="approver3" value=""> <input type="hidden"
+						id="approverName_3" name="approverName3" value=""> <input
+						type="hidden" id="approverLevel_3" name="approverLevel3" value="">
+					<input type="hidden" id="approverDept_3" value="">
+				</div>
+
+				<button type="button" class="btn-search-unified"
+					onclick="window.openApproverPopup(1)">
+					<i class="fa-solid fa-user-gear"></i> 결재자 지정
+				</button>
 			</div>
-		</c:forEach>
+		</div>
 
-
-
+		<%-- 일괄 다중 선택 모달 레이아웃 인클루드 --%>
 		<jsp:include page="/WEB-INF/views/template/appr_picker.jsp" />
-
-
 
 		<div class="form-group">
 			<label>결재내용<span class="required">*</span></label> <input type="text"
@@ -403,15 +395,16 @@ $(function(){
 		<div class="form-group">
 			<label>휴가 구분<span class="required">*</span></label>
 			<div class="vac-type-wrap">
-				<label class="vac-type-item"><input type="radio"
-					name="vacType" value="연차" checked><span><i
-						class="fa-solid fa-calendar-days"></i> 연차</span></label> <label
-					class="vac-type-item"><input type="radio" name="vacType"
-					value="휴가"><span><i
-						class="fa-solid fa-umbrella-beach"></i> 휴가</span></label> <label
-					class="vac-type-item"><input type="radio" name="vacType"
-					value="병가"><span><i class="fa-solid fa-kit-medical"></i>
-						병가</span></label>
+				<label class="vac-type-item"> <input type="radio"
+					name="vacType" value="연차" checked> <span><i
+						class="fa-solid fa-calendar-days"></i> 연차</span>
+				</label> <label class="vac-type-item"> <input type="radio"
+					name="vacType" value="휴가"> <span><i
+						class="fa-solid fa-umbrella-beach"></i> 휴가</span>
+				</label> <label class="vac-type-item"> <input type="radio"
+					name="vacType" value="병가"> <span><i
+						class="fa-solid fa-kit-medical"></i> 병가</span>
+				</label>
 			</div>
 		</div>
 
@@ -422,3 +415,70 @@ $(function(){
 		</div>
 	</form>
 </div>
+
+<script>
+$(function(){
+    // [유효성 타겟 상태 제어 객체]
+    var state = {
+        vacStartDateValid : false,
+        vacEndDateValid   : false,
+        ok : function() {
+            return Object.values(this).filter(v => typeof v === "boolean").every(v => v === true);
+        }
+    };
+
+    var today = moment().format("YYYY-MM-DD");
+    $("[name=appDate]").val(today);
+
+    var startEl = $("[name=vacStartDate]")[0];
+    var endEl   = $("[name=vacEndDate]")[0];
+    var startPicker, endPicker;
+
+    if(startEl && endEl) {
+        startPicker = new Lightpick({
+            field: startEl, format: "YYYY-MM-DD", firstDay: 7, minDate: moment(),
+            onSelect: function(){ $("[name=vacStartDate]").trigger("change"); }
+        });
+        endPicker = new Lightpick({
+            field: endEl, format: "YYYY-MM-DD", firstDay: 7, minDate: moment(),
+            onSelect: function(){ $("[name=vacEndDate]").trigger("change"); }
+        });
+    }
+
+    $("[name=vacStartDate]").on("change", function(){
+        var appDate   = $("[name=appDate]").val() || today;
+        var startDate = $(this).val();
+        var endDate   = $("[name=vacEndDate]").val();
+        if(!startDate){ $(this).removeClass("success fail"); state.vacStartDateValid = false; return; }
+        if(startDate < appDate){ $(this).removeClass("success").addClass("fail"); state.vacStartDateValid = false; }
+        else { $(this).removeClass("fail").addClass("success"); state.vacStartDateValid = true; if(endPicker) endPicker.setMinDate(moment(startDate)); }
+        if(endDate) $("[name=vacEndDate]").trigger("change");
+    });
+
+    $("[name=vacEndDate]").on("change", function(){
+        var startDate = $("[name=vacStartDate]").val();
+        var endDate   = $(this).val();
+        if(!endDate || !startDate){ $(this).removeClass("success fail"); state.vacEndDateValid = false; return; }
+        if(endDate < startDate){ $(this).removeClass("success").addClass("fail"); state.vacEndDateValid = false; }
+        else { $(this).removeClass("fail").addClass("success"); state.vacEndDateValid = true; }
+    });
+
+    // 최종 서브밋 유효성 체크 검증단 (alert 전면 걷어냄)
+    $("#vacationForm").on("submit", function(e){
+        if(!state.ok()){
+            e.preventDefault();
+            $("[name=vacStartDate]").trigger("change");
+            $("[name=vacEndDate]").trigger("change");
+            $(".input-field.fail").first().focus();
+            return false;
+        }
+        
+        // 1순위 필수 지정 최종 백업 방어선 검사
+        var approver1 = document.getElementById('approverNo_1').value;
+        if (!approver1) {
+            e.preventDefault();
+            return false;
+        }
+    });
+});
+</script>
