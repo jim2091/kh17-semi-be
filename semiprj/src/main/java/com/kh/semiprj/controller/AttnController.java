@@ -62,7 +62,7 @@ public class AttnController {
         return map;
     }
 
-    // 🛠️ 최초 진입 시 검색 조건(년/월)이 없으면 실시간 기준 '그 해, 그 달'을 자동 계산 주입
+    // 🛠️ [방어 코드 강화] 사용자 근태 리스트 출력 구역
     @GetMapping("/list")
     public String list(@ModelAttribute("search") AttnDto attnDto, 
                        @ModelAttribute("pageVO") PageVO pageVO, 
@@ -70,17 +70,15 @@ public class AttnController {
         String empNo = (String) session.getAttribute("loginNo");
         attnDto.setEmpNo(empNo);
         
-        // 🛡️ [타입 에러 수정 완료] 
-        // AttnDto의 year와 month가 String 규격인 것을 감안하여 null 및 빈 문자열("") 체크로 안전하게 변경했습니다.
+        // PageVO의 기본값 안전화 보장 (혹시 모를 파라미터 유실 차단)
+        if (pageVO.getPage() <= 0) pageVO.setPage(1);
+        if (pageVO.getSize() <= 0) pageVO.setSize(10);
+        
         if (attnDto.getYear() == null || String.valueOf(attnDto.getYear()).trim().isEmpty() || "0".equals(String.valueOf(attnDto.getYear())) ||
             attnDto.getMonth() == null || attnDto.getMonth().trim().isEmpty()) {
             
             LocalDate now = LocalDate.now();
-            
-            // 숫자인 연도를 String.valueOf() 또는 "" + 숫자를 통해 문자열로 안전하게 변환하여 주입합니다.
             attnDto.setYear(String.valueOf(now.getYear())); 
-            
-            // 월 데이터를 오라클 규격에 맞게 "01", "02" 형태로 패딩 처리하여 포맷 바인딩
             String currentMonth = String.format("%02d", now.getMonthValue());
             attnDto.setMonth(currentMonth);
         }
@@ -88,8 +86,11 @@ public class AttnController {
         Map<String, Object> vacInfo = attnService.getVacationInfo(empNo);
         model.addAttribute("vacInfo", vacInfo);
         
+        // 전체 카운트를 먼저 세팅해야 PageVO가 내부적으로 올바른 rownum 연산을 수행합니다.
+        int totalCount = attnService.countAttendance(attnDto);
+        pageVO.setCount(totalCount);
+        
         List<AttnDto> list = attnService.getAttendanceList(attnDto, pageVO);
-        pageVO.setCount(attnService.countAttendance(attnDto));
         
         model.addAttribute("maxHours", adminAttnService.getActiveMaxHours());
         model.addAttribute("attnList", list);
@@ -122,10 +123,10 @@ public class AttnController {
         return attnService.getWorkTimeSum(empNo, startDate, endDate);
     }
 
+    // 🛠️ [구조 정돈] 관리자 근태 목록 조회 시 PageVO 커맨드 객체 매핑 통일화
     @GetMapping("/admin/list")
     public String adminList(@ModelAttribute("search") AttnDto searchDto,
-                            @RequestParam(value = "page", defaultValue = "1") int page,
-                            @RequestParam(value = "size", defaultValue = "10") int size,
+                            @ModelAttribute("pageVO") PageVO pageVO,
                             @RequestParam(required = false) String startDate,
                             @RequestParam(required = false) String endDate,
                             Model model) {
@@ -134,10 +135,13 @@ public class AttnController {
             startDate = now.withDayOfMonth(1).toString();
             endDate = now.withDayOfMonth(now.lengthOfMonth()).toString();
         }
-        PageVO pageVO = new PageVO();
-        pageVO.setPage(page);
-        pageVO.setSize(size);
-        pageVO.setCount(adminAttnService.countAdminAttendanceCustom(searchDto, startDate, endDate));
+        
+        if (pageVO.getPage() <= 0) pageVO.setPage(1);
+        if (pageVO.getSize() <= 0) pageVO.setSize(10);
+        
+        int totalAdminCount = adminAttnService.countAdminAttendanceCustom(searchDto, startDate, endDate);
+        pageVO.setCount(totalAdminCount);
+        
         model.addAttribute("startDate", startDate);
         model.addAttribute("endDate", endDate);
         model.addAttribute("pageVO", pageVO);

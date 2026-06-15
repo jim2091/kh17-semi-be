@@ -25,7 +25,7 @@
     font-weight: 900;
 }
 
-/* 상태별 배지 디자인 분기 */
+/* 상태별 배지 디자인 완벽 분기 */
 .status-vacation {
     background: #fffbeb;
     color: var(--warning-color);
@@ -34,6 +34,12 @@
 .status-normal {
     background: #f0fdf4;
     color: #16a34a;
+}
+
+/* 지각, 조퇴 등 경고성 상태 배지 스타일 */
+.status-late {
+    background: #fef2f2;
+    color: #dc2626;
 }
 
 /* 하단 정렬 컨테이너: relative를 활용해 완벽한 좌/우/중앙 정렬 구현 */
@@ -180,8 +186,8 @@
                             </td>
                             <td>
                                 <c:choose>
-                                    <c:when test="${dto.attnRecord == '연차'}">
-                                        <span style="color:var(--warning-color); font-weight: bold;">○ 연차</span>
+                                    <c:when test="${dto.attnRecord == '연차' || dto.attnRecord == '반차' || dto.attnRecord == '휴가'}">
+                                        <span style="color:var(--warning-color); font-weight: bold;">○ ${dto.attnRecord}</span>
                                     </c:when>
                                     <c:otherwise><span class="gw-muted">-</span></c:otherwise>
                                 </c:choose>
@@ -206,9 +212,17 @@
                             </td>
                             <td>
                                 <c:if test="${not empty dto.attnRecord}">
-                                    <span class="attn-head ${dto.attnRecord == '연차' ? 'status-vacation' : 'status-normal'}">
-                                        ${dto.attnRecord}
-                                    </span>
+                                    <c:choose>
+                                        <c:when test="${dto.attnRecord == '지각' || dto.attnRecord == '조퇴' || dto.attnRecord == '결근'}">
+                                            <span class="attn-head status-late">${dto.attnRecord}</span>
+                                        </c:when>
+                                        <c:when test="${dto.attnRecord == '연차' || dto.attnRecord == '반차' || dto.attnRecord == '휴가'}">
+                                            <span class="attn-head status-vacation">${dto.attnRecord}</span>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <span class="attn-head status-normal">${dto.attnRecord}</span>
+                                        </c:otherwise>
+                                    </c:choose>
                                 </c:if>
                             </td>
                         </tr>
