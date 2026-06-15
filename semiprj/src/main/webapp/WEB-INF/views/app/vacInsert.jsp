@@ -312,7 +312,16 @@ $(function(){
         }
     });
 });
+
+
+ㄴ
 </script>
+
+
+
+<div class="gw-page-head pds-width">
+	<div class="gw-breadcrumb">홈 / 전자결재 / 휴가신청서</div>
+</div>
 
 <div class="vacation-container">
 	<h1 class="form-title">휴가 신청서</h1>
@@ -322,8 +331,7 @@ $(function(){
 
 		<div class="form-group">
 			<label>결재명<span class="required">*</span></label> <input type="text"
-				name="appTitle" class="input-field" required maxlength="100"
-				placeholder="예: [연차] 개인 사정으로 인한 휴가 신청">
+				name="appTitle" class="input-field" required maxlength="100">
 		</div>
 
 		<div class="form-group">
@@ -331,24 +339,35 @@ $(function(){
 				class="input-field" readonly> <input type="hidden"
 				value="${empId}" name="appReqId">
 		</div>
-
-		<div class="form-group">
-			<label>결재자<span class="required">*</span></label>
-			<div class="approval-search-wrap">
-				<input type="text" id="approverDisplay_1" class="input-field"
-					placeholder="찾기 버튼으로 결재자를 선택하세요." readonly>
-				<button type="button" class="btn-search"
-					onclick="window.openApproverPopup(1)">
-					<i class="fa-solid fa-user-tie"></i> <span>찾기</span>
-				</button>
+		
+		
+		
+		<c:forEach begin="1" end="3" var="i">
+			<div class="form-group">
+				<label>결재자 ${i}순위 <c:if test="${i == 1}">
+						<span class="required">*</span>
+					</c:if>
+				</label>
+				<div class="approval-search-wrap">
+					<input type="text" id="approverDisplay_${i}" class="input-field"
+						placeholder="찾기 버튼으로 결재자를 선택하세요." readonly>
+					<button type="button" class="btn-search"
+						onclick="window.openApproverPopup(${i})">
+						<i class="fa-solid fa-user-tie"></i> <span>찾기</span>
+					</button>
+				</div>
+				<input type="hidden" id="approverNo_${i}" name="approver${i}"
+					value=""> <input type="hidden" id="approverName_${i}"
+					name="approverName${i}" value=""> <input type="hidden"
+					id="approverLevel_${i}" name="approverLevel${i}" value="">
 			</div>
-			<input type="hidden" id="approverNo_1" name="approver1" value="">
-			<input type="hidden" id="approverName_1" name="approverName1"
-				value=""> <input type="hidden" id="approverLevel_1"
-				name="approverLevel1" value="">
-		</div>
+		</c:forEach>
+
+
 
 		<jsp:include page="/WEB-INF/views/template/appr_picker.jsp" />
+
+
 
 		<div class="form-group">
 			<label>결재내용<span class="required">*</span></label> <input type="text"

@@ -48,6 +48,11 @@
 </script>
 
 <div style="padding: 30px;">
+	<div class="gw-page-head pds-width">
+		<div class="gw-breadcrumb">홈 / 전자결재 / 상세</div>
+	</div>
+
+
 	<%-- 상단 타이틀 --%>
 	<div
 		style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
@@ -126,7 +131,7 @@
 					<th
 						style="padding: 12px 16px; text-align: left; color: #888; font-weight: 600; width: 120px; background: #fafafa;">휴가
 						기간</th>
-					<td style="padding: 12px 16px;">${vacAppDto.vacStartDate} ~
+					<td style="padding: 12px 16px;">${vacAppDto.vacStartDate}~
 						${vacAppDto.vacEndDate}</td>
 				</tr>
 			</table>

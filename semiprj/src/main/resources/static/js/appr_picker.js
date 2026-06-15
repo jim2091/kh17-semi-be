@@ -119,7 +119,7 @@ $(function(){
         updateSelectedCount();
     });
 
-    // selected-list에서 삭제 ← 수정된 부분
+    // selected-list에서 삭제  수정
     $(".selected-list").on("click", ".selected-remove", function(){
         var target = $(this).closest(".selected-item");
         var empNo  = target.data("no");

@@ -367,6 +367,9 @@ public class AppController {
 		return "/app/list";
 	}
 	
+	
+	
+	//picker 용 매핑
 	@GetMapping("/searchApprover")
 	@ResponseBody
 	public List<Map<String, Object>> searchApprover(

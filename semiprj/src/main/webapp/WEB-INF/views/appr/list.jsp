@@ -5,6 +5,10 @@
 
 <jsp:include page="/WEB-INF/views/template/header2.jsp"></jsp:include>
 
+<div class="gw-page-head pds-width">
+	<div class="gw-breadcrumb">홈 / 전자결재 / 목록</div>
+</div>
+
 <div style="padding: 30px;">
 	<%-- 탭 네비게이션 --%>
 	<div
