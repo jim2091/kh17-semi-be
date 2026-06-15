@@ -4,13 +4,14 @@
 <jsp:include page="/WEB-INF/views/template/header2.jsp"/>
 
 <style>
+/* 집에서 작업한 세련된 디자인 스타일 유지 */
 .login-wrap {
     min-height: 100vh;
     display: flex;
     justify-content: center;
     background: linear-gradient(135deg, var(--main-bg-start), var(--main-bg-end));
     align-items: flex-start;
-    padding-top: 60px; /* 위 여백 조절 */
+    padding-top: 60px;
 }
 
 .login-card {
@@ -20,7 +21,6 @@
     border-radius: 24px;
     box-shadow: 0 20px 60px var(--card-shadow);
     padding: 48px 40px;
-    
 }
 
 .login-logo {
@@ -99,6 +99,21 @@
     font-size: 15px;
 }
 
+/* 학원의 실시간 유효성 검사 에러 스타일 추가 */
+.field-error-msg {
+    color: #ef4444;
+    font-size: 12px;
+    margin-top: 4px;
+    padding-left: 4px;
+    text-align: left;
+    min-height: 18px;
+}
+
+.login-field.is-invalid {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
+}
+
 .login-error {
     background: #fef2f2;
     border: 1px solid #fecaca;
@@ -137,7 +152,9 @@
     display: flex;
     justify-content: center;
     gap: 20px;
-    margin-top: 20px;
+    margin-top: 24px;
+    border-top: 1px solid var(--border-color);
+    padding-top: 20px;
 }
 
 .login-links a {
@@ -151,13 +168,11 @@
 .login-links a:hover {
     color: var(--main-color);
 }
-
 </style>
 
 <div class="login-wrap">
-    <div class="login-card ">
+    <div class="login-card">
 
-        <!-- 로고 -->
         <div class="login-logo">
             <div class="logo-icon">
                 <i class="fa-solid fa-building"></i>
@@ -166,10 +181,8 @@
             <p>업무 포털에 오신 것을 환영합니다</p>
         </div>
 
-        <!-- 로그인 폼 -->
-        <form action="./login" method="post" autocomplete="off">
+        <form id="loginForm" action="./login" method="post" autocomplete="off">
 
-            <!-- 에러 메시지 -->
             <c:if test="${param.error != null}">
                 <div class="login-error">
                     <i class="fa-solid fa-circle-exclamation"></i>
@@ -177,44 +190,84 @@
                 </div>
             </c:if>
 
-            <!-- 아이디 -->
             <div class="login-field-wrap">
                 <label class="login-field-label">아이디</label>
                 <div class="login-field-icon">
                     <i class="fa-solid fa-user"></i>
-                    <input type="text" name="empId" required
+                    <input type="text" id="empId" name="empId" required
                            class="login-field"
-                           placeholder="아이디를 입력하세요">
+                           placeholder="사원 아이디(ID)">
                 </div>
+                <div id="idError" class="field-error-msg"></div>
             </div>
 
-            <!-- 비밀번호 -->
             <div class="login-field-wrap">
                 <label class="login-field-label">비밀번호</label>
                 <div class="login-field-icon">
                     <i class="fa-solid fa-lock"></i>
-                    <input type="password" name="empPw" required
+                    <input type="password" id="empPw" name="empPw" required
                            class="login-field"
-                           placeholder="비밀번호를 입력하세요">
+                           placeholder="비밀번호(PW)">
                 </div>
+                <div id="pwError" class="field-error-msg"></div>
             </div>
 
-            <!-- 로그인 버튼 -->
             <button type="submit" class="login-btn">
                 <i class="fa-solid fa-right-to-bracket"></i>
-                로그인
+                로그인하기
             </button>
 
         </form>
 
-        <!-- 하단 링크 -->
         <div class="login-links">
-            <a href="./find_id">아이디 찾기</a>
-            <span class="login-divider">|</span>
-            <a href="./find_pw">비밀번호 찾기</a>
+            <a href="./find_id"><i class="fa-solid fa-magnifying-glass" style="margin-right: 4px;"></i>아이디 찾기</a>
+            <span class="login-divider" style="color: var(--border-color)">|</span>
+            <a href="./find_pw"><i class="fa-solid fa-key" style="margin-right: 4px;"></i>비밀번호 찾기</a>
         </div>
 
     </div>
 </div>
+
+<script>
+$(function(){
+    // 대시보드 메인 홈의 테마 동기화 유지
+    var savedTheme = localStorage.getItem("gwTheme") || "theme-blue";
+    $("body").addClass(savedTheme);
+
+    // 폼 전송 시 프론트엔드 유효성 검사 진행
+    $("#loginForm").submit(function(e) {
+        let isValid = true;
+        const empId = $("#empId").val().trim();
+        const empPw = $("#empPw").val().trim();
+
+        // 아이디 누락 체크
+        if (empId === "") {
+            $("#empId").addClass("is-invalid");
+            $("#idError").text("아이디를 입력해 주세요.");
+            isValid = false;
+        }
+
+        // 비밀번호 누락 체크
+        if (empPw === "") {
+            $("#empPw").addClass("is-invalid");
+            $("#pwError").text("비밀번호를 입력해 주세요.");
+            isValid = false;
+        }
+
+        // 유효하지 않으면 서버 서브밋 전송 블로킹
+        if (!isValid) {
+            e.preventDefault();
+        }
+    });
+
+    // 사용자가 값을 입력하기 시작하면 경고 스타일과 문구를 즉시 지워주는 인터랙션
+    $(".login-field").on("input", function() {
+        if ($(this).val().trim() !== "") {
+            $(this).removeClass("is-invalid");
+            $(this).next(".field-error-msg").text("");
+        }
+    });
+});
+</script>
 
 <jsp:include page="/WEB-INF/views/template/footer2.jsp"/>

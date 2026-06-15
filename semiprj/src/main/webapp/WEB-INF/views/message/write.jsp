@@ -61,19 +61,19 @@
 	.receiver-tag .delete-tag:hover{
 	    color: #e74c3c;
 	}
+	.text-length {
+    color: var(--sub-text);
+    font-size: 13px;
+    font-weight: 700;
+    margin-left: auto;
+}
+.text-length.warning {
+    color: #ff9800;
+}
 
-	/* 드롭다운을 입력창과 정확히 동일한 폭으로 */
-	.receiver-list{
-	    position: absolute;
-	    top: 100%;
-	    left: 0;
-	    /*width: 100%;  */    
-	   /* border: 1px solid #ccc;*/
-	    max-height: 200px;
-	    overflow: auto;
-	    background: white;
-	    z-index: 999;
-	}
+.text-length.danger {
+    color: var(--danger-color);
+}
 </style>
 
 <script type="text/javascript">
@@ -163,19 +163,31 @@ $(function(){
 	
 	//(3) 내용
     $("[name=messageContent]").on("input blur", function(){
-    	var size = $(this).val().length;
-    	if(size > 1000) {
-    		var origin = $(this).val();
-            var cut = origin.substring(0, 1000);
-            $(this).val(cut);
+        var size = $(this).val().length;
+
+        if(size > 1000){
+            $(this).val($(this).val().substring(0, 1000));
             size = 1000;
         }
-    	var span = $(this).next(".editor-bottom-row").find(".current-length")
+
+        var span = $(this).closest(".gw-form-row").find(".current-length");
+
         span.text(size);
-        span.toggleClass("red", size >= 1000);
-    	var valid = size > 0;
-    	$(this).removeClass("success fail").addClass(valid ? "success" : "fail");
-    	state.messageContentValid = valid;
+
+        $(".text-length").removeClass("warning danger");
+
+        if(size >= 950){
+            $(".text-length").addClass("danger");
+        }
+        else if(size >= 800){
+            $(".text-length").addClass("warning");
+        }
+
+        var valid = size > 0;
+
+        $(this).removeClass("success fail").addClass(valid ? "success" : "fail");
+
+        state.messageContentValid = valid;
     });
 	
 	//3. 폼 검사
