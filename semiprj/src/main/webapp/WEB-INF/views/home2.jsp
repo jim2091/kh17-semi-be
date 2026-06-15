@@ -537,17 +537,6 @@ $(function(){
     } catch(e) {
         console.warn("캘린더 인스턴스 초기화 지연", e);
     }
-
-    var savedTheme = localStorage.getItem("gwTheme") || "theme-blue";
-    $("body").addClass(savedTheme);
-
-    $(".theme-btn").click(function(){ $(".theme-popup").toggle(); });
-    $(".theme-item").click(function(){
-        var theme = $(this).data("theme");
-        $("body").removeClass("theme-blue theme-green theme-purple theme-dark").addClass(theme);
-        localStorage.setItem("gwTheme", theme);
-        $(".theme-popup").hide();
-    });
     
     var savedWidgetOrder = localStorage.getItem("gwWidgetOrder");
     if(savedWidgetOrder){

@@ -127,30 +127,6 @@
 
 <script>
 $(function(){
-    var savedTheme = localStorage.getItem("gwTheme");
-
-    if(savedTheme){
-        $("body").addClass(savedTheme);
-    }
-    else{
-        $("body").addClass("theme-blue");
-    }
-
-    $(".theme-btn").click(function(){
-        $(".theme-popup").toggle();
-    });
-
-    $(".theme-item").click(function(){
-        var theme = $(this).data("theme");
-
-        $("body")
-            .removeClass("theme-blue theme-green theme-purple theme-dark")
-            .addClass(theme);
-
-        localStorage.setItem("gwTheme", theme);
-
-        $(".theme-popup").hide();
-    });
 
     $(".check-all").change(function(){
         $("input[name=pdsNoList]").prop("checked", this.checked);

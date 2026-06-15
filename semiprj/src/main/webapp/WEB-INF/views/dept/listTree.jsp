@@ -97,45 +97,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/treant-js/1.0/Treant.js"></script>
 
 <script>
-$(function() {
-	var savedTheme = localStorage.getItem("gwTheme");
-
-	if (savedTheme) {
-		$("body").addClass(savedTheme);
-	} else {
-		$("body").addClass("theme-blue");
-	}
-
-	$(".theme-btn").click(function() {
-		$(".theme-popup").toggle();
-	});
-
-	$(".theme-item").click(
-			function() {
-				var theme = $(this).data("theme");
-
-				$("body").removeClass(
-						"theme-blue theme-green theme-purple theme-dark")
-						.addClass(theme);
-
-				localStorage.setItem("gwTheme", theme);
-
-				$(".theme-popup").hide();
-			});
-
-	$(".check-all").change(function() {
-		$("input[name=pdsNoList]").prop("checked", this.checked);
-	});
-
-	$("input[name=pdsNoList]")
-			.change(
-					function() {
-						$(".check-all")
-								.prop(
-										"checked",
-										$("input[name=pdsNoList]").length == $("input[name=pdsNoList]:checked").length);
-					});
-});
 
 (function () {
     // 외부 라이브러리를 이용한 조직도 표현
