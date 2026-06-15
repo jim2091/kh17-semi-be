@@ -489,35 +489,46 @@ public class AppDao {
 		return jdbcTemplate.queryForObject(sql, int.class, params);
 	}
 
-	// 결재자 선택창(Picker) 사원 비동기 목록 조회
-	public List<Map<String, Object>> searchApproverForPicker(String keyword, List<String> excludes) {
-		String sql = "select emp_no, emp_name, emp_position, emp_dept "
-				+ "from emp "
-				+ "where emp_use_yn = 'Y' "
-				+ "and (emp_name like ? or emp_dept like ?) ";
-		
-		List<Object> params = new ArrayList<>();
-		params.add("%" + keyword + "%");
-		params.add("%" + keyword + "%");
-		
-		if (excludes != null && !excludes.isEmpty()) {
-			String placeholders = excludes.stream()
-					.map(e -> "?")
-					.collect(java.util.stream.Collectors.joining(", "));
-			sql += "and emp_no not in (" + placeholders + ") ";
-			params.addAll(excludes);
+	// [수정 완료] picker를 사용하기 위한 메소드 (본인 제외 방어 코드 추가)
+		public List<Map<String, Object>> searchApproverForPicker(String keyword, List<String> excludes, String loginEmpNo) {
+			// 방어 코드: excludes 배열이 null이면 내부적으로 안전하게 새 리스트 생성
+			if (excludes == null) {
+				excludes = new ArrayList<>();
+			}
+			
+			// 비즈니스 룰 방어: 본인 사번(loginEmpNo)이 누락되지 않았다면 예외 대상 리스트에 강제 추가
+			if (loginEmpNo != null && !excludes.contains(loginEmpNo)) {
+				excludes.add(loginEmpNo);
+			}
+
+			String sql = "select emp_no, emp_name, emp_position, emp_dept "
+					+ "from emp "
+					+ "where emp_use_yn = 'Y' "
+					+ "and (emp_name like ? or emp_dept like ?) ";
+			
+			List<Object> params = new ArrayList<>();
+			params.add("%" + keyword + "%");
+			params.add("%" + keyword + "%");
+			
+			// 본인 사번을 포함한 모든 제외 대상 사번을 Not In 서브쿼리 플레이스홀더로 가변 결합
+			if (!excludes.isEmpty()) {
+				String placeholders = excludes.stream()
+						.map(e -> "?")
+						.collect(java.util.stream.Collectors.joining(", "));
+				sql += "and emp_no not in (" + placeholders + ") ";
+				params.addAll(excludes);
+			}
+			
+			sql += "order by emp_dept, emp_name";
+			
+			return jdbcTemplate.query(sql, (rs, rn) -> {
+				Map<String, Object> map = new HashMap<>();
+				map.put("empNo",       rs.getString("emp_no"));
+				map.put("empName",     rs.getString("emp_name"));
+				map.put("empPosition", rs.getString("emp_position"));
+				map.put("empDept",     rs.getString("emp_dept"));
+				map.put("positionLevel", 0);
+				return map;
+			}, params.toArray());
 		}
-		
-		sql += "order by emp_dept, emp_name";
-		
-		return jdbcTemplate.query(sql, (rs, rn) -> {
-			Map<String, Object> map = new HashMap<>();
-			map.put("empNo",       rs.getString("emp_no"));
-			map.put("empName",     rs.getString("emp_name"));
-			map.put("empPosition", rs.getString("emp_position"));
-			map.put("empDept",     rs.getString("emp_dept"));
-			map.put("positionLevel", 0);
-			return map;
-		}, params.toArray());
-	}
 }

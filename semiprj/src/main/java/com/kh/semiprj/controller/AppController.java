@@ -379,12 +379,24 @@ public class AppController {
 		return "/app/list";
 	}
 	
-	// picker 용 매핑
-	@GetMapping("/searchApprover")
-	@ResponseBody
-	public List<Map<String, Object>> searchApprover(
-			@RequestParam String keyword,
-			@RequestParam(required = false) List<String> excludes) {
-		return appDao.searchApproverForPicker(keyword, excludes);
-	}
+	// [수정 완료] picker 용 매핑 (기안자 본인 제외 로직 결합)
+		@GetMapping("/searchApprover")
+		@ResponseBody
+		public List<Map<String, Object>> searchApprover(
+				@RequestParam String keyword,
+				@RequestParam(required = false) List<String> excludes,
+				HttpSession session) {
+			
+			// 1. 세션에서 로그인 ID 추출 및 널값 예외 방어
+			String loginId = (String) session.getAttribute("loginId");
+			if (loginId == null) {
+				return new ArrayList<>(); // 세션 만료 시 안전하게 빈 리스트 리턴
+			}
+			
+			// 2. 고유 사원 번호(No) 조회
+			String loginEmpNo = appDao.selectEmpNoById(loginId);
+			
+			// 3. 본인 사번(loginEmpNo)을 인자로 추가하여 DAO 호출
+			return appDao.searchApproverForPicker(keyword, excludes, loginEmpNo);
+		}
 }
