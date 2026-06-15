@@ -135,14 +135,14 @@ public class ReplyRestController {
 		String loginId = (String)session.getAttribute("loginId");
 	    EmpDto empDto = empDao.selectOne(loginId);
 	    ReplyDto findReplyDto = replyDao.selectOne(replyDto.getReplyNo());
+	    if(findReplyDto == null) {
+	        throw new GetOutException();
+	    }
 	    boolean owner = String.valueOf(empDto.getEmpNo()).equals(findReplyDto.getReplyWriter());
-	    if(!(owner)) {
+	    boolean admin = "관리자".equals(empDto.getEmpLevel());
+	    if(!(owner || admin)) {
 	    	throw new GetOutException();
 	    }
-	    if(replyDto.getReplyContent() != null
-	    	    && replyDto.getReplyContent().length() > 500) {
-	    	    throw new RuntimeException("댓글은 500자 이하만 작성 가능합니다.");
-	    	}
 		replyDao.update(replyDto);
 	}
 }
