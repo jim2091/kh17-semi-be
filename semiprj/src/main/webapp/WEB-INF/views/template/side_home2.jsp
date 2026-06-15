@@ -158,7 +158,7 @@ $(function(){
 				        <i class="fa-solid fa-clock"></i>
 				        <span>근태기록</span>
 				    </a>
-				    <a href="/admin/attn/manage">
+				    <a href="${pageContext.request.contextPath}/attn/admin/manage">
 			        	<i class="fa-solid fa-sliders"></i>
 			        	<span>근무제도</span>
 			        </a>
