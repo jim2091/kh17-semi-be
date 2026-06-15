@@ -44,13 +44,11 @@ public class DeptController {
 		pageVO.setSize(10); 
 		int count = deptDao.count(pageVO);
 		pageVO.setCount(count);
+		model.addAttribute("pageVO",pageVO);
 	    
 		//목록 조회
 		List<DeptDto> list = deptDao.selectList(pageVO);
-		
-		//모델에 첨부
 		model.addAttribute("list",list);
-		model.addAttribute("pageVO",pageVO);
 		
 		return "dept/list";
 	}
@@ -82,7 +80,8 @@ public class DeptController {
 		
 		
 	@PostMapping("/insert")
-	public String insert(@ModelAttribute DeptDto deptDto)
+	public String insert(@ModelAttribute DeptDto deptDto,
+						@RequestParam(value="messageReceiver", required=false) String deptHeadId)
 	                     throws IllegalStateException, IOException {
 		
 		// 부서 번호 시퀀스 생성 및 인서트 작업 진행
@@ -105,6 +104,7 @@ public class DeptController {
 		if(deptDto == null) {
 			throw new TargetNotfoundException("존재하지 않는 부서 정보");
 		}
+		model.addAttribute("deptDto",deptDto);
 		
 		if(deptDto.getParentDeptId() != 0) {
 			DeptDto parentDeptDto = deptDao.selectOne(deptDto.getParentDeptId());
@@ -112,15 +112,17 @@ public class DeptController {
 		}
 		
 		EmpDto empDto = empDao.selectOneDeptHeadId(deptDto.getDeptHeadId());//부서장 이름을 불러오기위해
-		List<EmpDto> memberList = deptDao.selectListByDeptRecursive(deptId);
-		List<DeptDto> childDeptList = deptDao.selectChildDept(deptId);
-		List<DeptDto> allDeptList = deptDao.selectTreeList();
-		
-		model.addAttribute("list", allDeptList);
-	    model.addAttribute("childDeptList",childDeptList);
-	    model.addAttribute("memberList", memberList);
-		model.addAttribute("deptDto",deptDto);
 		model.addAttribute("empDto",empDto);
+
+		List<EmpDto> memberList = deptDao.selectListByDeptRecursive(deptId);
+		model.addAttribute("memberList", memberList);
+
+		List<DeptDto> childDeptList = deptDao.selectChildDept(deptId);
+		model.addAttribute("childDeptList",childDeptList);
+
+		List<DeptDto> allDeptList = deptDao.selectTreeList();
+		model.addAttribute("list", allDeptList);
+		
 		
 		return "dept/detail";
 	}
@@ -139,17 +141,25 @@ public class DeptController {
 		if(deptDto == null) throw new TargetNotfoundException("존재하지 않은 부서");
 		model.addAttribute("deptDto",deptDto);
 		
-		List<DeptDto> deptList = deptDao.selectTreeList();
-		model.addAttribute("deptList", deptList);
+		List<DeptDto> deptList = deptDao.selectAvailableParents(deptId);
+	    model.addAttribute("deptList", deptList);
+		
+		List<DeptDto> deptListTree = deptDao.selectTreeList();
+		model.addAttribute("deptListTree", deptListTree);
+		
 		return "dept/edit";
 	}
 	
 	@PostMapping("/edit")
-	public String edit(@ModelAttribute DeptDto deptDto,HttpSession session) {
+	public String edit(@ModelAttribute DeptDto deptDto,
+						@RequestParam(value="messageReceiver", required=false) 
+						String deptHeadId,HttpSession session) {
 		String loginRole = (String) session.getAttribute("loginRole");
 		if(loginRole == null|| !loginRole.equals("관리자")) {
 			throw new WhoAreYouException("관리자권한이 필요한 기능입니다.");
 		}
+		
+		deptDto.setDeptHeadId(deptHeadId);
 		deptDao.update(deptDto);
 		return "redirect:./detail?deptId="+deptDto.getDeptId();
 	}

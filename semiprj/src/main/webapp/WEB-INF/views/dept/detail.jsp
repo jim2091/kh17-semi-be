@@ -192,7 +192,7 @@ $(function() {
     </table>
 </div>
 
-<!-- ── 액션 버튼 ── -->
+<!-- ── 버튼 ── -->
 <div class="gw-form-actions" style="border-top:none; margin-top:18px; justify-content:flex-end;">
     <a href="./listTree" class="gw-btn-outline">
         <i class="fa-solid fa-users"></i> 조직도

@@ -75,7 +75,7 @@ $(".search-emp-btn").click(function(){
 
 // ===== 선택 완료 =====
 
-$(".confirm-btn").click(function(){
+/*$(".confirm-btn").click(function(){
 	$(".emp-check:checked").each(function(){
 		var empNo = $(this).data("no");
 		var empName = $(this).data("name");
@@ -110,7 +110,59 @@ $(".confirm-btn").click(function(){
 		$(".receiver-selected-list").append(html);
 		$(".modal-overlay").hide();
 	});
+});*/
+
+$(".confirm-btn").click(function(){
+
+    var mode = $("#pickerMode").val();
+
+    if(mode === "single") {
+        // 부서장 - 1명만 선택
+        var first = $(".emp-check:checked").first();
+        if(first.length === 0) { $(".modal-overlay").hide(); return; }
+
+        var tr = first.closest("tr");
+        var empNo       = first.data("no");
+        var empName     = first.data("name");
+        var empDeptName = tr.find("td").eq(4).text();
+
+        $(".receiver-selected-list").empty();
+
+        var html = "";
+        html += "<span class='receiver-tag'>";
+        html += empName + " (" + (empDeptName || "소속없음") + ")";
+        html += "<button type='button' class='delete-tag'>✕</button>";
+        html += "<input type='hidden' name='messageReceiver' value='" + empNo + "'>";
+        html += "</span>";
+
+        $(".receiver-selected-list").append(html);
+
+    } else {
+        // 기존 다중선택 로직 그대로 유지
+        $(".emp-check:checked").each(function(){
+            var empNo = $(this).data("no");
+            var empName = $(this).data("name");
+
+            var exists = false;
+            $("input[name=messageReceiver]").each(function(){
+                if($(this).val() == empNo){ exists = true; return false; }
+            });
+            if(exists){ return; }
+
+            var html = "";
+            html += "<span class='receiver-tag'>";
+            html += empName;
+            html += "<button type='button' class='delete-tag'>✕</button>";
+            html += "<input type='hidden' name='messageReceiver' value='" + empNo + "'>";
+            html += "</span>";
+
+            $(".receiver-selected-list").append(html);
+        });
+    }
+
+    $(".modal-overlay").hide();
 });
+
 
 // ===== 동적 이벤트=====
 
