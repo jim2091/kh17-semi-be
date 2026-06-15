@@ -1159,6 +1159,7 @@ button {
     width: 100%;
     border-collapse: collapse;
     font-size: 14px;
+    table-layout: fixed;
 }
 
 .gw-table thead tr {
@@ -1186,6 +1187,9 @@ button {
 
 .gw-title-cell {
     text-align: left !important;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 .gw-table-link {
