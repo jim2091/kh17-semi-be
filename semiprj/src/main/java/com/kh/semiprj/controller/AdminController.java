@@ -215,21 +215,30 @@ public class AdminController {
 		return "admin/history";
 	}
 
-	// 전자결재 관리자 접근
-	@RequestMapping("/app/list")
-	public String appList(HttpSession session, Model model) {
-		String loginId = (String) session.getAttribute("loginId");
-		if (loginId == null)
-			return "redirect:/login";
+	// 전자결재 관리자 접근 (페이징 기능 추가)
+		@RequestMapping("/app/list")
+		public String appList(HttpSession session, Model model, @ModelAttribute PageVO pageVO) {
+			String loginId = (String) session.getAttribute("loginId");
+			if (loginId == null)
+				return "redirect:/login";
 
-		String empLevel = (String) session.getAttribute("empLevel");
-		if (!"관리자".equals(empLevel))
-			return "redirect:/app/list"; // 관리자 아니면 차단
+			String empLevel = (String) session.getAttribute("empLevel");
+			if (!"관리자".equals(empLevel))
+				return "redirect:/app/list"; 
 
-		List<AppDto> list = appDao.selectAllList();
-		model.addAttribute("list", list);
-		return "/admin/app/list";
-	}
+			// 1. 전체 게시글 개수 조회 및 PageVO 세팅 (카운트 주입)
+			int count = appDao.countAdmin(pageVO);
+			pageVO.setCount(count);
+			
+			// 2. PageVO를 매개변수로 넘겨 페이징 적용된 목록 조회
+			List<AppDto> list = appDao.selectAllList(pageVO);
+			
+			// 3. 모델에 적재 (JSP에서 pageVO를 통해 페이징 블록 계산)
+			model.addAttribute("list", list);
+			model.addAttribute("pageVO", pageVO);
+			
+			return "/admin/app/list";
+		}
 	// 상세
 	@RequestMapping("/app/detail")
 	public String detail(Model model, @RequestParam int appId, HttpSession session) {

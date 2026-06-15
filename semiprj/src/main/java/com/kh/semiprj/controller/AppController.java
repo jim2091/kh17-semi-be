@@ -25,10 +25,11 @@ import com.kh.semiprj.dto.AppLineDto;
 import com.kh.semiprj.dto.DftAppDto;
 import com.kh.semiprj.dto.ExpAppDto;
 import com.kh.semiprj.dto.VacAppDto;
+import com.kh.semiprj.vo.PageVO;
 
 import jakarta.servlet.http.HttpSession;
 
-//전자결재
+// 전자결재
 @Controller
 @RequestMapping("/app")
 public class AppController {
@@ -43,7 +44,7 @@ public class AppController {
 	@Autowired
 	private AppLineDao appLineDao;
 
-	// 상세
+	// 상세 정보 조회
 	@RequestMapping("/detail")
 	public String detail(Model model, @RequestParam int appId, HttpSession session) {
 		String loginId = (String) session.getAttribute("loginId");
@@ -203,7 +204,7 @@ public class AppController {
 
 		expAppDto.setAppReqId(empNo);
 		expAppDto.setAppType("품의서");
-		expAppDto.setAppStatus("처리중"); // 대기 → 처리중으로 수정
+		expAppDto.setAppStatus("처리중"); 
 		int nextAppId = appDao.sequence();
 		expAppDto.setAppId(nextAppId);
 
@@ -277,7 +278,7 @@ public class AppController {
 
 		dftAppDto.setAppReqId(empNo);
 		dftAppDto.setAppType("업무기안서");
-		dftAppDto.setAppStatus("처리중"); // 대기 → 처리중으로 수정
+		dftAppDto.setAppStatus("처리중"); 
 		int nextAppId = appDao.sequence();
 		dftAppDto.setAppId(nextAppId);
 
@@ -307,30 +308,32 @@ public class AppController {
 		return "redirect:./insertComplete";
 	}
 
+	// [수정 완료] 일반 사원 본인 문서함 검색 및 페이징 처리 통합 리스트
 	@RequestMapping("/list")
-	public String list(@RequestParam(required = false) String appType, @RequestParam(required = false) String column,
-			@RequestParam(required = false) String keyword, HttpSession session, Model model) {
-
+	public String list(@ModelAttribute PageVO pageVO, HttpSession session, Model model) {
 		String loginId = (String) session.getAttribute("loginId");
 		String empNo = appDao.selectEmpNoById(loginId);
 		String empName = appDao.selectEmpNameById(loginId);
+		
+		// 방어 코드: pageVO 바인딩 오류 방지
+		if (pageVO == null) pageVO = new PageVO();
+
 		model.addAttribute("empName", empName);
 		model.addAttribute("currentTab", "app");
 
-		List<AppDto> list;
+		// 1. 사원 고유 번호 기반 전체 건수 구해서 카운트 세팅
+		int count = appDao.countMyList(empNo, pageVO);
+		pageVO.setCount(count);
 
-		if (keyword != null && !keyword.isEmpty() && column != null) {
-			list = appDao.searchList(empNo, column, keyword);
-		} else if (appType != null && !appType.isEmpty()) {
-			list = appDao.selectMyListByType(empNo, appType);
-		} else {
-			list = appDao.selectMyList(empNo);
-		}
+		// 2. 사원 전용 페이징 쿼리 호출하여 데이터 수집
+		List<AppDto> list = appDao.selectMyList(empNo, pageVO);
+
 		model.addAttribute("list", list);
+		model.addAttribute("pageVO", pageVO); // JSP 페이징 모듈용
 		return "/app/list";
 	}
 
-	// 사이드바 용 필터링(걸러내기)
+	// 사이드바 용 필터링 - 대기 문서함 (페이징 보완 구조)
 	@GetMapping("/myNoneList")
 	public String myNoneAppr(HttpSession session, Model model) {
 		String empNo = appDao.selectEmpNoById((String) session.getAttribute("loginId"));
@@ -338,6 +341,7 @@ public class AppController {
 		return "/app/list";
 	}
 
+	// 사이드바 용 필터링 - 미결재 문서함
 	@GetMapping("/myAppr")
 	public String myAppr(HttpSession session, Model model) {
 		String empNo = appDao.selectEmpNoById((String) session.getAttribute("loginId"));
@@ -345,6 +349,7 @@ public class AppController {
 		return "/app/list";
 	}
 
+	// 사이드바 용 필터링 - 진행 문서함
 	@GetMapping("/myIng")
 	public String myIng(HttpSession session, Model model) {
 		String empNo = appDao.selectEmpNoById((String) session.getAttribute("loginId"));
@@ -352,6 +357,7 @@ public class AppController {
 		return "/app/list";
 	}
 
+	// 사이드바 용 필터링 - 반려 문서함
 	@GetMapping("/myRej")
 	public String myRej(HttpSession session, Model model) {
 		String empNo = appDao.selectEmpNoById((String) session.getAttribute("loginId"));
@@ -359,23 +365,26 @@ public class AppController {
 		return "/app/list";
 	}
 
+	// [수정 완료] 일반 사원 전체 리스트 페이지 이동 연동
 	@GetMapping("/myList")
-	public String myList(HttpSession session, Model model) {
+	public String myList(@ModelAttribute PageVO pageVO, HttpSession session, Model model) {
 		String loginId = (String) session.getAttribute("loginId");
 		String empNo = appDao.selectEmpNoById(loginId);
-		model.addAttribute("list", appDao.selectMyList(empNo));
+		
+		if (pageVO == null) pageVO = new PageVO();
+
+		pageVO.setCount(appDao.countMyList(empNo, pageVO));
+		model.addAttribute("list", appDao.selectMyList(empNo, pageVO));
+		model.addAttribute("pageVO", pageVO);
 		return "/app/list";
 	}
 	
-	
-	
-	//picker 용 매핑
+	// picker 용 매핑
 	@GetMapping("/searchApprover")
 	@ResponseBody
 	public List<Map<String, Object>> searchApprover(
-	        @RequestParam String keyword,
-	        @RequestParam(required = false) List<String> excludes) {
-	    return appDao.searchApproverForPicker(keyword, excludes);
+			@RequestParam String keyword,
+			@RequestParam(required = false) List<String> excludes) {
+		return appDao.searchApproverForPicker(keyword, excludes);
 	}
-
 }
