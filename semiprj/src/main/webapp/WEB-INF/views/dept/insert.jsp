@@ -195,55 +195,55 @@ $(function(){
     }
 
     /* 모달 확인 */
+    /* 모달 확인 (기존 2개 중복된 confirm-btn 이벤트를 지우고 이것 하나만 남겨주세요) */
     $(document).on("click", ".confirm-btn", function(){
-        $(".receiver-list").empty();
-        $(".emp-check:checked").each(function(){
-            var tr = $(this).closest("tr");
-            selectHead({
-                empNo      : $(this).data("no"),
-                empName    : $(this).data("name"),
-                empDeptName: tr.find("td").eq(4).text()
-            });
+        // 바깥 선택 리스트 비우기
+        $(".receiver-selected-list").empty();
+        
+        var checked = $(".emp-check:checked");
+        if(checked.length === 0) {
+            state.deptHeadIdValid = false;
+            $("[name=deptHeadIdKeyword]").trigger("check");
+            $(".modal-overlay").hide();
+            return;
+        }
+        
+        // 부서장은 1명만 필요하므로 체크된 것 중 첫 번째 사원만 선택
+        var first = checked.first();
+        var tr = first.closest("tr");
+        
+        selectHead({
+            empNo      : first.data("no"),
+            empName    : first.data("name"),
+            empDeptName: tr.find("td").eq(4).text().trim()
         });
         
-        state.deptHeadIdValid = $(".emp-check:checked").length > 0;
+        // 유효성 갱신 및 모달 닫기
+        state.deptHeadIdValid = true;
         $("[name=deptHeadIdKeyword]").trigger("check");
         
         $(".modal-overlay").hide();
     });
-    /* 모달 확인 */
-    $(document).on("click", ".confirm-btn", function(){
-        $(".receiver-list").empty();
-        $(".emp-check:checked").each(function(){
-            var tr = $(this).closest("tr");
-            selectHead({
-                empNo      : $(this).data("no"),
-                empName    : $(this).data("name"),
-                empDeptName: tr.find("td").eq(4).text()
-            });
-        });
-        $(".modal-overlay").hide();
-    });
+
     /* 모달 상단 selected-item 삭제 - edit 전용 */
-	$(document).on("click", ".selected-remove", function(){
+    $(document).on("click", ".selected-remove", function(){
+        var target = $(this).closest(".selected-item");
+        var empNo = target.data("no");
 
-	    var target = $(this).closest(".selected-item");
-	    var empNo = target.data("no");
+        // 모달 안 체크박스 해제
+        $(".emp-check[data-no='" + empNo + "']").prop("checked", false);
+        target.remove();
 
-	    // 모달 안 체크박스 해제
-	    $(".emp-check[data-no='" + empNo + "']").prop("checked", false);
+        // 선택 인원 수 업데이트
+        $(".selected-count").text($(".selected-item").length);
+    });
 
-	    target.remove();
-
-	    // 선택 인원 수 업데이트
-	    $(".selected-count").text($(".selected-item").length);
-	});
-    //태그 삭제
+    // 태그 삭제 (바깥 x 버튼 클릭 시)
     $(".receiver-selected-list").on("click", ".delete-tag", function(){
-	    $(this).closest(".receiver-tag").remove();
-	    state.deptHeadIdValid = false;
-	    $("[name=deptHeadIdKeyword]").trigger("check");
-	});
+        $(this).closest(".receiver-tag").remove();
+        state.deptHeadIdValid = false;
+        $("[name=deptHeadIdKeyword]").trigger("check");
+    });
 
     /* 업무내용 */
     $("[name=deptContent]").on("blur", function(){
@@ -301,27 +301,27 @@ $(function(){
 			        </div>
 			
 			        <!-- 부서장 -->
-			            <label class="gw-form-label">
-			                부서장 <span class="required">*</span>
-			            </label>
-			        <div class="gw-form-row deptHeadId-wrapper">
-			            <div style="display:flex; gap:10px; align-items:center;">
-			                <input type="text" name="deptHeadIdKeyword"
-			                       class="field gw-form-input"
-			                       style="flex:1;"
-			                       placeholder="사원 이름으로 검색하세요">
-			                <button type="button" class="gw-btn-outline open-search" style="height:46px; padding:0 18px;">
-			                    <i class="fa-solid fa-user-tie"></i> 찾기
-			                </button>
-			            </div>
-			            	<div class="fail-feedback">부서장을 선택해 주세요.</div>
-			            <div class="dept-selected"></div>
-						<div class="deptHeadId"></div>
-			        
-			
-			        	<jsp:include page="/WEB-INF/views/template/employee-picker.jsp"/>
-			        	<script src="/js/employee-picker.js"></script>
-					</div>
+			           <label class="gw-form-label">
+    부서장 <span class="required">*</span>
+</label>
+<div class="gw-form-row deptHeadId-wrapper">
+    <div style="display:flex; gap:10px; align-items:center;">
+        <input type="text" name="deptHeadIdKeyword"
+               class="field gw-form-input"
+               style="flex:1;"
+               placeholder="사원 이름으로 검색하세요">
+        <button type="button" class="gw-btn-outline open-search" style="height:46px; padding:0 18px;">
+            <i class="fa-solid fa-user-tie"></i> 찾기
+        </button>
+    </div>
+    <div class="fail-feedback" style="display:none;">부서장을 선택해 주세요.</div>
+    
+    <div class="receiver-selected-list mt-10"></div>
+    <div class="deptHeadId"></div>
+
+    <jsp:include page="/WEB-INF/views/template/employee-picker.jsp"/>
+    <script src="/js/employee-picker.js"></script>
+</div>
 			        <!-- 주요 업무 -->
 			        <div class="gw-form-row">
 			            <label class="gw-form-label">주요 업무 내용</label>
