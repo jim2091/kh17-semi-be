@@ -511,6 +511,13 @@ button {
     box-shadow: 0 4px 14px rgba(15, 23, 42, 0.035);
     cursor: pointer;
     transition: background .18s ease, color .18s ease, transform .18s ease;
+    /* button태그에 적용할 때 버튼 기본 디자인 지우기 위한 부분 */
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    line-height: 1;
+    appearance: none;
+    -webkit-appearance: none;
 }
 
 .gw-icon-btn:hover,
@@ -1657,10 +1664,9 @@ button {
     overflow: hidden;
 }
 
-.notification-area:hover .notification-dropdown {
+.notification-area.open .notification-dropdown {
     display: block;
 }
-
 .notification-dropdown::before {
     content: "";
     position: absolute;
@@ -1962,3 +1968,7 @@ select.field {
     border-color: #d63031;
 }
 
+html, body {
+    margin: 0;
+    padding: 0;
+}
