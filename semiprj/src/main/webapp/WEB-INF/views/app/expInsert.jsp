@@ -1,55 +1,179 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-	pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
 <jsp:include page="/WEB-INF/views/template/header2.jsp"></jsp:include>
 
-<script>
-function showSelected(order) {
-    let select = document.getElementById("approver" + order);
-    let selectedText = select.options[select.selectedIndex].text;
-    if (select.value) {
-        document.getElementById("selectedName" + order).innerText = "✅ " + selectedText;
-    } else {
-        document.getElementById("selectedName" + order).innerText = "";
-    }
-}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
 
-function validateForm() {
-    if (!document.getElementById("approver1").value) {
-        alert("결재자 1은 필수입니다!");
-        return false;
-    }
-    return true;
+<style>
+.exp-container {
+	max-width: 800px;
+	margin: 50px auto;
+	padding: 40px;
+	background: #fff;
+	border-radius: 16px;
+	box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+	font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
 }
+.form-title {
+	font-size: 24px;
+	font-weight: 700;
+	color: #1e293b;
+	margin-bottom: 30px;
+	text-align: center;
+}
+.form-group {
+	margin-bottom: 20px;
+}
+.form-group label {
+	display: block;
+	font-size: 14px;
+	font-weight: 600;
+	color: #475569;
+	margin-bottom: 8px;
+}
+.form-group label .required {
+	color: #ef4444;
+	margin-left: 4px;
+}
+.field {
+	width: 100%;
+	padding: 12px 16px;
+	font-size: 15px;
+	border: 1px solid #cbd5e1;
+	border-radius: 8px;
+	box-sizing: border-box;
+	transition: all 0.2s ease-in-out;
+}
+.field:focus {
+	outline: none;
+	border-color: var(--main-color, #3b82f6);
+	box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+/* [피드백 반영] vacInsert와 동일한 기안자/기안일 readonly 전용 시각 락 스킨 */
+.field[readonly] {
+	background-color: #f8fafc;
+	color: #64748b;
+	cursor: not-allowed;
+}
+.field.success {
+	border-color: #10b981;
+	background-color: #f0fdf4;
+}
+.field.fail {
+	border-color: #ef4444;
+	background-color: #fef2f2;
+}
+/* 결재선 지정 디자인 통일 */
+.approval-row-flex {
+    display: flex;
+    align-items: stretch;
+    gap: 12px;
+    width: 100%;
+}
+.appr-box-item {
+    flex: 1;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+.appr-box-item .field {
+    padding-top: 24px; 
+    font-size: 14px;
+    text-align: center;
+    background-color: #f8fafc;
+}
+.appr-badge {
+    position: absolute;
+    top: 6px;
+    left: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    background: #64748b;
+    color: white;
+    border-radius: 4px;
+    z-index: 2;
+}
+.appr-badge.gold {
+    background: var(--main-color, #3b82f6);
+}
+.btn-search-unified {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background-color: #1e293b;
+    color: #ffffff;
+    border: none;
+    padding: 0 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.btn-search-unified:hover {
+    background-color: #0f172a;
+}
+.btn-group {
+	display: flex;
+	justify-content: center;
+	gap: 12px;
+	margin-top: 40px;
+	border-top: 1px solid #e2e8f0;
+	padding-top: 30px;
+}
+.btn-submit, .btn-cancel {
+	padding: 14px 32px;
+	font-size: 16px;
+	font-weight: 600;
+	border-radius: 8px;
+	cursor: pointer;
+	transition: all 0.2s;
+	min-width: 120px;
+	border: none;
+}
+.btn-submit {
+	background: var(--main-color, #3b82f6);
+	color: white;
+}
+.btn-submit:hover {
+	filter: brightness(90%);
+}
+.btn-cancel {
+	background: #f1f5f9;
+	color: #475569;
+}
+.btn-cancel:hover {
+	background-color: #e2e8f0;
+}
+</style>
 
-window.onload = function() {
-    let today = new Date();
-    let yyyy = today.getFullYear();
-    let mm = String(today.getMonth() + 1).padStart(2, '0');
-    let dd = String(today.getDate()).padStart(2, '0');
-    document.querySelector("input[name='appDate']").value = yyyy + "-" + mm + "-" + dd;
-};
-</script>
 <script>
 $(function(){
+    var savedTheme = localStorage.getItem("gwTheme");
+    if (savedTheme) {
+        $("body").removeClass("theme-blue theme-green theme-purple theme-dark").addClass(savedTheme);
+    } else {
+        $("body").addClass("theme-blue");
+    }
+
     var state = {
         expPriceValid: false, 
-        
-        
         ok: function() {
-            return Object.values(this) 
-                    .filter(v => typeof v === "boolean") 
-                    .every(v => v === true); 
+            return Object.values(this).filter(v => typeof v === "boolean").every(v => v === true); 
         }
     };
+
+    var today = moment().format("YYYY-MM-DD");
+    $("[name=appDate]").val(today);
 
     $("[name=expPrice]").on("input", function(){
         var $input = $(this); 
         var rawValue = $input.val(); 
-
-        var hasNonNumeric = /[^0-9]/g.test(rawValue);
-
         var cleanValue = rawValue.replace(/[^0-9]/g, '');
 
         if (cleanValue === '') {
@@ -60,116 +184,116 @@ $(function(){
             return;
         }
 
-        if (hasNonNumeric) {
-            $input.removeClass("success fail")
-                  .addClass("fail")
-                  .attr("data-error", "1"); 
-            
-            state.expPriceValid = false;
-        } else {
-            $input.removeClass("success fail")
-                  .addClass("success")
-                  .removeAttribute("data-error"); 
-            
-            state.expPriceValid = true;
+        if (cleanValue.length > 12) {
+            cleanValue = cleanValue.substring(0, 12);
         }
 
-        
-        
-        $("#realPrice").val(cleanValue);
+        $input.removeClass("success fail").addClass("success").removeAttr("data-error"); 
+        state.expPriceValid = true;
 
+        $("#realPrice").val(cleanValue);
         var formattedValue = Number(cleanValue).toLocaleString('ko-KR');
         $input.val(formattedValue);
     });
 
     $("#approvalForm").on("submit", function(e){
-        if (state.ok() === false) {
+        var approver1 = document.getElementById('approverNo_1').value;
+        if (state.ok() === false || !approver1) {
             e.preventDefault(); 
-            alert("입력 항목을 다시 확인해 주세요.");
+            return false;
         }
     });
 });
 </script>
-<form action="./expInsert" method="post" autocomplete="off">
-	<div class="cell center">
-		<h1>품의서</h1>
-	</div>
-	<hr>
-	<div class="container w-900 mt-50 mb-50">
-		<div class="cell mt-40">
-			<label>결재명</label> <input type="text" name="appTitle"
-				class="field w-50" required maxlength="100">
+<div class="gw-page-head pds-width">
+	<div class="gw-breadcrumb">홈 / 전자결재 / 품의서</div>
+</div>
+
+<div class="exp-container">
+	<h1 class="form-title">품의서</h1>
+
+	<form action="./expInsert" method="post" id="approvalForm" autocomplete="off">
+		<input type="hidden" name="realPrice" id="realPrice">
+
+		<div class="form-group">
+			<label>결재명 <span class="required">*</span></label>
+			<input type="text" name="appTitle" class="field" required placeholder="품의 결재 제목을 입력하세요.">
 		</div>
-		<div class="cell mt-40">
-			<label>결재 기안자</label> <input type="text" value="${empName}"
-				name="appReqId" class="field" readonly>
+
+		<div class="form-group">
+			<label>결재 기안자</label> 
+			<input type="text" value="${empName}" class="field" readonly> 
+			<input type="hidden" value="${empId}" name="appReqId">
 		</div>
-		<!-- 결재자 추가 -->
-		<%-- 결재자 설정 --%>
-		<div class="form-section">
-			<div class="form-section-title">
-				<i class="fa-solid fa-users"></i> 결재자 설정
+
+		<div class="form-group">
+			<label>결재자 설정 <span class="required">*</span></label>
+			<div class="approval-row-flex">
+				<div class="appr-box-item">
+					<span class="appr-badge gold">1순위</span>
+					<input type="text" id="approverDisplay_1" class="field" placeholder="미지정" readonly>
+				</div>
+				<div class="appr-box-item">
+					<span class="appr-badge">2순위</span>
+					<input type="text" id="approverDisplay_2" class="field" placeholder="미지정" readonly>
+				</div>
+				<div class="appr-box-item">
+					<span class="appr-badge">3순위</span>
+					<input type="text" id="approverDisplay_3" class="field" placeholder="미지정" readonly>
+				</div>
+				<button type="button" class="btn-search-unified" onclick="window.openApproverPopup(1)">
+					<i class="fa-solid fa-user-gear"></i> 지정
+				</button>
 			</div>
-
-			<c:forEach var="i" begin="1" end="3">
-				<div class="approver-row">
-					<span class="approver-label"> ${i}) 결재자 <c:if
-							test="${i == 1}">
-							<span class="required">*</span>
-						</c:if>
-					</span> <select id="approver${i}" name="approver${i}"
-						class="field w-30 mt-20" onchange="showSelected(${i})">
-						<option value="">-- 선택 --</option>
-						<c:forEach var="emp" items="${empList}">
-							<option value="${emp.appReqId}">${emp.appTitle}/
-								${emp.appContent} (${emp.appType})</option>
-						</c:forEach>
-					</select> <span id="selectedName${i}" class="selected-name"></span>
-				</div>S
-			</c:forEach>
+			<input type="hidden" id="approverNo_1" name="approver1">
+			<input type="hidden" id="approverNo_2" name="approver2">
+			<input type="hidden" id="approverNo_3" name="approver3">
+			<input type="hidden" id="approverDept_1" value="">
+			<input type="hidden" id="approverDept_2" value="">
+			<input type="hidden" id="approverDept_3" value="">
 		</div>
 
-		<%-- 에러 메시지 --%>
-		<c:if test="${not empty errorMsg}">
-			<div
-				style="background: #ffebee; color: #c62828; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-size: 14px;">
-				⚠️ ${errorMsg}</div>
-		</c:if>
-		<div class="cell mt-40">
-			<label>결재내용</label> <input type="text" name="appContent"
-				class="field w-60" required maxlength="1000">
-		</div>
-		<div class="cell mt-40">
-			<label>기안일</label> <input type="date" name="appDate"
-				class="field w-60" readonly>
+		<div class="form-group">
+			<label>결재내용</label>
+			<input type="text" name="appContent" class="field" required placeholder="상세 지출 내용을 명시하십시오.">
 		</div>
 
-		<%-- 품의서 전용 항목 --%>
-		<div class="cell mt-40">
-			<label>지출일</label> <input type="date" name="expDate"
-				class="field w-60" required>
-		</div>
-		<div class="cell mt-40">
-			<label>지출금액</label> <input type="text" name="expPrice"
-				inputmode="numeric" class="field w-60" required>
-		</div>
-		<div class="cell mt-40">
-			<label>지출내역</label> <input type="text" name="expHistory"
-				class="field w-60" required maxlength="600">
-		</div>
-		<div class="cell mt-40">
-			<label>지출방법</label> <input type="text" name="expHow"
-				class="field w-60" required maxlength="300">
-		</div>
-		<div class="cell mt-40">
-			<label>지출목적</label> <input type="text" name="expPurpose"
-				class="field w-60" maxlength="300">
+		<div class="form-group">
+			<label>지출금액 <span class="required">*</span></label>
+			<input type="text" name="expPrice" class="field" required placeholder="숫자만 입력하세요">
 		</div>
 
-		<div class="cell center">
-			<button class="btn" type="submit">기안</button>
-			<button class="btn" type="button" onclick="location.href='./list';">취소</button>
+		<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+			<div class="form-group">
+				<label>지출일 <span class="required">*</span></label>
+				<input type="date" name="expDate" class="field" required>
+			</div>
+			<div class="form-group">
+				<label>기안일</label>
+				<input type="date" name="appDate" class="field" readonly>
+			</div>
 		</div>
-	</div>
 
-</form>
+		<div class="form-group">
+			<label>지출내역 <span class="required">*</span></label>
+			<input type="text" name="expHistory" class="field" required placeholder="지출 내역 항목명 명시">
+		</div>
+
+		<div class="form-group">
+			<label>지출방법 <span class="required">*</span></label>
+			<input type="text" name="expHow" class="field" required placeholder="예: 법인카드 / 계좌이체">
+		</div>
+
+		<div class="form-group">
+			<label>지출목적</label>
+			<input type="text" name="expPurpose" class="field" placeholder="지출 원인 및 구체적 목적">
+		</div>
+
+		<div class="btn-group">
+			<button class="btn-submit" type="submit">기안하기</button>
+			<button class="btn-cancel" type="button" onclick="location.href='./list';">취소</button>
+		</div>
+	</form>
+
+	<jsp:include page="/WEB-INF/views/template/appr_picker.jsp" />
+</div>

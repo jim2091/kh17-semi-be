@@ -31,7 +31,7 @@
 }
 .modal-header h3 {
     margin: 0;
-    color: var(--main-color);
+    color: var(--main-color, #1e293b);
     font-size: 16px;
 }
 .close-btn {
@@ -65,10 +65,10 @@
     gap: 5px;
     padding: 5px 12px;
     background: white;
-    border: 1px solid var(--main-color);
+    border: 1px solid var(--main-color, #3b82f6);
     border-radius: 20px;
     font-size: 13px;
-    color: var(--main-color);
+    color: var(--main-color, #3b82f6);
 }
 .selected-remove {
     cursor: pointer;
@@ -89,9 +89,9 @@
     border-radius: 6px;
     font-size: 13px;
 }
-.search-emp-btn {
+.search-emp-btn-appr {
     padding: 8px 16px;
-    background: var(--main-color);
+    background: var(--main-color, #3b82f6);
     color: white;
     border: none;
     border-radius: 6px;
@@ -111,9 +111,9 @@
 }
 .emp-table th {
     padding: 12px;
-    border-bottom: 2px solid var(--main-color);
+    border-bottom: 2px solid var(--main-color, #3b82f6);
     text-align: center;
-    color: var(--main-color);
+    color: var(--main-color, #3b82f6);
     font-weight: 600;
     background: white;
 }
@@ -131,15 +131,6 @@
     gap: 10px;
     border-top: 1px solid #ddd;
 }
-.select-btn {
-    padding: 6px 14px;
-    background: var(--main-color);
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 12px;
-    cursor: pointer;
-}
 .cancel-btn {
     padding: 8px 20px;
     background: #f0f0f0;
@@ -151,7 +142,7 @@
 }
 .confirm-btn {
     padding: 8px 20px;
-    background: var(--main-color);
+    background: var(--main-color, #3b82f6);
     color: white;
     border: none;
     border-radius: 6px;
@@ -164,29 +155,36 @@
     color: #aaa;
     font-size: 13px;
 }
+.appr-modal-check {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
 </style>
+
+
 
 <div class="modal-overlay">
     <div class="emp-picker-modal">
 
         <%-- 헤더 --%>
         <div class="modal-header">
-            <h3>결재자 선택 (<span class="approver-order-label">1</span>순위)</h3>
+            <h3>전자결재자 선택</h3>
             <button type="button" class="close-btn">✕</button>
         </div>
 
         <%-- 선택된 결재자 목록 --%>
         <div class="selected-emp-area">
             <div class="selected-title">
-                선택된 결재자 (<span class="selected-count">0</span>명)
+                결재자 (<span class="selected-count">0</span> / 3명)
             </div>
             <div class="selected-list"></div>
         </div>
 
-        <%-- 검색창 --%>
+        <%-- 검색창 (클래스명 중복 간섭 원천 배제) --%>
         <div class="search-area">
-            <input type="text" class="keyword" placeholder="이름 또는 부서 입력">
-            <button type="button" class="search-emp-btn">🔍 검색</button>
+            <input type="text" class="keyword-appr" placeholder="이름 또는 부서 입력 (빈 값 조회 시 전체 출력)">
+            <button type="button" class="search-emp-btn-appr">🔍 검색</button>
         </div>
 
         <%-- 검색 결과 --%>
@@ -203,7 +201,7 @@
                 </thead>
                 <tbody class="emp-result-body">
                     <tr>
-                        <td colspan="5" class="empty-result">검색어를 입력해주세요.</td>
+                        <td colspan="5" class="empty-result"></td>
                     </tr>
                 </tbody>
             </table>
@@ -218,63 +216,86 @@
     </div>
 </div>
 
-
-
 <script>
 (function(){
-
-    let currentIndex = 1;
-    let selectedEmp  = null;
+    const MAX_APPROVERS = 3;
+    let internalApprovers = [];
 
     const overlay       = document.querySelector('.modal-overlay');
-    const keyword       = document.querySelector('.keyword');
+    const keyword       = document.querySelector('.keyword-appr');
     const resultBody    = document.querySelector('.emp-result-body');
     const selectedList  = document.querySelector('.selected-list');
     const selectedCount = document.querySelector('.selected-count');
-    const orderLabel    = document.querySelector('.approver-order-label');
 
+    // 1. 모달 오픈 핸들러 ([버그 수정] 부서 데이터 수집 필드 복구 연동)
     window.openApproverPopup = function(index) {
-        currentIndex = index;
-        selectedEmp  = null;
+        internalApprovers = [];
         keyword.value = '';
-        orderLabel.textContent = index;
-        resultBody.innerHTML = '<tr><td colspan="5" class="empty-result">검색어를 입력해주세요.</td></tr>';
-        updateSelectedArea();
+        resultBody.innerHTML = '<tr><td colspan="5" class="empty-result">조회 버튼을 누르면 사원 목록이 출력됩니다.</td></tr>';
+        
+        for (let i = 1; i <= MAX_APPROVERS; i++) {
+            const noField = document.getElementById('approverNo_' + i);
+            const nameField = document.getElementById('approverName_' + i);
+            const levelField = document.getElementById('approverLevel_' + i);
+            const deptField = document.getElementById('approverDept_' + i); // [수정] hidden 부서 캐싱 필드 참조
+            
+            if (noField && noField.value) {
+                internalApprovers.push({
+                    empNo: noField.value,
+                    empName: nameField ? nameField.value : '',
+                    empPosition: levelField ? levelField.value : '사원',
+                    empDept: deptField ? deptField.value : '소속없음' // [수정] undefined 방어 단선 매핑
+                });
+            }
+        }
+
+        updateSelectedView();
         overlay.style.display = 'flex';
+        keyword.focus();
     };
 
     function closePopup() {
         overlay.style.display = 'none';
-        selectedEmp = null;
+        internalApprovers = [];
     }
 
-    function updateSelectedArea() {
+    // 2. 가선택 프리뷰 뷰 갱신
+    function updateSelectedView() {
         selectedList.innerHTML = '';
-        let count = 0;
-        for (let i = 1; i <= window.approverCount; i++) {
-            const no   = document.getElementById('approverNo_'   + i);
-            const name = document.getElementById('approverName_' + i);
-            if (no && no.value) {
-                count++;
-                const item = document.createElement('span');
-                item.className = 'selected-item';
-                item.textContent = i + '순위 ' + name.value;
-                selectedList.appendChild(item);
-            }
-        }
-        selectedCount.textContent = count;
+        internalApprovers.forEach(function(emp, index) {
+            const item = document.createElement('span');
+            item.className = 'selected-item';
+            item.textContent = (index + 1) + '순위: ' + emp.empName + '/' + emp.empDept + '/' + emp.empPosition + ' ';
+            
+            const removeBtn = document.createElement('span');
+            removeBtn.className = 'selected-remove';
+            removeBtn.textContent = '✕';
+            
+            removeBtn.addEventListener('click', function() {
+                removeTargetEmp(emp.empNo);
+            });
+            
+            item.appendChild(removeBtn);
+            selectedList.appendChild(item);
+        });
+        selectedCount.textContent = internalApprovers.length;
     }
 
-    function doSearch() {
-        const kw = keyword.value.trim();
-        let url = '/app/searchApprover?keyword=' + encodeURIComponent(kw);
-
-        if (currentIndex > 1) {
-            for (let i = 1; i < currentIndex; i++) {
-                const no = document.getElementById('approverNo_' + i);
-                if (no && no.value) url += '&excludes=' + encodeURIComponent(no.value);
-            }
+    // 3. 가선택 단건 삭제
+    function removeTargetEmp(empNo) {
+        internalApprovers = internalApprovers.filter(item => item.empNo !== empNo);
+        const chk = resultBody.querySelector('.appr-modal-check[data-no="' + empNo + '"]');
+        if (chk) {
+            chk.checked = false;
+            chk.closest('tr').style.background = '';
         }
+        updateSelectedView();
+    }
+
+    // 4. 비동기 검색 통신
+    function executeSearch() {
+        const kw = keyword.value.trim();
+        let url = '${pageContext.request.contextPath}/app/searchApprover?keyword=' + encodeURIComponent(kw);
 
         fetch(url)
             .then(res => res.json())
@@ -283,56 +304,108 @@
                     resultBody.innerHTML = '<tr><td colspan="5" class="empty-result">검색 결과가 없습니다.</td></tr>';
                     return;
                 }
-                // 템플릿 리터럴 대신 문자열 연결로 변경
+                
                 var html = '';
                 data.forEach(function(emp) {
-                    html += '<tr>';
-                    html += '<td><button type="button" class="select-btn"';
-                    html += ' onclick="window.pickEmp(\'' + emp.empNo + '\', \'' + emp.empName + '\', ' + (emp.positionLevel || 0) + ')">';
-                    html += '선택</button></td>';
+                    const isChecked = internalApprovers.some(item => item.empNo === emp.empNo);
+                    
+                    html += '<tr class="appr-emp-row" style="' + (isChecked ? 'background: #e8f5e9;' : '') + '">';
+                    html += '<td><input type="checkbox" class="appr-modal-check" data-no="' + emp.empNo + '" data-name="' + emp.empName + '" data-position="' + (emp.empPosition || '사원') + '" data-dept="' + (emp.empDept || '소속없음') + '"' + (isChecked ? ' checked' : '') + '></td>';
                     html += '<td>' + emp.empNo + '</td>';
                     html += '<td>' + emp.empName + '</td>';
-                    html += '<td>' + emp.empPosition + '</td>';
+                    html += '<td>' + (emp.empPosition || '사원') + '</td>';
                     html += '<td>' + (emp.empDept || '소속없음') + '</td>';
                     html += '</tr>';
                 });
                 resultBody.innerHTML = html;
+                
+                resultBody.querySelectorAll('.appr-emp-row').forEach(function(row) {
+                    row.addEventListener('click', function(e) {
+                        const checkbox = row.querySelector('.appr-modal-check');
+                        if (e.target !== checkbox) {
+                            checkbox.checked = !checkbox.checked;
+                        }
+                        handleCheckState(checkbox);
+                    });
+                });
             })
-            .catch(err => console.error('검색 오류:', err));
+            .catch(err => {
+                console.error('검색 오류:', err);
+            });
     }
 
-    window.pickEmp = function(empNo, empName, positionLevel) {
-        selectedEmp = { empNo, empName, positionLevel };
-        document.querySelectorAll('.emp-table tbody tr').forEach(tr => {
-            tr.style.background = '';
-        });
-        event.target.closest('tr').style.background = '#e8f5e9';
-    };
+    // 5. 체크박스 선택 순서 누적 제어
+    function handleCheckState(chk) {
+        const empNo = chk.getAttribute('data-no');
+        const empName = chk.getAttribute('data-name');
+        const empPosition = chk.getAttribute('data-position');
+        const empDept = chk.getAttribute('data-dept');
+        const row = chk.closest('tr');
 
-    document.querySelector('.confirm-btn').addEventListener('click', function(){
-        if (!selectedEmp) {
-            alert('결재자를 선택해주세요.');
-            return;
+        if (chk.checked) {
+            if (internalApprovers.length >= MAX_APPROVERS) {
+                chk.checked = false;
+                return;
+            }
+            internalApprovers.push({ empNo, empName, empPosition, empDept });
+            row.style.background = '#e8f5e9';
+        } else {
+            internalApprovers = internalApprovers.filter(item => item.empNo !== empNo);
+            row.style.background = '';
         }
-        document.getElementById('approverNo_'    + currentIndex).value = selectedEmp.empNo;
-        document.getElementById('approverName_'  + currentIndex).value = selectedEmp.empName;
-        document.getElementById('approverLevel_' + currentIndex).value = selectedEmp.positionLevel;
+        updateSelectedView();
+    }
 
-        const display = document.getElementById('approverDisplay_' + currentIndex);
-        if (display) display.value = selectedEmp.empName;
+    // 6. 부모 폼 일괄 바인딩 
+    document.querySelector('.confirm-btn').addEventListener('click', function(){
+        if (internalApprovers.length === 0) {
+            return; 
+        }
 
-        closePopup();
-        updateSelectedArea();
+        for (let i = 1; i <= MAX_APPROVERS; i++) {
+            const noField   = document.getElementById('approverNo_'   + i);
+            const nameField = document.getElementById('approverName_' + i);
+            const lvlField  = document.getElementById('approverLevel_' + i);
+            const dspField  = document.getElementById('approverDisplay_' + i);
+            const deptField = document.getElementById('approverDept_' + i);
+
+            if (noField)   noField.value = '';
+            if (nameField) nameField.value = '';
+            if (lvlField)  lvlField.value = '';
+            if (dspField)  dspField.value = '';
+            if (deptField) deptField.value = '';
+        }
+
+        internalApprovers.forEach(function(emp, index) {
+            const order = index + 1;
+            
+            const noField   = document.getElementById('approverNo_'   + order);
+            const nameField = document.getElementById('approverName_' + order);
+            const lvlField  = document.getElementById('approverLevel_' + order);
+            const dspField  = document.getElementById('approverDisplay_' + order);
+            const deptField = document.getElementById('approverDept_' + order);
+
+            if (noField)   noField.value = emp.empNo;
+            if (nameField) nameField.value = emp.empName;
+            if (lvlField)  lvlField.value = emp.empPosition;
+            if (deptField) deptField.value = emp.empDept; // [수정] 부서 캐싱 동기화 (재진입 시 undefined 방쇄용)
+            
+            if (dspField) {
+                dspField.value = emp.empName + " / " + emp.empDept + " / " + emp.empPosition;
+            }
+        });
+
+        overlay.style.display = 'none';
     });
 
     document.querySelector('.close-btn').addEventListener('click', closePopup);
     document.querySelector('.cancel-btn').addEventListener('click', closePopup);
-    document.querySelector('.search-emp-btn').addEventListener('click', doSearch);
+    document.querySelector('.search-emp-btn-appr').addEventListener('click', executeSearch);
 
     keyword.addEventListener('keydown', function(e){
         if (e.key === 'Enter') {
             e.preventDefault();
-            doSearch();
+            executeSearch(); 
         }
     });
 
