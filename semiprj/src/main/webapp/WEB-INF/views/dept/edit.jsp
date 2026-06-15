@@ -5,14 +5,14 @@
 
 <style>
 	
-	.dept-selected{
+	.receiver-selected-list{
 	    margin-top: 10px;
 	    display: flex;
 	    flex-wrap: wrap;
 	    gap: 8px;
 	}
 	
-	.dept-tag{
+	.receiver-tag{
 	    display: inline-flex;
 	    align-items: center;
 	    gap: 6px;
@@ -27,7 +27,7 @@
 	    font-size: 14px;
 	}
 	
-	.dept-tag .delete-tag{
+	.receiver-tag .delete-tag{
 	    border: none;
 	    background: transparent;
 	    cursor: pointer;
@@ -37,7 +37,7 @@
 	    padding: 0;
 	}
 	
-	.dept-tag .delete-tag:hover{
+	.receiver-tag .delete-tag:hover{
 	    color: #e74c3c;
 	}
 
@@ -137,101 +137,107 @@ $(function(){
 
     /* 부서장 검사 */
     $("[name=deptHeadIdKeyword]").on("input change check", function(){
-	    var valid = $("input[name=deptHeadId]").length > 0;
-	    
-	    $(this)
-	        .removeClass("success fail")
-	        .addClass(valid ? "success" : "fail");
-	    $(".deptHeadId-wrapper .fail-feedback")
-	        .toggle(!valid);
-	    state.deptHeadIdValid = valid;
-	});
+    var valid = $("input[name=messageReceiver]").length > 0;
 
-    /* 자동완성 */
-    $("[name=deptHeadIdKeyword]").on("keyup", function(){
-        var keyword = $(this).val();
-        
-        if (keyword.length < 1){ 
-        	$(".deptHeadId").empty(); 
-        	return;}
-
-        $.ajax({
-            url    : "http://localhost:8080/dept/searchEmp",
-            method : "get",
-            data   : { keyword : keyword },
-            success: function(response){
-                $(".deptHeadId").empty();
-
-                $.each(response, function(index, emp){
-
-                    var div = $("<div>");
-
-                    div.addClass("deptHeadId-item");
-
-                    div.text(
-                        emp.empName + " (" +
-                        (emp.empDeptName || "소속없음") +
-                        ")"
-                    );
-
-                    div.click(function(){
-
-                        selectHead(emp);
-
-                        $("[name=deptHeadIdKeyword]").val("");
-
-                        $(".deptHeadId").empty();
-
-                        state.deptHeadIdValid = true;
-                    });
-
-                    $(".deptHeadId").append(div);
-                });
-            }
-        });
-    });
-
-    function selectHead(emp){
-
-        var html = "";
-
-        html += "<span class='dept-tag'>";
-
-        html += emp.empName;
-        html += " (" + (emp.empDeptName || "소속없음") + ")";
-
-        html += "<button type='button' class='delete-tag'>";
-        html += "✕";
-        html += "</button>";
-
-        html += "<input type='hidden' ";
-        html += "name='deptHeadId' ";
-        html += "value='" + emp.empNo + "'>";
-
-        html += "</span>";
-
-        $(".dept-selected").html(html);
-
-        $("[name=deptHeadIdKeyword]").val("").trigger("check");
+    if(valid) {
+        $(this).removeClass("success fail"); // 선택됐으면 입력창 표시 초기화
     }
 
-    /* 모달 확인 */
-    $(document).on("click", ".confirm-btn", function(){
-        $(".dept-selected").empty();
-        $(".emp-check:checked").each(function(){
-            var tr = $(this).closest("tr");
-            selectHead({
-                empNo      : $(this).data("no"),
-                empName    : $(this).data("name"),
-                empDeptName: tr.find("td").eq(4).text()
-            });
-        });
-        $(".modal-overlay").hide();
-    });
+    $(".deptHeadId-wrapper .fail-feedback").toggle(!valid);
+    state.deptHeadIdValid = valid;
+});
+
+    /* 자동완성 */
+		$("[name=deptHeadIdKeyword]").on("keyup", function(){
+		    var keyword = $(this).val();
+		    if(keyword.length < 1){ $(".deptHeadId").empty(); return; }
+		
+		    $.ajax({
+		        url    : "http://localhost:8080/dept/searchEmp",
+		        method : "get",
+		        data   : { keyword : keyword },
+		        success: function(response){
+		            $(".deptHeadId").empty();
+		            $.each(response, function(index, emp){
+		                var div = $("<div>");
+		                div.addClass("deptHeadId-item");
+		                div.text(emp.empName + " (" + (emp.empDeptName || "소속없음") + ")");
+		
+		                div.click(function(){
+		                    $(".receiver-selected-list").empty();
+		
+		                    var html = "";
+		                    html += "<span class='receiver-tag'>";
+		                    html += emp.empName + " (" + (emp.empDeptName || "소속없음") + ")";
+		                    html += "<button type='button' class='delete-tag'>✕</button>";
+		                    html += "<input type='hidden' name='messageReceiver' value='" + emp.empNo + "'>";
+		                    html += "</span>";
+		
+		                    $(".receiver-selected-list").append(html);
+		                    $("[name=deptHeadIdKeyword]").val("");
+		                    $(".deptHeadId").empty();
+		                    state.deptHeadIdValid = true;
+		                    $("[name=deptHeadIdKeyword]").trigger("check");
+		                });
+		
+		                $(".deptHeadId").append(div);
+		            });
+		        }
+		    });
+		});
+
+		/* 모달 확인 */
+		$(document).on("click", ".confirm-btn", function(){
+
+		    var checked = $(".emp-check:checked");
+		    
+		    if(checked.length === 0) {
+		        $(".modal-overlay").hide();
+		        return;
+		    }
+		    
+		    var first = checked.first();
+		    var tr = first.closest("tr");
+		    
+		    var empNo       = first.data("no");
+		    var empName     = first.data("name");
+		    var empDeptName = tr.find("td").eq(4).text();
+
+		    $(".receiver-selected-list").empty();
+		    
+		    var html = "";
+		    html += "<span class='receiver-tag'>";
+		    html += empName + " (" + (empDeptName || "소속없음") + ")";
+		    html += "<button type='button' class='delete-tag'>✕</button>";
+		    html += "<input type='hidden' name='messageReceiver' value='" + empNo + "'>";
+		    html += "</span>";
+
+		    $(".receiver-selected-list").append(html);
+		    
+		    state.deptHeadIdValid = true;
+		    $("[name=deptHeadIdKeyword]").trigger("check");
+		    
+		    $(".modal-overlay").hide();
+		});
+		
+		/* 모달 상단 selected-item 삭제 - edit 전용 */
+		$(document).on("click", ".selected-remove", function(){
+
+		    var target = $(this).closest(".selected-item");
+		    var empNo = target.data("no");
+
+		    // 모달 안 체크박스 해제
+		    $(".emp-check[data-no='" + empNo + "']").prop("checked", false);
+
+		    target.remove();
+
+		    // 선택 인원 수 업데이트
+		    $(".selected-count").text($(".selected-item").length);
+		});
 
     /* 태그 삭제 */
-    $(".dept-selected").on("click", ".delete-tag", function(){
-	    $(this).closest(".dept-tag").remove();
+    $(".receiver-selected-list").on("click", ".delete-tag", function(){
+	    $(this).closest(".receiver-tag").remove();
 	    state.deptHeadIdValid = false;
 	    $("[name=deptHeadIdKeyword]").trigger("check");
 	});
@@ -244,7 +250,7 @@ $(function(){
 
     /* 제출 */
     $(".form-check").on("submit", function(){
-        state.deptHeadIdValid = $("input[name=deptHeadId]").length > 0;
+        state.deptHeadIdValid = $("input[name=messageReceiver]").length > 0;
         $("[name=deptHeadIdKeyword]").trigger("check");
         $("[name=parentDeptId]").trigger("change");
         $("[name=deptName]").trigger("input");

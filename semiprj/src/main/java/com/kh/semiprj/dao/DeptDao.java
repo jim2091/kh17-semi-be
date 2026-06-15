@@ -86,7 +86,7 @@ import com.kh.semiprj.vo.PageVO;
 		public boolean update(DeptDto deptDto) {
 			String sql = "update dept "
 						+ "set parent_dept_id=?, dept_name=?,"
-							+ "dept_head_id=?, dept_content=?"
+							+ "dept_head_id=?, dept_content=? "
 						+ "where dept_id=?";
 			Object[] params = {
 				deptDto.getParentDeptId(),deptDto.getDeptName(),
@@ -179,12 +179,24 @@ import com.kh.semiprj.vo.PageVO;
 	                     "WHERE DE.dept_id IN (" +
 	                     "    SELECT dept_id FROM dept " +
 	                     "    START WITH dept_id = ? " + 
-	                     "    CONNECT BY PRIOR dept_id = parent_dept_id" +
+	                     "    CONNECT BY NOCYCLE  PRIOR dept_id = parent_dept_id" +
 	                     ") " +
 	                     "ORDER BY E.emp_name ASC"; 
 	                     
 	        return jdbcTemplate.query(sql, empMapper, deptId);
 	    }
 	    
+	    // 수정 화면용 - 자기 자신 + 하위 부서 제외한 목록(순환되는거 막는 메소드)
+	    public List<DeptDto> selectAvailableParents(int deptId) {
+	        String sql = "SELECT * FROM dept_profile_view "
+	                   + "WHERE dept_id NOT IN ( "
+	                   + "    SELECT dept_id FROM dept "
+	                   + "    START WITH dept_id = ? "
+	                   + "    CONNECT BY NOCYCLE PRIOR dept_id = parent_dept_id "
+	                   + ") "
+	                   + "ORDER BY dept_id ASC";
+	        
+	        return jdbcTemplate.query(sql, deptMapper, deptId);
+	    }
 	    
 	}
