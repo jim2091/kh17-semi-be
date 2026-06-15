@@ -193,7 +193,19 @@ $(function(){
 	
 	//태그 삭제
     $(".receiver-selected-list").on("click", ".delete-tag", function(){
+    	
+    	var empNo = $(this)
+        .closest(".receiver-tag")
+        .find("input[name=messageReceiver]")
+        .val();
+    	
         $(this).closest(".receiver-tag").remove();
+        
+        $(".selected-item[data-no='" + empNo + "']").remove();
+        $(".emp-check[data-no='" + empNo + "']").prop("checked", false);
+        
+        updateSelectedCount();
+        
         if($("input[name=messageReceiver]").length == 0){
             state.messageReceiverValid = false;
             $(".receiver-feedback").show();

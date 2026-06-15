@@ -5,9 +5,32 @@ function updateSelectedCount(){
         $(".selected-item").length
     );
 }
+//모달 열때 바깥과 동기화 함수
+function syncModalSelectedFromReceiver(){
+
+    $(".selected-list").empty();
+
+    $("input[name=messageReceiver]").each(function(){
+
+        var empNo = $(this).val();
+        var empName = $(this).closest(".receiver-tag").contents().first().text().trim();
+
+        var html = "";
+
+        html += "<div class='selected-item' data-no='" + empNo + "'>";
+        html += empName;
+        html += "<span class='selected-remove'>✕</span>";
+        html += "</div>";
+
+        $(".selected-list").append(html);
+    });
+
+    updateSelectedCount();
+}
 
 // ===== 모달 열기/닫기 =====
 $(".open-search").click(function(){
+	syncModalSelectedFromReceiver();
 	$(".modal-overlay").css("display","flex");
 	//모달 열리면 키워드 입력창으로 포커싱
 	$(".keyword").focus();
@@ -38,16 +61,9 @@ $(".search-emp-btn").click(function(){
 			for(var i = 0; i < response.length; i++){
 				var emp = response[i];
 				
-				//모달 밖의 리스트 체크
-				var checked = false;
-				$("input[name=messageReceiver]").each(function(){
-
-			        if($(this).val() == emp.empNo){
-			            checked = true;
-			            return false;
-			        }
-
-			    });
+				//모달 밖의 리스트와 모달 안의 리스트 체크
+				var checked = $("input[name=messageReceiver][value='" + emp.empNo + "']").length > 0
+				           || $(".selected-item[data-no='" + emp.empNo + "']").length > 0;
 				
 				var html = "";
 				
@@ -76,40 +92,33 @@ $(".search-emp-btn").click(function(){
 // ===== 선택 완료 =====
 
 $(".confirm-btn").click(function(){
-	$(".emp-check:checked").each(function(){
-		var empNo = $(this).data("no");
-		var empName = $(this).data("name");
-		
-		var exists = false;
 
-		$("input[name=messageReceiver]").each(function(){
-			if($(this).val() == empNo){
-				exists = true;
-				return false;
-			}
-		});
-		
-		if(exists){
-			return;
-		}
-		
-		var html = "";
-		
-		html += "<span class='receiver-tag'>";
-		html += empName;
-		
-		html += "<button type = 'button' class = 'delete-tag'>";
-		html += "✕";
-		html += "</button>";
-		
-		html += "<input type = 'hidden' name = 'messageReceiver' ";
-		html += "value = '" + empNo + "'>";
-		
-		html += "</span>";
-		
-		$(".receiver-selected-list").append(html);
-		$(".modal-overlay").hide();
-	});
+    $(".receiver-selected-list").empty();
+
+    $(".selected-item").each(function(){
+
+        var empNo = $(this).data("no");
+        var empName = $(this).clone().children().remove().end().text().trim();
+
+        var html = "";
+
+        html += "<span class='receiver-tag'>";
+        html += empName;
+
+        html += "<button type='button' class='delete-tag'>";
+        html += "✕";
+        html += "</button>";
+
+        html += "<input type='hidden' name='messageReceiver' ";
+        html += "value='" + empNo + "'>";
+
+        html += "</span>";
+
+        $(".receiver-selected-list").append(html);
+    });
+
+    $(".modal-overlay").hide();
+    $(".receiver-feedback").hide();
 });
 
 // ===== 동적 이벤트=====
@@ -117,7 +126,7 @@ $(".confirm-btn").click(function(){
 $(function(){
 	
 	//모달 밖 receiver-list에서 삭제버튼
-    $(".receiver-list").on("click", ".delete-tag", function(){
+    $(".receiver-selected-list").on("click", ".delete-tag", function(){
         $(this).closest(".receiver-tag").remove();
     });
 	
@@ -152,7 +161,7 @@ $(function(){
     });
 	
 	//모달 상단 selected-item 삭제
-    $(".emp-result-body").on("click", ".selected-remove", function(){
+    $(".selected-list").on("click", ".selected-remove", function(){
 
         var target = $(this).closest(".selected-item");
 
