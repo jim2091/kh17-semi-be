@@ -3,7 +3,6 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <jsp:include page="/WEB-INF/views/template/header2.jsp"></jsp:include>
-<jsp:include page="/WEB-INF/views/template/side_home2.jsp"></jsp:include>
 
 <style>
 /* 근태 페이지 전체 레이아웃 정렬 */

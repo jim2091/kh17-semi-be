@@ -1,6 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
 <jsp:include page="/WEB-INF/views/template/header2.jsp"></jsp:include>
 
@@ -14,17 +14,41 @@
 .text-editor.fail ~ .editor-bottom-row .fail-feedback {
     visibility: visible;
 }
-</style>
+/* 기존 첨부파일 부분 */
+.gw-file-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
 
-    <div class="gw-page-head pds-width">
+.gw-file-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--input-bg);
+}
+
+.gw-file-delete {
+    font-size: 13px;
+    color: #c62828;
+    cursor: pointer;
+}
+</style>
+	
+	<div class="gw-page-head pds-width">
         <div class="gw-breadcrumb">홈 / 자료실 / 글쓰기</div>
         <h1>자료 등록</h1>
         <p>사내 업무 자료를 작성하고 파일을 첨부할 수 있습니다.</p>
     </div>
-
-    <form action="./write" method="post" enctype="multipart/form-data"
+    <form action="./edit" method="post" enctype="multipart/form-data"
           autocomplete="off" class="form-check">
-
+		
+		<input type="hidden" name="pdsNo" value="${pdsDto.pdsNo}">
+		
         <div class="gw-form-panel pds-width">
 
             <div class="gw-form-row">
@@ -32,7 +56,8 @@
                     제목 <span class="required">*</span>
                 </label>
 
-                <input type="text" name="pdsTitle" class="gw-form-input full" maxlength="100">
+                <input type="text" name="pdsTitle" class="gw-form-input full" maxlength="100"
+                	value="${pdsDto.pdsTitle}">
 
                 <div class="fail-feedback">[필수] 제목을 입력해주세요.</div>
             </div>
@@ -42,7 +67,7 @@
                     내용 <span class="required">*</span>
                 </label>
                 
-                <textarea id="summernote" name="pdsContent" class="text-editor"></textarea>
+                <textarea id="summernote" name="pdsContent" class="text-editor">${pdsDto.pdsContent}</textarea>
 				
                 <div class="editor-bottom-row">
                     <span class="fail-feedback">[필수] 내용을 입력하세요.</span>
@@ -53,7 +78,28 @@
 	            </div>
                 
             </div>
-
+			<c:if test="${attachList != null}">
+				<div class="gw-form-row">
+					<label class="gw-form-label">기존 첨부파일</label>
+					
+					<div class="gw-file-list">
+						<c:forEach var="attachDto" items="${attachList}">
+							<div class="gw-file-item">
+								<a href="/download/modern?attachNo=${attachDto.attachNo}" class="gw-table-link">
+									<i class="fa-solid fa-paperclip"></i>
+									${attachDto.attachName}
+								</a>
+								
+								<label class="gw-file-delete">
+									<input type="checkbox" name="deleteAttachNoList" value="${attachDto.attachNo}">
+									삭제
+								</label>
+							</div>
+						</c:forEach>
+					</div>
+					
+				</div>
+			</c:if>
             <div class="gw-form-row">
                 <label class="gw-form-label">파일 첨부</label>
 				
