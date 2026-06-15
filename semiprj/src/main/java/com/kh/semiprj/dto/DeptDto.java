@@ -14,6 +14,7 @@ public class DeptDto {
 	private String deptYn;
 	private Timestamp deptCreateAt;
 	private String deptContent;
+	private Timestamp updateAt;
 	
 	//상위부서 이름도 넣기위해 생성
 	private String parentDeptName;

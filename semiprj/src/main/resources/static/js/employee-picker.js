@@ -91,8 +91,6 @@ $(".search-emp-btn").click(function(){
 
 // ===== 선택 완료 =====
 
-$(".confirm-btn").click(function(){
-
     $(".receiver-selected-list").empty();
 
     $(".selected-item").each(function(){
@@ -119,7 +117,8 @@ $(".confirm-btn").click(function(){
 
     $(".modal-overlay").hide();
     $(".receiver-feedback").hide();
-});
+
+
 
 // ===== 동적 이벤트=====
 

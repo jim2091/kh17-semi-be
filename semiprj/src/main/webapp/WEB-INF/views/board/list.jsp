@@ -88,15 +88,31 @@
 .muted-text {
     color: var(--sub-text);
 }
+.title-wrapper{
+    display:flex;
+    align-items:center;
+    gap:4px;
+    min-width:0;
+}
 
+.title-ellipsis{
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    min-width:0;
+}
+.gw-table{
+    table-layout: fixed;
+    width: 100%;
+}
 </style>
-
+	
 	<div class="pds-width">
 		<div class="gw-page-head">
-	        <div class="gw-breadcrumb">홈 / 게시판 / 목록</div>
-	        <h1>사내 게시판</h1>
-	        <p>타인에 대한 무분별한 비방글은 예고 없이 삭제될 수 있습니다.</p>
-	    </div>
+        	<div class="gw-breadcrumb">홈 / 게시판 / 목록</div>
+        	<h1>사내 게시판</h1>
+        	<p>타인에 대한 무분별한 비방글은 예고 없이 삭제될 수 있습니다.</p>
+    	</div>
 
 	    <div class="gw-search-panel pds-width">
 		<form action="./list" method="get" class="gw-search-form">
@@ -156,29 +172,34 @@
 				</td>
 
 				<td class="gw-title-cell">
-					<!-- 비밀글인 경우 -->
-					<c:if test="${boardDto.boardType eq '비밀'}">
-   						<i class="fa-solid fa-lock lock-icon"></i>
-					</c:if>
-					<!-- 답변글인 경우 -->
-					<c:if test="${boardDto.boardDepth > 0}">
-						<c:forEach var="i" begin="1" end="${boardDto.boardDepth}" step="1">
-							&nbsp;&nbsp;&nbsp;&nbsp;
-						</c:forEach> 
-						<span class="reply-mark">
-						    <i class="fa-solid fa-share"></i>
-						</span>
-					</c:if>
-					<a href="./detail?boardNo=${boardDto.boardNo}&page=${pageVO.page}&${pageVO.searchParams}" class="gw-table-link">
-						${boardDto.boardTitle}
-					</a>
+					<div class="title-wrapper">
+						<!-- 비밀글인 경우 -->
+						<c:if test="${boardDto.boardType eq '비밀'}">
+	   						<i class="fa-solid fa-lock lock-icon"></i>
+						</c:if>
+						<!-- 답변글인 경우 -->
+						<c:if test="${boardDto.boardDepth > 0}">
+							<c:forEach var="i" begin="1" end="${boardDto.boardDepth}" step="1">
+								&nbsp;&nbsp;&nbsp;&nbsp;
+							</c:forEach> 
+							<span class="reply-mark">
+							    <i class="fa-solid fa-share"></i>
+							</span>
+						</c:if>
 					
-					<!-- 댓글 개수 -->
-					<c:if test="${boardDto.boardReplycount > 0}">
-					    <span class="reply-count">
-					        [${boardDto.boardReplycount}]
-					    </span>
-					</c:if>
+					    <div class="title-ellipsis">
+					        <a href="./detail?boardNo=${boardDto.boardNo}&page=${pageVO.page}&${pageVO.searchParams}" class="gw-table-link">
+					            ${boardDto.boardTitle}
+					        </a>
+						</div>
+					
+						<!-- 댓글 개수 -->
+						<c:if test="${boardDto.boardReplycount > 0}">
+						    <span class="reply-count">
+						        [${boardDto.boardReplycount}]
+						    </span>
+						</c:if>
+					</div>
 				</td>
 				
 				<!-- 게시글 작성자 -->

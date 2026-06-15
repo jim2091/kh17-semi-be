@@ -29,8 +29,8 @@ public class InterceptorConfiguration implements WebMvcConfigurer{
 	
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
-		// 1. 홈 화면 및 전역 처리 인터셉터
 		registry.addInterceptor(homeInterceptors).addPathPatterns("/**");
+
 
 		// 2. 자료실 조회수 증가 인터셉터
 		registry.addInterceptor(pdsReadInterceptor)
@@ -38,14 +38,21 @@ public class InterceptorConfiguration implements WebMvcConfigurer{
 		
 		// 3. [핵심 수정] 로그인한 사원(Emp)만 접근 가능한 경로 지정 
 		// 근태(/attn/**) 및 전자결재(/app/**) 주소를 추가하여 비회원 접근을 차단합니다.
+
+		//- 로그인된 사용자 기능에 대한 인터셉터
+
 		registry.addInterceptor(empOnlyInterceptor).addPathPatterns(
 				"/emp/**"
-				,"/admin/**"
 				,"/board/**"
 				,"/dept/**"
 				,"/message/**"
 				,"/attn/**"  // 근태 메뉴 추가
 				,"/app/**"   // 결재 및 휴가원 신청 메뉴 추가
+				,"/admin/**"//관리자
+				,"/event/**"//일정
+				,"/message/**"//쪽지
+				,"/notification/**"//알림
+				,"/pds/**"//자료실
 				)
 				.excludePathPatterns(
 						"/emp/login"
@@ -60,7 +67,12 @@ public class InterceptorConfiguration implements WebMvcConfigurer{
 						,"/dept/edit"
 						);
 
+
 		// 4. 관리자(Master) 전용 기능 제한 인터셉터 (하나로 병합 정렬)
+
+		
+		//- 관리자 기능에 대한 인터셉터
+
 		registry.addInterceptor(masterOnlyInterceptor).addPathPatterns(
 				"/pds/write"
 				,"/message/delete"
@@ -81,12 +93,32 @@ public class InterceptorConfiguration implements WebMvcConfigurer{
 				.addPathPatterns("/rest/reply/edit");
 
 		// 8. 최고관리자 거부 정책 인터셉터
+
+
 		registry.addInterceptor(masterDenyInterceptor).addPathPatterns(
 				"/admin/detail"
 				,"/admin/edit"
 				);
 		
+
 		// 9. 본인 메시지 확인 인터셉터
+		//- 자료실 조회수 증가 인터셉터
+		registry.addInterceptor(pdsReadInterceptor)
+				.addPathPatterns("/pds/detail");
+		
+		//- 게시판 조회수 증가 처리를 하는 인터셉터
+		registry.addInterceptor(boardReadInterceptor)
+				.addPathPatterns("/board/detail");
+		
+		//- 본인 소유의 게시글만 수정, 삭제가 가능하도록 하는 인터셉터
+		registry.addInterceptor(boardOwnerInterceptor)
+		        .addPathPatterns("/board/edit", "/board/delete");
+		
+		//- 본인 소유의 댓글만 수정, 삭제가 가능하도록 하는 인터셉터
+		registry.addInterceptor(replyOwnerInterceptor)
+				.addPathPatterns("/rest/reply/edit", "/rest/reply/delete");
+				
+		//- 메세지 소유자만 상세 페이지 접근할 수 있도록 하는 인터셉터
 		registry.addInterceptor(messageOwnerInterceptor)
 				.addPathPatterns("/message/detail");
 	}

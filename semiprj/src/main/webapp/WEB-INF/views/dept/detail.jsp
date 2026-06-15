@@ -110,7 +110,6 @@ $(function() {
 			        </div>
 			    </c:if>
 			</div>
-
 			<!-- ── 하위 부서 목록 ── -->
 			<c:if test="${not empty childDeptList}">
 			    <div class="gw-list-panel mb-10">
