@@ -21,7 +21,7 @@ public class AttnService {
 
     public Map<String, Object> getVacationInfo(String empNo) { return attnDao.selectVacationInfo(empNo); }
     
-    // 🛠️ Dao의 진짜 메서드 명인 getAttendanceList와 확실하게 묶었습니다.
+    // 💡 DTO의 가상 Getter 덕분에 서비스 코드가 복잡해질 필요가 없습니다.
     public List<AttnDto> getAttendanceList(AttnDto attnDto, PageVO pageVO) { 
         return attnDao.getAttendanceList(attnDto, pageVO); 
     }

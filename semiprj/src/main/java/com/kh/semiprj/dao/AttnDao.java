@@ -30,42 +30,37 @@ public class AttnDao {
         return jdbcTemplate.queryForList("SELECT emp_no, vac_tot, vac_cnt FROM vac_info");
     }
 
-    // 🛠️ [Bad SQL Grammar 에러 완벽 해결 완료]
-    // vac_app의 유효하지 않은 컬럼명을 조인하지 않고, EXISTS 절로 휴가 여부만 판단하여 가상 컬럼으로 반환합니다.
+    // 🛠️ [getAttendanceList 최종 교정 완료]
+    // 1. vac_app에 사번이 없으므로 상위 마스터인 app 테이블(app_req_id 컬럼)을 조인하여 사번을 매핑합니다.
+    // 2. 오라클의 서브쿼리 깊이 제한 제약을 완전히 우회하기 위해 평평한 LEFT JOIN 구조로 전면 재작성했습니다.
     public List<AttnDto> getAttendanceList(AttnDto attnDto, PageVO pageVO) {
         String sql = "SELECT * FROM ( "
-                   + "  SELECT ROWNUM RN, TMP.* FROM ( "
-                   + "    SELECT "
-                   + "      a.attn_id, a.emp_no, a.attn_work_date, a.attn_in_time, a.attn_out_time, a.attn_work_time, a.attn_status, "
-                   + "      CASE "
-                   + "        WHEN EXISTS ( "
-                   + "          SELECT 1 FROM vac_history vh "
-                   + "          WHERE vh.vac_date = TO_CHAR(a.attn_work_date, 'MM/DD') "
-                   + "            AND vh.app_id IN (SELECT va.app_id FROM vac_app va WHERE va.emp_no = a.emp_no) "
-                   + "        ) THEN '휴가' " 
-                   + "        ELSE a.attn_record "
-                   + "      END AS v_record "
-                   + "    FROM attn a "
-                   + "    WHERE a.emp_no = ? AND TO_CHAR(a.attn_work_date, 'YYYY') = ? AND TO_CHAR(a.attn_work_date, 'MM') = ? "
-                   + "    ORDER BY a.attn_work_date DESC "
-                   + "  ) TMP "
+                   + "SELECT ROWNUM RN, TMP.* FROM ( "
+                   + "SELECT "
+                   + "  a.attn_id, a.emp_no, a.attn_work_date, a.attn_in_time, a.attn_out_time, a.attn_work_time, a.attn_status, "
+                   + "  CASE WHEN vh.vac_date IS NOT NULL THEN '휴가' ELSE a.attn_record END AS v_record "
+                   + "FROM attn a "
+                   + "LEFT JOIN app main_app ON main_app.app_req_id = a.emp_no " 
+                   + "LEFT JOIN vac_app va ON va.app_id = main_app.app_id "      
+                   + "LEFT JOIN vac_history vh ON vh.app_id = va.app_id "        
+                   + "  AND vh.vac_date = TO_CHAR(a.attn_work_date, 'MM/DD') "
+                   + "WHERE a.emp_no = ? "
+                   + "  AND TO_CHAR(a.attn_work_date, 'YYYY') = ? "
+                   + "  AND TO_CHAR(a.attn_work_date, 'MM') = ? "
+                   + "ORDER BY a.attn_work_date DESC "
+                   + ") TMP "
                    + ") WHERE RN BETWEEN ? AND ?";
         
         return jdbcTemplate.query(sql, (rs, rowNum) -> {
             AttnDto dto = new AttnDto();
             dto.setAttnId(rs.getLong("attn_id"));
             dto.setEmpNo(rs.getString("emp_no"));
-            
-            // 💡 갱신된 DTO 스펙에 맞춘 java.sql.Timestamp 바인딩 기법 적용
             dto.setAttnWorkDate(rs.getTimestamp("attn_work_date"));
             dto.setAttnInTime(rs.getTimestamp("attn_in_time"));
             dto.setAttnOutTime(rs.getTimestamp("attn_out_time"));
-            
             dto.setAttnWorkTime(rs.getDouble("attn_work_time"));
             dto.setAttnStatus(rs.getString("attn_status"));
-            
-            // 가상 변환 테이블 데이터 수신
-            dto.setAttnRecord(rs.getString("v_record"));
+            dto.setAttnRecord(rs.getString("v_record")); 
             return dto;
         }, attnDto.getEmpNo(), attnDto.getYear(), attnDto.getMonth(), pageVO.getBeginRownum(), pageVO.getEndRownum());
     }
@@ -100,7 +95,8 @@ public class AttnDao {
         return jdbcTemplate.queryForObject(sql, Double.class, empNo, startDate, endDate);
     }
 
-    // 🛠️ [스케줄러 마감 연동 보완] 어제 날짜에 휴가 승인(vac_history) 기록이 잡혀있는 사원은 결근 정산에서 자동 제외합니다.
+    // 🛠️ [배치 마감 쿼리 교정 완료]
+    // vac_app 대신 상위 마스터 테이블인 app 테이블의 진짜 기안자 컬럼명(app_req_id)으로 결근 대상을 필터링합니다.
     public void updateStatusToAbsent() {
         String sql = "UPDATE attn SET "
                    + "  attn_status = '결근', "
@@ -108,8 +104,8 @@ public class AttnDao {
                    + "WHERE TRUNC(attn_work_date) = TRUNC(SYSDATE - 1) "
                    + "  AND attn_in_time IS NULL " 
                    + "  AND emp_no NOT IN ( "
-                   + "      SELECT va.emp_no FROM vac_history vh "
-                   + "      JOIN vac_app va ON vh.app_id = va.app_id "
+                   + "      SELECT main_app.app_req_id FROM vac_history vh "
+                   + "      JOIN app main_app ON vh.app_id = main_app.app_id "
                    + "      WHERE vh.vac_date = TO_CHAR(SYSDATE - 1, 'MM/DD') "
                    + "  )";
         int updatedRows = jdbcTemplate.update(sql);
@@ -175,7 +171,6 @@ public class AttnDao {
     public void updateAllWorkSystemDisable() { jdbcTemplate.update("UPDATE work_system SET is_active = 'N'"); }
     public void updateWorkSystemEnable(String workCode) { jdbcTemplate.update("UPDATE work_system SET is_active = 'Y' WHERE LOWER(work_code) = LOWER(?)", workCode); }
 
-    // 🛠️ 테이블 CHK_STATUS 제약 조건 규격을 100% 준수하여 초깃값을 셋업합니다.
     public void createTodayAttendance() {
         String sql = "INSERT INTO attn (attn_id, emp_no, attn_work_date, attn_status, attn_record) "
                    + "SELECT attn_seq.nextval, e.emp_no, TRUNC(SYSDATE), '출근전', '미확인' "
