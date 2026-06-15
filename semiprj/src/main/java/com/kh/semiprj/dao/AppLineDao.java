@@ -23,7 +23,6 @@ public class AppLineDao {
     
     
     
-    
     //결재자 등록 
     public void insert(AppLineDto appLineDto) {
         String sql = "insert into app_line (app_line_id, app_id, app_app_id, "
@@ -41,13 +40,13 @@ public class AppLineDao {
     public void insertAppr(AppLineDto appLineDto) {
         String sql = "insert into app_line "
                    + "(app_line_id, app_id, app_app_id, app_line_order, app_line_type, app_line_status) "
-                   + "values(app_line_seq.nextval, ?, ?, ?, ?, ?)"; // ← app_line_id는 시퀀스로!
+                   + "values(app_line_seq.nextval, ?, ?, ?, ?, ?)"; 
         Object[] params = {
-            appLineDto.getAppId(),          // 1
-            appLineDto.getAppAppId(),        // 2
-            appLineDto.getAppLineOrder(),    // 3
-            appLineDto.getAppLineType(),     // 4
-            appLineDto.getAppLineStatus()    // 5
+            appLineDto.getAppId(),          
+            appLineDto.getAppAppId(),        
+            appLineDto.getAppLineOrder(),   
+            appLineDto.getAppLineType(),     
+            appLineDto.getAppLineStatus()    
         };
         jdbcTemplate.update(sql, params);
     }

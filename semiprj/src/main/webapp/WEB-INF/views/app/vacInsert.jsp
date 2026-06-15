@@ -14,13 +14,13 @@
 	src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
 <script
 	src="https://cdnjs.cloudflare.com/ajax/libs/lightpick/1.6.2/lightpick.min.js"></script>
+
 <style>
-/* 라디오 버튼 숨기기 */
+/* 기존 스타일 전부 그대로 */
 .vac-type-item input[type="radio"] {
 	display: none;
 }
 
-/* 기본 선택되지 않은 스타일 */
 .vac-type-item {
 	display: inline-flex;
 	align-items: center;
@@ -34,32 +34,27 @@
 	transition: all 0.2s ease;
 }
 
-/* 마우스 호버 효과 */
 .vac-type-item:hover {
 	background-color: #f0f0f0;
 	border-color: #999;
 }
 
-/* 라디오 버튼이 선택되었을 때의 스타일 (체크 효과) */
 .vac-type-item input[type="radio"]:checked+span {
 	color: #fff;
 	font-weight: bold;
 }
 
-/* 선택된 아이템의 전체 배경색과 테두리 변경 */
 .vac-type-item:has(input[type="radio"]:checked) {
-	background-color: #4A90E2; /* 프로젝트 메인 색상에 맞게 변경 가능 */
+	background-color: #4A90E2;
 	border-color: #4A90E2;
 	color: #fff;
 	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
 }
 
-/* 아이콘과 텍스트 간격 */
 .vac-type-item i {
 	margin-right: 6px;
 }
 
-/* 전체 레이아웃 현대화 */
 .vacation-container {
 	max-width: 800px;
 	margin: 60px auto;
@@ -80,7 +75,6 @@
 	letter-spacing: -0.5px;
 }
 
-/* 폼 그리드 및 입력 요소 */
 .form-group {
 	margin-bottom: 24px;
 }
@@ -122,7 +116,6 @@
 	cursor: not-allowed;
 }
 
-/* 유효성 검사 스타일 */
 .input-field.success {
 	border-color: #10b981;
 	background-color: #f0fdf4;
@@ -145,7 +138,6 @@
 	display: block;
 }
 
-/* 결재자 컴포넌트 */
 .approval-search-wrap {
 	display: flex;
 	gap: 10px;
@@ -172,63 +164,6 @@
 	background-color: #0f172a;
 }
 
-.deptHeadId-list {
-	background: #ffffff;
-	border: 1px solid #e2e8f0;
-	border-radius: 8px;
-	max-height: 200px;
-	overflow-y: auto;
-	margin-top: 6px;
-	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-}
-
-.deptHeadId-item {
-	padding: 12px 16px;
-	font-size: 14px;
-	color: #334155;
-	cursor: pointer;
-	transition: background 0.2s;
-}
-
-.deptHeadId-item:hover {
-	background-color: #f1f5f9;
-}
-
-.receiver-selected-list {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 8px;
-	margin-top: 10px;
-}
-
-.receiver-tag {
-	display: inline-flex;
-	align-items: center;
-	gap: 8px;
-	background-color: #eff6ff;
-	color: #1d4ed8;
-	padding: 6px 14px;
-	border-radius: 20px;
-	font-size: 14px;
-	font-weight: 500;
-	border: 1px solid #bfdbfe;
-}
-
-.delete-tag {
-	background: none;
-	border: none;
-	color: #1d4ed8;
-	cursor: pointer;
-	font-size: 14px;
-	padding: 0;
-	line-height: 1;
-}
-
-.delete-tag:hover {
-	color: #1e40af;
-}
-
-/* 휴가 구분 라디오 버튼 */
 .vac-type-wrap {
 	display: flex;
 	gap: 16px;
@@ -251,16 +186,12 @@
 	background: #ffffff;
 }
 
-.vac-type-item input[type="radio"] {
-	display: none;
-}
-
 .vac-type-item:hover {
 	background-color: #f8fafc;
 	border-color: #94a3b8;
 }
 
-.vac-type-item has(:checked), .vac-type-item:has(input:checked) {
+.vac-type-item:has(input:checked) {
 	border-color: #3b82f6;
 	background-color: #eff6ff;
 	color: #1d4ed8;
@@ -268,7 +199,6 @@
 	box-shadow: 0 0 0 1px #3b82f6;
 }
 
-/* 하단 버튼 제어 */
 .btn-group {
 	display: flex;
 	justify-content: center;
@@ -309,83 +239,25 @@
 </style>
 
 <script>
-// 1. 키워드 자동완성 타이핑 검색 구현
-$(document).on("keyup", "[name=deptHeadIdKeyword]", function(){
-    var keyword = $(this).val();
+window.approverCount = 1;
 
-    if(!keyword || keyword.trim().length < 1){
-        $(".deptHeadId-list").empty();
-        return;
-    }
-
-    $.ajax({
-        url: window.location.origin + "/dept/searchEmp", 
-        method: "get",
-        data: { keyword: keyword.trim() },
-        success: function(response){
-            $(".deptHeadId-list").empty();
-
-            if(!response || response.length === 0) {
-                $(".deptHeadId-list").append("<div class='deptHeadId-item'>검색 결과가 없습니다.</div>");
-                return;
-            }
-
-            $.each(response, function(index, emp){
-                var div = $("<div>").addClass("deptHeadId-item");
-                div.text(emp.empName + " (" + (emp.empDeptName || "소속없음") + ")");
-                
-                div.click(function(){
-                    $(".receiver-selected-list").empty();
-
-                    var html = "";
-                    html += "<span class='receiver-tag'>";
-                    html += emp.empName + " (" + (emp.empDeptName || "소속없음") + ")";
-                    html += "<button type='button' class='delete-tag'>✕</button>";
-                    html += "<input type='hidden' id='deptHeadIdHidden' name='deptHeadId' value='" + emp.empNo + "'>";
-                    html += "</span>";
-
-                    $(".receiver-selected-list").append(html);
-                    $("[name=deptHeadIdKeyword]").val("");
-                    $(".deptHeadId-list").empty();
-
-                    $("[name=deptHeadIdKeyword]").trigger("check");
-                });
-
-                $(".deptHeadId-list").append(div);
-            });
-        },
-        error: function(xhr, status, error) {
-            console.error("사원 검색 중 에러 발생:", error);
-        }
-    });
-});
-
-$(document).on("click", ".delete-tag", function() {
-    $(this).closest(".receiver-tag").remove();
-});
-</script>
-
-<script>
-// 2. 통합 폼 검증 로직
 function validateForm() {
-    var deptHeadId = $("#deptHeadIdHidden").val();
-    if (!deptHeadId) {
+    var approver1 = document.getElementById('approverNo_1').value;
+    if (!approver1) {
         alert("결재자는 필수 선택 사항입니다.");
-        $("[name=deptHeadIdKeyword]").focus();
         return false;
     }
     return true;
 }
+</script>
 
+<script>
 $(function(){
     var state = {
         vacStartDateValid : false,
-        vacEndDateValid : false,
-        
+        vacEndDateValid   : false,
         ok : function() {
-            return Object.values(this)
-                    .filter(v => typeof v === "boolean")
-                    .every(v => v === true);
+            return Object.values(this).filter(v => typeof v === "boolean").every(v => v === true);
         }
     };
 
@@ -393,106 +265,63 @@ $(function(){
     $("[name=appDate]").val(today);
 
     var startEl = $("[name=vacStartDate]")[0];
-    var endEl = $("[name=vacEndDate]")[0];
+    var endEl   = $("[name=vacEndDate]")[0];
+
+    var startPicker, endPicker;
 
     if(startEl && endEl) {
-        var startPicker = new Lightpick({
-            field: startEl,
-            format: "YYYY-MM-DD",
-            firstDay: 7,
-            minDate: moment(),
-            onError: function(message) {
-                console.error("Lightpick 에러:", message);
-                $("[name=vacStartDate]").val(today);
-            },
-            onSelect: function(date){
-                $("[name=vacStartDate]").trigger("change");
-            }
+        startPicker = new Lightpick({
+            field: startEl, format: "YYYY-MM-DD", firstDay: 7, minDate: moment(),
+            onSelect: function(){ $("[name=vacStartDate]").trigger("change"); }
         });
-
-        var endPicker = new Lightpick({
-            field: endEl,
-            format: "YYYY-MM-DD",
-            firstDay: 7,
-            minDate: moment(),
-            onError: function(message) {
-                console.error("Lightpick 에러:", message);
-                $("[name=vacEndDate]").val(today);
-            },
-            onSelect: function(date){
-                $("[name=vacEndDate]").trigger("change");
-            }
+        endPicker = new Lightpick({
+            field: endEl, format: "YYYY-MM-DD", firstDay: 7, minDate: moment(),
+            onSelect: function(){ $("[name=vacEndDate]").trigger("change"); }
         });
     }
 
     $("[name=vacStartDate]").on("change", function(){
-        var appDate = $("[name=appDate]").val() || today; 
+        var appDate   = $("[name=appDate]").val() || today;
         var startDate = $(this).val();
-        var endDate = $("[name=vacEndDate]").val();
-
-        if(!startDate) {
-            $(this).removeClass("success fail");
-            state.vacStartDateValid = false;
-            return;
-        }
-
-        if(startDate < appDate) {
-            $(this).removeClass("success").addClass("fail");
-            state.vacStartDateValid = false;
-        } else {
-            $(this).removeClass("fail").addClass("success");
-            state.vacStartDateValid = true;
-            if(typeof endPicker !== "undefined") {
-                endPicker.setMinDate(moment(startDate));
-            }
-        }
-
-        if(endDate) {
-            $("[name=vacEndDate]").trigger("change");
-        }
+        var endDate   = $("[name=vacEndDate]").val();
+        if(!startDate){ $(this).removeClass("success fail"); state.vacStartDateValid = false; return; }
+        if(startDate < appDate){ $(this).removeClass("success").addClass("fail"); state.vacStartDateValid = false; }
+        else { $(this).removeClass("fail").addClass("success"); state.vacStartDateValid = true; if(endPicker) endPicker.setMinDate(moment(startDate)); }
+        if(endDate) $("[name=vacEndDate]").trigger("change");
     });
 
     $("[name=vacEndDate]").on("change", function(){
         var startDate = $("[name=vacStartDate]").val();
-        var endDate = $(this).val();
-
-        if(!endDate) {
-            $(this).removeClass("success fail");
-            state.vacEndDateValid = false;
-            return;
-        }
-
-        if(!startDate) {
-            $(this).removeClass("success fail");
-            state.vacEndDateValid = false;
-            return;
-        }
-
-        if(endDate < startDate) {
-            $(this).removeClass("success").addClass("fail");
-            state.vacEndDateValid = false;
-        } else {
-            $(this).removeClass("fail").addClass("success");
-            state.vacEndDateValid = true;
-        }
+        var endDate   = $(this).val();
+        if(!endDate || !startDate){ $(this).removeClass("success fail"); state.vacEndDateValid = false; return; }
+        if(endDate < startDate){ $(this).removeClass("success").addClass("fail"); state.vacEndDateValid = false; }
+        else { $(this).removeClass("fail").addClass("success"); state.vacEndDateValid = true; }
     });
 
     $("#vacationForm").on("submit", function(e){
-        if(state.ok() == false) {
-            e.preventDefault(); 
+        if(!state.ok()){
+            e.preventDefault();
             $("[name=vacStartDate]").trigger("change");
             $("[name=vacEndDate]").trigger("change");
             $(".input-field.fail").first().focus();
             return false;
         }
-        
         if(!validateForm()){
             e.preventDefault();
             return false;
         }
     });
 });
+
+
+ㄴ
 </script>
+
+
+
+<div class="gw-page-head pds-width">
+	<div class="gw-breadcrumb">홈 / 전자결재 / 휴가신청서</div>
+</div>
 
 <div class="vacation-container">
 	<h1 class="form-title">휴가 신청서</h1>
@@ -502,8 +331,7 @@ $(function(){
 
 		<div class="form-group">
 			<label>결재명<span class="required">*</span></label> <input type="text"
-				name="appTitle" class="input-field" required maxlength="100"
-				placeholder="예: [연차] 개인 사정으로 인한 휴가 신청">
+				name="appTitle" class="input-field" required maxlength="100">
 		</div>
 
 		<div class="form-group">
@@ -511,22 +339,35 @@ $(function(){
 				class="input-field" readonly> <input type="hidden"
 				value="${empId}" name="appReqId">
 		</div>
-
-		<div class="form-group">
-			<label>결재자<span class="required">*</span></label>
-			<div class="approval-search-wrap">
-				<input type="text" name="deptHeadIdKeyword" class="input-field"
-					placeholder="검색할 결재자 이름을 입력하세요.">
-				<button type="button" class="btn-search open-search">
-					<i class="fa-solid fa-user-tie"></i> <span>찾기</span>
-				</button>
+		
+		
+		
+		<c:forEach begin="1" end="3" var="i">
+			<div class="form-group">
+				<label>결재자 ${i}순위 <c:if test="${i == 1}">
+						<span class="required">*</span>
+					</c:if>
+				</label>
+				<div class="approval-search-wrap">
+					<input type="text" id="approverDisplay_${i}" class="input-field"
+						placeholder="찾기 버튼으로 결재자를 선택하세요." readonly>
+					<button type="button" class="btn-search"
+						onclick="window.openApproverPopup(${i})">
+						<i class="fa-solid fa-user-tie"></i> <span>찾기</span>
+					</button>
+				</div>
+				<input type="hidden" id="approverNo_${i}" name="approver${i}"
+					value=""> <input type="hidden" id="approverName_${i}"
+					name="approverName${i}" value=""> <input type="hidden"
+					id="approverLevel_${i}" name="approverLevel${i}" value="">
 			</div>
-			<div class="deptHeadId-list"></div>
-			<div class="receiver-selected-list"></div>
-		</div>
+		</c:forEach>
+
+
 
 		<jsp:include page="/WEB-INF/views/template/appr_picker.jsp" />
-		<script src="/js/appr_picker.js"></script>
+
+
 
 		<div class="form-group">
 			<label>결재내용<span class="required">*</span></label> <input type="text"
@@ -562,16 +403,15 @@ $(function(){
 		<div class="form-group">
 			<label>휴가 구분<span class="required">*</span></label>
 			<div class="vac-type-wrap">
-				<label class="vac-type-item"> <input type="radio"
-					name="vacType" value="연차" checked> <span><i
-						class="fa-solid fa-calendar-days"></i> 연차</span>
-				</label> <label class="vac-type-item"> <input type="radio"
-					name="vacType" value="휴가"> <span><i
-						class="fa-solid fa-umbrella-beach"></i> 휴가</span>
-				</label> <label class="vac-type-item"> <input type="radio"
-					name="vacType" value="병가"> <span><i
-						class="fa-solid fa-kit-medical"></i> 병가</span>
-				</label>
+				<label class="vac-type-item"><input type="radio"
+					name="vacType" value="연차" checked><span><i
+						class="fa-solid fa-calendar-days"></i> 연차</span></label> <label
+					class="vac-type-item"><input type="radio" name="vacType"
+					value="휴가"><span><i
+						class="fa-solid fa-umbrella-beach"></i> 휴가</span></label> <label
+					class="vac-type-item"><input type="radio" name="vacType"
+					value="병가"><span><i class="fa-solid fa-kit-medical"></i>
+						병가</span></label>
 			</div>
 		</div>
 

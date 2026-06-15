@@ -1,7 +1,9 @@
 package com.kh.semiprj.dao;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -104,7 +106,7 @@ public class AppDao {
 		return jdbcTemplate.update(sql, params) > 0;
 	}
 	
-	//  추가 정보
+	//  추가 정보 조회용 메소드
 	public VacAppDto selectVacByAppId(int appId) {
 	    String sql = "select * from vac_app where app_id = ?";
 	    List<VacAppDto> list = jdbcTemplate.query(sql, (rs, rn) -> {
@@ -230,7 +232,7 @@ public class AppDao {
 		String sql = "update app set app_status = ? where app_id = ?";
 		jdbcTemplate.update(sql, status, appId);
 	}
-
+	
 	
 	
 	
@@ -374,5 +376,35 @@ public class AppDao {
     }
 
     
-    
+    // picker를 사용하기 위한 메소드 (AI)
+    public List<Map<String, Object>> searchApproverForPicker(String keyword, List<String> excludes) {
+    	String sql = "select emp_no, emp_name, emp_position, emp_dept "
+    			+ "from emp "
+    			+ "where emp_use_yn = 'Y' "
+    			+ "and (emp_name like ? or emp_dept like ?) ";
+    	
+    	List<Object> params = new ArrayList<>();
+    	params.add("%" + keyword + "%");
+    	params.add("%" + keyword + "%");
+    	
+    	if (excludes != null && !excludes.isEmpty()) {
+    		String placeholders = excludes.stream()
+    				.map(e -> "?")
+    				.collect(java.util.stream.Collectors.joining(", "));
+    		sql += "and emp_no not in (" + placeholders + ") ";
+    		params.addAll(excludes);
+    	}
+    	
+    	sql += "order by emp_dept, emp_name";
+    	
+    	return jdbcTemplate.query(sql, (rs, rn) -> {
+    		Map<String, Object> map = new HashMap<>();
+    		map.put("empNo",       rs.getString("emp_no"));
+    		map.put("empName",     rs.getString("emp_name"));
+    		map.put("empPosition", rs.getString("emp_position"));
+    		map.put("empDept",     rs.getString("emp_dept"));
+    		map.put("positionLevel", 0);
+    		return map;
+    	}, params.toArray());
+    }
 }
