@@ -42,7 +42,7 @@
     color: #dc2626;
 }
 
-/* 하단 정렬 컨테이너: relative를 활용해 완벽한 좌/우/중앙 정렬 구현 */
+/* 하단 정렬 컨테이너 */
 .attn-bottom-wrapper {
     position: relative;
     margin-top: 30px;
@@ -50,7 +50,7 @@
     height: 45px;
     display: flex;
     align-items: center;
-    justify-content: center; /* 페이징이 무조건 중앙에 오도록 설정 */
+    justify-content: center;
 }
 
 /* 왼쪽 배치: 연차 요약 정보 */
@@ -203,9 +203,11 @@
                                 </c:choose>
                             </td>
                             <td>
+                                <%-- 🛠️ [근로시간 출력부 핵심 수정] --%>
+                                <%-- 기존의 소수점 필드 대신 가상 Getter인 convertedWorkTime 필드를 호출하여 직관적인 시간 포맷을 출력합니다. --%>
                                 <c:choose>
-                                    <c:when test="${dto.attnWorkTime > 0}">
-                                        <strong>${dto.attnWorkTime}h</strong>
+                                    <c:when test="${dto.convertedWorkTime != '-'}">
+                                        <strong>${dto.convertedWorkTime}</strong>
                                     </c:when>
                                     <c:otherwise><span class="gw-muted">-</span></c:otherwise>
                                 </c:choose>
