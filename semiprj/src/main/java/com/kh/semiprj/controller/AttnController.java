@@ -3,10 +3,13 @@ package com.kh.semiprj.controller;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
 import com.kh.semiprj.dto.AttnDto;
 import com.kh.semiprj.service.AttnService;
 import com.kh.semiprj.service.AdminAttnService;
@@ -24,28 +27,70 @@ public class AttnController {
     @ResponseBody
     public Map<String, Object> getAttnStatus(HttpSession session) {
         String empNo = (String) session.getAttribute("loginNo");
+        Map<String, Object> map = new HashMap<>();
         
-        // 이미 있는 checkTodayStatus를 호출 (결과가 "출근" 이거나 "미출근" 등일 것임)
-        String status = attnService.checkTodayStatus(empNo); 
+        if (empNo == null) {
+            map.put("status", "미출근");
+            map.put("startTime", "-");
+            map.put("endTime", "-");
+            return map;
+        }
         
-        Map<String, Object> map = new java.util.HashMap<>();
-        map.put("status", "출근상태".equals(status) ? "출근상태" : "미출근");
-        // 시간 정보가 DB에서 바로 안 온다면 일단 "-"로 표시합니다
-        map.put("startTime", "출근상태".equals(status) ? "09:00" : "-"); 
-        map.put("endTime", "-");
+        Map<String, Object> todayData = attnService.getTodayAttnDetails(empNo); 
+        
+        if (todayData == null || todayData.isEmpty()) {
+            map.put("status", "미출근");
+            map.put("startTime", "-");
+            map.put("endTime", "-");
+        } else {
+            String dbStatus = (String) todayData.get("ATTN_STATUS");
+            String inTime = (String) todayData.get("IN_TIME");
+            String outTime = (String) todayData.get("OUT_TIME");
+
+            if ("퇴근".equals(dbStatus)) {
+                map.put("status", "퇴근");
+            } else if ("출근중".equals(dbStatus)) {
+                map.put("status", "출근상태");
+            } else {
+                map.put("status", "미출근");
+            }
+            
+            map.put("startTime", inTime != null ? inTime : "-");
+            map.put("endTime", outTime != null ? outTime : "-");
+        }
         
         return map;
     }
+
+    // 🛠️ 최초 진입 시 검색 조건(년/월)이 없으면 실시간 기준 '그 해, 그 달'을 자동 계산 주입
     @GetMapping("/list")
     public String list(@ModelAttribute("search") AttnDto attnDto, 
                        @ModelAttribute("pageVO") PageVO pageVO, 
                        HttpSession session, Model model) {
         String empNo = (String) session.getAttribute("loginNo");
         attnDto.setEmpNo(empNo);
+        
+        // 🛡️ [타입 에러 수정 완료] 
+        // AttnDto의 year와 month가 String 규격인 것을 감안하여 null 및 빈 문자열("") 체크로 안전하게 변경했습니다.
+        if (attnDto.getYear() == null || String.valueOf(attnDto.getYear()).trim().isEmpty() || "0".equals(String.valueOf(attnDto.getYear())) ||
+            attnDto.getMonth() == null || attnDto.getMonth().trim().isEmpty()) {
+            
+            LocalDate now = LocalDate.now();
+            
+            // 숫자인 연도를 String.valueOf() 또는 "" + 숫자를 통해 문자열로 안전하게 변환하여 주입합니다.
+            attnDto.setYear(String.valueOf(now.getYear())); 
+            
+            // 월 데이터를 오라클 규격에 맞게 "01", "02" 형태로 패딩 처리하여 포맷 바인딩
+            String currentMonth = String.format("%02d", now.getMonthValue());
+            attnDto.setMonth(currentMonth);
+        }
+
         Map<String, Object> vacInfo = attnService.getVacationInfo(empNo);
         model.addAttribute("vacInfo", vacInfo);
+        
         List<AttnDto> list = attnService.getAttendanceList(attnDto, pageVO);
         pageVO.setCount(attnService.countAttendance(attnDto));
+        
         model.addAttribute("maxHours", adminAttnService.getActiveMaxHours());
         model.addAttribute("attnList", list);
         return "attn/list";
@@ -70,9 +115,9 @@ public class AttnController {
 
     @GetMapping("/calculator/data")
     @ResponseBody
-    public int getCalculatorData(@RequestParam String startDate, 
-                                 @RequestParam String endDate, 
-                                 HttpSession session) {
+    public double getCalculatorData(@RequestParam String startDate, 
+                                    @RequestParam String endDate, 
+                                    HttpSession session) {
         String empNo = (String) session.getAttribute("loginNo");
         return attnService.getWorkTimeSum(empNo, startDate, endDate);
     }
@@ -117,15 +162,30 @@ public class AttnController {
 
     @PostMapping("/checkIn")
     @ResponseBody
-    public String checkIn(HttpSession session) {
+    public String checkIn(@RequestParam(value="inTime", required=false) String inTime, HttpSession session) {
         String empNo = (String) session.getAttribute("loginNo");
         if (empNo == null) return "fail";
+        
         try {
+            Map<String, Object> todayData = attnService.getTodayAttnDetails(empNo);
+            
+            if (todayData != null && !todayData.isEmpty()) {
+                String currentStatus = (String) todayData.get("ATTN_STATUS");
+                if ("출근중".equals(currentStatus) || "퇴근".equals(currentStatus)) {
+                    return "already"; 
+                }
+            }
+            
             AttnDto dto = new AttnDto();
             dto.setEmpNo(empNo);
-            attnService.insertAttendance(dto); 
+            dto.setInTime(inTime); 
+            
+            attnService.registerOrUpdateAttendance(dto, todayData); 
             return "success";
-        } catch (Exception e) { e.printStackTrace(); return "fail"; }
+        } catch (Exception e) { 
+            e.printStackTrace(); 
+            return "fail"; 
+        }
     }
 
     @PostMapping("/checkOut")

@@ -37,7 +37,7 @@
     color: #16a34a;
 }
 
-/* [수정] 하단 정렬 컨테이너: 원본 구조처럼 relative를 활용해 완벽한 좌/우/중앙 정렬 구현 */
+/* 하단 정렬 컨테이너: relative를 활용해 완벽한 좌/우/중앙 정렬 구현 */
 .attn-bottom-wrapper {
     position: relative;
     margin-top: 30px;

@@ -51,14 +51,20 @@ public class AttnDao {
         return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM ATTN", Integer.class);
     }
 
-    public int getWorkTimeSum(String empNo, String startDate, String endDate) {
+    public double getWorkTimeSum(String empNo, String startDate, String endDate) {
         String sql = "SELECT NVL(SUM(attn_work_time), 0) FROM attn WHERE emp_no = ? AND attn_work_date >= TO_DATE(?, 'YYYY-MM-DD') AND attn_work_date <= TO_DATE(?, 'YYYY-MM-DD')";
-        return jdbcTemplate.queryForObject(sql, Integer.class, empNo, startDate, endDate);
+        return jdbcTemplate.queryForObject(sql, Double.class, empNo, startDate, endDate);
     }
 
     public void updateStatusToAbsent() {
-        String sql = "UPDATE attn SET attn_status = '결근' WHERE TRUNC(attn_work_date) = TRUNC(SYSDATE - 1) AND attn_in_time IS NOT NULL AND attn_out_time IS NULL";
-        jdbcTemplate.update(sql);
+        String sql = "UPDATE attn SET "
+                   + "  attn_status = '결근', "
+                   + "  attn_record = '결근' "
+                   + "WHERE TRUNC(attn_work_date) = TRUNC(SYSDATE - 1) "
+                   + "  AND attn_in_time IS NOT NULL "
+                   + "  AND attn_out_time IS NULL";
+        int updatedRows = jdbcTemplate.update(sql);
+        System.out.println("🚨 [배치 시스템] 어제자 미퇴근자 결근 처리 완료. 총 " + updatedRows + "건 변경됨.");
     }
 
     public List<String> getEmployeesWithoutOutTime() {
@@ -104,24 +110,68 @@ public class AttnDao {
     public void updateAllWorkSystemDisable() { jdbcTemplate.update("UPDATE work_system SET is_active = 'N'"); }
     public void updateWorkSystemEnable(String workCode) { jdbcTemplate.update("UPDATE work_system SET is_active = 'Y' WHERE LOWER(work_code) = LOWER(?)", workCode); }
 
-    public void insertCheckIn(AttnDto attnDto) {
-        String sql = "INSERT INTO attn(attn_id, emp_no, attn_work_date, attn_in_time, attn_status, attn_record) "
-                   + "VALUES(attn_seq.nextval, ?, SYSDATE, SYSDATE, '출근중', '정상출근')";
-        jdbcTemplate.update(sql, attnDto.getEmpNo());
+    public void createTodayAttendance() {
+        String sql = "INSERT INTO attn (attn_id, emp_no, attn_work_date, attn_status, attn_record) "
+                   + "SELECT attn_seq.nextval, e.emp_no, TRUNC(SYSDATE), '미출근', '미출근' "
+                   + "FROM emp e "
+                   + "WHERE e.emp_use_yn = 'Y' " 
+                   + "  AND NOT EXISTS ( "
+                   + "      SELECT 1 FROM attn a "
+                   + "      WHERE a.emp_no = e.emp_no AND TRUNC(a.attn_work_date) = TRUNC(SYSDATE) "
+                   + "  )";
+        int insertedRows = jdbcTemplate.update(sql);
+        System.out.println("🚨 [배치 시스템] 금일 전 사원 근태 기본 레코드 생성 완료. 총 " + insertedRows + "건 투입됨.");
+    }
+
+    // 🛠️ [신규 추가] 초기화로 찢어져서 증발한 상자를 현장 유동 컴퓨팅 시점에 강제로 주입시킵니다.
+    public void insertNewAttendance(AttnDto attnDto) {
+        String sql = "INSERT INTO attn (attn_id, emp_no, attn_work_date, attn_in_time, attn_status, attn_record) "
+                   + "VALUES (attn_seq.nextval, ?, TRUNC(SYSDATE), SYSDATE, ?, ?)";
+        jdbcTemplate.update(sql, attnDto.getEmpNo(), attnDto.getAttnStatus(), attnDto.getAttnRecord());
+    }
+
+    public void updateCheckIn(AttnDto attnDto) {
+        String sql = "UPDATE attn SET "
+                   + "  attn_in_time = SYSDATE, "
+                   + "  attn_status = ?, " 
+                   + "  attn_record = ? "  
+                   + "WHERE emp_no = ? AND TRUNC(attn_work_date) = TRUNC(SYSDATE)"; 
+        jdbcTemplate.update(sql, attnDto.getAttnStatus(), attnDto.getAttnRecord(), attnDto.getEmpNo());
     }
 
     public void updateCheckOut(String empNo) {
-        String sql = "UPDATE attn SET attn_out_time = SYSDATE, attn_status = '퇴근' WHERE emp_no = ? AND TRUNC(attn_work_date) = TRUNC(SYSDATE)";
+        String sql = "UPDATE attn SET "
+                   + "  attn_out_time = SYSDATE, "
+                   + "  attn_status = '퇴근', "
+                   + "  attn_work_time = CASE "
+                   + "                     WHEN TO_CHAR(SYSDATE, 'HH24MI') < '1200' THEN "
+                   + "                       GREATEST(ROUND((SYSDATE - attn_in_time) * 24, 2), 0) "
+                   + "                     ELSE "
+                   + "                       GREATEST(ROUND(((SYSDATE - attn_in_time) * 24) - 1, 2), 0) "
+                   + "                   END, "
+                   + "  attn_record = CASE "
+                   + "                  WHEN CASE "
+                   + "                         WHEN TO_CHAR(SYSDATE, 'HH24MI') < '1200' THEN GREATEST(ROUND((SYSDATE - attn_in_time) * 24, 2), 0) "
+                   + "                         ELSE GREATEST(ROUND(((SYSDATE - attn_in_time) * 24) - 1, 2), 0) "
+                   + "                       END < 8.0 AND attn_record = '정상출근' THEN '조퇴' "
+                   + "                  ELSE attn_record "
+                   + "                END "
+                   + "WHERE emp_no = ? AND TRUNC(attn_work_date) = TRUNC(SYSDATE)";
         jdbcTemplate.update(sql, empNo);
     }
 
-    public String checkTodayStatus(String empNo) {
-        Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM attn WHERE emp_no = ? AND TRUNC(attn_work_date) = TRUNC(SYSDATE) AND attn_out_time IS NULL", Integer.class, empNo);
-        return (count != null && count > 0) ? "IN" : "OUT";
+    public Map<String, Object> selectTodayAttnDetails(String empNo) {
+        String sql = "SELECT attn_status, TO_CHAR(attn_in_time, 'HH24:MI') AS in_time, TO_CHAR(attn_out_time, 'HH24:MI') AS out_time "
+                   + "FROM attn WHERE emp_no = ? AND TRUNC(attn_work_date) = TRUNC(SYSDATE)";
+        try {
+            return jdbcTemplate.queryForMap(sql, empNo);
+        } catch (Exception e) {
+            return Collections.emptyMap();
+        }
     }
 
     public void deleteAttendanceByEmpNo(String empNo) {
-        String sql = "DELETE FROM attn WHERE emp_no = ?";
+        String sql = "DELETE FROM attn WHERE emp_no = ? AND TRUNC(attn_work_date) = TRUNC(SYSDATE)";
         jdbcTemplate.update(sql, empNo);
     }
 }
