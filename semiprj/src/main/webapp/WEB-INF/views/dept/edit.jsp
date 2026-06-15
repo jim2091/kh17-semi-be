@@ -266,96 +266,97 @@ $(function(){
 			    <p>기존 부서 정보를 변경합니다.</p>
 			</div>
 
-			<!-- ── 수정 폼 ── -->
-			<form action="./edit" method="post" autocomplete="off" class="form-check" style="max-width:800px;">
-			    <input type="hidden" name="deptId" value="${deptDto.deptId}">
-			
-			    <div class="gw-form-panel">
-			
-			        <!-- 상위 부서 -->
-			        <div class="gw-form-row">
-			            <label class="gw-form-label">
-			                상위 부서 분류 <span class="required">*</span>
-			            </label>
-			            <select name="parentDeptId" class="field gw-form-select w-100">
-			                <option value="">선택하세요</option>
-			                <option value="0" ${deptDto.parentDeptId == 0 ? 'selected' : ''}>최상위 부서 (독립 조직)</option>
-			                <c:forEach var="dept" items="${deptList}">
-			                    <c:if test="${dept.deptId != deptDto.deptId}">
-			                        <option value="${dept.deptId}" ${deptDto.parentDeptId == dept.deptId ? 'selected' : ''}>
-			                            ${dept.deptName}
-			                        </option>
-			                    </c:if>
-			                </c:forEach>
-			            </select>
-			            <div class="fail-feedback">상위 분류를 선택해 주세요.</div>
-			        </div>
-			
-			        <!-- 부서명 -->
-			        <div class="gw-form-row">
-			            <label class="gw-form-label">
-			                부서명 <span class="required">*</span>
-			            </label>
-			            <input type="text" name="deptName"
-			                   class="field gw-form-input full"
-			                   value="${deptDto.deptName}">
-			            <div class="success-feedback">사용 가능한 부서명입니다.</div>
-			            <div class="fail-feedback">이미 존재하는 부서명입니다.</div>
-			        </div>
-			
-			        <!-- 부서장 -->
-			            <label class="gw-form-label">
-			                부서장 <span class="required">*</span>
-			            </label>
-			        <div class="gw-form-row deptHeadId-wrapper">
-			            <div style="display:flex; gap:10px; align-items:center;">
-			                <input type="text" name="deptHeadIdKeyword"
-			                       class="field gw-form-input"
-			                       style="flex:1;"
-			                       placeholder="변경할 사원 이름을 입력하세요">
-			                <button type="button" class="gw-btn-outline open-search" style="height:46px; padding:0 18px;">
-			                    <i class="fa-solid fa-user-tie"></i> 찾기
-			                </button>
-			            </div>
-			                <div class="fail-feedback">부서장을 선택해 주세요.</div>                
-			            <div class="dept-selected mt-10">
-			                <c:if test="${deptHeadEmp != null}">
-			                    <span class="dept-tag">
-			                        ${deptHeadEmp.empName}
-			                        (${deptHeadEmp.empDeptName != null ? deptHeadEmp.empDeptName : '소속없음'})
-			                        <button type="button" class="delete-tag">✕</button>
-			                        <input type="hidden" name="deptHeadId" value="${deptHeadEmp.empNo}">
-			                    </span>
-			                </c:if>
-			            </div>
-			            <div class="deptHeadId"></div>
-			            
-				        <jsp:include page="/WEB-INF/views/template/employee-picker.jsp"/>
-				        <script src="/js/employee-picker.js"></script>
-					</div>
-			        <!-- 주요 업무 -->
-			        <div class="gw-form-row">
-			            <label class="gw-form-label">주요 업무 내용</label>
-			            <input type="text" name="deptContent"
-			                   class="gw-form-input full"
-			                   value="${deptDto.deptContent}"
-			                   placeholder="해당 부서의 주 업무 및 담당 역할을 기재하세요">
-			            <div class="gw-form-help">선택 항목입니다.</div>
-			        </div>
-			
-			        <!-- 액션 버튼 -->
-			        <div class="gw-form-actions">
-			            <a href="./list" class="gw-btn-outline">
-			                <i class="fa-solid fa-arrow-left"></i> 목록으로
-			            </a>
-			            <button type="submit" class="gw-btn-primary">
-			                <i class="fa-solid fa-pen"></i> 수정 완료
-			            </button>
-			        </div>
-			
-			    </div>
-			</form>
-		</div>
+
+<!-- ── 수정 폼 ── -->
+<form action="./edit" method="post" autocomplete="off" class="form-check" style="max-width:800px;">
+    <input type="hidden" id="pickerMode" value="single">
+    <input type="hidden" name="deptId" value="${deptDto.deptId}">
+
+    <div class="gw-form-panel">
+
+        <!-- 상위 부서 -->
+        <div class="gw-form-row">
+            <label class="gw-form-label">
+                상위 부서 분류 <span class="required">*</span>
+            </label>
+            <select name="parentDeptId" class="field gw-form-select w-100">
+                <option value="">선택하세요</option>
+                <option value="0" ${deptDto.parentDeptId == 0 ? 'selected' : ''}>최상위 부서 (독립 조직)</option>
+                <c:forEach var="dept" items="${deptList}">
+                    <c:if test="${dept.deptId != deptDto.deptId}">
+                        <option value="${dept.deptId}" ${deptDto.parentDeptId == dept.deptId ? 'selected' : ''}>
+                            ${dept.deptName}
+                        </option>
+                    </c:if>
+                </c:forEach>
+            </select>
+            <div class="fail-feedback">상위 분류를 선택해 주세요.</div>
+        </div>
+
+        <!-- 부서명 -->
+        <div class="gw-form-row">
+            <label class="gw-form-label">
+                부서명 <span class="required">*</span>
+            </label>
+            <input type="text" name="deptName"
+                   class="field gw-form-input full"
+                   value="${deptDto.deptName}">
+            <div class="success-feedback">사용 가능한 부서명입니다.</div>
+            <div class="fail-feedback">이미 존재하는 부서명입니다.</div>
+        </div>
+
+<!-- 부서장 -->
+	<label class="gw-form-label">
+	    부서장 <span class="required">*</span>
+	</label>
+	<div class="gw-form-row deptHeadId-wrapper">
+	    <div style="display:flex; gap:10px; align-items:center;">
+	        <input type="text" name="deptHeadIdKeyword"
+	               class="field gw-form-input"
+	               style="flex:1;"
+	               placeholder="변경할 사원 이름을 입력하세요">
+	        <button type="button" class="gw-btn-outline open-search" style="height:46px; padding:0 18px;">
+	            <i class="fa-solid fa-user-tie"></i> 찾기
+	        </button>
+	    </div>
+	    <div class="fail-feedback" style="display:none;">부서장을 선택해 주세요.</div>
+	
+	    <div class="receiver-list receiver-selected-list mt-10">
+	        <c:if test="${deptHeadEmp != null}">
+	            <span class="receiver-tag">
+	                ${deptHeadEmp.empName}
+	                (${deptHeadEmp.empDeptName != null ? deptHeadEmp.empDeptName : '소속없음'})
+	                <button type="button" class="delete-tag">✕</button>
+	                <input type="hidden" name="messageReceiver" value="${deptHeadEmp.empNo}">
+	            </span>
+	        </c:if>
+	    </div>
+	    <div class="deptHeadId"></div>
+	
+	    <jsp:include page="/WEB-INF/views/template/employee-picker.jsp"/>
+	    <script src="/js/employee-picker.js"></script>
 	</div>
+        <!-- 주요 업무 -->
+        <div class="gw-form-row">
+            <label class="gw-form-label">주요 업무 내용</label>
+            <input type="text" name="deptContent"
+                   class="gw-form-input full"
+                   value="${deptDto.deptContent}"
+                   placeholder="해당 부서의 주 업무 및 담당 역할을 기재하세요">
+            <div class="gw-form-help">선택 항목입니다.</div>
+        </div>
+
+        <!-- 액션 버튼 -->
+        <div class="gw-form-actions">
+            <a href="./list" class="gw-btn-outline">
+                <i class="fa-solid fa-arrow-left"></i> 목록으로
+            </a>
+            <button type="submit" class="gw-btn-primary">
+                <i class="fa-solid fa-pen"></i> 수정 완료
+            </button>
+        </div>
+
+    </div>
+</form>
 </div>
 <jsp:include page="/WEB-INF/views/template/footer2.jsp"/>
