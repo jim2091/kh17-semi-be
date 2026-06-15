@@ -22,7 +22,6 @@ public class AppMapper implements RowMapper<AppDto>{
 	    appDto.setAppDate(rs.getString("app_date"));
 	    appDto.setAppStatus(rs.getString("app_status"));
 	    appDto.setAppSaveYn(rs.getString("app_save_yn"));
-	    appDto.setAppApprId(rs.getString("app_appr_id"));
 	    appDto.setEmpName(rs.getString("emp_name")); // 추가
 	    return appDto;
 	}

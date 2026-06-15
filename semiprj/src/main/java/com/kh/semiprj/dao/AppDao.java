@@ -56,7 +56,7 @@ public class AppDao {
 		}
 
 		String sql = "select * from ( " + "  select rownum RN, TMP.* from ( "
-				+ "    select * from app where app_type = ? order by app_no desc " + "  ) TMP "
+				+ "    select * from app where app_type = ? order by app_id desc " + "  ) TMP "
 				+ ") where rn between ? and ?";
 		Object[] params = { pageVO.getKeyword(), pageVO.getBeginRownum(), pageVO.getEndRownum() };
 		return jdbcTemplate.query(sql, appMapper, params);
@@ -70,7 +70,7 @@ public class AppDao {
 	// 등록 
 	public void insert(AppDto appDto) {
 		String sql = "insert into app (app_id, app_req_id, app_title,  "
-				+ "app_content, app_status,app_date, app_save_yn)"
+				+ "app_content, app_status, app_date, app_save_yn, app_type)"
 				+ " values(?, ?, ?, ?, ?, ?, ?)";
 		Object[] params = { 
 				appDto.getAppId(), 
@@ -79,7 +79,8 @@ public class AppDao {
 				appDto.getAppContent(),
 				appDto.getAppStatus(),
 				appDto.getAppDate(),
-				appDto.getAppSaveYn()
+				appDto.getAppSaveYn(),
+				appDto.getAppType()
 		};
 		jdbcTemplate.update(sql, params);
 	}

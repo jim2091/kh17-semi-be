@@ -14,6 +14,5 @@ public class AppDto {
 	private String appDate;
 	private String appStatus;
 	private String appSaveYn;
-	private String appApprId; // 결재자 사번
 	private String empName; // 기안자 이름 (JOIN용)
 }
