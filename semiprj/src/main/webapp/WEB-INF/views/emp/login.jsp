@@ -152,9 +152,6 @@
     color: var(--main-color);
 }
 
-.login-divider {
-    color: var(--border-color);
-}
 </style>
 
 <div class="login-wrap">
