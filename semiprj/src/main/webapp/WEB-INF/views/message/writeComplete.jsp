@@ -21,14 +21,10 @@
 .success-icon{
     width:90px;
     height:90px;
-
     margin:0 auto 24px;
-
     border-radius:50%;
-
     background:#eff6ff;
     color:#2563eb;
-
     display:flex;
     align-items:center;
     justify-content:center;
@@ -38,14 +34,12 @@
     font-size:28px;
     font-weight:700;
     color:#111827;
-
     margin-bottom:12px;
 }
 
 .success-desc{
     font-size:15px;
     color:#6b7280;
-
     line-height:1.7;
     margin-bottom:32px;
 }
@@ -72,16 +66,15 @@
 	
 	    <div class="success-actions">
 	        <a href="./write" class="gw-btn-primary">
-	            <i class="fa-solid fa-plus"></i>
 	            <span>추가로 보내기</span>
 	        </a>
 	    </div>
 	</div>
 	
-<script>
+<!-- <script>
 setTimeout(function(){
     location.href="./receiveList";
 }, 3000);
-</script>
+</script>  -->
 
 <jsp:include page="/WEB-INF/views/template/footer2.jsp"></jsp:include>

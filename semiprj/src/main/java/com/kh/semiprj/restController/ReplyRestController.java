@@ -72,7 +72,8 @@ public class ReplyRestController {
 		EmpDto empDto = empDao.selectOne(loginId);
 		List<ReplyDto> originList = replyDao.selectList(replyOrigin);
 		List<ReplyVO> newList = new ArrayList<>();
-		boolean admin = empDto != null && "관리자".equals(empDto.getEmpLevel());
+		String loginRole = (String)session.getAttribute("loginRole");
+		boolean admin = "관리자".equals(loginRole);
 		//- 게시글 유형이 익명일 경우 댓글 작성자 이름을 익명 처리
 		boolean anonymous = "익명".equals(boardDto.getBoardType());
 		Map<String, Integer> anonymousMap = new HashMap<>();
@@ -120,7 +121,8 @@ public class ReplyRestController {
 	        throw new GetOutException();
 	    }
 	    boolean owner = String.valueOf(empDto.getEmpNo()).equals(replyDto.getReplyWriter());
-	    boolean admin = "관리자".equals(empDto.getEmpLevel());
+	    String loginRole = (String)session.getAttribute("loginRole");
+		boolean admin = "관리자".equals(loginRole);
 	    if(!(owner || admin)) {
 	    	throw new GetOutException();
 	    }
@@ -139,7 +141,8 @@ public class ReplyRestController {
 	        throw new GetOutException();
 	    }
 	    boolean owner = String.valueOf(empDto.getEmpNo()).equals(findReplyDto.getReplyWriter());
-	    boolean admin = "관리자".equals(empDto.getEmpLevel());
+	    String loginRole = (String)session.getAttribute("loginRole");
+		boolean admin = "관리자".equals(loginRole);
 	    if(!(owner || admin)) {
 	    	throw new GetOutException();
 	    }

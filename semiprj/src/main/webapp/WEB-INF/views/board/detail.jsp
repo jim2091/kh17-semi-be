@@ -271,6 +271,9 @@ display:block;
     font-size: 12px;
     letter-spacing: -0.3px;
 }
+.board-title{
+    overflow-wrap: anywhere;
+}
 </style>
 
 <!-- 게시글 삭제 시 한번 더 물어보는 확인창 -->
@@ -371,11 +374,16 @@ $(function(){
 						    );
 						}
 						
-						//(1) owner가 false면 수정/삭제 버튼 영역을 지움
-						if(response[i].owner == false &&
-  							response[i].admin == false){
-							$(html).find(".owner-menu").remove();
+						if(response[i].owner){
+						    // 수정 + 삭제
 						}
+						else if(response[i].admin){
+						    $(html).find(".btn-reply-edit").remove();
+						}
+						else{
+						    $(html).find(".owner-menu").remove();
+						}
+						
 						//(2) writer가 false면 작성자라는 글자 영역을 지움
 						if(response[i].writer == false) {
 							$(html).find(".board-writer").remove();
@@ -633,7 +641,7 @@ $(function(){
         <div class="gw-page-head">
 		    <div class="gw-breadcrumb">홈 / 게시판 / 상세보기</div>
 			<span class="board-head">${boardDto.boardHead}</span>
-			<h1>${boardDto.boardTitle}</h1>
+			<h1 class="board-title">${boardDto.boardTitle}</h1>
 		</div>
 		
 		<div class="gw-form-panel">
