@@ -61,9 +61,11 @@ public class AdminController {
 	}
 
 	@PostMapping("/register")
-	public String register(@ModelAttribute EmpDto empDto) {
-//		System.out.println(empDto);
-		empDao.insertFromAdmin(empDto);
+	public String register(@ModelAttribute EmpDto empDto,Model model) {
+//		System.out.println(empDto);		
+		empDao.insertFromAdmin(empDto);		
+		//부서 목록 전체 가져오기 위한
+		model.addAttribute("deptList",deptDao.selectTreeList());
 
 		return "redirect:./list";
 		// 홈으로 리다이렉트해놓았는데, 사원목록구현후 사원목록페이지로 리다이렉트할 예정입니다
