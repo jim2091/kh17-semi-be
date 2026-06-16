@@ -4,35 +4,45 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <jsp:include page="/WEB-INF/views/template/header2.jsp"></jsp:include>
 
-<div class="gw-page-head">
-    <div class="gw-breadcrumb">
-        사용자 > 직원목록 > 직원정보
-    </div>
+<style>
+	.position-badge{
+    display:inline-block;
+    padding:4px 12px;
+    border-radius:999px;
 
-    <h1>직원 상세정보</h1>
-    <p>직원의 상세 프로필 정보입니다.</p>
-</div>
+    background:#eef4ff;
+    color:var(--main-color);
 
-<div class="gw-list-panel">
+    font-size:13px;
+    font-weight:600;
+}
+</style>
 
-    <div class="center mb-30">
-        <img src="/emp/profile?empNo=${empDto.empNo}"
-             width="140"
-             height="140"
-             style="
-                border-radius:50%;
-                object-fit:cover;
-                border:4px solid var(--main-light);
-             ">
+<div class="pds-width">
+	<div class="gw-page-head">
+	    <div class="gw-breadcrumb">홈 > 직원목록 > 직원정보</div>
+	    <h1>직원 상세정보</h1>
+	    <p>직원의 상세 프로필 볼 수 있습니다.</p>
+	</div>
 
+	<div class="gw-list-panel">
+	    <div class="center mb-30">
+	        <img src="/emp/profile?empNo=${empDto.empNo}"
+	             width="140"
+	             height="140"
+	             style="
+	                border-radius:50%;
+	                object-fit:cover;
+	                border:4px solid var(--main-light);
+	             ">
         <h2 class="mt-20">${empDto.empName}</h2>
-        <div class="gw-muted">${empDto.empPosition}</div>
+        <div class="position-badge">${empDto.empPosition}</div>
     </div>
 
     <table class="gw-table">
         <tbody>
             <tr>
-                <th width="20%">부서</th>
+                <th width="30%">부서</th>
                 <td>${deptDto.deptName}</td>
             </tr>
             <tr>
@@ -79,7 +89,6 @@
     </table>
 
     <div class="center mt-30">
-
         <c:if test="${sessionScope.loginNo == empDto.empNo}">
             <a href="./edit?empNo=${empDto.empNo}"
                class="gw-btn-primary">
@@ -98,9 +107,8 @@
             <i class="fa-solid fa-arrow-left"></i>
             뒤로가기
         </a>
-
+	</div>
     </div>
-
 </div>
 
 <jsp:include page="/WEB-INF/views/template/footer2.jsp"></jsp:include>
