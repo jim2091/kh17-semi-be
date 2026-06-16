@@ -71,7 +71,7 @@
 				<div class="gw-detail-meta">
 					<span>
 						<i class="fa-regular fa-calendar"></i>
-						보낸 시간&nbsp;:&nbsp;
+						<span>보낸 시간</span>&nbsp;:&nbsp;
 						<fmt:formatDate value="${messageDto.messageWtime}" pattern="yyyy-MM-dd HH:mm"></fmt:formatDate>
 					</span>
 				</div>
