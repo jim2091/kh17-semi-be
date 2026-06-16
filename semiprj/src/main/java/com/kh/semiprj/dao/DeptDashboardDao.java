@@ -35,11 +35,20 @@ public class DeptDashboardDao {
 		return list.isEmpty() ? null : list.get(0);
 	}
 	
-	public List<String> selectDeptNoWithChildren(String deptId){
-		String sql = "select dept_id from dept start with dept_id = ? "
-				+ "connect by prior dept_id = parent_dept_id";
+	public List<ManagedDeptVO> selectManagedDeptList(String deptId) {
+		String sql = """
+				select 
+					dept_id, 
+					dept_name, 
+					parent_dept_id, 
+					level - 1 as depth 
+				from dept 
+				start with dept_id = ? 
+				connect by prior dept_id = parent_dept_id 
+				order siblings by dept_name asc
+				""";
 		Object[] params = { deptId };
-		return jdbcTemplate.queryForList(sql, String.class, params);
+		return jdbcTemplate.query(sql, managedDeptMapper, params);
 	}
 	
 	public List<DeptMemberStatusVO> selectTodayMemberStatusList(String deptId){
@@ -70,7 +79,7 @@ public class DeptDashboardDao {
 		return jdbcTemplate.query(sql, memberStatusMapper, params);
 	}
 	
-	public List<AttendanceStatVO> selectAttendanceStats(String deptId){
+	public List<AttendanceStatVO> selectAttendanceStats(String deptId, String month){
 		String sql = """
 				select 
 					to_char(attn_work_date, 'W') || '주차' as label, 
@@ -89,16 +98,16 @@ public class DeptDashboardDao {
 					start with dept_id = ? 
 					connect by prior dept_id = parent_dept_id 
 				)
-				and attn_work_date >= trunc(sysdate, 'MM') 
-				and attn_work_date < add_months(trunc(sysdate, 'MM'), 1) 
-				group by to_char(attn_work_date, 'W') 
-				order by to_number(to_char(attn_work_date, 'W'))
+				and a.attn_work_date >= to_date(? || '-01', 'YYYY-MM-DD') 
+				and a.attn_work_date < add_months(to_date(? || '-01', 'YYYY-MM-DD'), 1) 
+				group by to_char(a.attn_work_date, 'W') 
+				order by to_number(to_char(a.attn_work_date, 'W'))
 				""";
-		Object[] params = { deptId };
+		Object[] params = { deptId, month, month };
 		return jdbcTemplate.query(sql, attendanceStatMapper, params);
 	}
 	
-	public List<ApprovalStatVO> selectApprovalStats(String deptId){
+	public List<ApprovalStatVO> selectApprovalStats(String deptId, String month){
 		String sql = """
 				select 
 					a.app_status as status, 
@@ -111,8 +120,8 @@ public class DeptDashboardDao {
 					start with dept_id = ? 
 					connect by prior dept_id = parent_dept_id
 				)
-				and a.app_date >= trunc(sysdate, 'MM')
-				and a.app_date < add_months(trunc(sysdate, 'MM'), 1) 
+				and a.app_date >= ? || '-01'
+				and a.app_date < to_char(add_months(to_date(? || '-01', 'YYYY-MM-DD'), 1), 'YYYY-MM-DD')
 				group by a.app_status 
 				order by 
 					case a.app_status 
@@ -123,11 +132,11 @@ public class DeptDashboardDao {
 						else 5 
 					end
 				""";
-		Object[] params = { deptId };
+		Object[] params = { deptId, month, month };
 		return jdbcTemplate.query(sql, approvalStatMapper, params);
 	}
 	
-	public List<LeaveCalendarVO> selectLeaveList(String deptId){
+	public List<LeaveCalendarVO> selectLeaveList(String deptId, String month){
 		String sql = """
 				select
 					e.emp_no,
@@ -143,27 +152,13 @@ public class DeptDashboardDao {
 					start with dept_id = ? 
 					connect by prior dept_id = parent_dept_id
 				)
-				and v.vac_date >= to_char(trunc(sysdate, 'MM'), 'YYYY-MM-DD')
-				and v.vac_date < to_char(add_months(trunc(sysdate, 'MM'), 1), 'YYYY-MM-DD') 
+				and v.vac_date >= ? || '-01'
+				and v.vac_date < to_char(add_months(to_date(? || '-01', 'YYYY-MM-DD'), 1), 'YYYY-MM-DD')
 				order by v.vac_date asc, d.dept_name asc, e.emp_name asc
 				""";
-		Object[] params = { deptId };
+		Object[] params = { deptId, month, month };
 		return jdbcTemplate.query(sql, leaveCalendarMapper, params);
 	}
 	
-	public List<ManagedDeptVO> selectManagedDeptList(String deptId) {
-		String sql = """
-				select 
-					dept_id,
-					dept_name, 
-					parent_dept_id, 
-					level - 1 as depth
-				from dept
-				start with dept_id = ? 
-				connect by prior dept_id = parent_dept_id 
-				order_by siblings by dept_name asc
-				""";
-		Object[] params = { deptId };
-		return jdbcTemplate.query(sql, managedDeptMapper, params);
-	}
+	
 }

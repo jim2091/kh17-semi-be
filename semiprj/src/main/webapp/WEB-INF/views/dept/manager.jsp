@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <jsp:include page="/WEB-INF/views/template/header2.jsp"></jsp:include>
 
@@ -272,40 +273,52 @@
 
     <div class="manager-summary-grid">
         <div class="summary-card">
-            <div class="summary-icon">
-                <i class="fa-solid fa-users"></i>
-            </div>
-            <div class="summary-title">부서 구성원</div>
-            <div class="summary-value">18명</div>
-            <div class="summary-desc">근무 15명 · 휴가 2명 · 외근 1명</div>
-        </div>
+		    <div class="summary-icon">
+		        <i class="fa-solid fa-users"></i>
+		    </div>
+		    <div class="summary-title">부서 구성원</div>
+		    <div class="summary-value">${dashboard.memberCount}명</div>
+		    <div class="summary-desc">
+		        근무 ${dashboard.workingNowCount}명 ·
+		        휴가 ${dashboard.leaveCount}명 ·
+		        미확인 ${dashboard.uncheckedCount}명
+		    </div>
+		</div>
 
         <div class="summary-card">
-            <div class="summary-icon">
-                <i class="fa-solid fa-business-time"></i>
-            </div>
-            <div class="summary-title">오늘 출근율</div>
-            <div class="summary-value">92.3%</div>
-            <div class="summary-desc">전월 대비 <span class="change-up">▲ 3.2%p</span></div>
-        </div>
+		    <div class="summary-icon">
+		        <i class="fa-solid fa-business-time"></i>
+		    </div>
+		    <div class="summary-title">오늘 출근율</div>
+		    <div class="summary-value">
+		        <fmt:formatNumber value="${dashboard.attendanceRate}" pattern="0.0"/>%
+		    </div>
+		    <div class="summary-desc">
+		        출근 ${dashboard.checkedInCount}명 · 미확인 ${dashboard.uncheckedCount}명
+		    </div>
+		</div>
 
         <div class="summary-card">
-            <div class="summary-icon">
-                <i class="fa-solid fa-file-signature"></i>
-            </div>
-            <div class="summary-title">이번 달 결재</div>
-            <div class="summary-value">48건</div>
-            <div class="summary-desc">완료 41건 · 진행중 7건</div>
-        </div>
+		    <div class="summary-icon">
+		        <i class="fa-solid fa-file-signature"></i>
+		    </div>
+		    <div class="summary-title">이번 달 결재</div>
+		    <div class="summary-value">${dashboard.approvalTotalCount}건</div>
+		    <div class="summary-desc">
+		        승인 ${dashboard.approvalApproveCount}건 · 진행 ${dashboard.approvalIngCount}건
+		    </div>
+		</div>
 
         <div class="summary-card">
-            <div class="summary-icon">
-                <i class="fa-solid fa-plane-departure"></i>
-            </div>
-            <div class="summary-title">이번 달 휴가 사용</div>
-            <div class="summary-value">6.5일</div>
-            <div class="summary-desc">전월 대비 <span class="change-up">▲ 1.2일</span></div>
-        </div>
+		    <div class="summary-icon">
+		        <i class="fa-solid fa-plane-departure"></i>
+		    </div>
+		    <div class="summary-title">이번 달 휴가 사용</div>
+		    <div class="summary-value">${dashboard.monthlyLeaveCount}일</div>
+		    <div class="summary-desc">
+		        선택 월 기준 휴가 사용 일수
+		    </div>
+		</div>
     </div>
 
     <div class="manager-main-grid">

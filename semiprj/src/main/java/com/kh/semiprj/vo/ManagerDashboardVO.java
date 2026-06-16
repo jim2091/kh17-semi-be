@@ -30,9 +30,13 @@ public class ManagerDashboardVO {
 	private int approvalRejectCount;
 	private int approvalIngCount;
 	
-	private List<AttendanceStatVO> attendaceStats;
+	private List<AttendanceStatVO> attendanceStats;
 	private List<ApprovalStatVO> approvalStats;
 	private List<LeaveCalendarVO> leaveList;
 	private List<DeptMemberStatusVO> memberList;
+	
+	private int monthlyLeaveCount;
+	
+	private double attendanceRate;
 	
 }
