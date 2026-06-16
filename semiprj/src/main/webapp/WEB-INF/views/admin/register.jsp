@@ -153,13 +153,20 @@
                 $(this).removeClass("success fail").addClass(valid? "success": "fail");
                 state.empNameValid = valid;
             });
-            $("[name=empDept]").on("input", function(){
+            /* $("[name=empDept]").on("input", function(){
                 var regex = /^(0|10|20|21|30|40|50|60|70|80)$/;
                 var valid = regex.test($(this).val());
                 $(this).removeClass("success fail").addClass(valid? "success": "fail");
 
                 state.empDeptValid = valid;
+            }); */
+            
+            $("[name=empDept]").on("input", function(){
+                var valid = $(this).val() !== "";
+                $(this).removeClass("success fail").addClass(valid ? "success" : "fail");
+                state.empDeptValid = valid;
             });
+            
             $("[name=empPosition]").on("input", function(){
                 var regex = /^(사원|선임|주임|대리|과장|차장|부장|이사|상무|전무|부사장|사장|부회장|회장)$/;
                 var valid = regex.test($(this).val());

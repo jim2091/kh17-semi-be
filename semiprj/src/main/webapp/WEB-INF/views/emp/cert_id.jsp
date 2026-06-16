@@ -6,8 +6,6 @@
 
 <style>
 .page-wrap {
-    min-height: calc(100vh - 76px);
-    background: linear-gradient(180deg, var(--main-bg-start) 0%, var(--main-bg-end) 100%);
     display: flex;
     align-items: flex-start;
     justify-content: center;
@@ -162,7 +160,7 @@
 
         <div class="cert-card-header">
             <div class="gw-breadcrumb">홈 > 아이디 찾기 > 인증번호 확인</div>
-            <h1>인증번호 입력</h1>
+            <h1>인증번호 확인</h1>
             <p>이메일로 발송된 6자리 인증번호를 입력해주세요</p>
         </div>
 

@@ -107,7 +107,6 @@
 <script>
 
 (function () {
-    // 외부 라이브러리를 이용한 조직도 표현
     var rawList = [
         <c:forEach var="dept" items="${list}" varStatus="s">
         { id: ${dept.deptId}, parentId: ${dept.parentDeptId}, name: "${dept.deptName}" }${!s.last ? ',' : ''}
@@ -127,26 +126,31 @@
     });
 
     /* 2단계: 부모-자식 연결 */
+    var childIds = new Set();
     rawList.forEach(function(d) {
-        if (d.id === 0) return;
-        if (nodeMap[d.parentId] !== undefined) {
+        if (nodeMap[d.parentId] !== undefined && d.parentId !== d.id) {
             nodeMap[d.parentId].children.push(nodeMap[d.id]);
+            childIds.add(d.id);
         }
     });
 
-    /* 3단계: DEPT_ID=0 을 루트로 고정 */
-    var rootNode = nodeMap[0];
+    /* 3단계: 루트 자동 탐색 */
+    var rootNode = null;
+    rawList.forEach(function(d) {
+        if (!childIds.has(d.id) && !rootNode) {
+            rootNode = nodeMap[d.id];
+        }
+    });
 
-    // 홈 화면 테마에 매칭되도록 연결선 선의 두께와 색상을 고급스럽게 조정
     var config = {
         chart: {
             container:         '#org-tree',
             connectors: {
                 type:  'step',
-                style: { 
-                    'stroke': 'rgba(148, 163, 184, 0.5)', /* 누수 없는 소프트한 회색선 */
-                    'stroke-width': 2, 
-                    'stroke-dasharray': '2,2' /* 깔끔한 점선 형태 구성 (실선 원할 시 제거 가능) */
+                style: {
+                    'stroke':           'rgba(148, 163, 184, 0.5)',
+                    'stroke-width':      2,
+                    'stroke-dasharray': '2,2'
                 }
             },
             nodeAlign:         'BOTTOM',
@@ -158,16 +162,7 @@
         nodeStructure: rootNode
     };
 
-    // 트리를 화면에 그림
     new Treant(config);
-    
-    /* 4단계: 개별 루트 노드 식별을 위한 속성 주입 스크립트 */
-    $(".Treant .node-box").each(function(){
-        var href = $(this).attr("href");
-        if(href && href.indexOf("deptId=0") !== -1){
-            $(this).attr("data-dept-id", "0");
-        }
-    });
 })();
 </script>
 
