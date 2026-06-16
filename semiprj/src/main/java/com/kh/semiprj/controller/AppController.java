@@ -366,16 +366,33 @@ public class AppController {
 		model.addAttribute("list", appDao.selectMyList(empNo));
 		return "/app/list";
 	}
-	
-	
-	
-	//picker 용 매핑
+
+//	//picker 용 매핑
+//	@GetMapping("/searchApprover")
+//	@ResponseBody
+//	public List<Map<String, Object>> searchApprover(
+//	        @RequestParam String keyword,
+//	        @RequestParam(required = false) List<String> excludes) {
+//	    return appDao.searchApproverForPicker(keyword, excludes);
+//	}
+
+	// picker 용 매핑
 	@GetMapping("/searchApprover")
 	@ResponseBody
-	public List<Map<String, Object>> searchApprover(
-	        @RequestParam String keyword,
-	        @RequestParam(required = false) List<String> excludes) {
-	    return appDao.searchApproverForPicker(keyword, excludes);
+	public List<Map<String, Object>> searchApprover(@RequestParam String keyword,
+			@RequestParam(required = false) List<String> excludes) {
+		List<Map<String, Object>> approverList = appDao.searchApproverForPicker(keyword, excludes);
+		if (approverList == null || approverList.isEmpty()) {
+			return approverList;
+		}
+		for (Map<String, Object> map : approverList) {
+			String deptId = (String) map.get("empDept"); // Map에 들어있는 부서 번호 추출
+			String deptName = appDao.selectDeptNameById(deptId);
+			if (deptName != null) {
+				map.put("empDept", deptName); // 원래 부서 번호가 있던 자리에 한글 부서 명을 덮어쓰기
+			}
+		}
+		return approverList;
 	}
 
 }

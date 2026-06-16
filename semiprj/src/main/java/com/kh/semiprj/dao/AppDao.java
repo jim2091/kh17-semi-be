@@ -100,6 +100,18 @@ public class AppDao {
         return list.isEmpty() ? null : list.get(0);
     }
 	
+	// dept_id 가 아닌 dept_name 이 출력될 수 있게 해주는 메소드
+	public String selectDeptNameById(String deptId) {
+		if (deptId == null || deptId.trim().isEmpty()) {
+			return null;
+		}
+		String sql = "select dept_name from dept where dept_id=?";
+		Object[] params = { deptId };
+		return jdbcTemplate.queryForObject(sql, String.class, params);
+	}
+	
+	
+	
 	// 삭제
 	public boolean delete(int appId) {
 		String sql = "delete app where app_id=?";
