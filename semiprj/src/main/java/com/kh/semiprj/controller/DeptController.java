@@ -223,10 +223,12 @@ public class DeptController {
 	}
 		
 	@GetMapping("/manager")
-	public String managerDashboard(HttpSession session, Model model) {
+	public String managerDashboard(HttpSession session, Model model, 
+						@RequestParam(required=false) String deptId, 
+						@RequestParam(required=false) String month) {
 		String loginId = (String) session.getAttribute("loginId");
 		EmpDto empDto = empDao.selectOne(loginId);
-		ManagerDashboardVO dashboard = deptDashboardService.createDashboard(empDto.getEmpNo());
+		ManagerDashboardVO dashboard = deptDashboardService.createDashboard(empDto.getEmpNo(), deptId, month);
 		
 		if (dashboard == null) {
 			return "redirect:/";
