@@ -190,10 +190,7 @@ $(function(){
 
         $input.removeClass("success fail").addClass("success").removeAttr("data-error"); 
         state.expPriceValid = true;
-
-        $("#realPrice").val(cleanValue);
-        var formattedValue = Number(cleanValue).toLocaleString('ko-KR');
-        $input.val(formattedValue);
+        
     });
 
     $("#approvalForm").on("submit", function(e){
