@@ -376,23 +376,33 @@ public class AppController {
 //	    return appDao.searchApproverForPicker(keyword, excludes);
 //	}
 
-	// picker 용 매핑
 	@GetMapping("/searchApprover")
 	@ResponseBody
 	public List<Map<String, Object>> searchApprover(@RequestParam String keyword,
-			@RequestParam(required = false) List<String> excludes) {
-		List<Map<String, Object>> approverList = appDao.searchApproverForPicker(keyword, excludes);
-		if (approverList == null || approverList.isEmpty()) {
-			return approverList;
-		}
-		for (Map<String, Object> map : approverList) {
-			String deptId = (String) map.get("empDept"); // Map에 들어있는 부서 번호 추출
-			String deptName = appDao.selectDeptNameById(deptId);
-			if (deptName != null) {
-				map.put("empDept", deptName); // 원래 부서 번호가 있던 자리에 한글 부서 명을 덮어쓰기
-			}
-		}
-		return approverList;
+	        @RequestParam(required = false) List<String> excludes, HttpSession session) {
+
+	    // 본인 제외
+	    String loginId = (String) session.getAttribute("loginId");
+	    String empNo = appDao.selectEmpNoById(loginId);
+	    if (excludes == null) excludes = new ArrayList<>();
+	    if (!excludes.contains(empNo)) excludes.add(empNo);
+
+	    List<Map<String, Object>> approverList = appDao.searchApproverForPicker(keyword, excludes);
+	    if (approverList == null || approverList.isEmpty()) return approverList;
+
+	    for (Map<String, Object> map : approverList) {
+	        String deptId = (String) map.get("empDept");
+	        if (deptId != null && !deptId.isEmpty()) {
+	            try {
+	                String deptName = appDao.selectDeptNameById(Integer.parseInt(deptId));
+	                if (deptName != null) map.put("empDept", deptName);
+	            } catch (NumberFormatException e) {
+	                map.put("empDept", "소속없음");
+	            }
+	        }
+	    }
+
+	    return approverList;
 	}
 
 }
