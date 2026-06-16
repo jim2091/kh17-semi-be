@@ -253,12 +253,20 @@
         </div>
 
         <div class="dept-filter">
-            <select class="gw-form-select">
-                <option>경영지원부</option>
-                <option>개발팀</option>
-                <option>인사팀</option>
-            </select>
-            <input type="month" class="gw-form-input w-200" value="2025-05">
+        	<form action="/dept/manager" method="get" class="dept-filter">
+	            <select name="deptId" class="gw-form-select">
+	            	<c:forEach var="dept" items="${dashboard.managedDeptList}">
+	            		<option value="${dept.deptId}"
+	            			<c:if test="${dept.deptId == dashboard.selectedDeptId}">selected</c:if>>
+	            			<c:forEach begin="1" end="${dept.depth}">&nbsp;&nbsp;</c:forEach>
+	            			${dept.deptName}
+	           			</option>
+	            	</c:forEach>
+	            </select>
+	            <input type="month" name="month" class="gw-form-input w-200" 
+	            		value="${dashboard.selectedMonth}">
+	            <button type="submit" class="gw-btn-primary">조회</button>
+            </form>
         </div>
     </div>
 
