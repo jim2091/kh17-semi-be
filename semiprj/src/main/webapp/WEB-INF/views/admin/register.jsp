@@ -1,15 +1,9 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
     
 <jsp:include page="/WEB-INF/views/template/header2.jsp"></jsp:include>
-    
-    
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    
-    
-    
+
 <style>
 .modal {
     display:none;
@@ -456,20 +450,10 @@
     <th>부서</th>
     <td>
     <div style="display:flex; gap:10px;">
-        <select name="empDept"
-                class="gw-form-select field">
-
-            <option value="0">회사</option>
-            <option value="10">경영지원본부</option>
-            <option value="20">인사팀</option>
-            <option value="21">총무감사팀</option>
-            <option value="30">총무팀</option>
-            <option value="40">개발본부</option>
-            <option value="50">백엔드개발팀</option>
-            <option value="60">프론트엔드개발팀</option>
-            <option value="70">영업마케팅본부</option>
-            <option value="80">국내영업팀</option>
-
+        <select name="empDept" class="gw-form-select field">
+			<c:forEach var="dept" items="${deptList}">
+		        <option value="${dept.deptId}">${dept.deptName}</option>
+		    </c:forEach>
         </select>
     <div class="success-feedback"></div>
     <div class="fail-feedback">필수항목입니다</div>
