@@ -25,6 +25,7 @@ import com.kh.semiprj.dto.AppLineDto;
 import com.kh.semiprj.dto.DftAppDto;
 import com.kh.semiprj.dto.ExpAppDto;
 import com.kh.semiprj.dto.VacAppDto;
+import com.kh.semiprj.service.VacService;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -42,6 +43,8 @@ public class AppController {
 	private ExpAppDao expAppDao;
 	@Autowired
 	private AppLineDao appLineDao;
+	@Autowired
+	private VacService vacService;
 
 	// 상세
 	@RequestMapping("/detail")
@@ -97,19 +100,21 @@ public class AppController {
 	}
 
 	@PostMapping("/vacInsert")
-	public String vacInsert(@ModelAttribute VacAppDto vacAppDto, @RequestParam String approver1,
-			@RequestParam(required = false) String approver2, @RequestParam(required = false) String approver3,
+	public String vacInsert(@ModelAttribute VacAppDto vacAppDto, 
+			@RequestParam String approver1,
+			@RequestParam(required = false) String approver2, 
+			@RequestParam(required = false) String approver3,
 			HttpSession session, RedirectAttributes redirectAttributes) {
 
+		System.out.println("====== [1. 진입 완료] vacInsert POST 매핑 시작 ======");
+
 		String loginId = (String) session.getAttribute("loginId");
-		if (loginId == null)
-			return "redirect:/login";
+		if (loginId == null) return "redirect:/login";
 
 		String empNo = appDao.selectEmpNoById(loginId);
-		if (empNo == null)
-			return "redirect:./vacInsert";
+		if (empNo == null) return "redirect:./vacInsert";
 
-		// 중복 결재자 체크
+		// 중복 결재자 체크 로직 (기존 유지)
 		List<String> approvers = new ArrayList<>();
 		approvers.add(approver1);
 		if (approver2 != null && !approver2.isEmpty()) {
@@ -127,17 +132,23 @@ public class AppController {
 			approvers.add(approver3);
 		}
 
+		// 기본값 및 기발행 시퀀스 바인딩
 		vacAppDto.setAppReqId(empNo);
 		vacAppDto.setAppType("휴가신청서");
 		vacAppDto.setAppStatus("처리중");
 		int nextAppId = appDao.sequence();
 		vacAppDto.setAppId(nextAppId);
 
-		try {
-			appDao.insert(vacAppDto);
-			vacAppDao.insertVacApp(vacAppDto);
+		// [중요 디버깅] 화면에서 데이터가 제대로 넘어왔는지 값 검증 추적
+		System.out.println("-> [발행된 문서번호] appId = " + nextAppId);
+		System.out.println("-> [JSP 수신값 확인] 시작일 = " + vacAppDto.getVacStartDate());
+		System.out.println("-> [JSP 수신값 확인] 종료일 = " + vacAppDto.getVacEndDate());
+		System.out.println("-> [JSP 수신값 확인] 휴가구분 = " + vacAppDto.getVacType());
 
-			// 결재선 등록
+		try {
+			// 비즈니스 로직 및 트랜잭션 파이프라인 가동
+			vacService.registerVacation(vacAppDto);
+			// 결재선 등록 (기존 유지)
 			for (int i = 0; i < approvers.size(); i++) {
 				AppLineDto line = new AppLineDto();
 				line.setAppId(nextAppId);
@@ -147,12 +158,11 @@ public class AppController {
 				appLineDao.insert(line);
 			}
 
-			// 첫 번째 결재자 진행중으로 활성화
 			appLineDao.activateFirst(nextAppId);
 
 		} catch (Exception e) {
-			System.out.println("====== DB INSERT 에러 발생 ======");
-			e.printStackTrace();
+			// 어디서 에러가 터졌는지 추적 장치 세분화
+			e.printStackTrace(); // 전체 스택 트레이스 출력
 			return "redirect:./vacInsert";
 		}
 
@@ -404,5 +414,5 @@ public class AppController {
 
 	    return approverList;
 	}
-
+	
 }
