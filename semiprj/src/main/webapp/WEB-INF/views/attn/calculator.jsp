@@ -98,7 +98,8 @@
         
         <div class="circle-graph" id="workGraph" style="--percent: 0;">
             <div class="inner-circle">
-                <span id="totalTime">${empty totalWorkTime ? 0 : totalWorkTime}</span>
+                <%-- 🛠️ 초기 로드 시 지저분한 소수점 방지를 위해 자바스크립트에서 포맷팅된 텍스트가 꽂히도록 구조 유지 --%>
+                <span id="totalTime">0.0h</span>
                 <span>누적 근무시간</span>
             </div>
         </div>
@@ -109,7 +110,7 @@
                 <i class="fa-solid fa-business-time" style="color: var(--main-color);"></i>
                 <div class="card-content">
                     <span class="card-label">기간 내 누적 근무시간</span>
-                    <span class="card-value"><strong id="totalWorkTimeDisplay" style="color: var(--main-color);">${empty totalWorkTime ? 0 : totalWorkTime}</strong> 시간</span>
+                    <span class="card-value"><strong id="totalWorkTimeDisplay" style="color: var(--main-color);">0.0</strong> 시간</span>
                 </div>
             </div>
 
@@ -149,25 +150,25 @@
         fetch('/attn/calculator/data?startDate=' + startStr + '&endDate=' + endStr)
         .then(response => response.json())
         .then(data => {
-            // 💡 [방어 코드] 데이터가 NULL이거나 공백으로 넘어오는 경우 비정상출력(NaN) 방지
             const safeData = Number(data) || 0;
-            
-            document.getElementById("totalTime").innerText = safeData;
-            document.getElementById("totalWorkTimeDisplay").innerText = safeData;
             calculateAndGraph(safeData);
         })
         .catch(error => {
             console.error("오류:", error);
-            // 에러 상황 발생 시 기본값 0 구조 바인딩
-            document.getElementById("totalTime").innerText = 0;
-            document.getElementById("totalWorkTimeDisplay").innerText = 0;
             calculateAndGraph(0);
         });
     }
 
+    // 💡 [가독성 통합 보정 함수] 자바스크립트 단에서 소수점 데이터를 'H, M' 혹은 깔끔한 소수점 첫째자리 포맷으로 밀어넣어 UI 가독성을 극대화합니다.
     function calculateAndGraph(currentHours) {
         const startStr = document.getElementById("startDate").value;
         const endStr = document.getElementById("endDate").value;
+        
+        // 시간 포맷 가공 (예: 4.5 -> "4.5h")
+        const formattedText = currentHours.toFixed(1) + "h";
+        document.getElementById("totalTime").innerText = formattedText;
+        document.getElementById("totalWorkTimeDisplay").innerText = currentHours.toFixed(1);
+
         if(!startStr || !endStr) return;
 
         const start = new Date(startStr);
@@ -182,7 +183,7 @@
             cur.setDate(cur.getDate() + 1);
         }
         
-        // 2. 기준 시간 계산 (주 5일 기준, 하루 8시간 = 주 40시간 가정)
+        // 2. 기준 시간 계산 (주 5일 기준, 하루 8시간 = 주 40시간 기본식 연동)
         const dailyStandard = WEEKLY_MAX_HOURS / 5;
         const dynamicMaxHours = weekdays * dailyStandard;
         

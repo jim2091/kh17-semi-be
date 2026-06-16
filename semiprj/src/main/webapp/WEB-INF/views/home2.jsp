@@ -406,34 +406,49 @@ function updateAttendanceUI(status, startTime, endTime) {
     if(checkInBtn) { checkInBtn.disabled = false; checkInBtn.style.opacity = "1"; checkInBtn.style.cursor = "pointer"; }
     if(checkOutBtn) { checkOutBtn.disabled = false; checkOutBtn.style.opacity = "1"; checkOutBtn.style.cursor = "pointer"; }
 
-    // 1. 퇴근 완료 상태 (상태값이 퇴근이거나, 퇴근 시간이 명확히 찍혀있을 때)
-    if (status === "퇴근" || status === "OUT" || (endTime && endTime !== "-")) {
-        if(inTimeDisplay) inTimeDisplay.innerText = startTime && startTime !== "-" ? startTime : "-";
-        if(outTimeDisplay) outTimeDisplay.innerText = endTime && endTime !== "-" ? endTime : "-";
+    // 1. 부재 상태 판별 (자정에 스케줄러가 입력했거나 관리자가 수정한 '휴가' / '결근' 처리)
+    if (status === "휴가" || status === "결근") {
+        if(inTimeDisplay) inTimeDisplay.innerText = "-";
+        if(outTimeDisplay) outTimeDisplay.innerText = "-";
+        if(statusText) statusText.innerText = "● " + status;
+        
+        if(checkInBtn) { checkInBtn.disabled = true; checkInBtn.style.opacity = "0.5"; checkInBtn.style.cursor = "not-allowed"; }
+        if(checkInBtnText) checkInBtnText.innerText = "출근 불가";
+        if(checkOutBtn) { checkOutBtn.disabled = true; checkOutBtn.style.opacity = "0.5"; checkOutBtn.style.cursor = "not-allowed"; }
+        if(checkOutBtnText) checkOutBtnText.innerText = "퇴근 불가";
+    }
+    // 2. 퇴근 완료 상태 (퇴근 시간이 명확하게 찍혀 있는 경우)
+    else if (endTime && endTime !== "-") {
+        if(inTimeDisplay) inTimeDisplay.innerText = startTime;
+        if(outTimeDisplay) outTimeDisplay.innerText = endTime;
         if(statusText) statusText.innerText = "● 퇴근 완료";
+        
         if(checkInBtn) { checkInBtn.disabled = true; checkInBtn.style.opacity = "0.5"; checkInBtn.style.cursor = "not-allowed"; }
         if(checkInBtnText) checkInBtnText.innerText = "출근 완료";
         if(checkOutBtn) { checkOutBtn.disabled = true; checkOutBtn.style.opacity = "0.5"; checkOutBtn.style.cursor = "not-allowed"; }
         if(checkOutBtnText) checkOutBtnText.innerText = "퇴근 완료";
     } 
- // 2. 정상 근무 상태 및 기타 DB 상태 (출근 시간이 찍혀있을 때)
-    else if (status === "출근상태" || status === "출근중" || status === "출근" || status === "IN" || (startTime && startTime !== "-")) {
-        if(inTimeDisplay) inTimeDisplay.innerText = startTime && startTime !== "-" ? startTime : "-";
+    // 3. 근무 중 상태 (출근 시간은 있고, 퇴근 시간은 아직 없는 상태)
+    else if (startTime && startTime !== "-") {
+        if(inTimeDisplay) inTimeDisplay.innerText = startTime;
         if(outTimeDisplay) outTimeDisplay.innerText = "-";
         
-        // 💡 이 한 줄로 교체! 이제 DB에 '지각'이 있으면 화면에도 '● 지각'이라고 정직하게 찍힙니다.
-        if(statusText) statusText.innerText = "● " + status; 
+        // 💡 핵심: DB의 attn_record가 '지각'이면 화면에도 정직하게 '● 지각'으로 찍고, 
+        // '정상근무' 상태로 출근해 있는 상태라면 근무 중임을 인지하도록 '● 근무중'으로 예쁘게 변환해 줍니다.
+        let displayText = (status === "정상근무") ? "근무중" : status;
+        if(statusText) statusText.innerText = "● " + displayText; 
         
         if(checkInBtn) { checkInBtn.disabled = true; checkInBtn.style.opacity = "0.5"; checkInBtn.style.cursor = "not-allowed"; }
         if(checkInBtnText) checkInBtnText.innerText = "출근 완료";
         if(checkOutBtn) { checkOutBtn.disabled = false; }
         if(checkOutBtnText) checkOutBtnText.innerText = "퇴근하기";
     }
-    // 3. 미출근 상태
+    // 4. 출근 전 상태 (출퇴근 시간이 모두 없고 미확인 상태일 때)
     else { 
         if(inTimeDisplay) inTimeDisplay.innerText = "-";
         if(outTimeDisplay) outTimeDisplay.innerText = "-";
         if(statusText) statusText.innerText = "● 미출근";
+        
         if(checkInBtn) { checkInBtn.disabled = false; }
         if(checkInBtnText) checkInBtnText.innerText = "출근하기";
         if(checkOutBtn) { checkOutBtn.disabled = true; checkOutBtn.style.opacity = "0.5"; checkOutBtn.style.cursor = "not-allowed"; }

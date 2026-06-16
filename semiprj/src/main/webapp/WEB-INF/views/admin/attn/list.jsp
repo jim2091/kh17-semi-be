@@ -174,22 +174,21 @@
     <table class="gw-table">
         <thead>
             <tr>
-                <th style="width: 12%;">부서</th> 
-                <th style="width: 10%;">직위</th>
-                <th style="width: 12%;">사원명</th>
-                <th style="width: 12%;">월/일</th>
-                <th style="width: 12%;">부재사항</th>
-                <th style="width: 17%;">계획근로시간</th>
-                <th style="width: 17%;">근태기록시간</th>
-                <th style="width: 10%;">근로시간</th>
-                <th style="width: 10%;">상태</th>
+                <th style="width: 14%;">부서</th> 
+                <th style="width: 11%;">직위</th>
+                <th style="width: 13%;">사원명</th>
+                <th style="width: 13%;">월/일</th>
+                <th style="width: 18%;">계획근로시간</th>
+                <th style="width: 18%;">근태기록시간</th>
+                <th style="width: 11%;">근로시간</th>
+                <th style="width: 12%;">상태</th>
             </tr>
         </thead>
         <tbody>
             <c:choose>
                 <c:when test="${empty attnList}">
                     <tr>
-                        <td colspan="9" style="padding: 40px; text-align: center; color: #aaa;">
+                        <td colspan="8" style="padding: 40px; text-align: center; color: #aaa;">
                             조회된 근태 데이터가 없습니다.
                         </td>
                     </tr>
@@ -198,11 +197,11 @@
                     <c:forEach var="dto" items="${attnList}">
                         <fmt:formatDate var="dayOfWeek" value="${dto.attnWorkDate}" pattern="E"/>
                         <c:set var="dateColorClass" value="${dayOfWeek == '토' ? 'sat-color' : (dayOfWeek == '일' ? 'sun-color' : '')}" />
-                        
-                        <c:set var="isVacation" value="${dto.attnRecord == '휴가' || dto.attnRecord == '연차' || dto.attnRecord == '반차' || dto.attnStatus == '연차'}" />
+                        <c:set var="isVacation" value="${dto.attnRecord == '휴가'}" />
                         <tr>
                             <td class="gw-muted">
                                 <c:choose>
+                                    <c:when test="${dto.deptCode == '0'}">회사</c:when>
                                     <c:when test="${dto.deptCode == '10'}">경영지원본부</c:when>
                                     <c:when test="${dto.deptCode == '20'}">인사팀</c:when>
                                     <c:when test="${dto.deptCode == '21'}">총무감사팀</c:when>
@@ -220,14 +219,6 @@
                             <td><span class="bold">${dto.empName}</span></td>
                             <td class="${dateColorClass}">
                                 <fmt:formatDate value="${dto.attnWorkDate}" pattern="MM/dd"/>(${dayOfWeek})
-                            </td>
-                            <td>
-                                <c:choose>
-                                    <c:when test="${isVacation}">
-                                        <span style="color:var(--warning-color); font-weight: bold;">○ ${empty dto.attnRecord ? '휴가' : dto.attnRecord}</span>
-                                    </c:when>
-                                    <c:otherwise><span class="gw-muted">-</span></c:otherwise>
-                                </c:choose>
                             </td>
                             <td class="gw-muted">${isVacation ? '-' : '09:00 ~ 18:00'}</td>
                             <td>
@@ -250,28 +241,27 @@
                             <td>
                                 <c:choose>
                                     <c:when test="${isVacation}">
-                                        <span class="attn-head status-vacation">${empty dto.attnRecord ? '휴가' : dto.attnRecord}</span>
+                                        <span class="attn-head status-vacation">휴가</span>
                                     </c:when>
                                     <c:when test="${not empty dto.attnRecord}">
                                         <c:choose>
-                                            <%-- 💡 '정상출근' 타겟팅 제거 ➡️ 신규 규격인 '정상근무' 전용 마킹 체계 연동 완료 --%>
                                             <c:when test="${dto.attnRecord == '정상근무'}">
                                                 <span class="attn-head status-normal">정상</span>
                                             </c:when>
-                                            <c:when test="${dto.attnRecord == '지각' || dto.attnRecord == '조퇴'}">
+                                            <%-- 💡 [변경] 관리자단 목록에서도 '지각-조퇴' 복합 문자열을 주황색 경고 배지로 매핑하도록 통합 보정했습니다. --%>
+                                            <c:when test="${dto.attnRecord == '지각' || dto.attnRecord == '조퇴' || dto.attnRecord == '지각-조퇴'}">
                                                 <span class="attn-head status-warning">${dto.attnRecord}</span>
                                             </c:when>
                                             <c:when test="${dto.attnRecord == '결근'}">
                                                 <span class="attn-head status-danger">결근</span>
                                             </c:when>
-                                            <%-- 💡 '미확인' 상태가 들어올 경우 필터링 없이 그대로 출력하는 세이프 가드 --%>
                                             <c:otherwise>
                                                 <span class="attn-head">${dto.attnRecord}</span>
                                             </c:otherwise>
                                         </c:choose>
                                     </c:when>
                                     <c:otherwise>
-                                        <span class="gw-muted">${dto.attnStatus == '출근전' ? '출근전' : '-'}</span>
+                                        <span class="gw-muted">-</span>
                                     </c:otherwise>
                                 </c:choose>
                             </td>

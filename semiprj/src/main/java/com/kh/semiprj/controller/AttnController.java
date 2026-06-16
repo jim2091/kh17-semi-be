@@ -43,17 +43,20 @@ public class AttnController {
             map.put("startTime", "-");
             map.put("endTime", "-");
         } else {
-            String dbStatus = (String) todayData.get("ATTN_STATUS");
+            // 🛠️ ATTN_STATUS 가 아닌 개편된 ATTN_RECORD 데이터를 기반으로 정밀 필터링을 진행합니다.
+            String dbRecord = (String) todayData.get("ATTN_RECORD");
             String inTime = (String) todayData.get("IN_TIME");
             String outTime = (String) todayData.get("OUT_TIME");
 
-            // 💡 고정된 텍스트 변환 대신, DB에 들어있는 상태값을 최대한 존중하여 연동합니다.
-            if ("퇴근".equals(dbStatus)) {
+            if ("휴가".equals(dbRecord)) {
+                map.put("status", "휴가");
+            } else if ("결근".equals(dbRecord)) {
+                map.put("status", "결근");
+            } else if (outTime != null && !"-".equals(outTime)) {
                 map.put("status", "퇴근");
-            } else if ("출근중".equals(dbStatus)) {
-                map.put("status", "출근상태");
-            } else if (dbStatus != null && !dbStatus.trim().isEmpty()) {
-                map.put("status", dbStatus); // 지각, 조퇴, 휴가 등 DB 상태 그대로 매핑
+            } else if (inTime != null && !"-".equals(inTime)) {
+                // 💡 [핵심 교정] "출근상태"라는 모호한 고정값 대신, DB에 정직하게 기록된 '지각' 또는 '정상근무'를 그대로 내려줍니다.
+                map.put("status", dbRecord); 
             } else {
                 map.put("status", "미출근");
             }
@@ -163,7 +166,7 @@ public class AttnController {
         return "redirect:/attn/admin/manage";
     }
 
-    // 🛠️ 중복 생성을 완벽 차단하도록 조건 검증 로직 대폭 수정
+    // 🛠️ 중복 생성 및 휴가자 출근 오염 차단 조건 완벽 반영
     @PostMapping("/checkIn")
     @ResponseBody
     public String checkIn(@RequestParam(value="inTime", required=false) String inTime, HttpSession session) {
@@ -174,11 +177,11 @@ public class AttnController {
             Map<String, Object> todayData = attnService.getTodayAttnDetails(empNo);
             
             if (todayData != null && !todayData.isEmpty()) {
-                String currentStatus = (String) todayData.get("ATTN_STATUS");
+                String currentRecord = (String) todayData.get("ATTN_RECORD");
                 String existInTime = (String) todayData.get("IN_TIME");
                 
-                // 🛡️ [방어선 1] 상태가 이미 '출근중' / '퇴근' 이거나, 이미 출근 시간 데이터가 표기되어 있다면 통과 안 시키고 차단
-                if ("출근중".equals(currentStatus) || "퇴근".equals(currentStatus) || (existInTime != null && !"-".equals(existInTime))) {
+                // 🛡️ [방어선 강화] 이미 자정에 '휴가' 또는 '결근'이 기입되어 있거나, 출근한 이력이 있다면 클릭 전면 차단
+                if ("휴가".equals(currentRecord) || "결근".equals(currentRecord) || "정상근무".equals(currentRecord) || "지각".equals(currentRecord) || (existInTime != null && !"-".equals(existInTime))) {
                     return "already"; 
                 }
             }
