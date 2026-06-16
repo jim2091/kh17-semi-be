@@ -169,10 +169,9 @@
     <table class="gw-table">
         <thead>
             <tr>
-                <th style="width: 15%;">월/일</th>
-                <th style="width: 15%;">부재사항</th>
-                <th style="width: 25%;">계획근로시간</th>
-                <th style="width: 25%;">근태기록시간</th>
+                <th style="width: 20%;">월/일</th>
+                <th style="width: 30%;">계획근로시간</th>
+                <th style="width: 30%;">근태기록시간</th>
                 <th style="width: 10%;">근로시간</th>
                 <th style="width: 10%;">상태</th>
             </tr>
@@ -181,7 +180,7 @@
             <c:choose>
                 <c:when test="${empty attnList}">
                     <tr>
-                        <td colspan="6" style="padding: 40px; text-align: center; color: #aaa;">
+                        <td colspan="5" style="padding: 40px; text-align: center; color: #aaa;">
                             조회된 근태 데이터가 없습니다.
                         </td>
                     </tr>
@@ -190,19 +189,11 @@
                     <c:forEach var="dto" items="${attnList}">
                         <fmt:formatDate var="dayOfWeek" value="${dto.attnWorkDate}" pattern="E"/>
                         <c:set var="dateColorClass" value="${dayOfWeek == '토' ? 'sat-color' : (dayOfWeek == '일' ? 'sun-color' : '')}" />
-                        <c:set var="isVacation" value="${dto.attnRecord == '연차' || dto.attnRecord == '반차' || dto.attnRecord == '휴가'}" />
+                        <c:set var="isVacation" value="${dto.attnRecord == '휴가'}" />
                         
                         <tr>
                             <td class="${dateColorClass}">
                                 <span class="bold"><fmt:formatDate value="${dto.attnWorkDate}" pattern="MM/dd"/>(${dayOfWeek})</span>
-                            </td>
-                            <td>
-                                <c:choose>
-                                    <c:when test="${isVacation}">
-                                        <span style="color:var(--warning-color); font-weight: bold;">○ ${dto.attnRecord}</span>
-                                    </c:when>
-                                    <c:otherwise><span class="gw-muted">-</span></c:otherwise>
-                                </c:choose>
                             </td>
                             <td class="gw-muted">${isVacation ? '-' : '09:00 ~ 18:00'}</td>
                             <td>
@@ -226,20 +217,19 @@
                                 <c:choose>
                                     <c:when test="${not empty dto.attnRecord}">
                                         <c:choose>
-                                            <%-- 💡 '정상근무' 매핑 보완 및 디자인 전면 교정 --%>
                                             <c:when test="${dto.attnRecord == '정상근무'}">
                                                 <span class="attn-head status-normal">정상</span>
                                             </c:when>
-                                            <c:when test="${dto.attnRecord == '지각' || dto.attnRecord == '조퇴'}">
+                                            <%-- 💡 [변경] 복합 상태인 '지각-조퇴' 결과에 대해서도 경고용 주황색 배지가 적용되도록 조건을 추가했습니다. --%>
+                                            <c:when test="${dto.attnRecord == '지각' || dto.attnRecord == '조퇴' || dto.attnRecord == '지각-조퇴'}">
                                                 <span class="attn-head status-warning">${dto.attnRecord}</span>
                                             </c:when>
                                             <c:when test="${dto.attnRecord == '결근'}">
                                                 <span class="attn-head status-danger">결근</span>
                                             </c:when>
                                             <c:when test="${isVacation}">
-                                                <span class="attn-head status-vacation">${dto.attnRecord}</span>
+                                                <span class="attn-head status-vacation">휴가</span>
                                             </c:when>
-                                            <%-- 💡 '미확인' 상태일 때 기본 공용 배지 렌더링 백업 --%>
                                             <c:otherwise>
                                                 <span class="attn-head">${dto.attnRecord}</span>
                                             </c:otherwise>

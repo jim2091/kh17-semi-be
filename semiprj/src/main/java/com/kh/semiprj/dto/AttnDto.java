@@ -8,17 +8,16 @@ public class AttnDto {
     private Long attnId;
     private String empNo;
     private Timestamp attnWorkDate;
-    private Timestamp attnInTime;    // DB 저장용
-    private Timestamp attnOutTime;   // DB 저장용
+    private Timestamp attnInTime;    // DB 저장용 (출근시간)
+    private Timestamp attnOutTime;   // DB 저장용 (퇴근시간)
+    private double attnWorkTime;     // 총 근무시간
     
-    private double attnWorkTime;     
-    
-    private String attnStatus;       // '출근전', '출근중', '퇴근', '결근'
-    // ✨ [주석 수정] '미확인' 제거 및 NULL 가능 명시
-    private String attnRecord;       // NULL(기본값), '정상출근', '지각', '조퇴', '결근', '휴가'
+    // ✨ attn_status를 삭제하고 attn_record 하나로 통합 관리합니다.
+    // 도메인: '미확인', '정상근무', '지각', '조퇴', '결근', '휴가'
+    private String attnRecord;       
 
-    private String inTime;           // "HH:mm" 형태 입력용
-    private String outTime;          // "HH:mm" 형태 입력용
+    private String inTime;           // 화면 입력용 ("HH:mm")
+    private String outTime;          // 화면 입력용 ("HH:mm")
     
     private String year;
     private String month;

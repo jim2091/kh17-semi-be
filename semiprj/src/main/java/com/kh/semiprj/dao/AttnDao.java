@@ -36,12 +36,11 @@ public class AttnDao {
         return jdbcTemplate.queryForList("SELECT emp_no, vac_tot, vac_cnt FROM vac_info");
     }
 
-    // 🛠️ [완벽 수정] 일대다(1:N) 뻥튀기 버그를 막기 위해 LEFT JOIN을 없애고 EXISTS 서브쿼리로 변경
     public List<AttnDto> getAttendanceList(AttnDto attnDto, PageVO pageVO) {
         String sql = "SELECT * FROM ( "
                    + "SELECT ROWNUM RN, TMP.* FROM ( "
                    + "SELECT "
-                   + "  a.attn_id, a.emp_no, a.attn_work_date, a.attn_in_time, a.attn_out_time, a.attn_work_time, a.attn_status, "
+                   + "  a.attn_id, a.emp_no, a.attn_work_date, a.attn_in_time, a.attn_out_time, a.attn_work_time, "
                    + "  CASE "
                    + "    WHEN EXISTS ( "
                    + "      SELECT 1 FROM vac_history vh "
@@ -67,7 +66,6 @@ public class AttnDao {
             dto.setAttnInTime(rs.getTimestamp("attn_in_time"));
             dto.setAttnOutTime(rs.getTimestamp("attn_out_time"));
             dto.setAttnWorkTime(rs.getDouble("attn_work_time"));
-            dto.setAttnStatus(rs.getString("attn_status"));
             dto.setAttnRecord(rs.getString("v_record")); 
             return dto;
         }, attnDto.getEmpNo(), attnDto.getYear(), attnDto.getMonth(), pageVO.getBeginRownum(), pageVO.getEndRownum());
@@ -88,7 +86,6 @@ public class AttnDao {
             dto.setAttnInTime(rs.getTimestamp("attn_in_time"));
             dto.setAttnOutTime(rs.getTimestamp("attn_out_time"));
             dto.setAttnWorkTime(rs.getDouble("attn_work_time"));
-            dto.setAttnStatus(rs.getString("attn_status"));
             dto.setAttnRecord(rs.getString("attn_record"));
             return dto;
         }, p.getBeginRownum(), p.getEndRownum());
@@ -105,7 +102,6 @@ public class AttnDao {
 
     public void updateStatusToAbsent() {
         String sql = "UPDATE attn SET "
-                   + "  attn_status = '결근', "
                    + "  attn_record = '결근' "
                    + "WHERE TRUNC(attn_work_date) = TRUNC(SYSDATE - 1) "
                    + "  AND attn_in_time IS NULL " 
@@ -124,7 +120,7 @@ public class AttnDao {
 
     public List<AttnDto> selectAdminListCustom(AttnDto searchDto, PageVO pageVO, String startDate, String endDate) {
         StringBuilder sql = new StringBuilder("SELECT * FROM (SELECT ROWNUM AS RN, T.* FROM ( ");
-        sql.append(" SELECT A.ATTN_ID, A.EMP_NO, A.ATTN_WORK_DATE, A.ATTN_WORK_TIME, A.ATTN_STATUS, A.ATTN_IN_TIME, A.ATTN_OUT_TIME, E.EMP_NAME, E.EMP_DEPT, E.EMP_POSITION, A.ATTN_RECORD ");
+        sql.append(" SELECT A.ATTN_ID, A.EMP_NO, A.ATTN_WORK_DATE, A.ATTN_WORK_TIME, A.ATTN_IN_TIME, A.ATTN_OUT_TIME, E.EMP_NAME, E.EMP_DEPT, E.EMP_POSITION, A.ATTN_RECORD ");
         sql.append(" FROM ATTN A JOIN EMP E ON A.EMP_NO = E.EMP_NO WHERE 1=1 ");
         
         List<Object> params = new ArrayList<>();
@@ -146,7 +142,6 @@ public class AttnDao {
             dto.setAttnInTime(rs.getTimestamp("attn_in_time"));
             dto.setAttnOutTime(rs.getTimestamp("attn_out_time"));
             dto.setAttnWorkTime(rs.getDouble("attn_work_time"));
-            dto.setAttnStatus(rs.getString("attn_status"));
             dto.setAttnRecord(rs.getString("attn_record"));
             dto.setEmpName(rs.getString("emp_name"));
             dto.setDeptCode(rs.getString("emp_dept"));
@@ -183,8 +178,17 @@ public class AttnDao {
     public void updateWorkSystemEnable(String workCode) { jdbcTemplate.update("UPDATE work_system SET is_active = 'Y' WHERE LOWER(work_code) = LOWER(?)", workCode); }
 
     public void createTodayAttendance() {
-        String sql = "INSERT INTO attn (attn_id, emp_no, attn_work_date, attn_status, attn_record) "
-                   + "SELECT attn_seq.nextval, e.emp_no, TRUNC(SYSDATE), '출근전', NULL "
+        String sql = "INSERT INTO attn (attn_id, emp_no, attn_work_date, attn_record) "
+                   + "SELECT attn_seq.nextval, e.emp_no, TRUNC(SYSDATE), "
+                   + "       CASE "
+                   + "           WHEN EXISTS ( "
+                   + "               SELECT 1 FROM vac_history vh "
+                   + "               JOIN app main_app ON vh.app_id = main_app.app_id "
+                   + "               WHERE main_app.app_req_id = e.emp_no "
+                   + "                 AND vh.vac_date = TO_CHAR(SYSDATE, 'MM/DD') "
+                   + "           ) THEN '휴가' "
+                   + "           ELSE '미확인' "
+                   + "       END AS attn_record "
                    + "FROM emp e "
                    + "WHERE e.emp_use_yn = 'Y' " 
                    + "  AND NOT EXISTS ( "
@@ -195,24 +199,22 @@ public class AttnDao {
     }
 
     public void insertNewAttendance(AttnDto attnDto) {
-        String sql = "INSERT INTO attn (attn_id, emp_no, attn_work_date, attn_in_time, attn_status, attn_record) "
-                   + "VALUES (attn_seq.nextval, ?, TRUNC(SYSDATE), SYSDATE, ?, ?)";
-        jdbcTemplate.update(sql, attnDto.getEmpNo(), attnDto.getAttnStatus(), attnDto.getAttnRecord());
+        String sql = "INSERT INTO attn (attn_id, emp_no, attn_work_date, attn_in_time, attn_record) "
+                   + "VALUES (attn_seq.nextval, ?, TRUNC(SYSDATE), SYSDATE, ?)";
+        jdbcTemplate.update(sql, attnDto.getEmpNo(), attnDto.getAttnRecord());
     }
 
     public void updateCheckIn(AttnDto attnDto) {
         String sql = "UPDATE attn SET "
                    + "  attn_in_time = SYSDATE, "
-                   + "  attn_status = ?, " 
                    + "  attn_record = ? "  
                    + "WHERE emp_no = ? AND TRUNC(attn_work_date) = TRUNC(SYSDATE)"; 
-        jdbcTemplate.update(sql, attnDto.getAttnStatus(), attnDto.getAttnRecord(), attnDto.getEmpNo());
+        jdbcTemplate.update(sql, attnDto.getAttnRecord(), attnDto.getEmpNo());
     }
 
     public void updateCheckOut(String empNo) {
         String sql = "UPDATE attn SET "
                    + "  attn_out_time = SYSDATE, "
-                   + "  attn_status = '퇴근', "
                    + "  attn_work_time = CASE "
                    + "      WHEN TO_CHAR(SYSDATE, 'HH24MI') < '1200' THEN GREATEST(ROUND((SYSDATE - attn_in_time) * 24, 2), 0) "
                    + "      ELSE GREATEST(ROUND(((SYSDATE - attn_in_time) * 24) - 1, 2), 0) "
@@ -221,15 +223,21 @@ public class AttnDao {
                    + "      WHEN CASE "
                    + "          WHEN TO_CHAR(SYSDATE, 'HH24MI') < '1200' THEN GREATEST(ROUND((SYSDATE - attn_in_time) * 24, 2), 0) "
                    + "          ELSE GREATEST(ROUND(((SYSDATE - attn_in_time) * 24) - 1, 2), 0) "
-                   + "      END < 8.0 AND attn_record = '정상출근' THEN '조퇴' "
+                   + "      END < 8.0 AND attn_record = '정상근무' THEN '조퇴' "
                    + "      ELSE attn_record "
                    + "  END "
                    + "WHERE emp_no = ? AND TRUNC(attn_work_date) = TRUNC(SYSDATE)";
         jdbcTemplate.update(sql, empNo);
     }
 
+    // 💡 [핵심 추가] 서비스 레이어의 복합 분기 결과('지각-조퇴' 등)를 명확히 갱신하기 위한 전용 메서드
+    public void updateLeftEarlyStatus(String empNo, String recordStatus) {
+        String sql = "UPDATE attn SET attn_record = ? WHERE emp_no = ? AND TRUNC(attn_work_date) = TRUNC(SYSDATE)";
+        jdbcTemplate.update(sql, recordStatus, empNo);
+    }
+
     public Map<String, Object> selectTodayAttnDetails(String empNo) {
-        String sql = "SELECT ATTN_STATUS, TO_CHAR(ATTN_IN_TIME, 'HH24:MI') AS IN_TIME, TO_CHAR(ATTN_OUT_TIME, 'HH24:MI') AS OUT_TIME "
+        String sql = "SELECT ATTN_RECORD, TO_CHAR(ATTN_IN_TIME, 'HH24:MI') AS IN_TIME, TO_CHAR(ATTN_OUT_TIME, 'HH24:MI') AS OUT_TIME "
                    + "FROM ATTN WHERE EMP_NO = ? AND TRUNC(ATTN_WORK_DATE) = TRUNC(SYSDATE) AND ROWNUM = 1";
         try {
             return jdbcTemplate.queryForMap(sql, empNo);
