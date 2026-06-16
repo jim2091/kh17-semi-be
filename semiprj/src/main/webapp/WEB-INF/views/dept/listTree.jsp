@@ -70,6 +70,9 @@
 </style>
 
 		<div class="dept-screen">
+			<div class="gw-breadcrumb">
+		        부서 > 조직도
+		    </div>
 			<div class="gw-hero">
 			    <div>
 			        <h1>회사 조직도 🌲</h1>
@@ -80,6 +83,11 @@
 			<div class="gw-table-top mt-20">
 			    <div class="gw-table-title">구조 트리</div>
 			    <div class="gw-table-actions">
+			    	<c:if test="${sessionScope.loginRole  == '관리자' }">
+				    	<a href="./insert" class="gw-btn-outline">
+				            <i class="fa-solid fa-plus"></i> 등록 하기
+				        </a>
+			        </c:if>
 			        <a href="./list" class="gw-btn-outline">
 			            <i class="fa-solid fa-list"></i> 목록 보기
 			        </a>
