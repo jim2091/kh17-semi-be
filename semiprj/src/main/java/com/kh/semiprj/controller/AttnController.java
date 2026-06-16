@@ -47,10 +47,13 @@ public class AttnController {
             String inTime = (String) todayData.get("IN_TIME");
             String outTime = (String) todayData.get("OUT_TIME");
 
+            // 💡 고정된 텍스트 변환 대신, DB에 들어있는 상태값을 최대한 존중하여 연동합니다.
             if ("퇴근".equals(dbStatus)) {
                 map.put("status", "퇴근");
             } else if ("출근중".equals(dbStatus)) {
                 map.put("status", "출근상태");
+            } else if (dbStatus != null && !dbStatus.trim().isEmpty()) {
+                map.put("status", dbStatus); // 지각, 조퇴, 휴가 등 DB 상태 그대로 매핑
             } else {
                 map.put("status", "미출근");
             }
@@ -62,7 +65,6 @@ public class AttnController {
         return map;
     }
 
-    // 🛠️ [방어 코드 강화] 사용자 근태 리스트 출력 구역
     @GetMapping("/list")
     public String list(@ModelAttribute("search") AttnDto attnDto, 
                        @ModelAttribute("pageVO") PageVO pageVO, 
@@ -70,7 +72,6 @@ public class AttnController {
         String empNo = (String) session.getAttribute("loginNo");
         attnDto.setEmpNo(empNo);
         
-        // PageVO의 기본값 안전화 보장 (혹시 모를 파라미터 유실 차단)
         if (pageVO.getPage() <= 0) pageVO.setPage(1);
         if (pageVO.getSize() <= 0) pageVO.setSize(10);
         
@@ -86,7 +87,6 @@ public class AttnController {
         Map<String, Object> vacInfo = attnService.getVacationInfo(empNo);
         model.addAttribute("vacInfo", vacInfo);
         
-        // 전체 카운트를 먼저 세팅해야 PageVO가 내부적으로 올바른 rownum 연산을 수행합니다.
         int totalCount = attnService.countAttendance(attnDto);
         pageVO.setCount(totalCount);
         
@@ -123,7 +123,6 @@ public class AttnController {
         return attnService.getWorkTimeSum(empNo, startDate, endDate);
     }
 
-    // 🛠️ [구조 정돈] 관리자 근태 목록 조회 시 PageVO 커맨드 객체 매핑 통일화
     @GetMapping("/admin/list")
     public String adminList(@ModelAttribute("search") AttnDto searchDto,
                             @ModelAttribute("pageVO") PageVO pageVO,
@@ -164,6 +163,7 @@ public class AttnController {
         return "redirect:/attn/admin/manage";
     }
 
+    // 🛠️ 중복 생성을 완벽 차단하도록 조건 검증 로직 대폭 수정
     @PostMapping("/checkIn")
     @ResponseBody
     public String checkIn(@RequestParam(value="inTime", required=false) String inTime, HttpSession session) {
@@ -175,7 +175,10 @@ public class AttnController {
             
             if (todayData != null && !todayData.isEmpty()) {
                 String currentStatus = (String) todayData.get("ATTN_STATUS");
-                if ("출근중".equals(currentStatus) || "퇴근".equals(currentStatus)) {
+                String existInTime = (String) todayData.get("IN_TIME");
+                
+                // 🛡️ [방어선 1] 상태가 이미 '출근중' / '퇴근' 이거나, 이미 출근 시간 데이터가 표기되어 있다면 통과 안 시키고 차단
+                if ("출근중".equals(currentStatus) || "퇴근".equals(currentStatus) || (existInTime != null && !"-".equals(existInTime))) {
                     return "already"; 
                 }
             }

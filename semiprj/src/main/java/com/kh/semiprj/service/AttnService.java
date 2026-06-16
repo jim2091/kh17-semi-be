@@ -14,52 +14,39 @@ import com.kh.semiprj.vo.PageVO;
 
 @Service
 public class AttnService {
-
     @Autowired private AttnDao attnDao;
-    
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
     public Map<String, Object> getVacationInfo(String empNo) { return attnDao.selectVacationInfo(empNo); }
-    
-    // 💡 DTO의 가상 Getter 덕분에 서비스 코드가 복잡해질 필요가 없습니다.
-    public List<AttnDto> getAttendanceList(AttnDto attnDto, PageVO pageVO) { 
-        return attnDao.getAttendanceList(attnDto, pageVO); 
-    }
-    
+    public List<AttnDto> getAttendanceList(AttnDto attnDto, PageVO pageVO) { return attnDao.getAttendanceList(attnDto, pageVO); }
     public int countAttendance(AttnDto attnDto) { return attnDao.countAttendance(attnDto); }
     public double getWorkTimeSum(String empNo, String startDate, String endDate) { return attnDao.getWorkTimeSum(empNo, startDate, endDate); }
+    public Map<String, Object> getTodayAttnDetails(String empNo) { return attnDao.selectTodayAttnDetails(empNo); }
 
-    public Map<String, Object> getTodayAttnDetails(String empNo) { 
-        return attnDao.selectTodayAttnDetails(empNo); 
-    }
-
+    // 🛠️ [방어선 3] 맵 구조가 완벽히 잡혀 들어왔더라도 ATTN_STATUS의 실제 기입 유무를 한 번 더 체크하여 확실히 분기
     @Transactional
     public void registerOrUpdateAttendance(AttnDto attnDto, Map<String, Object> todayData) {
         String inTimeStr = attnDto.getInTime(); 
-        attnDto.setAttnStatus("출근중");
         
+        // 1. 시간 비교부터 먼저 합니다.
         LocalTime standardTime = LocalTime.of(9, 0);
-        LocalTime compareTime = null;
-
-        if (inTimeStr != null && !inTimeStr.trim().isEmpty()) {
-            try {
-                compareTime = LocalTime.parse(inTimeStr, TIME_FORMATTER);
-            } catch (DateTimeParseException e) {
-                compareTime = LocalTime.now();
-            }
+        LocalTime compareTime = (inTimeStr != null && !inTimeStr.trim().isEmpty()) ? LocalTime.parse(inTimeStr, TIME_FORMATTER) : LocalTime.now();
+        
+        // 2. 9시 넘었으면 "지각" 마킹, 안 넘었으면 "정상근무" 마킹
+        String recordResult = compareTime.isAfter(standardTime) ? "지각" : "정상근무";
+        attnDto.setAttnRecord(recordResult);
+        
+        // 3. ✨ [핵심 교정] 지각이면 상태(Status)도 "지각"으로 저장하고, 정상이면 "출근중"으로 저장한다!
+        if("지각".equals(recordResult)) {
+            attnDto.setAttnStatus("지각");
         } else {
-            compareTime = LocalTime.now(); 
-        }
-
-        if (compareTime.isAfter(standardTime)) {
-            attnDto.setAttnRecord("지각");
-        } else {
-            attnDto.setAttnRecord("정상출근");
+            attnDto.setAttnStatus("출근중");
         }
         
-        if (todayData == null || todayData.isEmpty()) {
+        // 4. 이제 안전하게 DB로 보냅니다.
+        if (todayData == null || todayData.isEmpty() || todayData.get("ATTN_STATUS") == null) { 
             attnDao.insertNewAttendance(attnDto); 
-        } else {
+        } else { 
             attnDao.updateCheckIn(attnDto); 
         }
     }
