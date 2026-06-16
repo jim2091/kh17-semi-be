@@ -78,14 +78,12 @@
 }
 </style>
 
-<!-- 상단 헤드 영역 디자인 일치화 -->
 <div class="gw-page-head attn-width">
     <div class="gw-breadcrumb">홈 / 근태관리 / 근태기록 계산기</div>
     <h1>근태 기록 계산기</h1>
     <p>지정한 설정 기간 내 평일(근무일) 기준 총 기준 시간 대비 본인의 근무 달성률을 시각적으로 확인합니다.</p>
 </div>
 
-<!-- 검색 패널 내 날짜 선택 디자인 일치화 -->
 <div class="gw-search-panel attn-width">
     <form id="calcForm" onsubmit="return false;" class="gw-search-form" style="gap: 10px;">
         <i class="fa-solid fa-calendar-week" style="color: var(--sub-text); margin-right: 4px;"></i>
@@ -95,11 +93,9 @@
     </form>
 </div>
 
-<!-- 리스트 패널 레이아웃 적용 및 대시보드 구조 정렬 -->
 <div class="gw-list-panel attn-width" style="padding: 40px;">
     <div style="display: flex; gap: 60px; align-items: center; flex-wrap: wrap;">
         
-        <!-- 원형 차트 영역 -->
         <div class="circle-graph" id="workGraph" style="--percent: 0;">
             <div class="inner-circle">
                 <span id="totalTime">${empty totalWorkTime ? 0 : totalWorkTime}</span>
@@ -107,7 +103,6 @@
             </div>
         </div>
 
-        <!-- 우측 텍스트 정보 스코어 보드 박스 -->
         <div style="display: flex; flex-direction: column; gap: 16px;">
             
             <div class="calc-info-card">
@@ -129,7 +124,6 @@
         </div>
     </div>
 
-    <!-- 하단 하이라이트 문구 안내 영역 -->
     <div style="margin-top: 40px; padding-top: 20px; border-top: 1px dashed var(--card-border); font-size: 13px; line-height: 1.6; color: var(--sub-text);">
         <i class="fa-solid fa-circle-info" style="margin-right: 4px; color: var(--main-color);"></i> 
         근무제 기준: <strong>주 ${empty maxHours ? 40 : maxHours}시간</strong> (일 평일 기준 8시간 기본 계산)<br>
@@ -142,7 +136,9 @@
     const WEEKLY_MAX_HOURS = ${empty maxHours ? 40 : maxHours};
 
     window.onload = function() {
-        calculateAndGraph(${empty totalWorkTime ? 0 : totalWorkTime});
+        // 서버사이드 초기값 세이프 파싱 및 그래프 바인딩
+        const initHours = parseFloat("${totalWorkTime}") || 0;
+        calculateAndGraph(initHours);
     };
 
     function fetchData() {
@@ -153,16 +149,29 @@
         fetch('/attn/calculator/data?startDate=' + startStr + '&endDate=' + endStr)
         .then(response => response.json())
         .then(data => {
-            document.getElementById("totalTime").innerText = data;
-            document.getElementById("totalWorkTimeDisplay").innerText = data;
-            calculateAndGraph(data);
+            // 💡 [방어 코드] 데이터가 NULL이거나 공백으로 넘어오는 경우 비정상출력(NaN) 방지
+            const safeData = Number(data) || 0;
+            
+            document.getElementById("totalTime").innerText = safeData;
+            document.getElementById("totalWorkTimeDisplay").innerText = safeData;
+            calculateAndGraph(safeData);
         })
-        .catch(error => console.error("오류:", error));
+        .catch(error => {
+            console.error("오류:", error);
+            // 에러 상황 발생 시 기본값 0 구조 바인딩
+            document.getElementById("totalTime").innerText = 0;
+            document.getElementById("totalWorkTimeDisplay").innerText = 0;
+            calculateAndGraph(0);
+        });
     }
 
     function calculateAndGraph(currentHours) {
-        const start = new Date(document.getElementById("startDate").value);
-        const end = new Date(document.getElementById("endDate").value);
+        const startStr = document.getElementById("startDate").value;
+        const endStr = document.getElementById("endDate").value;
+        if(!startStr || !endStr) return;
+
+        const start = new Date(startStr);
+        const end = new Date(endStr);
         
         // 1. 평일(월~금) 일수 계산
         let weekdays = 0;

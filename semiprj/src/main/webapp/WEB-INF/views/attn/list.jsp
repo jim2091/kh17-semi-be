@@ -12,6 +12,10 @@
     margin: 0 auto;
 }
 
+/* 관리자단 프레임 프론트와 일치화: 토요일 / 일요일 가독성 강조 색상 추가 */
+.sat-color { color: #2f80ed !important; font-weight: bold; }
+.sun-color { color: #eb5757 !important; font-weight: bold; }
+
 /* 근태 상태 배지 스타일 */
 .attn-head {
     display: inline-flex;
@@ -36,8 +40,12 @@
     color: #16a34a;
 }
 
-/* 지각, 조퇴 등 경고성 상태 배지 스타일 */
-.status-late {
+/* 지각, 조퇴, 결근 등 경고성/위험성 상태 배지 스타일 */
+.status-warning {
+    background: #fff7ed;
+    color: #ea580c;
+}
+.status-danger {
     background: #fef2f2;
     color: #dc2626;
 }
@@ -180,22 +188,26 @@
                 </c:when>
                 <c:otherwise>
                     <c:forEach var="dto" items="${attnList}">
+                        <fmt:formatDate var="dayOfWeek" value="${dto.attnWorkDate}" pattern="E"/>
+                        <c:set var="dateColorClass" value="${dayOfWeek == '토' ? 'sat-color' : (dayOfWeek == '일' ? 'sun-color' : '')}" />
+                        <c:set var="isVacation" value="${dto.attnRecord == '연차' || dto.attnRecord == '반차' || dto.attnRecord == '휴가'}" />
+                        
                         <tr>
-                            <td>
-                                <span class="bold"><fmt:formatDate value="${dto.attnWorkDate}" pattern="MM/dd"/></span>
+                            <td class="${dateColorClass}">
+                                <span class="bold"><fmt:formatDate value="${dto.attnWorkDate}" pattern="MM/dd"/>(${dayOfWeek})</span>
                             </td>
                             <td>
                                 <c:choose>
-                                    <c:when test="${dto.attnRecord == '연차' || dto.attnRecord == '반차' || dto.attnRecord == '휴가'}">
+                                    <c:when test="${isVacation}">
                                         <span style="color:var(--warning-color); font-weight: bold;">○ ${dto.attnRecord}</span>
                                     </c:when>
                                     <c:otherwise><span class="gw-muted">-</span></c:otherwise>
                                 </c:choose>
                             </td>
-                            <td class="gw-muted">09:00 ~ 18:00</td>
+                            <td class="gw-muted">${isVacation ? '-' : '09:00 ~ 18:00'}</td>
                             <td>
                                 <c:choose>
-                                    <c:when test="${not empty dto.attnInTime}">
+                                    <c:when test="${!isVacation && not empty dto.attnInTime}">
                                         <fmt:formatDate value="${dto.attnInTime}" pattern="HH:mm"/> ~
                                         <fmt:formatDate value="${dto.attnOutTime}" pattern="HH:mm"/>
                                     </c:when>
@@ -203,29 +215,40 @@
                                 </c:choose>
                             </td>
                             <td>
-                                <%-- 🛠️ [근로시간 출력부 핵심 수정] --%>
-                                <%-- 기존의 소수점 필드 대신 가상 Getter인 convertedWorkTime 필드를 호출하여 직관적인 시간 포맷을 출력합니다. --%>
                                 <c:choose>
-                                    <c:when test="${dto.convertedWorkTime != '-'}">
+                                    <c:when test="${!isVacation && dto.convertedWorkTime != '-'}">
                                         <strong>${dto.convertedWorkTime}</strong>
                                     </c:when>
                                     <c:otherwise><span class="gw-muted">-</span></c:otherwise>
                                 </c:choose>
                             </td>
                             <td>
-                                <c:if test="${not empty dto.attnRecord}">
-                                    <c:choose>
-                                        <c:when test="${dto.attnRecord == '지각' || dto.attnRecord == '조퇴' || dto.attnRecord == '결근'}">
-                                            <span class="attn-head status-late">${dto.attnRecord}</span>
-                                        </c:when>
-                                        <c:when test="${dto.attnRecord == '연차' || dto.attnRecord == '반차' || dto.attnRecord == '휴가'}">
-                                            <span class="attn-head status-vacation">${dto.attnRecord}</span>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <span class="attn-head status-normal">${dto.attnRecord}</span>
-                                        </c:otherwise>
-                                    </c:choose>
-                                </c:if>
+                                <c:choose>
+                                    <c:when test="${not empty dto.attnRecord}">
+                                        <c:choose>
+                                            <%-- 💡 '정상근무' 매핑 보완 및 디자인 전면 교정 --%>
+                                            <c:when test="${dto.attnRecord == '정상근무'}">
+                                                <span class="attn-head status-normal">정상</span>
+                                            </c:when>
+                                            <c:when test="${dto.attnRecord == '지각' || dto.attnRecord == '조퇴'}">
+                                                <span class="attn-head status-warning">${dto.attnRecord}</span>
+                                            </c:when>
+                                            <c:when test="${dto.attnRecord == '결근'}">
+                                                <span class="attn-head status-danger">결근</span>
+                                            </c:when>
+                                            <c:when test="${isVacation}">
+                                                <span class="attn-head status-vacation">${dto.attnRecord}</span>
+                                            </c:when>
+                                            <%-- 💡 '미확인' 상태일 때 기본 공용 배지 렌더링 백업 --%>
+                                            <c:otherwise>
+                                                <span class="attn-head">${dto.attnRecord}</span>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <span class="gw-muted">-</span>
+                                    </c:otherwise>
+                                </c:choose>
                             </td>
                         </tr>
                     </c:forEach>

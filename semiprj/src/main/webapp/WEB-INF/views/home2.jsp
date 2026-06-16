@@ -416,16 +416,19 @@ function updateAttendanceUI(status, startTime, endTime) {
         if(checkOutBtn) { checkOutBtn.disabled = true; checkOutBtn.style.opacity = "0.5"; checkOutBtn.style.cursor = "not-allowed"; }
         if(checkOutBtnText) checkOutBtnText.innerText = "퇴근 완료";
     } 
-    // 2. 🛡️ [핵심 보완] 정상 근무 상태 (상태 문자열 매핑이 꼬여도, 출근 시간 데이터만 있으면 강제 활성화)
+ // 2. 정상 근무 상태 및 기타 DB 상태 (출근 시간이 찍혀있을 때)
     else if (status === "출근상태" || status === "출근중" || status === "출근" || status === "IN" || (startTime && startTime !== "-")) {
         if(inTimeDisplay) inTimeDisplay.innerText = startTime && startTime !== "-" ? startTime : "-";
         if(outTimeDisplay) outTimeDisplay.innerText = "-";
-        if(statusText) statusText.innerText = "● 정상근무";
+        
+        // 💡 이 한 줄로 교체! 이제 DB에 '지각'이 있으면 화면에도 '● 지각'이라고 정직하게 찍힙니다.
+        if(statusText) statusText.innerText = "● " + status; 
+        
         if(checkInBtn) { checkInBtn.disabled = true; checkInBtn.style.opacity = "0.5"; checkInBtn.style.cursor = "not-allowed"; }
         if(checkInBtnText) checkInBtnText.innerText = "출근 완료";
         if(checkOutBtn) { checkOutBtn.disabled = false; }
         if(checkOutBtnText) checkOutBtnText.innerText = "퇴근하기";
-    } 
+    }
     // 3. 미출근 상태
     else { 
         if(inTimeDisplay) inTimeDisplay.innerText = "-";
