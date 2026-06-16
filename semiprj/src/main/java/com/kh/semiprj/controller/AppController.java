@@ -366,16 +366,43 @@ public class AppController {
 		model.addAttribute("list", appDao.selectMyList(empNo));
 		return "/app/list";
 	}
-	
-	
-	
-	//picker 용 매핑
+
+//	//picker 용 매핑
+//	@GetMapping("/searchApprover")
+//	@ResponseBody
+//	public List<Map<String, Object>> searchApprover(
+//	        @RequestParam String keyword,
+//	        @RequestParam(required = false) List<String> excludes) {
+//	    return appDao.searchApproverForPicker(keyword, excludes);
+//	}
+
 	@GetMapping("/searchApprover")
 	@ResponseBody
-	public List<Map<String, Object>> searchApprover(
-	        @RequestParam String keyword,
-	        @RequestParam(required = false) List<String> excludes) {
-	    return appDao.searchApproverForPicker(keyword, excludes);
+	public List<Map<String, Object>> searchApprover(@RequestParam String keyword,
+	        @RequestParam(required = false) List<String> excludes, HttpSession session) {
+
+	    // 본인 제외
+	    String loginId = (String) session.getAttribute("loginId");
+	    String empNo = appDao.selectEmpNoById(loginId);
+	    if (excludes == null) excludes = new ArrayList<>();
+	    if (!excludes.contains(empNo)) excludes.add(empNo);
+
+	    List<Map<String, Object>> approverList = appDao.searchApproverForPicker(keyword, excludes);
+	    if (approverList == null || approverList.isEmpty()) return approverList;
+
+	    for (Map<String, Object> map : approverList) {
+	        String deptId = (String) map.get("empDept");
+	        if (deptId != null && !deptId.isEmpty()) {
+	            try {
+	                String deptName = appDao.selectDeptNameById(Integer.parseInt(deptId));
+	                if (deptName != null) map.put("empDept", deptName);
+	            } catch (NumberFormatException e) {
+	                map.put("empDept", "소속없음");
+	            }
+	        }
+	    }
+
+	    return approverList;
 	}
 
 }

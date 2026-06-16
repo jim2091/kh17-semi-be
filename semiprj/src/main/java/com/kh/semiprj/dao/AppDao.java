@@ -100,6 +100,15 @@ public class AppDao {
         return list.isEmpty() ? null : list.get(0);
     }
 	
+	// dept_id 가 아닌 dept_name 이 출력될 수 있게 해주는 메소드
+	public String selectDeptNameById(int deptId) {
+		String sql = "select dept_name from dept where dept_id=?";
+		Object[] params = { deptId };
+		return jdbcTemplate.queryForObject(sql, String.class, params);
+	}
+	
+	
+	
 	// 삭제
 	public boolean delete(int appId) {
 		String sql = "delete app where app_id=?";
@@ -379,10 +388,11 @@ public class AppDao {
     
     // picker를 사용하기 위한 메소드 (AI)
     public List<Map<String, Object>> searchApproverForPicker(String keyword, List<String> excludes) {
-    	String sql = "select emp_no, emp_name, emp_position, emp_dept "
-    			+ "from emp "
-    			+ "where emp_use_yn = 'Y' "
-    			+ "and (emp_name like ? or emp_dept like ?) ";
+    	String sql = "select e.emp_no, e.emp_name, e.emp_position, d.dept_name as emp_dept "
+    	           + "from emp e "
+    	           + "left join dept d on to_number(e.emp_dept) = d.dept_id "  // ← to_number
+    	           + "where e.emp_use_yn = 'Y' "
+    	           + "and (e.emp_name like ? or d.dept_name like ?) ";
     	
     	List<Object> params = new ArrayList<>();
     	params.add("%" + keyword + "%");
