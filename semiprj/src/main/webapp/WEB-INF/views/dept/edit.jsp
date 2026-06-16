@@ -105,10 +105,10 @@ $(function(){
 	
 	    if(valid) {
 	        $(this).removeClass("success fail"); 
-	        $(".deptHeadId-wrapper .fail-feedback").hide(); // 💡 숨김
+	        $(".deptHeadId-wrapper .fail-feedback").hide();
 	    }
 	    else{
-	    	$(".deptHeadId-wrapper .fail-feedback").show(); // 💡 오타 수정 (.공백제거)
+	    	$(".deptHeadId-wrapper .fail-feedback").show();
 	    }
 	
 	    state.deptHeadIdValid = valid;
