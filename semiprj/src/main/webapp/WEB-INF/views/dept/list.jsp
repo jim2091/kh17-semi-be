@@ -48,6 +48,9 @@
 </script>
 
 		<div class="dept-screen">
+			<div class="gw-breadcrumb">
+			        부서 > 부서목록
+			</div>
 			<div class="gw-hero">
 			    <div>
 			        <h1>부서 목록 및 검색 🏢</h1>

@@ -226,6 +226,9 @@ $(function(){
 		<div class="dept-screen">
 			<!-- ── 페이지 헤더 ── -->
 			<div class="gw-page-head">
+				<div class="gw-breadcrumb">
+			        부서 > 등록
+			    </div>
 			    <h1>부서 신규 등록</h1>
 			    <p>회사의 조직 체계에 맞춰 새로운 부서 정보를 생성합니다.</p>
 			</div>

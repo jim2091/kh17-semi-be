@@ -24,9 +24,19 @@ $(function(){
 		<div class="dept-screen">
 			<!-- ── 페이지 헤더 ── -->
 			<div class="gw-page-head">
+				<div class="gw-breadcrumb">
+			        부서목록 > 상세
+			    </div>
 			    <h1>${deptDto.deptName}</h1>
 			</div>
-
+			<div class="right">
+				<a href="./listTree" class="gw-btn-outline">
+			        <i class="fa-solid fa-users"></i> 조직도
+			    </a>
+			    <a href="./list" class="gw-btn-outline">
+			        <i class="fa-solid fa-list"></i> 목록
+			    </a>
+			</div>
 			<!-- ── 부서 기본 정보 ── -->
 			<div class="gw-list-panel mb-10">
 			    <div class="card-header">
@@ -153,12 +163,6 @@ $(function(){
 
 			<!-- ── 액션 버튼 ── -->
 			<div class="gw-form-actions" style="border-top:none; margin-top:18px; justify-content:flex-end;">
-			    <a href="./listTree" class="gw-btn-outline">
-			        <i class="fa-solid fa-users"></i> 조직도
-			    </a>
-			    <a href="./list" class="gw-btn-outline">
-			        <i class="fa-solid fa-list"></i> 목록
-			    </a>
 			    <c:if test="${sessionScope.loginRole == '관리자'}">
 			        <a href="./insert" class="gw-btn-outline">
 			            <i class="fa-solid fa-plus"></i> 신규 등록
