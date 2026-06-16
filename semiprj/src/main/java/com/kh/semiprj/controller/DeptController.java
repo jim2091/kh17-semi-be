@@ -23,6 +23,8 @@ import com.kh.semiprj.dto.DeptDto;
 import com.kh.semiprj.dto.EmpDto;
 import com.kh.semiprj.exception.TargetNotfoundException;
 import com.kh.semiprj.exception.WhoAreYouException;
+import com.kh.semiprj.service.DeptDashboardService;
+import com.kh.semiprj.vo.ManagerDashboardVO;
 import com.kh.semiprj.vo.PageVO;
 
 import jakarta.servlet.http.HttpSession;
@@ -37,6 +39,8 @@ public class DeptController {
 	private EmpDao empDao;
 	@Autowired
 	private MessageDao messageDao;
+	@Autowired
+	private DeptDashboardService deptDashboardService;
 	
 
 	//목록 및 검색(페이징처리된것)
@@ -222,10 +226,13 @@ public class DeptController {
 	public String managerDashboard(HttpSession session, Model model) {
 		String loginId = (String) session.getAttribute("loginId");
 		EmpDto empDto = empDao.selectOne(loginId);
-		int deptId = empDto.getEmpDept();
-		DeptDto deptDto = deptDao.selectOne(deptId);
-		model.addAttribute("deptDto", deptDto);
+		ManagerDashboardVO dashboard = deptDashboardService.createDashboard(empDto.getEmpNo());
 		
+		if (dashboard == null) {
+			return "redirect:/";
+		}
+		
+		model.addAttribute("dashboard", dashboard);
 		
 		return "dept/manager";
 	}
