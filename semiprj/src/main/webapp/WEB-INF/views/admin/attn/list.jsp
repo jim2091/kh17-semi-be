@@ -111,16 +111,16 @@
         
         <select name="deptCode" class="gw-form-select" onchange="this.form.submit();">
             <option value="">부서 전체</option>
-            <option value="10" ${search.deptCode == '10' ? 'selected' : ''}>경영지원본부</option>
-            <option value="20" ${search.deptCode == '20' ? 'selected' : ''}>인사팀</option>
-            <option value="21" ${search.deptCode == '21' ? 'selected' : ''}>총무감사팀</option>
-            <option value="30" ${search.deptCode == '30' ? 'selected' : ''}>총무팀</option>
-            <option value="40" ${search.deptCode == '40' ? 'selected' : ''}>개발본부</option>
-            <option value="50" ${search.deptCode == '50' ? 'selected' : ''}>백엔드개발팀</option>
-            <option value="60" ${search.deptCode == '60' ? 'selected' : ''}>프론트엔드개발팀</option>
-            <option value="70" ${search.deptCode == '70' ? 'selected' : ''}>영업마케팅본부</option>
-            <option value="80" ${search.deptCode == '80' ? 'selected' : ''}>국내영업팀</option>
-            <option value="43" ${search.deptCode == '43' ? 'selected' : ''}>인사3팀</option>
+            <option value="10" ${search.deptCode == '10' ? 'selected' : ''}>대표이사실</option>
+            <option value="20" ${search.deptCode == '20' ? 'selected' : ''}>개발본부</option>
+            <option value="21" ${search.deptCode == '21' ? 'selected' : ''}>플랫폼개발팀</option>
+            <option value="30" ${search.deptCode == '22' ? 'selected' : ''}>인프라운영팀</option>
+            <option value="40" ${search.deptCode == '30' ? 'selected' : ''}>경영지원본부</option>
+            <option value="50" ${search.deptCode == '31' ? 'selected' : ''}>인사팀</option>
+            <option value="60" ${search.deptCode == '32' ? 'selected' : ''}>총무팀</option>
+            <option value="70" ${search.deptCode == '40' ? 'selected' : ''}>영업본부</option>
+            <option value="80" ${search.deptCode == '41' ? 'selected' : ''}>국내영업팀</option>
+            <option value="43" ${search.deptCode == '42' ? 'selected' : ''}>고객지원팀</option>
         </select>
 
         <select name="positionCode" class="gw-form-select" onchange="this.form.submit();">
@@ -201,17 +201,16 @@
                         <tr>
                             <td class="gw-muted">
                                 <c:choose>
-                                    <c:when test="${dto.deptCode == '0'}">회사</c:when>
-                                    <c:when test="${dto.deptCode == '10'}">경영지원본부</c:when>
-                                    <c:when test="${dto.deptCode == '20'}">인사팀</c:when>
-                                    <c:when test="${dto.deptCode == '21'}">총무감사팀</c:when>
-                                    <c:when test="${dto.deptCode == '30'}">총무팀</c:when>
-                                    <c:when test="${dto.deptCode == '40'}">개발본부</c:when>
-                                    <c:when test="${dto.deptCode == '50'}">백엔드개발팀</c:when>
-                                    <c:when test="${dto.deptCode == '60'}">프론트엔드개발팀</c:when>
-                                    <c:when test="${dto.deptCode == '70'}">영업마케팅본부</c:when>
-                                    <c:when test="${dto.deptCode == '80'}">국내영업팀</c:when>
-                                    <c:when test="${dto.deptCode == '43'}">인사3팀</c:when>
+                                    <c:when test="${dto.deptCode == '10'}">대표이사실</c:when>
+                                    <c:when test="${dto.deptCode == '20'}">개발본부</c:when>
+                                    <c:when test="${dto.deptCode == '21'}">플랫폼개발팀</c:when>
+                                    <c:when test="${dto.deptCode == '22'}">인프라운영팀</c:when>
+                                    <c:when test="${dto.deptCode == '30'}">경영지원본부</c:when>
+                                    <c:when test="${dto.deptCode == '31'}">인사팀</c:when>
+                                    <c:when test="${dto.deptCode == '32'}">총무팀</c:when>
+                                    <c:when test="${dto.deptCode == '40'}">영업본부</c:when>
+                                    <c:when test="${dto.deptCode == '41'}">국내영업팀</c:when>
+                                    <c:when test="${dto.deptCode == '42'}">고객지원팀</c:when>
                                     <c:otherwise>${dto.deptCode}</c:otherwise>
                                 </c:choose>
                             </td>

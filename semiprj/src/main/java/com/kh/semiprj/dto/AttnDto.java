@@ -26,6 +26,7 @@ public class AttnDto {
     private int vacCnt;
     private String empName;
     private String deptCode;
+    private String deptName;
     private String positionCode;
     private String startDate;
     private String endDate;
