@@ -4,7 +4,6 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <jsp:include page="/WEB-INF/views/template/header2.jsp"></jsp:include>
 
-  
     <link rel="stylesheet" href="https://uicdn.toast.com/tui.date-picker/latest/tui-date-picker.css" />
     <link rel="stylesheet" href="https://uicdn.toast.com/tui.time-picker/latest/tui-time-picker.css" />
     <link rel="stylesheet" href="https://uicdn.toast.com/calendar/latest/toastui-calendar.min.css" />
@@ -41,57 +40,125 @@
     min-width:120px;
     text-align:center;
 }
+
+
+.modal-icon{
+    width:90px;
+    height:90px;
+    margin:0 auto 24px;
+    border-radius:50%;
+    background:#eff6ff;
+    color:#2563eb;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.modal .modal-content,
+.detail-modal .modal-content{
+    width: 700px;
+    max-width: 90vw;
+    padding: 35px 40px;
+    border-radius: 24px;
+    background: #fff;
+    box-shadow: 0 10px 40px rgba(15,23,42,.12);
+}
+.detail-header{
+    margin-bottom:30px;
+    text-align:center;
+}
+
+.detail-header h2{
+    margin:0;
+    font-size:32px;
+    font-weight:800;
+    color:#0f172a;
+}
+
+.detail-header p{
+    margin-top:8px;
+    color:#64748b;
+    font-size:14px;
+}
+.detail-item{
+    margin-bottom:18px;
+}
+
+.detail-item label{
+    display:block;
+
+    margin-bottom:8px;
+
+    font-size:14px;
+    font-weight:700;
+
+    color:#334155;
+}
+.detail-item input,
+.detail-item textarea,
+.detail-item select{
+    width:100%;
+    border:1px solid #dbe3ee;
+
+    border-radius:14px;
+
+    padding:13px 16px;
+
+    background:#f8fafc;
+
+    transition:.2s;
+}
+.detail-row{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+}
 </style>
-<div class="gw-page-head">
-    <div class="gw-breadcrumb">
-        일정 > 일정 관리
-    </div>
 
-    <h1>일정 관리 시스템</h1>
-    <p>개인 일정과 사내 일정을 등록하고 관리할 수 있습니다.</p>
-</div>
+<div class="pds-width">
+	<div class="gw-page-head">
+	    <div class="gw-breadcrumb">
+	        홈 / 일정 / 캘린더
+	    </div>
+	    <h1>캘린더</h1>
+	    <p>개인 일정과 사내 일정을 등록하고 관리할 수 있습니다.</p>
+	</div>
 
+	<div class="gw-list-panel">
+	    <div style="
+	        display:flex;
+	        align-items:center;
+	        justify-content:center;
+	        gap:10px;
+	        flex-wrap:wrap;
+	    ">
 
-
-	<div class="gw-list-panel mb-20">
-
-    <div style="
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        gap:10px;
-        flex-wrap:wrap;
-    ">
-
-        <button type="button" class="gw-btn-outline btn-prev">
-            <i class="fa-solid fa-caret-left"></i>
-        </button>
-
-        <span class="current-month"
-              style="
-                font-size:22px;
-                font-weight:700;
-                min-width:140px;
-                text-align:center;
-              ">
-        </span>
-
-        <button type="button" class="gw-btn-outline btn-next">
-            <i class="fa-solid fa-caret-right"></i>
-        </button>
-
-        <button type="button" class="gw-btn-primary btn-today">
-            오늘
-        </button>
-
-    </div>
-
-</div>
+	        <button type="button" class="gw-btn-outline btn-prev">
+	            <i class="fa-solid fa-caret-left"></i>
+	        </button>
 	
-<div class="gw-list-panel">
-    <div id="calendar" style="height:700px;"></div>
-</div>
-    
+	        <span class="current-month"
+	              style="
+	                font-size:22px;
+	                font-weight:700;
+	                min-width:140px;
+	                text-align:center;
+	              ">
+	        </span>
+	
+	        <button type="button" class="gw-btn-outline btn-next">
+	            <i class="fa-solid fa-caret-right"></i>
+	        </button>
+	
+	        <button type="button" class="gw-btn-primary btn-today">
+	            오늘
+	        </button>
+	    </div>
+	</div>
+		
+	<div class="gw-list-panel">
+	    <div id="calendar" style="height:700px;"></div>
+	</div>
     
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://uicdn.toast.com/tui.code-snippet/latest/tui-code-snippet.min.js"></script>
@@ -101,12 +168,9 @@
 
     <script src="https://uicdn.toast.com/calendar/latest/toastui-calendar.min.js"></script>
 
-
-    
     <script>
     const Calendar = tui.Calendar;
     let currentEventNo = null;
-    
     
     // 1. 캘린더 인스턴스 생성
     const calendar = new Calendar('#calendar', {
@@ -371,40 +435,49 @@
     
             
     </script>
+    
 <div class="modal">
-    <div class="gw-list-panel modal-content">
+	<div class="gw-list-panel modal-content">
+		<div class="modal-icon">
+			<i class="fa-regular fa-calendar-check fa-2x"></i>
+		</div>
+		
+		<div class="detail-header">
+			<div>
+				<h2>일정 등록</h2>
+		        <p>새로운 일정을 등록할 수 있습니다.</p>
+		    </div>
+		</div>
 
-<div class="cell center">
-    <h2>일정 등록</h2>
-</div>
-
-        <div class="cell">
+        <div class="detail-item">
             <label>일정 제목</label>
             <input type="text" name="eventTitle" class="gw-form-input field">
             <div class="success-feedback"></div>
             <div class="fail-feedback"></div>
         </div>
 
-        <div class="cell">
+        <div class="detail-item">
             <label>일정 내용</label>
             <textarea name="eventContent" class="gw-form-input field"></textarea>
         </div>
 
-        <div class="cell">
-            <label>시작일시</label>
-            <input type="datetime-local" name="eventStart" class="gw-form-input field">
-            <div class="success-feedback"></div>
-            <div class="fail-feedback"></div>
-        </div>
+		<div class="detail-row">
+	        <div class="detail-item">
+	            <label>시작 일시</label>
+	            <input type="datetime-local" name="eventStart" class="gw-form-input field">
+	            <div class="success-feedback"></div>
+	            <div class="fail-feedback"></div>
+	        </div>
+	
+	        <div class="detail-item">
+	            <label>종료 일시</label>
+	            <input type="datetime-local" name="eventEnd" class="gw-form-input field">
+	            <div class="success-feedback"></div>
+	            <div class="fail-feedback"></div>
+	        </div>
+		</div>
 
-        <div class="cell">
-            <label>종료일시</label>
-            <input type="datetime-local" name="eventEnd" class="gw-form-input field">
-            <div class="success-feedback"></div>
-            <div class="fail-feedback"></div>
-        </div>
-
-        <div class="cell">
+        <div class="detail-item">
             <label>일정 분류</label>
             <select name="eventCategory" class="gw-form-input field">
                 <option value="개인일정">개인일정</option>
@@ -418,52 +491,58 @@
 		    display:flex;
 		    justify-content:center;
 		    gap:10px;
-		    margin-top:20px;
+		    margin-top:30px;
 		">
 		
-		    <button type="button"
-		            class="gw-btn-primary save-btn">
+		    <button type="button" class="gw-btn-primary save-btn">
+		    	<i class="fa-regular fa-floppy-disk"></i>
 		        저장
 		    </button>
 		
-		    <button type="button"
-		            class="gw-btn-outline close-btn">
+		    <button type="button" class="gw-btn-outline close-btn">
+				<i class="fa-solid fa-xmark"></i>
 		        닫기
 		    </button>
-
-</div>
-
+		</div>
     </div>
 </div>
 
 <div class="detail-modal">
-    <div class="gw-list-panel modal-content">
-
-       <div class="cell center">
-		    <h2>일정 상세정보</h2>
+	<div class="gw-list-panel modal-content">
+		<div class="modal-icon">
+			<i class="fa-regular fa-calendar-check fa-2x"></i>
+		</div>
+       
+		<div class="detail-header">
+			<div>
+				<h2>일정 상세정보</h2>
+		        <p>등록된 일정 정보를 확인하거나 수정할 수 있습니다.</p>
+		    </div>
 		</div>
 
-        <div class="cell">
-            <label>제목</label>
+        <div class="detail-item">
+			<label>일정 제목</label>
             <input type="text" class="gw-form-input field detail-title">
         </div>
 
-        <div class="cell">
-            <label>내용</label>
+        <div class="detail-item">
+			<label>일정 내용</label>
             <textarea class="gw-form-input field detail-content" rows="4"></textarea>
         </div>
+		
+		<div class="detail-row">
+	        <div class="detail-item">
+	            <label>시작 일시</label>
+	            <input type="datetime-local" class="gw-form-input field detail-start">
+	        </div>
+	
+	        <div class="detail-item">
+	            <label>종료 일시</label>
+	            <input type="datetime-local" class="gw-form-input field detail-end">
+	        </div>
+	    </div>
 
-        <div class="cell">
-            <label>시작일시</label>
-            <input type="datetime-local" class="gw-form-input field detail-start">
-        </div>
-
-        <div class="cell">
-            <label>종료일시</label>
-            <input type="datetime-local" class="gw-form-input field detail-end">
-        </div>
-
-        <div class="cell">
+        <div class="detail-item">
         	<label>일정 분류</label>
             <select class="gw-form-select detail-category">
                 <option value="개인일정">개인일정</option>
@@ -475,7 +554,7 @@
 		    display:flex;
 		    justify-content:center;
 		    gap:10px;
-		    margin-top:20px;
+		    margin-top:30px;
 		    flex-wrap:wrap;
 		">
 		
@@ -493,17 +572,11 @@
 		
 		    <button type="button"
 		            class="gw-btn-outline detail-close-btn">
+		        <i class="fa-solid fa-xmark"></i>
 		        닫기
 		    </button>
-
-</div>
-
+		</div>
     </div>
 </div>
-
-
-
-
-
 
 <jsp:include page="/WEB-INF/views/template/footer2.jsp"></jsp:include>

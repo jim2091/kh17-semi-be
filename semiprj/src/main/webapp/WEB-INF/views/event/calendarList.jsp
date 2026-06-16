@@ -2,23 +2,44 @@
     pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+
 <jsp:include page="/WEB-INF/views/template/header2.jsp"></jsp:include>
 
+<style>
+	.event-category {
+	    display: inline-flex;
+	    justify-content: center;
+	    min-width: 58px;
+	    padding: 5px 9px;
+	    border-radius: 999px;
+	    background: var(--main-light);
+	    color: var(--main-color);
+	    font-size: 12px;
+	    font-weight: 900;
+	}
+	.event-title{
+	    font-weight:700;
+	    color:#1e3a8a;
+	}
+	.event-content{
+	    max-width:300px;
+	    overflow:hidden;
+	    text-overflow:ellipsis;
+	    white-space:nowrap;
+	}
+</style>
 
-<div class="gw-page-head">
-    <div class="gw-breadcrumb">
-        일정 > 일정 목록
-    </div>
+<div class="pds-width">
+	<div class="gw-page-head">
+	    <div class="gw-breadcrumb">
+	        홈 / 일정 / 일정 목록
+	    </div>
+	    <h1>일정 목록</h1>
+	    <p>등록된 일정을 조회하고 검색할 수 있습니다.</p>
+	</div>
 
-    <h1>일정 목록</h1>
-    <p>등록된 일정을 조회하고 검색할 수 있습니다.</p>
-</div>
-
-<div class="container w-80">
-
-    <div class="gw-list-panel">
-
-        <form action="./calendarList" method="get"
+    <div class="gw-search-panel">
+        <form action="./calendarList" method="get" class="gw-search-form"
               style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
 
             <select name="sort"
@@ -44,38 +65,48 @@
                 <i class="fa-solid fa-magnifying-glass"></i>
                 검색
             </button>
-
         </form>
-
     </div>
 
-    <div class="gw-list-panel mt-20">
-
+    <div class="gw-list-panel">
+    	<div class="gw-table-top">
+		    <div>
+		        <div class="gw-table-title">일정 목록</div>
+		        <div class="gw-table-sub">
+		            총 ${pageVO.count}개의 일정
+		        </div>
+		    </div>
+		</div>
         <table class="gw-table">
             <thead>
                 <tr>
-                    <th width="100">번호</th>
-                    <th width="280">시간</th>
-                    <th width="250">분류 / 제목</th>
-                    <th>내용</th>
+                    <th style="width:25%;">일정 기간</th>
+                    <th style="width:35%;">일정 제목</th>
+                    <th style="width:40%;">일정 내용</th>
                 </tr>
             </thead>
 
             <tbody>
                 <c:forEach var="eventDto" items="${list}">
                     <tr>
-                        <td>${eventDto.eventNo}</td>
                         <td>
-                            ${eventDto.eventStart}
+                        	<fmt:formatDate
+	    						value="${eventDto.eventStart}"
+	    						pattern="yyyy-MM-dd HH:mm"/>
                             <br>
                             ~
                             <br>
-                            ${eventDto.eventEnd}
-                        </td>
-                        <td>
-                            ${eventDto.eventTitle}
+                            <fmt:formatDate
+	    						value="${eventDto.eventEnd}"
+	    						pattern="yyyy-MM-dd HH:mm"/>
                         </td>
                         <td style="text-align:left;">
+                        	<span class="event-category">
+                        		${eventDto.eventCategory}
+                        	</span>
+                            ${eventDto.eventTitle}
+                        </td>
+                        <td class="event-content" style="text-align:left;">
                             ${eventDto.eventContent}
                         </td>
                     </tr>
@@ -83,25 +114,14 @@
 
                 <c:if test="${empty list}">
                     <tr>
-                        <td colspan="4" class="center">
-                            등록된 일정이 없습니다.
-                        </td>
+                        <td colspan="4" style="padding:40px;text-align:center;color:#aaa;">
+			            등록된 일정이 없습니다.
+			        	</td>
                     </tr>
                 </c:if>
             </tbody>
         </table>
-
     </div>
-
 </div>
-
-
-
-
-
-
-
-
-
 
 <jsp:include page="/WEB-INF/views/template/footer2.jsp"></jsp:include>
