@@ -17,6 +17,7 @@ import com.kh.semiprj.dto.AppLineDto;
 import com.kh.semiprj.dto.DftAppDto;
 import com.kh.semiprj.dto.ExpAppDto;
 import com.kh.semiprj.dto.VacAppDto;
+import com.kh.semiprj.service.VacService;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -28,6 +29,8 @@ public class ApprController {
 	private AppDao appDao;
 	@Autowired
 	private AppLineDao appLineDao;
+	@Autowired
+	private VacService vacService;
 
 	// 결재자가 보는 리스트
 	@RequestMapping("/list")
@@ -53,24 +56,31 @@ public class ApprController {
 	}
 
 	// 승인
-	@PostMapping("/approve")
-	public String approve(@RequestParam int appLineId, @RequestParam int appId, @RequestParam int currentOrder,
-			HttpSession session) {
-		String empNo = appDao.selectEmpNoById((String) session.getAttribute("loginId"));
-		AppLineDto line = appLineDao.selectOne(appLineId);
-		if (!line.getAppAppId().equals(empNo))
-			return "redirect:./list";
+		@PostMapping("/approve")
+		public String approve(@RequestParam int appLineId, @RequestParam int appId, @RequestParam int currentOrder,
+				HttpSession session) {
+			String empNo = appDao.selectEmpNoById((String) session.getAttribute("loginId"));
+			AppLineDto line = appLineDao.selectOne(appLineId);
+			if (!line.getAppAppId().equals(empNo))
+				return "redirect:./list";
 
-		appLineDao.approve(appLineId);
+			appLineDao.approve(appLineId);
 
-		int nextCount = appLineDao.updateNextApprover(appId, currentOrder);
-		if (nextCount > 0) {
-			appDao.updateAppStatus(appId, "결재중");
-		} else {
-			appDao.updateAppStatus(appId, "승인");
+			int nextCount = appLineDao.updateNextApprover(appId, currentOrder);
+			if (nextCount > 0) {
+				appDao.updateAppStatus(appId, "결재중");
+			} else {
+				// [최종 승인 시점]
+				appDao.updateAppStatus(appId, "승인");
+				
+				// 1. 최종 승인이 났으므로 이 문서의 최초 기안자 사원번호(empNo)를 DB에서 조회해 옵니다.
+				String requesterEmpNo = appDao.selectEmpNoByAppId(appId);
+				
+				// 2. 연차 서비스 가동 (내부에서 '연차' 문서인지 검증 후 vac_history 등록 및 연차 차감 일괄 처리)
+				vacService.approveVacationSuccess(appId, requesterEmpNo);
+			}
+			return "redirect:./detail?appId=" + appId;
 		}
-		return "redirect:./detail?appId=" + appId;
-	}
 
 	// 반려
 	@PostMapping("/reject")

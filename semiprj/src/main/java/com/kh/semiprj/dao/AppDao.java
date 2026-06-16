@@ -418,4 +418,14 @@ public class AppDao {
     		return map;
     	}, params.toArray());
     }
+    
+ // 특정 결재 문서의 기안자 사원번호 조회
+ 	public String selectEmpNoByAppId(int appId) {
+ 		String sql = "select app_req_id from app where app_id = ?";
+ 		try {
+ 			return jdbcTemplate.queryForObject(sql, String.class, appId);
+ 		} catch (Exception e) {
+ 			return null;
+ 		}
+ 	}
 }
