@@ -98,7 +98,7 @@
 					    </c:if>
 			        </div>
 			        <div class="gw-table-sub">
-			            ${pageVO.beginRownum}-${pageVO.endRownum} / 총 ${pageVO.count}개의 글
+			            ${pageVO.beginRownum}-${pageVO.endRownum} / 총 ${pageVO.count}개의 쪽지
 			        </div>
 			    </div>
 	    		<div class="gw-table-actions">

@@ -71,10 +71,10 @@
 	    </div>
 	</div>
 	
-<!-- <script>
+<script>
 setTimeout(function(){
     location.href="./receiveList";
 }, 3000);
-</script>  -->
+</script>
 
 <jsp:include page="/WEB-INF/views/template/footer2.jsp"></jsp:include>
