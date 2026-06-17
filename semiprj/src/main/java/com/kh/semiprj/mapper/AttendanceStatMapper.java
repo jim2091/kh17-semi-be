@@ -21,6 +21,7 @@ public class AttendanceStatMapper implements RowMapper<AttendanceStatVO>{
 		vo.setLateEarlyCount(rs.getInt("late_early_count"));
 		vo.setLeaveCount(rs.getInt("leave_count"));
 		vo.setUncheckedCount(rs.getInt("unchecked_count"));
+		vo.setAbsentCount(rs.getInt("absent_count"));
 		return vo;
 	}
 }

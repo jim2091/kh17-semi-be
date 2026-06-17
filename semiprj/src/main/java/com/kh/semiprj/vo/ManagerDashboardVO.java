@@ -24,6 +24,7 @@ public class ManagerDashboardVO {
 	private int lateEarlyCount;
 	private int leaveCount;
 	private int uncheckedCount;
+	private int absentCount;
 	
 	private int approvalTotalCount;
 	private int approvalApproveCount;
@@ -38,5 +39,24 @@ public class ManagerDashboardVO {
 	private int monthlyLeaveCount;
 	
 	private double attendanceRate;
+	
+	private String attnMode;
+	
+	private int attendanceChartMax;
+	private int attendanceChart4;
+	private int attendanceChart3;
+	private int attendanceChart2;
+	private int attendanceChart1;
+	
+	private int approvalApprovePercent;
+	private int approvalIngPercent;
+	private int approvalRejectPercent;
+	private int approvalIngEndPercent;
+	
+	private List<List<LeaveCalendarDayVO>> leaveCalendarWeeks;
+	
+	private List<DeptMemberStatusVO> directMemberList;
+	
+	private int directMemberCount;
 	
 }
