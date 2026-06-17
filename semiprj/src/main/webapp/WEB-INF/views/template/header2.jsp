@@ -14,6 +14,7 @@
 	
 	<!-- jQuery CDN -->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+	<script src="/js/preview.js"></script>
 	
 	<!-- toastui-calendar CDN -->
 	<script src="https://uicdn.toast.com/tui.code-snippet/latest/tui-code-snippet.min.js"></script>
@@ -32,6 +33,8 @@
 	<!-- 한글 -->
 	<script src="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/lang/summernote-ko-KR.min.js"></script>
 	
+	<!-- kakao postapi CDN -->
+    <script src="//t1.kakaocdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 	
 	<script>
 		$(function(){

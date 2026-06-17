@@ -35,7 +35,6 @@ public class EmpMapper implements RowMapper<EmpDto>{
 		empDto.setEmpMentor(rs.getString("emp_mentor"));
 		empDto.setEmpPwChange(rs.getTimestamp("emp_pw_change"));
 		empDto.setEmpEmailVerified(rs.getString("emp_email_verified"));
-<<<<<<< HEAD
 
 		// 💡 [수정 완료] 조인으로 조회된 유일한 부서명(emp_dept_name)을 DTO 내부 필드에 안정적으로 매핑합니다.
 		try {
@@ -43,22 +42,12 @@ public class EmpMapper implements RowMapper<EmpDto>{
 		} catch(Exception e) {
 			empDto.setEmpDeptName(null);
 		}
-		
-=======
-		
-		
-		//부서 이름 출력을 위해 이것만 따로 생성 같이 생성하면 전체 MAPPER오류
-		try {
-			empDto.setEmpDeptName(rs.getString("emp_dept_name"));
-		} catch (SQLException e) {
-			// SQL 결과에 emp_dept_name 컬럼이 없어도 에러를 내지 않고 null로 둡니다.
-			empDto.setEmpDeptName(null); 
-		}
+
 //		empDto.setPositionId(rs.getInt("position_id"));
 //		empDto.setPositionName(rs.getString("position_name"));
 //		empDto.setPositionLevel(rs.getInt("position_level"));
 //		
->>>>>>> refs/remotes/origin/main
+
 		return empDto;
 	}
 }
