@@ -5,6 +5,7 @@
 <jsp:include page="/WEB-INF/views/template/header2.jsp"></jsp:include>
 
 
+<div class="pds-width">
 <div class="gw-page-head">
     <div class="gw-breadcrumb">
         관리자 > 직원관리
@@ -12,7 +13,6 @@
     <h1>대기 사원 목록</h1>
     <p>현재 대기 사원의 목록을 볼 수 있습니다.</p>
 </div>
-
 
 <div class="gw-list-panel">	
 	<div class="gw-table-top">
@@ -44,20 +44,28 @@
 				</thead>
 				<tbody>
 					<c:forEach var="empDto" items="${list}">
-						<tr align="center">
+						<tr align="center" onclick="location.href='./detail?empNo=${empDto.empNo}'" style="cursor:pointer;">
 								<td>${empDto.empName}</td>
 								<td>${empDto.empId}</td>
 								<td>${deptDto.deptName}</td>
 								<td>${empDto.empPosition}</td>
-								<td>${empDto.empUseYn}</td>
-								<td>${empDto.empMentor}</td>
-								
-								<td><fmt:formatDate value = "${empDto.empHireDate}" pattern="yyyy-MM-dd"/></td>
-								<td><a href="./detail?empNo=${empDto.empNo}" class="gw-btn-outline">상세조회</a></td>
+								<td>${empDto.empApprovalStatus}</td>
+								<td>${empDto.empMentor}</td>								
+								<td><fmt:formatDate value = "${empDto.empHireDate}" pattern="yyyy-MM-dd"/></td>								
+								<td onclick="event.stopPropagation();">
+								    <form action="./approval" method="post" style="display:inline;">
+								        <input type="hidden" name="empNo" value="${empDto.empNo}" />
+								        <button type="submit" class="gw-btn-outline"
+								                onclick="return confirm('승인 처리하시겠습니까?');">
+								            승인
+								        </button>
+								    </form>
+								</td>
 						</tr>
 					</c:forEach>
 				</tbody>
 		</table>
+</div>
 </div>
 	<div class="gw-pagination">
    		<jsp:include page="/WEB-INF/views/template/pagination_waitinglist.jsp"></jsp:include>

@@ -66,11 +66,22 @@ public class EmpDao {
 		jdbcTemplate.update(sql, params);
 	}
 	
+	/*
+	 * public List<EmpDto> selectListByUser(){ 
+	 * String sql =
+	 * "select * from emp where emp_approval_status= 'Y' " +
+	 * "and emp_level != '관리자' " + "order by emp_no asc"; return
+	 * jdbcTemplate.query(sql, empMapper); }
+	 */	
 	public List<EmpDto> selectListByUser(){
-		String sql = "select * from emp where emp_approval_status= 'Y' "
-				+ "and emp_level != '관리자' "
-				+ "order by emp_no asc";
-		return jdbcTemplate.query(sql, empMapper);
+	    String sql = "select emp.*, "
+	               + "(select dept_name from dept where dept_id = emp.emp_dept) as emp_dept_name "
+	               + "from emp "
+	               + "where emp_approval_status = 'Y' "
+	               + "and emp_level != '관리자' "
+	               + "order by emp_no asc";
+	               
+	    return jdbcTemplate.query(sql, empMapper);
 	}
 	
 	public List<EmpDto> selectListByUser(String column, String keyword){ 
@@ -152,6 +163,7 @@ public class EmpDao {
 				};
 		return jdbcTemplate.update(sql, params)>0;
 	}
+	
 	public void useN(String empNo) {//사원 비활성화 
 		 String sql = "update emp set emp_use_yn = 'N', emp_approval_status = 'N' where emp_no = ?";
 		 Object[] params = {empNo};

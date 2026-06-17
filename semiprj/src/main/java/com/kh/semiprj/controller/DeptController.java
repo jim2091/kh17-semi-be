@@ -89,9 +89,11 @@ public class DeptController {
 	public String insert(@ModelAttribute DeptDto deptDto,
 						@RequestParam(value="messageReceiver", required=false) String deptHeadId)
 	                     throws IllegalStateException, IOException {
-		
 		// 부서 번호 시퀀스 생성 및 인서트 작업 진행
 	    int deptId = deptDao.sequence();
+	    if (deptHeadId != null) {
+	        deptDto.setDeptHeadId(deptHeadId);
+	    }
 	    deptDto.setDeptId(deptId);
 	    deptDao.insert(deptDto);
 		
