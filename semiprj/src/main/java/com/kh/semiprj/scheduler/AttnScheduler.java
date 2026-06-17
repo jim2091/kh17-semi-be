@@ -12,7 +12,7 @@ public class AttnScheduler {
     @Autowired private AttnService attnService;
     @Autowired private AttnDao attnDao; 
 
-    // 매일 자정 5분에 정밀 실행
+    // 매일 자정(00시) 5분에 실행
     @Scheduled(cron = "0 5 0 * * *")
     public void dailyClosing() {
         // 1단계: 어제자 미퇴근 사원들 중 결근 대상자 선별 및 일괄 '결근' 처리

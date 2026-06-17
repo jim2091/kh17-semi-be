@@ -37,19 +37,3 @@ public class EmpDto {
 //	private int positionLevel;
 	
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
