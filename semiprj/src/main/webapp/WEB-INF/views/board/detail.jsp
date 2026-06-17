@@ -6,17 +6,34 @@
 <jsp:include page="/WEB-INF/views/template/header2.jsp"></jsp:include>
 
 <style>
-	.board-head {
-	    display: inline-flex;
-	    justify-content: center;
-	    min-width: 58px;
-	    padding: 5px 9px;
-	    border-radius: 999px;
-	    background: var(--main-light);
-	    color: var(--main-color);
-	    font-size: 12px;
-	    font-weight: 900;
-	}
+.board-title-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-top:10px;
+}
+
+.board-title-row h1{
+    margin:0;
+    font-size:32px;
+    font-weight:700;
+    color:#0f172a;
+}
+
+.board-head{
+    display:inline-flex;
+    align-items:center;
+
+    padding:6px 12px;
+
+    border-radius:999px;
+
+    font-size:13px;
+    font-weight:600;
+
+    background:#f3e8ff;
+    color:#7c3aed;
+}
 	.reply-viewer, .reply-editor {
 		display:flex;
 		padding:20px;
@@ -640,8 +657,10 @@ $(function(){
 
         <div class="gw-page-head">
 		    <div class="gw-breadcrumb">홈 / 게시판 / 상세보기</div>
-			<span class="board-head">${boardDto.boardHead}</span>
-			<h1 class="board-title">${boardDto.boardTitle}</h1>
+		    <div class="board-title-row">
+				<span class="board-head">${boardDto.boardHead}</span>
+				<h1 class="board-title">${boardDto.boardTitle}</h1>
+			</div>
 		</div>
 		
 		<div class="gw-form-panel">

@@ -15,6 +15,12 @@
 	    font-size: 12px;
 	    font-weight: 900;
 	}
+	.title-ellipsis{
+	    overflow:hidden;
+	    text-overflow:ellipsis;
+	    white-space:nowrap;
+	    min-width:0;
+	}
 </style>
 
 <jsp:include page="/WEB-INF/views/template/header2.jsp"></jsp:include>
@@ -55,7 +61,7 @@
 					<c:forEach var="replyDto" items="${list}" varStatus="stat">
 					<tr>
 						<!-- 댓글 내용 -->
-						<td>${replyDto.replyContent}</td>
+						<td class="title-ellipsis">${replyDto.replyContent}</td>
 						<!-- 댓글 작성일 -->
 						<td>${replyDto.replyWtimeString}</td>
 						<!-- 댓글 원글 -->
