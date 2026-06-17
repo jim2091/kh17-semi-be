@@ -59,7 +59,14 @@ public class ApprController {
 		@PostMapping("/approve")
 		public String approve(@RequestParam int appLineId, @RequestParam int appId, @RequestParam int currentOrder,
 				HttpSession session) {
-			String empNo = appDao.selectEmpNoById((String) session.getAttribute("loginId"));
+			
+			// [방어 코드 추가] 세션 만료 시 로그인 페이지나 목록으로 튕겨서 NullPointerException을 방지합니다.
+			String loginId = (String) session.getAttribute("loginId");
+			if (loginId == null) {
+				return "redirect:/login"; // 프로젝트 환경에 맞는 로그인 경로로 지정
+			}
+			
+			String empNo = appDao.selectEmpNoById(loginId);
 			AppLineDto line = appLineDao.selectOne(appLineId);
 			if (!line.getAppAppId().equals(empNo))
 				return "redirect:./list";
@@ -76,7 +83,8 @@ public class ApprController {
 				// 1. 최종 승인이 났으므로 이 문서의 최초 기안자 사원번호(empNo)를 DB에서 조회해 옵니다.
 				String requesterEmpNo = appDao.selectEmpNoByAppId(appId);
 				
-				// 2. 연차 서비스 가동 (내부에서 '연차' 문서인지 검증 후 vac_history 등록 및 연차 차감 일괄 처리)
+				// 2. [연동 완결] 내가 만든 연차 마스터 스위치를 가동합니다.
+				// 내부에서 알아서 '연차' 문서인지 검증하고 vac_history 적재 및 vac_info 최종 차감까지 원스톱으로 처리됩니다.
 				vacService.approveVacationSuccess(appId, requesterEmpNo);
 			}
 			return "redirect:./detail?appId=" + appId;
