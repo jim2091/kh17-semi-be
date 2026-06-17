@@ -70,12 +70,23 @@ public class EmpDao {
 		jdbcTemplate.update(sql, params);
 	}
 	
+	/*
+	 * public List<EmpDto> selectListByUser(){ 
+	 * String sql =
+	 * "select * from emp where emp_approval_status= 'Y' " +
+	 * "and emp_level != '관리자' " + "order by emp_no asc"; return
+	 * jdbcTemplate.query(sql, empMapper); }
+	 */	
 	public List<EmpDto> selectListByUser(){
-		String sql = "select e.*, d.dept_name as emp_dept_name from emp e "
-				   + "left outer join dept d on e.emp_dept = d.dept_id "
-				   + "where e.emp_approval_status= 'Y' and e.emp_level != '관리자' "
-				   + "order by e.emp_no asc";
-		return jdbcTemplate.query(sql, empMapper);
+
+	    String sql = "select emp.*, "
+	               + "(select dept_name from dept where dept_id = emp.emp_dept) as emp_dept_name "
+	               + "from emp "
+	               + "where emp_approval_status = 'Y' "
+	               + "and emp_level != '관리자' "
+	               + "order by emp_no asc";
+	               
+	    return jdbcTemplate.query(sql, empMapper);
 	}
 	
 	public List<EmpDto> selectListByUser(String column, String keyword){ 
@@ -155,7 +166,8 @@ public class EmpDao {
 		return jdbcTemplate.update(sql, params)>0;
 	}
 
-	public void useN(String empNo) {
+	
+	public void useN(String empNo) {//사원 비활성화 
 		 String sql = "update emp set emp_use_yn = 'N', emp_approval_status = 'N' where emp_no = ?";
 		 Object[] params = {empNo};
 		 jdbcTemplate.update(sql, params);
@@ -262,4 +274,22 @@ public class EmpDao {
 	    String sql = "delete from dept_emp where emp_no = ?";
 	    jdbcTemplate.update(sql, empNo);
 	}
+}
+	// dept_emp 삽입용 메소드
+	public void insertDeptEmp(String empNo, int deptId) {
+	    String sql = "insert into dept_emp(emp_no, dept_id) values(?, ?)";
+	    jdbcTemplate.update(sql, empNo, deptId);
+	}
+
+	// dept_emp 삭제용 메소드
+	public void deleteDeptEmp(String empNo) {
+	    String sql = "delete from dept_emp where emp_no = ?";
+	    jdbcTemplate.update(sql, empNo);
+	}
+	
+	
+	
+	
+	
+	
 }

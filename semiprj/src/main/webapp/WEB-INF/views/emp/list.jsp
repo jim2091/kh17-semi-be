@@ -78,6 +78,7 @@ $(function(){
 			
 			<input type="text" name="keyword" id="keyword-input" placeholder="검색어 입력" 
 								class="gw-form-input" value="${param.keyword}">
+<<<<<<< HEAD
 			
 			<select id="dept-select" class="gw-form-select" style="display:none;">
 	            <option value="">부서선택</option>
@@ -92,6 +93,13 @@ $(function(){
 				<option value="41" ${param.keyword=='41'? 'selected' : '' }>국내영업팀</option>
 				<option value="42" ${param.keyword=='42'? 'selected' : '' }>고객지원팀</option>
         	</select>
+=======
+			<select name="empDept" class="gw-form-select">
+				<c:forEach var="dept" items="${deptList}">
+			        <option value="${dept.deptId}">${dept.deptName}</option>
+			    </c:forEach>
+	        </select>
+>>>>>>> refs/remotes/origin/main
 			<button type="submit" class="gw-btn-primary">
 				<i class="fa-solid fa-magnifying-glass"></i> 
 				<span>검색</span>

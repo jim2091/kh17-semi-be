@@ -17,14 +17,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.kh.semiprj.dao.EventDao;
 import com.kh.semiprj.dto.EventDto;
+import com.kh.semiprj.vo.PageVO;
 
 import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/event")
 public class EventController {
-	
-	
 	@Autowired
     private EventDao eventDao;
 
@@ -44,98 +43,81 @@ public class EventController {
         return list; 
     }
 
-   
     @PostMapping("/rest/event")
     @ResponseBody
     public EventDto insert(
             @RequestBody EventDto eventDto){
-    	
         eventDao.insertEvent(eventDto);
-
         return eventDto;
     }
 
-    
     @PutMapping("/rest/event")
     @ResponseBody
     public String edit(@RequestBody EventDto eventDto) {
         boolean result = eventDao.update(eventDto);
         //System.out.println("수정요청들어옴");
         //System.out.println(eventDto);
-        
         return result? "success" : "fail";
     }
-    
-    
+
     @DeleteMapping("/rest/event")
     @ResponseBody
     public String delete(@RequestParam int eventNo) {
-
         boolean result = eventDao.delete(eventNo);
-
         return result ? "success" : "fail";
     }
     
     @RequestMapping("/calendarList")
     public String calendarList(HttpSession session, 
-    		@RequestParam(required = false) String sort, 
-    		@RequestParam(required = false) String column, 
-			@RequestParam(required = false) String keyword, 
-    					
-    					Model model){
+    		HttpSession httpSession,
+            @ModelAttribute("pageVO") PageVO pageVO,
+            @RequestParam(required = false) String sort,
+            Model model){
     	String loginNo = (String) session.getAttribute("loginNo");
     	
-    	List<EventDto> list; 
-    	
-    			
-		if(keyword != null && !keyword.trim().isEmpty()) {
-	
-	        list = eventDao.selectListByUser(
-	                loginNo,
-	                column,
-	                keyword);
-	
-	    }		
-    			
-    			
-    			
-		else if("event_no".equals(sort)) {
-            list = eventDao.selectNewest(loginNo);
-        }
-        else if("event_start1".equals(sort)) {
-            list = eventDao.selectBySchedule(loginNo);
-        }
-        else {
-            list = eventDao.selectOldest(loginNo);
-        }
+    	List<EventDto> list;
+
+    	if(pageVO.isSearch()) {
+
+    	    pageVO.setCount(
+    	        eventDao.count(
+    	            loginNo,
+    	            pageVO.getColumn(),
+    	            pageVO.getKeyword()
+    	        )
+    	    );
+
+    	    list =
+    	        eventDao.selectSearchByPage(
+    	            loginNo,
+    	            pageVO.getColumn(),
+    	            pageVO.getKeyword(),
+    	            pageVO
+    	        );
+    	}
+    	else {
+
+    	    pageVO.setCount(
+    	        eventDao.count(loginNo)
+    	    );
+
+    	    list =
+    	        eventDao.selectListByPage(
+    	            loginNo,
+    	            pageVO
+    	        );
+    	}
     	
     	model.addAttribute("list", list);
     	//System.out.println("sort = " + sort);
     	
-    	return "event/calendarList";
-    	
-    	
+    	return "event/calendarList";	
     }
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    @GetMapping("/detail")
+    public String detail(@RequestParam int eventNo, Model model) {
+    	 EventDto eventDto = eventDao.selectOne(eventNo);
+    	 model.addAttribute("eventDto", eventDto);
+    	 return "event/detail";
+    }
 }

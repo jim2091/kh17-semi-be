@@ -116,7 +116,7 @@
 		   			<tr>
 		   				<th style="width:20%;">보낸이</th>
 		                <th style="width:50%;">제목</th>
-		                <th style="width:20%;">작성일</th>
+		                <th style="width:30%;">작성일</th>
 					</tr>
 				</thead>
 				<tbody>

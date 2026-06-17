@@ -17,6 +17,12 @@
 	    font-size: 12px;
 	    font-weight: 900;
 	}
+	.title-ellipsis{
+	    overflow:hidden;
+	    text-overflow:ellipsis;
+	    white-space:nowrap;
+	    min-width:0;
+	}
 </style>
 	
 	<div class="pds-width">
@@ -68,7 +74,7 @@
 					<!-- 게시글 유형 -->
 					<td>${boardDto.boardType}</td>
 					<!-- 게시글 제목 -->
-					<td>
+					<td class="title-ellipsis">
 						<a href="./detail?boardNo=${boardDto.boardNo}&page=${pageVO.page}&${pageVO.searchParams}" class="gw-table-link">${boardDto.boardTitle}</a>
 					</td>
 					<!-- 게시글 조회수 -->

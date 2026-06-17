@@ -93,12 +93,12 @@ public class InterceptorConfiguration implements WebMvcConfigurer{
 				.addPathPatterns("/rest/reply/edit");
 
 		// 8. 최고관리자 거부 정책 인터셉터
-
-
-		registry.addInterceptor(masterDenyInterceptor).addPathPatterns(
-				"/admin/detail"
-				,"/admin/edit"
-				);
+		// 뭔가 이상한데요? /admin은 관리자가 보는 페이지일텐데 관리자 접근을 막는다..? 일단 주석처리 할게요
+		
+//		registry.addInterceptor(masterDenyInterceptor).addPathPatterns(
+//				"/admin/detail"
+//				,"/admin/edit"
+//				);
 		
 
 		// 9. 본인 메시지 확인 인터셉터
