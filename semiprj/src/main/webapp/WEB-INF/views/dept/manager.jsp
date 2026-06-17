@@ -54,7 +54,7 @@
 }
 
 .change-up {
-    color: var(--success-color);
+    color: var(#3b82f6);
     font-weight: 900;
 }
 
@@ -87,10 +87,29 @@
     border-radius: 999px 999px 4px 4px;
 }
 
-.bar-blue { background: var(--main-color); }
-.bar-green { background: var(--success-color); }
-.bar-yellow { background: var(--warning-color); }
-.bar-red { background: var(--danger-color); }
+.bar-blue {
+    background: #2563eb; /* 정상근무 */
+}
+
+.bar-green {
+    background: #10b981; /* 휴가 */
+}
+
+.bar-yellow {
+    background: #f59e0b; /* 지각 */
+}
+
+.bar-red {
+    background: #fb7185; /* 조퇴 */
+}
+
+.bar-purple {
+    background: #8b5cf6; /* 지각-조퇴 */
+}
+
+.bar-gray {
+    background: #64748b; /* 결근 */
+}
 
 .chart-label {
     position: absolute;
@@ -139,21 +158,56 @@
     flex: 0 0 auto;
 }
 
-.fake-donut::after {
-    content: "48건\A총 결재";
-    white-space: pre;
-    position: absolute;
-    inset: 38px;
-    border-radius: 50%;
-    background: var(--card-bg);
+.approval-donut {
+    background: conic-gradient(
+        #10b981 0% var(--approve-end),
+        #f59e0b var(--approve-end) var(--ing-end),
+        #fb7185 var(--ing-end) 100%
+    );
+}
+
+.approval-donut.empty {
+    background: var(--input-bg);
+}
+
+.approval-total-box {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    justify-content: center;
-    text-align: center;
+
+    margin-bottom: 14px;
+    padding: 14px 18px;
+
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    background: var(--input-bg);
+}
+
+.approval-total-title {
+    color: var(--sub-text);
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.approval-total-value {
     color: var(--card-title-color);
     font-size: 20px;
     font-weight: 900;
-    line-height: 1.35;
+    line-height: 1;
+    margin: 0;
+}
+
+.approval-more-btn {
+    display: block;
+    margin-top: 18px;
+    height: 42px;
+    line-height: 42px;
+    text-align: center;
+    border-radius: 12px;
+    background: var(--main-color);
+    color: #fff;
+    font-weight: 900;
+    text-decoration: none;
 }
 
 .stat-list {
@@ -215,7 +269,7 @@
     font-weight: 900;
 }
 
-.leave-annual { background: var(--success-color); }
+.leave-annual { background: var(#3b82f6); }
 .leave-half { background: var(--main-color); }
 .leave-out { background: var(--warning-color); }
 
@@ -231,7 +285,7 @@
     border-radius: 50%;
 }
 
-.state-work { background: var(--success-color); }
+.state-work { background: var(#3b82f6); }
 .state-leave { background: var(--main-color); }
 .state-out { background: var(--warning-color); }
 .state-late { background: var(--danger-color); }
@@ -242,6 +296,109 @@
     .manager-sub-grid {
         grid-template-columns: 1fr;
     }
+}
+
+.week-progress-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 18px 4px 4px;
+}
+
+.week-progress-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.week-progress-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--list-text-color);
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.week-progress-top strong {
+    color: var(--card-title-color);
+    font-size: 14px;
+    font-weight: 900;
+}
+
+.week-progress-track {
+    width: 100%;
+    height: 12px;
+    background: var(--input-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.week-progress-fill {
+    height: 100%;
+    border-radius: 999px;
+}
+
+.chart-area {
+    position: relative;
+    height: 230px;
+    padding: 24px 8px 8px 34px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.chart-grid {
+    position: absolute;
+    left: 34px;
+    right: 8px;
+    top: 24px;
+    bottom: 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.chart-grid-line {
+    border-top: 1px solid var(--border-color);
+    font-size: 11px;
+    color: var(--sub-text);
+}
+
+.chart-bars {
+    position: relative;
+    height: 100%;
+    display: flex;
+    align-items: flex-end;
+    gap: 18px;
+    z-index: 2;
+}
+
+.attn-mini-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.attn-mini-card {
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    background: var(--input-bg);
+    text-align: center;
+}
+
+.attn-mini-title {
+    font-size: 12px;
+    color: var(--sub-text);
+    font-weight: 800;
+}
+
+.attn-mini-value {
+    margin-top: 6px;
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--card-title-color);
 }
 </style>
 
@@ -254,7 +411,7 @@
         </div>
 
         <div class="dept-filter">
-        	<form action="/dept/manager" method="get" class="dept-filter">
+        	<form id="deptDashboardForm" action="/dept/manager" method="get" class="dept-filter">
 	            <select name="deptId" class="gw-form-select">
 	            	<c:forEach var="dept" items="${dashboard.managedDeptList}">
 	            		<option value="${dept.deptId}"
@@ -326,93 +483,261 @@
             <div class="card-header">
                 <div class="card-title">근태 통계</div>
                 <div class="card-actions">
-                    <button type="button" class="gw-btn-outline" style="height:34px; padding:0 14px;">주간</button>
-                    <button type="button" class="gw-btn-primary" style="height:34px; padding:0 14px;">월간</button>
-                </div>
+				    <button type="submit"
+				            form="deptDashboardForm"
+				            name="attnMode"
+				            value="week"
+				            class="${dashboard.attnMode == 'week' ? 'gw-btn-primary' : 'gw-btn-outline'}"
+				            style="height:34px; padding:0 14px;">
+				        주간
+				    </button>
+				
+				    <button type="submit"
+				            form="deptDashboardForm"
+				            name="attnMode"
+				            value="month"
+				            class="${dashboard.attnMode == 'month' ? 'gw-btn-primary' : 'gw-btn-outline'}"
+				            style="height:34px; padding:0 14px;">
+				        월간
+				    </button>
+				</div>
             </div>
 
-            <div class="fake-chart">
-                <div class="chart-group">
-                    <div class="chart-bar bar-blue" style="height:68%;"></div>
-                    <div class="chart-bar bar-green" style="height:24%;"></div>
-                    <div class="chart-bar bar-yellow" style="height:8%;"></div>
-                    <div class="chart-bar bar-red" style="height:4%;"></div>
-                    <div class="chart-label">1주</div>
-                </div>
-                <div class="chart-group">
-                    <div class="chart-bar bar-blue" style="height:72%;"></div>
-                    <div class="chart-bar bar-green" style="height:28%;"></div>
-                    <div class="chart-bar bar-yellow" style="height:10%;"></div>
-                    <div class="chart-bar bar-red" style="height:0%;"></div>
-                    <div class="chart-label">2주</div>
-                </div>
-                <div class="chart-group">
-                    <div class="chart-bar bar-blue" style="height:66%;"></div>
-                    <div class="chart-bar bar-green" style="height:18%;"></div>
-                    <div class="chart-bar bar-yellow" style="height:6%;"></div>
-                    <div class="chart-bar bar-red" style="height:5%;"></div>
-                    <div class="chart-label">3주</div>
-                </div>
-                <div class="chart-group">
-                    <div class="chart-bar bar-blue" style="height:63%;"></div>
-                    <div class="chart-bar bar-green" style="height:14%;"></div>
-                    <div class="chart-bar bar-yellow" style="height:5%;"></div>
-                    <div class="chart-bar bar-red" style="height:0%;"></div>
-                    <div class="chart-label">4주</div>
-                </div>
-                <div class="chart-group">
-                    <div class="chart-bar bar-blue" style="height:58%;"></div>
-                    <div class="chart-bar bar-green" style="height:10%;"></div>
-                    <div class="chart-bar bar-yellow" style="height:3%;"></div>
-                    <div class="chart-bar bar-red" style="height:0%;"></div>
-                    <div class="chart-label">5주</div>
-                </div>
-            </div>
 
-            <div class="chart-legend">
-                <span><i class="legend-dot bar-blue"></i>출근</span>
-                <span><i class="legend-dot bar-green"></i>연장근무</span>
-                <span><i class="legend-dot bar-yellow"></i>지각</span>
-                <span><i class="legend-dot bar-red"></i>결근</span>
-            </div>
+            <c:choose>
+			
+			    <%-- 주간 모드 --%>
+			    <c:when test="${dashboard.attnMode eq 'week'}">
+			        <c:forEach var="stat" items="${dashboard.attendanceStats}">
+			
+			            <c:set var="weekTotal"
+							value="${stat.normalCount
+							      + stat.lateCount
+							      + stat.earlyLeaveCount
+							      + stat.lateEarlyCount
+							      + stat.leaveCount
+							      + stat.absentCount}" />
+			
+			            <div class="week-progress-wrap">
+			
+			                <div class="week-progress-item">
+			                    <div class="week-progress-top">
+			                        <span><i class="legend-dot bar-blue"></i>정상근무</span>
+			                        <strong>${stat.normalCount}건</strong>
+			                    </div>
+			                    <div class="week-progress-track">
+			                        <div class="week-progress-fill bar-blue"
+			                             style="width:${weekTotal == 0 ? 0 : stat.normalCount * 100 / weekTotal}%;"></div>
+			                    </div>
+			                </div>
+			
+			                <div class="week-progress-item">
+			                    <div class="week-progress-top">
+			                        <span><i class="legend-dot bar-yellow"></i>지각</span>
+			                        <strong>${stat.lateCount}건</strong>
+			                    </div>
+			                    <div class="week-progress-track">
+			                        <div class="week-progress-fill bar-yellow"
+			                             style="width:${weekTotal == 0 ? 0 : stat.lateCount * 100 / weekTotal}%;"></div>
+			                    </div>
+			                </div>
+			
+			                <div class="week-progress-item">
+			                    <div class="week-progress-top">
+			                        <span><i class="legend-dot bar-red"></i>조퇴</span>
+			                        <strong>${stat.earlyLeaveCount}건</strong>
+			                    </div>
+			                    <div class="week-progress-track">
+			                        <div class="week-progress-fill bar-red"
+			                             style="width:${weekTotal == 0 ? 0 : stat.earlyLeaveCount * 100 / weekTotal}%;"></div>
+			                    </div>
+			                </div>
+			
+			                <div class="week-progress-item">
+			                    <div class="week-progress-top">
+			                        <span><i class="legend-dot bar-purple"></i>지각-조퇴</span>
+			                        <strong>${stat.lateEarlyCount}건</strong>
+			                    </div>
+			                    <div class="week-progress-track">
+			                        <div class="week-progress-fill bar-purple"
+			                             style="width:${weekTotal == 0 ? 0 : stat.lateEarlyCount * 100 / weekTotal}%;"></div>
+			                    </div>
+			                </div>
+			
+			                <div class="week-progress-item">
+			                    <div class="week-progress-top">
+			                        <span><i class="legend-dot bar-green"></i>휴가</span>
+			                        <strong>${stat.leaveCount}건</strong>
+			                    </div>
+			                    <div class="week-progress-track">
+			                        <div class="week-progress-fill bar-green"
+			                             style="width:${weekTotal == 0 ? 0 : stat.leaveCount * 100 / weekTotal}%;"></div>
+			                    </div>
+			                </div>
+			                <div class="week-progress-item">
+							    <div class="week-progress-top">
+							        <span>
+							            <i class="legend-dot bar-gray"></i>결근</span>
+							        <strong>${stat.absentCount}건</strong>
+							    </div>
+							    <div class="week-progress-track">
+							        <div class="week-progress-fill bar-gray"
+							             style="width:${weekTotal == 0 ? 0 : stat.absentCount * 100 / weekTotal}%;"></div>
+							    </div>
+							</div>
+			
+			            </div>
+			        </c:forEach>
+			    </c:when>
+			
+			    <%-- 월간 모드 --%>
+			    <c:otherwise>
+			        <c:set var="normalTotal" value="0" />
+					<c:set var="lateTotal" value="0" />
+					<c:set var="earlyTotal" value="0" />
+					<c:set var="lateEarlyTotal" value="0" />
+					<c:set var="absentTotal" value="0" />
+					
+					<c:forEach var="stat" items="${dashboard.attendanceStats}">
+					    <c:set var="normalTotal" value="${normalTotal + stat.normalCount}" />
+					    <c:set var="lateTotal" value="${lateTotal + stat.lateCount}" />
+					    <c:set var="earlyTotal" value="${earlyTotal + stat.earlyLeaveCount}" />
+					    <c:set var="lateEarlyTotal" value="${lateEarlyTotal + stat.lateEarlyCount}" />
+					    <c:set var="absentTotal" value="${absentTotal + stat.absentCount}" />
+					</c:forEach>
+					
+					<div class="chart-legend" style="margin-top:4px;">
+					    <span><i class="legend-dot bar-blue"></i>정상근무</span>
+					    <span><i class="legend-dot bar-green"></i>휴가</span>
+					    <span><i class="legend-dot bar-yellow"></i>지각</span>
+					    <span><i class="legend-dot bar-red"></i>조퇴</span>
+					    <span><i class="legend-dot bar-purple"></i>지각-조퇴</span>
+					    <span><i class="legend-dot bar-gray"></i>결근</span>
+					</div>
+					
+					<div class="chart-area">
+					    <div class="chart-grid">
+						    <div class="chart-grid-line">${dashboard.attendanceChartMax}</div>
+						    <div class="chart-grid-line">${dashboard.attendanceChart4}</div>
+						    <div class="chart-grid-line">${dashboard.attendanceChart3}</div>
+						    <div class="chart-grid-line">${dashboard.attendanceChart2}</div>
+						    <div class="chart-grid-line">${dashboard.attendanceChart1}</div>
+						    <div class="chart-grid-line">0</div>
+						</div>
+											
+					    <div class="chart-bars">
+					        <c:forEach var="stat" items="${dashboard.attendanceStats}">
+					            <div class="chart-group">
+					                <div class="chart-bar bar-blue"
+					                     style="height:${stat.normalCount * 100 / dashboard.attendanceChartMax}%;"></div>
+					                     
+									<div class="chart-bar bar-green"
+									     style="height:${stat.leaveCount * 100 / dashboard.attendanceChartMax}%;"></div>
+									     
+					                <div class="chart-bar bar-yellow"
+					                     style="height:${stat.lateCount * 100 / dashboard.attendanceChartMax}%;"></div>
+					
+					                <div class="chart-bar bar-red"
+					                     style="height:${stat.earlyLeaveCount * 100 / dashboard.attendanceChartMax}%;"></div>
+					
+					                <div class="chart-bar bar-purple"
+					                     style="height:${stat.lateEarlyCount * 100 / dashboard.attendanceChartMax}%;"></div>
+					
+					                <div class="chart-bar bar-gray"
+					                     style="height:${stat.absentCount * 100 / dashboard.attendanceChartMax}%;"></div>
+					
+					                <div class="chart-label">${stat.label}</div>
+					            </div>
+					        </c:forEach>
+					    </div>
+					</div>
+					
+					<div class="attn-mini-grid">
+					    <div class="attn-mini-card">
+					        <div class="attn-mini-title">출근</div>
+					        <div class="attn-mini-value">${normalTotal}건</div>
+					    </div>
+					
+					    <div class="attn-mini-card">
+					        <div class="attn-mini-title">지각</div>
+					        <div class="attn-mini-value">${lateTotal + lateEarlyTotal}건</div>
+					    </div>
+					
+					    <div class="attn-mini-card">
+					        <div class="attn-mini-title">조퇴</div>
+					        <div class="attn-mini-value">${earlyTotal + lateEarlyTotal}건</div>
+					    </div>
+					
+					    <div class="attn-mini-card">
+					        <div class="attn-mini-title">결근</div>
+					        <div class="attn-mini-value">${absentTotal}건</div>
+					    </div>
+					</div>
+
+			    </c:otherwise>
+			
+			</c:choose>
+
         </div>
 
         <div class="dashboard-card manager-card large">
             <div class="card-header">
                 <div class="card-title">결재 통계</div>
-                <a href="#" class="card-more">결재 목록 ></a>
             </div>
 
-            <div class="donut-wrap">
-                <div class="fake-donut"></div>
-
-                <div class="stat-list">
-                    <div class="stat-item">
-                        <span><i class="legend-dot bar-blue"></i>기안</span>
-                        <span>22건</span>
-                    </div>
-                    <div class="stat-item">
-                        <span><i class="legend-dot bar-green"></i>완료</span>
-                        <span>41건</span>
-                    </div>
-                    <div class="stat-item">
-                        <span><i class="legend-dot bar-yellow"></i>결재중</span>
-                        <span>7건</span>
-                    </div>
-                    <div class="stat-item">
-                        <span><i class="legend-dot bar-red"></i>반려</span>
-                        <span>2건</span>
-                    </div>
-                </div>
-            </div>
+            <div class="approval-total-box">
+			    <div class="approval-total-title">선택 월 전체 결재</div>
+			    <div class="approval-total-value">${dashboard.approvalTotalCount}건</div>
+			</div>
+			
+			<div class="donut-wrap">
+			    <c:choose>
+			        <c:when test="${dashboard.approvalTotalCount > 0}">
+			            <div class="fake-donut approval-donut"
+			                 style="--approve-end:${dashboard.approvalApprovePercent}%;
+			                        --ing-end:${dashboard.approvalIngEndPercent}%;">
+			                <div class="fake-donut-center">
+			                </div>
+			            </div>
+			        </c:when>
+			        <c:otherwise>
+			            <div class="fake-donut approval-donut empty">
+			                <div class="fake-donut-center">
+			                    0건<br>
+			                    데이터 없음
+			                </div>
+			            </div>
+			        </c:otherwise>
+			    </c:choose>
+			
+			    <div class="stat-list">
+			        <div class="stat-item">
+			            <span><i class="legend-dot bar-green"></i>승인</span>
+			            <span>${dashboard.approvalApproveCount}건 (${dashboard.approvalApprovePercent}%)</span>
+			        </div>
+			
+			        <div class="stat-item">
+			            <span><i class="legend-dot bar-yellow"></i>진행중</span>
+			            <span>${dashboard.approvalIngCount}건 (${dashboard.approvalIngPercent}%)</span>
+			        </div>
+			
+			        <div class="stat-item">
+			            <span><i class="legend-dot bar-red"></i>반려</span>
+			            <span>${dashboard.approvalRejectCount}건 (${dashboard.approvalRejectPercent}%)</span>
+			        </div>
+			    </div>
+			</div>
+			
+			<a href="/app/list" class="approval-more-btn">
+			    결재 목록 바로가기
+			</a>
         </div>
     </div>
 
     <div class="manager-sub-grid">
         <div class="dashboard-card manager-card">
             <div class="card-header">
-                <div class="card-title">휴가 현황 (2025-05)</div>
-                <a href="#" class="card-more">휴가 관리 ></a>
+                <div class="card-title">휴가 현황 (${dashboard.selectedMonth})</div>
             </div>
 
             <table class="leave-calendar">
@@ -428,148 +753,99 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td class="muted">27</td>
-                        <td class="muted">28</td>
-                        <td class="muted">29</td>
-                        <td class="muted">30</td>
-                        <td>1</td>
-                        <td>2 <br><span class="leave-dot leave-half">1</span></td>
-                        <td>3</td>
-                    </tr>
-                    <tr>
-                        <td>4</td>
-                        <td>5</td>
-                        <td>6</td>
-                        <td>7 <br><span class="leave-dot leave-annual">2</span></td>
-                        <td>8</td>
-                        <td>9</td>
-                        <td>10</td>
-                    </tr>
-                    <tr>
-                        <td>11</td>
-                        <td>12</td>
-                        <td>13 <br><span class="leave-dot leave-out">1</span></td>
-                        <td>14</td>
-                        <td>15 <br><span class="leave-dot leave-annual">1</span></td>
-                        <td>16</td>
-                        <td>17</td>
-                    </tr>
-                    <tr>
-                        <td>18</td>
-                        <td>19</td>
-                        <td>20</td>
-                        <td>21 <br><span class="leave-dot leave-half">1</span></td>
-                        <td>22</td>
-                        <td>23</td>
-                        <td>24</td>
-                    </tr>
-                    <tr>
-                        <td>25</td>
-                        <td>26 <br><span class="leave-dot leave-annual">2</span></td>
-                        <td>27</td>
-                        <td>28</td>
-                        <td>29</td>
-                        <td>30</td>
-                        <td>31</td>
-                    </tr>
-                </tbody>
+				    <c:forEach var="week" items="${dashboard.leaveCalendarWeeks}">
+				        <tr>
+				            <c:forEach var="day" items="${week}">
+				                <td class="${day.currentMonth ? '' : 'muted'}">
+				                    ${day.day}
+				
+				                    <c:if test="${day.leaveCount > 0}">
+				                        <br>
+				                        <span class="leave-dot leave-annual">
+				                            ${day.leaveCount}
+				                        </span>
+				                    </c:if>
+				                </td>
+				            </c:forEach>
+				        </tr>
+				    </c:forEach>
+				</tbody>
             </table>
-
-            <div class="chart-legend" style="margin-top:16px;">
-                <span><i class="legend-dot bar-green"></i>연차</span>
-                <span><i class="legend-dot bar-blue"></i>반차</span>
-                <span><i class="legend-dot bar-yellow"></i>외근</span>
-            </div>
         </div>
 
         <div class="gw-list-panel" style="margin-bottom:0;">
             <div class="gw-table-top">
                 <div>
                     <div class="gw-table-title">부서 구성원 현황</div>
-                    <div class="gw-table-sub">총 18명 중 일부만 표시한 디자인 샘플입니다.</div>
+                    <div class="gw-table-sub">
+					    선택한 부서 직접 소속 ${dashboard.directMemberCount}명을 표시합니다.
+					    하위 부서 구성원은 상단 통계에만 포함됩니다.
+					</div>
                 </div>
-                <a href="#" class="card-more">전체 보기 ></a>
             </div>
 
             <table class="gw-table">
                 <thead>
                     <tr>
-                        <th>이름</th>
-                        <th>직급</th>
-                        <th>상태</th>
-                        <th>근무시간</th>
-                        <th>비고</th>
-                    </tr>
+					    <th>이름</th>
+					    <th>직급</th>
+					    <th>상태</th>
+					    <th>출근시간</th>
+					</tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>김대리</td>
-                        <td>대리</td>
-                        <td>
-                            <span class="member-state">
-                                <i class="state-dot state-work"></i> 근무중
-                            </span>
-                        </td>
-                        <td>09:00 ~ 18:00</td>
-                        <td class="gw-muted">-</td>
-                    </tr>
-                    <tr>
-                        <td>박사원</td>
-                        <td>사원</td>
-                        <td>
-                            <span class="member-state">
-                                <i class="state-dot state-leave"></i> 휴가
-                            </span>
-                        </td>
-                        <td>-</td>
-                        <td class="gw-muted">연차 사용</td>
-                    </tr>
-                    <tr>
-                        <td>이사원</td>
-                        <td>사원</td>
-                        <td>
-                            <span class="member-state">
-                                <i class="state-dot state-out"></i> 외근
-                            </span>
-                        </td>
-                        <td>-</td>
-                        <td class="gw-muted">거래처 방문</td>
-                    </tr>
-                    <tr>
-                        <td>최주임</td>
-                        <td>주임</td>
-                        <td>
-                            <span class="member-state">
-                                <i class="state-dot state-work"></i> 근무중
-                            </span>
-                        </td>
-                        <td>09:00 ~ 18:00</td>
-                        <td class="gw-muted">-</td>
-                    </tr>
-                    <tr>
-                        <td>정사원</td>
-                        <td>사원</td>
-                        <td>
-                            <span class="member-state">
-                                <i class="state-dot state-late"></i> 지각
-                            </span>
-                        </td>
-                        <td>09:32 ~ 18:00</td>
-                        <td class="gw-muted">출근 지연</td>
-                    </tr>
-                    <tr>
-                        <td>한대리</td>
-                        <td>대리</td>
-                        <td>
-                            <span class="member-state">
-                                <i class="state-dot state-work"></i> 근무중
-                            </span>
-                        </td>
-                        <td>08:55 ~ 18:00</td>
-                        <td class="gw-muted">-</td>
-                    </tr>
-                </tbody>
+				    <c:forEach var="member" items="${dashboard.directMemberList}">
+				        <tr>
+				            <td>${member.empName}</td>
+				            <td>${member.empPosition}</td>
+				            <td>
+				                <span class="member-state">
+				                    <c:choose>
+				                        <c:when test="${member.attnRecord eq '정상근무'}">
+				                            <i class="state-dot state-work"></i> 근무중
+				                        </c:when>
+				                        <c:when test="${member.attnRecord eq '휴가'}">
+				                            <i class="state-dot state-leave"></i> 휴가
+				                        </c:when>
+				                        <c:when test="${member.attnRecord eq '지각'}">
+				                            <i class="state-dot state-late"></i> 지각
+				                        </c:when>
+				                        <c:when test="${member.attnRecord eq '조퇴'}">
+				                            <i class="state-dot state-late"></i> 조퇴
+				                        </c:when>
+				                        <c:when test="${member.attnRecord eq '지각-조퇴'}">
+				                            <i class="state-dot state-late"></i> 지각-조퇴
+				                        </c:when>
+				                        <c:when test="${member.attnRecord eq '결근'}">
+				                            <i class="state-dot state-out"></i> 결근
+				                        </c:when>
+				                        <c:otherwise>
+				                            <i class="state-dot state-out"></i> 미확인
+				                        </c:otherwise>
+				                    </c:choose>
+				                </span>
+				            </td>
+				            <td>
+				                <c:choose>
+				                    <c:when test="${empty member.attnInTime}">
+				                        -
+				                    </c:when>
+				                    <c:otherwise>
+				                        ${member.attnInTime}
+				                    </c:otherwise>
+				                </c:choose>
+				            </td>
+				        </tr>
+				    </c:forEach>
+				
+				    <c:if test="${empty dashboard.directMemberList}">
+				        <tr>
+				            <td colspan="4" class="gw-muted">
+				                선택한 부서에 직접 소속된 구성원이 없습니다.
+				            </td>
+				        </tr>
+				    </c:if>
+				</tbody>
             </table>
         </div>
     </div>

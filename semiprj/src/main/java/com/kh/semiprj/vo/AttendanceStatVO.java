@@ -11,4 +11,5 @@ public class AttendanceStatVO {
 	private int lateEarlyCount;
 	private int leaveCount;
 	private int uncheckedCount;
+	private int absentCount;
 }

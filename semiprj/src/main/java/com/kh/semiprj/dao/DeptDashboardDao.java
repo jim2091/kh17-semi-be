@@ -79,32 +79,71 @@ public class DeptDashboardDao {
 		return jdbcTemplate.query(sql, memberStatusMapper, params);
 	}
 	
-	public List<AttendanceStatVO> selectAttendanceStats(String deptId, String month){
-		String sql = """
-				select 
-					to_char(attn_work_date, 'W') || '주차' as label, 
-					
-					sum(case when attn_record = '정상근무' then 1 else 0 end) as normal_count,
-					sum(case when attn_record = '지각' then 1 else 0 end) as late_count,
-					sum(case when attn_record = '조퇴' then 1 else 0 end) as early_leave_count,
-					sum(case when attn_record = '지각/조퇴' then 1 else 0 end) as late_early_count,
-					sum(case when attn_record = '휴가' then 1 else 0 end) as leave_count,
-					sum(case when attn_record = '미확인' then 1 else 0 end) as unchecked_count
-					
-				from attn a 
-				join emp e on a.emp_no = e.emp_no 
-				where e.emp_dept in (
-					select dept_id from dept 
-					start with dept_id = ? 
-					connect by prior dept_id = parent_dept_id 
-				)
-				and a.attn_work_date >= to_date(? || '-01', 'YYYY-MM-DD') 
-				and a.attn_work_date < add_months(to_date(? || '-01', 'YYYY-MM-DD'), 1) 
-				group by to_char(a.attn_work_date, 'W') 
-				order by to_number(to_char(a.attn_work_date, 'W'))
-				""";
-		Object[] params = { deptId, month, month };
-		return jdbcTemplate.query(sql, attendanceStatMapper, params);
+	private List<AttendanceStatVO> selectAttendanceStatsByMonth(String deptId, String month){
+	    String sql = """
+	            select 
+	                to_char(a.attn_work_date, 'W') || '주차' as label, 
+	                
+	                sum(case when a.attn_record = '정상근무' then 1 else 0 end) as normal_count,
+	                sum(case when a.attn_record = '지각' then 1 else 0 end) as late_count,
+	                sum(case when a.attn_record = '조퇴' then 1 else 0 end) as early_leave_count,
+	                sum(case when a.attn_record = '지각-조퇴' then 1 else 0 end) as late_early_count,
+	                sum(case when a.attn_record = '휴가' then 1 else 0 end) as leave_count,
+	                sum(case when a.attn_record = '미확인' then 1 else 0 end) as unchecked_count, 
+	                sum(case when a.attn_record = '결근' then 1 else 0 end) as absent_count
+	                
+	            from attn a 
+	            join emp e on a.emp_no = e.emp_no 
+	            where e.emp_dept in (
+	                select dept_id 
+	                from dept 
+	                start with dept_id = ? 
+	                connect by prior dept_id = parent_dept_id 
+	            )
+	            and a.attn_work_date >= to_date(? || '-01', 'YYYY-MM-DD') 
+	            and a.attn_work_date < add_months(to_date(? || '-01', 'YYYY-MM-DD'), 1) 
+	            group by to_char(a.attn_work_date, 'W') 
+	            order by to_number(to_char(a.attn_work_date, 'W'))
+	            """;
+
+	    Object[] params = { deptId, month, month };
+	    return jdbcTemplate.query(sql, attendanceStatMapper, params);
+	}
+	
+	private List<AttendanceStatVO> selectAttendanceStatsByWeek(String deptId){
+	    String sql = """
+	            select 
+	                '이번 주' as label,
+	                
+	                sum(case when a.attn_record = '정상근무' then 1 else 0 end) as normal_count,
+	                sum(case when a.attn_record = '지각' then 1 else 0 end) as late_count,
+	                sum(case when a.attn_record = '조퇴' then 1 else 0 end) as early_leave_count,
+	                sum(case when a.attn_record = '지각-조퇴' then 1 else 0 end) as late_early_count,
+	                sum(case when a.attn_record = '휴가' then 1 else 0 end) as leave_count,
+	                sum(case when a.attn_record = '미확인' then 1 else 0 end) as unchecked_count, 
+	                sum(case when a.attn_record = '결근' then 1 else 0 end) as absent_count
+	                
+	            from attn a 
+	            join emp e on a.emp_no = e.emp_no 
+	            where e.emp_dept in (
+	                select dept_id 
+	                from dept 
+	                start with dept_id = ? 
+	                connect by prior dept_id = parent_dept_id 
+	            )
+	            and a.attn_work_date >= trunc(sysdate, 'IW')
+	            and a.attn_work_date < trunc(sysdate, 'IW') + 7
+	            """;
+
+	    Object[] params = { deptId };
+	    return jdbcTemplate.query(sql, attendanceStatMapper, params);
+	}
+	
+	public List<AttendanceStatVO> selectAttendanceStats(String deptId, String month, String attnMode){
+	    if ("week".equals(attnMode)) {
+	        return selectAttendanceStatsByWeek(deptId);
+	    }
+	    return selectAttendanceStatsByMonth(deptId, month);
 	}
 	
 	public List<ApprovalStatVO> selectApprovalStats(String deptId, String month){
@@ -158,6 +197,30 @@ public class DeptDashboardDao {
 				""";
 		Object[] params = { deptId, month, month };
 		return jdbcTemplate.query(sql, leaveCalendarMapper, params);
+	}
+	
+	public List<DeptMemberStatusVO> selectDirectMemberStatusList(String deptId){
+	    String sql = """
+	            select
+	                e.emp_no,
+	                e.emp_name,
+	                d.dept_name,
+	                p.position_name,
+	                a.attn_record,
+	                to_char(a.attn_in_time, 'HH24:MI') as attn_in_time,
+	                to_char(a.attn_out_time, 'HH24:MI') as attn_out_time
+	            from emp e
+	            join dept d on e.emp_dept = d.dept_id
+	            left join position_item p on e.emp_position = p.position_name
+	            left join attn a
+	                on e.emp_no = a.emp_no
+	               and a.attn_work_date = trunc(sysdate)
+	            where e.emp_dept = ?
+	            order by p.position_level desc, e.emp_name asc
+	            """;
+
+	    Object[] params = { deptId };
+	    return jdbcTemplate.query(sql, memberStatusMapper, params);
 	}
 	
 	
