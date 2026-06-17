@@ -94,7 +94,8 @@ public class AdminController {
 		    DeptDto deptDto = deptDao.selectOne(empDto.getEmpDept());
 		    model.addAttribute("deptDto", deptDto);
 		}
-
+		model.addAttribute("deptList",deptDao.selectTreeList());
+		
 		return "admin/list";
 	}
 

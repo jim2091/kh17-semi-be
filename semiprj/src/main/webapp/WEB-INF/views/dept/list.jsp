@@ -6,7 +6,7 @@
 
     <div class="gw-page-head dept-screen">
         <div class="gw-breadcrumb">홈 > 부서 > 목록</div>
-        <h1>부서 목록 🏢</h1>
+        <h1>부서 목록</h1>
         <p>회사의 부서 정보를 조회하고 체계적으로 관리할 수 있습니다.</p>
     </div>
 

@@ -273,7 +273,7 @@ public class EmpController {
 		    DeptDto deptDto = deptDao.selectOne(empDto.getEmpDept());
 		    model.addAttribute("deptDto", deptDto);
 		}
-		
+		model.addAttribute("deptList",deptDao.selectTreeList());
 		
 		return "emp/list";
 	}

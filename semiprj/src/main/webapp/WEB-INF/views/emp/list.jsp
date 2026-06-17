@@ -75,19 +75,11 @@ $(function(){
 			</select>
 			<input type="text" name="keyword" id="keyword-input" placeholder="검색어 입력" 
 								class="gw-form-input" value="${param.keyword}">
-			<select name="deptKeyword" id="dept-select" class="gw-form-select" style="display:none;">
-	            <option value="">부서선택</option>
-	            <option value="0" ${param.deptKeyword=='0'? 'selected' : '' }>회사</option>
-	            <option value="10" ${param.deptKeyword=='10'? 'selected' : '' }>경영지원본부</option>
-	            <option value="20" ${param.deptKeyword=='20'? 'selected' : '' }>인사팀</option>
-	            <option value="21" ${param.deptKeyword=='21'? 'selected' : '' }>총무감사팀</option>
-	            <option value="30" ${param.deptKeyword=='30'? 'selected' : '' }>총무팀</option>
-	            <option value="40" ${param.deptKeyword=='40'? 'selected' : '' }>개발본부</option>
-	            <option value="50" ${param.deptKeyword=='50'? 'selected' : '' }>백엔드개발팀</option>
-	            <option value="60" ${param.deptKeyword=='60'? 'selected' : '' }>프론트엔드개발팀</option>
-	            <option value="70" ${param.deptKeyword=='70'? 'selected' : '' }>영업마케팅본부</option>
-	            <option value="80" ${param.deptKeyword=='80'? 'selected' : '' }>국내영업팀</option>
-        	</select>
+			<select name="empDept" class="gw-form-select">
+				<c:forEach var="dept" items="${deptList}">
+			        <option value="${dept.deptId}">${dept.deptName}</option>
+			    </c:forEach>
+	        </select>
 			<button type="submit" class="gw-btn-primary">
 				<i class="fa-solid fa-magnifying-glass"></i> 
 				<span>검색</span>
@@ -125,7 +117,7 @@ $(function(){
 								</div>
 							</td>
 							<td>${empDto.empId}</td>
-							<td>${deptDto.deptName}</td>
+							<td>${empDto.empDeptName}</td>
 							<td><span class="position-badge">${empDto.empPosition}</span></td>
 							<td>${empDto.empMentor}</td>
 							<td><fmt:formatDate value = "${empDto.empHireDate}" pattern="yyyy.MM.dd"/></td>
