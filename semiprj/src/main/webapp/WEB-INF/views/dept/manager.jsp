@@ -412,6 +412,7 @@
 
         <div class="dept-filter">
         	<form id="deptDashboardForm" action="/dept/manager" method="get" class="dept-filter">
+	            <input type="hidden" name="attnMode" id="attnModeInput" value="${dashboard.attnMode}">
 	            <select name="deptId" class="gw-form-select">
 	            	<c:forEach var="dept" items="${dashboard.managedDeptList}">
 	            		<option value="${dept.deptId}"
@@ -483,201 +484,196 @@
             <div class="card-header">
                 <div class="card-title">근태 통계</div>
                 <div class="card-actions">
-				    <button type="submit"
-				            form="deptDashboardForm"
-				            name="attnMode"
-				            value="week"
-				            class="${dashboard.attnMode == 'week' ? 'gw-btn-primary' : 'gw-btn-outline'}"
+				    <button type="button"
+				            class="attn-mode-btn ${dashboard.attnMode eq 'week' ? 'gw-btn-primary' : 'gw-btn-outline'}"
+				            data-mode="week"
 				            style="height:34px; padding:0 14px;">
 				        주간
 				    </button>
 				
-				    <button type="submit"
-				            form="deptDashboardForm"
-				            name="attnMode"
-				            value="month"
-				            class="${dashboard.attnMode == 'month' ? 'gw-btn-primary' : 'gw-btn-outline'}"
+				    <button type="button"
+				            class="attn-mode-btn ${dashboard.attnMode eq 'month' ? 'gw-btn-primary' : 'gw-btn-outline'}"
+				            data-mode="month"
 				            style="height:34px; padding:0 14px;">
 				        월간
 				    </button>
 				</div>
             </div>
 
-
-            <c:choose>
-			
-			    <%-- 주간 모드 --%>
-			    <c:when test="${dashboard.attnMode eq 'week'}">
-			        <c:forEach var="stat" items="${dashboard.attendanceStats}">
-			
-			            <c:set var="weekTotal"
-							value="${stat.normalCount
-							      + stat.lateCount
-							      + stat.earlyLeaveCount
-							      + stat.lateEarlyCount
-							      + stat.leaveCount
-							      + stat.absentCount}" />
-			
-			            <div class="week-progress-wrap">
-			
-			                <div class="week-progress-item">
-			                    <div class="week-progress-top">
-			                        <span><i class="legend-dot bar-blue"></i>정상근무</span>
-			                        <strong>${stat.normalCount}건</strong>
-			                    </div>
-			                    <div class="week-progress-track">
-			                        <div class="week-progress-fill bar-blue"
-			                             style="width:${weekTotal == 0 ? 0 : stat.normalCount * 100 / weekTotal}%;"></div>
-			                    </div>
-			                </div>
-			
-			                <div class="week-progress-item">
-			                    <div class="week-progress-top">
-			                        <span><i class="legend-dot bar-yellow"></i>지각</span>
-			                        <strong>${stat.lateCount}건</strong>
-			                    </div>
-			                    <div class="week-progress-track">
-			                        <div class="week-progress-fill bar-yellow"
-			                             style="width:${weekTotal == 0 ? 0 : stat.lateCount * 100 / weekTotal}%;"></div>
-			                    </div>
-			                </div>
-			
-			                <div class="week-progress-item">
-			                    <div class="week-progress-top">
-			                        <span><i class="legend-dot bar-red"></i>조퇴</span>
-			                        <strong>${stat.earlyLeaveCount}건</strong>
-			                    </div>
-			                    <div class="week-progress-track">
-			                        <div class="week-progress-fill bar-red"
-			                             style="width:${weekTotal == 0 ? 0 : stat.earlyLeaveCount * 100 / weekTotal}%;"></div>
-			                    </div>
-			                </div>
-			
-			                <div class="week-progress-item">
-			                    <div class="week-progress-top">
-			                        <span><i class="legend-dot bar-purple"></i>지각-조퇴</span>
-			                        <strong>${stat.lateEarlyCount}건</strong>
-			                    </div>
-			                    <div class="week-progress-track">
-			                        <div class="week-progress-fill bar-purple"
-			                             style="width:${weekTotal == 0 ? 0 : stat.lateEarlyCount * 100 / weekTotal}%;"></div>
-			                    </div>
-			                </div>
-			
-			                <div class="week-progress-item">
-			                    <div class="week-progress-top">
-			                        <span><i class="legend-dot bar-green"></i>휴가</span>
-			                        <strong>${stat.leaveCount}건</strong>
-			                    </div>
-			                    <div class="week-progress-track">
-			                        <div class="week-progress-fill bar-green"
-			                             style="width:${weekTotal == 0 ? 0 : stat.leaveCount * 100 / weekTotal}%;"></div>
-			                    </div>
-			                </div>
-			                <div class="week-progress-item">
-							    <div class="week-progress-top">
-							        <span>
-							            <i class="legend-dot bar-gray"></i>결근</span>
-							        <strong>${stat.absentCount}건</strong>
-							    </div>
-							    <div class="week-progress-track">
-							        <div class="week-progress-fill bar-gray"
-							             style="width:${weekTotal == 0 ? 0 : stat.absentCount * 100 / weekTotal}%;"></div>
-							    </div>
-							</div>
-			
-			            </div>
-			        </c:forEach>
-			    </c:when>
-			
-			    <%-- 월간 모드 --%>
-			    <c:otherwise>
-			        <c:set var="normalTotal" value="0" />
-					<c:set var="lateTotal" value="0" />
-					<c:set var="earlyTotal" value="0" />
-					<c:set var="lateEarlyTotal" value="0" />
-					<c:set var="absentTotal" value="0" />
-					
-					<c:forEach var="stat" items="${dashboard.attendanceStats}">
-					    <c:set var="normalTotal" value="${normalTotal + stat.normalCount}" />
-					    <c:set var="lateTotal" value="${lateTotal + stat.lateCount}" />
-					    <c:set var="earlyTotal" value="${earlyTotal + stat.earlyLeaveCount}" />
-					    <c:set var="lateEarlyTotal" value="${lateEarlyTotal + stat.lateEarlyCount}" />
-					    <c:set var="absentTotal" value="${absentTotal + stat.absentCount}" />
-					</c:forEach>
-					
-					<div class="chart-legend" style="margin-top:4px;">
-					    <span><i class="legend-dot bar-blue"></i>정상근무</span>
-					    <span><i class="legend-dot bar-green"></i>휴가</span>
-					    <span><i class="legend-dot bar-yellow"></i>지각</span>
-					    <span><i class="legend-dot bar-red"></i>조퇴</span>
-					    <span><i class="legend-dot bar-purple"></i>지각-조퇴</span>
-					    <span><i class="legend-dot bar-gray"></i>결근</span>
-					</div>
-					
-					<div class="chart-area">
-					    <div class="chart-grid">
-						    <div class="chart-grid-line">${dashboard.attendanceChartMax}</div>
-						    <div class="chart-grid-line">${dashboard.attendanceChart4}</div>
-						    <div class="chart-grid-line">${dashboard.attendanceChart3}</div>
-						    <div class="chart-grid-line">${dashboard.attendanceChart2}</div>
-						    <div class="chart-grid-line">${dashboard.attendanceChart1}</div>
-						    <div class="chart-grid-line">0</div>
+			<div id="attendanceChartArea">
+	            <c:choose>
+				    <%-- 주간 모드 --%>
+				    <c:when test="${dashboard.attnMode eq 'week'}">
+				        <c:forEach var="stat" items="${dashboard.attendanceStats}">
+				
+				            <c:set var="weekTotal"
+								value="${stat.normalCount
+								      + stat.lateCount
+								      + stat.earlyLeaveCount
+								      + stat.lateEarlyCount
+								      + stat.leaveCount
+								      + stat.absentCount}" />
+				
+				            <div class="week-progress-wrap">
+				
+				                <div class="week-progress-item">
+				                    <div class="week-progress-top">
+				                        <span><i class="legend-dot bar-blue"></i>정상근무</span>
+				                        <strong>${stat.normalCount}건</strong>
+				                    </div>
+				                    <div class="week-progress-track">
+				                        <div class="week-progress-fill bar-blue"
+				                             style="width:${weekTotal == 0 ? 0 : stat.normalCount * 100 / weekTotal}%;"></div>
+				                    </div>
+				                </div>
+				
+				                <div class="week-progress-item">
+				                    <div class="week-progress-top">
+				                        <span><i class="legend-dot bar-yellow"></i>지각</span>
+				                        <strong>${stat.lateCount}건</strong>
+				                    </div>
+				                    <div class="week-progress-track">
+				                        <div class="week-progress-fill bar-yellow"
+				                             style="width:${weekTotal == 0 ? 0 : stat.lateCount * 100 / weekTotal}%;"></div>
+				                    </div>
+				                </div>
+				
+				                <div class="week-progress-item">
+				                    <div class="week-progress-top">
+				                        <span><i class="legend-dot bar-red"></i>조퇴</span>
+				                        <strong>${stat.earlyLeaveCount}건</strong>
+				                    </div>
+				                    <div class="week-progress-track">
+				                        <div class="week-progress-fill bar-red"
+				                             style="width:${weekTotal == 0 ? 0 : stat.earlyLeaveCount * 100 / weekTotal}%;"></div>
+				                    </div>
+				                </div>
+				
+				                <div class="week-progress-item">
+				                    <div class="week-progress-top">
+				                        <span><i class="legend-dot bar-purple"></i>지각-조퇴</span>
+				                        <strong>${stat.lateEarlyCount}건</strong>
+				                    </div>
+				                    <div class="week-progress-track">
+				                        <div class="week-progress-fill bar-purple"
+				                             style="width:${weekTotal == 0 ? 0 : stat.lateEarlyCount * 100 / weekTotal}%;"></div>
+				                    </div>
+				                </div>
+				
+				                <div class="week-progress-item">
+				                    <div class="week-progress-top">
+				                        <span><i class="legend-dot bar-green"></i>휴가</span>
+				                        <strong>${stat.leaveCount}건</strong>
+				                    </div>
+				                    <div class="week-progress-track">
+				                        <div class="week-progress-fill bar-green"
+				                             style="width:${weekTotal == 0 ? 0 : stat.leaveCount * 100 / weekTotal}%;"></div>
+				                    </div>
+				                </div>
+				                <div class="week-progress-item">
+								    <div class="week-progress-top">
+								        <span>
+								            <i class="legend-dot bar-gray"></i>결근</span>
+								        <strong>${stat.absentCount}건</strong>
+								    </div>
+								    <div class="week-progress-track">
+								        <div class="week-progress-fill bar-gray"
+								             style="width:${weekTotal == 0 ? 0 : stat.absentCount * 100 / weekTotal}%;"></div>
+								    </div>
+								</div>
+				
+				            </div>
+				        </c:forEach>
+				    </c:when>
+				
+				    <%-- 월간 모드 --%>
+				    <c:otherwise>
+				        <c:set var="normalTotal" value="0" />
+						<c:set var="lateTotal" value="0" />
+						<c:set var="earlyTotal" value="0" />
+						<c:set var="lateEarlyTotal" value="0" />
+						<c:set var="absentTotal" value="0" />
+						
+						<c:forEach var="stat" items="${dashboard.attendanceStats}">
+						    <c:set var="normalTotal" value="${normalTotal + stat.normalCount}" />
+						    <c:set var="lateTotal" value="${lateTotal + stat.lateCount}" />
+						    <c:set var="earlyTotal" value="${earlyTotal + stat.earlyLeaveCount}" />
+						    <c:set var="lateEarlyTotal" value="${lateEarlyTotal + stat.lateEarlyCount}" />
+						    <c:set var="absentTotal" value="${absentTotal + stat.absentCount}" />
+						</c:forEach>
+						
+						<div class="chart-legend" style="margin-top:4px;">
+						    <span><i class="legend-dot bar-blue"></i>정상근무</span>
+						    <span><i class="legend-dot bar-green"></i>휴가</span>
+						    <span><i class="legend-dot bar-yellow"></i>지각</span>
+						    <span><i class="legend-dot bar-red"></i>조퇴</span>
+						    <span><i class="legend-dot bar-purple"></i>지각-조퇴</span>
+						    <span><i class="legend-dot bar-gray"></i>결근</span>
 						</div>
-											
-					    <div class="chart-bars">
-					        <c:forEach var="stat" items="${dashboard.attendanceStats}">
-					            <div class="chart-group">
-					                <div class="chart-bar bar-blue"
-					                     style="height:${stat.normalCount * 100 / dashboard.attendanceChartMax}%;"></div>
-					                     
-									<div class="chart-bar bar-green"
-									     style="height:${stat.leaveCount * 100 / dashboard.attendanceChartMax}%;"></div>
-									     
-					                <div class="chart-bar bar-yellow"
-					                     style="height:${stat.lateCount * 100 / dashboard.attendanceChartMax}%;"></div>
-					
-					                <div class="chart-bar bar-red"
-					                     style="height:${stat.earlyLeaveCount * 100 / dashboard.attendanceChartMax}%;"></div>
-					
-					                <div class="chart-bar bar-purple"
-					                     style="height:${stat.lateEarlyCount * 100 / dashboard.attendanceChartMax}%;"></div>
-					
-					                <div class="chart-bar bar-gray"
-					                     style="height:${stat.absentCount * 100 / dashboard.attendanceChartMax}%;"></div>
-					
-					                <div class="chart-label">${stat.label}</div>
-					            </div>
-					        </c:forEach>
-					    </div>
-					</div>
-					
-					<div class="attn-mini-grid">
-					    <div class="attn-mini-card">
-					        <div class="attn-mini-title">출근</div>
-					        <div class="attn-mini-value">${normalTotal}건</div>
-					    </div>
-					
-					    <div class="attn-mini-card">
-					        <div class="attn-mini-title">지각</div>
-					        <div class="attn-mini-value">${lateTotal + lateEarlyTotal}건</div>
-					    </div>
-					
-					    <div class="attn-mini-card">
-					        <div class="attn-mini-title">조퇴</div>
-					        <div class="attn-mini-value">${earlyTotal + lateEarlyTotal}건</div>
-					    </div>
-					
-					    <div class="attn-mini-card">
-					        <div class="attn-mini-title">결근</div>
-					        <div class="attn-mini-value">${absentTotal}건</div>
-					    </div>
-					</div>
-
-			    </c:otherwise>
-			
-			</c:choose>
-
+						
+						<div class="chart-area">
+						    <div class="chart-grid">
+							    <div class="chart-grid-line">${dashboard.attendanceChartMax}</div>
+							    <div class="chart-grid-line">${dashboard.attendanceChart4}</div>
+							    <div class="chart-grid-line">${dashboard.attendanceChart3}</div>
+							    <div class="chart-grid-line">${dashboard.attendanceChart2}</div>
+							    <div class="chart-grid-line">${dashboard.attendanceChart1}</div>
+							    <div class="chart-grid-line">0</div>
+							</div>
+												
+						    <div class="chart-bars">
+						        <c:forEach var="stat" items="${dashboard.attendanceStats}">
+						            <div class="chart-group">
+						                <div class="chart-bar bar-blue"
+						                     style="height:${stat.normalCount * 100 / dashboard.attendanceChartMax}%;"></div>
+						                     
+										<div class="chart-bar bar-green"
+										     style="height:${stat.leaveCount * 100 / dashboard.attendanceChartMax}%;"></div>
+										     
+						                <div class="chart-bar bar-yellow"
+						                     style="height:${stat.lateCount * 100 / dashboard.attendanceChartMax}%;"></div>
+						
+						                <div class="chart-bar bar-red"
+						                     style="height:${stat.earlyLeaveCount * 100 / dashboard.attendanceChartMax}%;"></div>
+						
+						                <div class="chart-bar bar-purple"
+						                     style="height:${stat.lateEarlyCount * 100 / dashboard.attendanceChartMax}%;"></div>
+						
+						                <div class="chart-bar bar-gray"
+						                     style="height:${stat.absentCount * 100 / dashboard.attendanceChartMax}%;"></div>
+						
+						                <div class="chart-label">${stat.label}</div>
+						            </div>
+						        </c:forEach>
+						    </div>
+						</div>
+						
+						<div class="attn-mini-grid">
+						    <div class="attn-mini-card">
+						        <div class="attn-mini-title">출근</div>
+						        <div class="attn-mini-value">${normalTotal}건</div>
+						    </div>
+						
+						    <div class="attn-mini-card">
+						        <div class="attn-mini-title">지각</div>
+						        <div class="attn-mini-value">${lateTotal + lateEarlyTotal}건</div>
+						    </div>
+						
+						    <div class="attn-mini-card">
+						        <div class="attn-mini-title">조퇴</div>
+						        <div class="attn-mini-value">${earlyTotal + lateEarlyTotal}건</div>
+						    </div>
+						
+						    <div class="attn-mini-card">
+						        <div class="attn-mini-title">결근</div>
+						        <div class="attn-mini-value">${absentTotal}건</div>
+						    </div>
+						</div>
+	
+				    </c:otherwise>
+				
+				</c:choose>
+			</div>
         </div>
 
         <div class="dashboard-card manager-card large">
@@ -851,5 +847,200 @@
     </div>
 
 </div>
+
+<script>
+$(function() {
+
+    $(".attn-mode-btn").on("click", function() {
+        var mode = $(this).data("mode");
+        var deptId = $("select[name=deptId]").val();
+        var month = $("input[name=month]").val();
+
+        $("#attnModeInput").val(mode);
+
+        $.ajax({
+            url: "/rest/dept/manager/attendance",
+            method: "get",
+            data: {
+                deptId: deptId,
+                month: month,
+                attnMode: mode
+            },
+            success: function(resp) {
+                renderAttendanceChart(resp);
+                changeAttendanceButton(mode);
+            }
+        });
+    });
+
+    function changeAttendanceButton(mode) {
+        $(".attn-mode-btn").removeClass("gw-btn-primary").addClass("gw-btn-outline");
+
+        $(".attn-mode-btn[data-mode=" + mode + "]")
+            .removeClass("gw-btn-outline")
+            .addClass("gw-btn-primary");
+    }
+
+    function renderAttendanceChart(resp) {
+        if (resp.attnMode === "week") {
+            renderWeekAttendance(resp);
+        }
+        else {
+            renderMonthAttendance(resp);
+        }
+    }
+    function renderWeekAttendance(resp) {
+        var stats = resp.stats;
+
+        if (stats.length === 0) {
+            $("#attendanceChartArea").html(
+                '<div class="empty-text">선택한 기간의 근태 통계가 없습니다.</div>'
+            );
+            return;
+        }
+
+        var stat = stats[0];
+
+        var weekTotal =
+            stat.normalCount +
+            stat.leaveCount +
+            stat.lateCount +
+            stat.earlyLeaveCount +
+            stat.lateEarlyCount +
+            stat.absentCount;
+
+        function percent(value) {
+            if (weekTotal === 0) return 0;
+            return value * 100 / weekTotal;
+        }
+
+        var html = '';
+
+        html += '<div class="week-progress-wrap">';
+
+        html += createProgressRow('bar-blue', '정상근무', stat.normalCount, percent(stat.normalCount));
+        html += createProgressRow('bar-green', '휴가', stat.leaveCount, percent(stat.leaveCount));
+        html += createProgressRow('bar-yellow', '지각', stat.lateCount, percent(stat.lateCount));
+        html += createProgressRow('bar-red', '조퇴', stat.earlyLeaveCount, percent(stat.earlyLeaveCount));
+        html += createProgressRow('bar-purple', '지각-조퇴', stat.lateEarlyCount, percent(stat.lateEarlyCount));
+        html += createProgressRow('bar-gray', '결근', stat.absentCount, percent(stat.absentCount));
+
+        html += '</div>';
+
+        $("#attendanceChartArea").html(html);
+    }
+
+    function createProgressRow(colorClass, label, count, percent) {
+        var html = '';
+
+        html += '<div class="week-progress-item">';
+        html += '   <div class="week-progress-top">';
+        html += '       <span><i class="legend-dot ' + colorClass + '"></i>' + label + '</span>';
+        html += '       <strong>' + count + '건</strong>';
+        html += '   </div>';
+        html += '   <div class="week-progress-track">';
+        html += '       <div class="week-progress-fill ' + colorClass + '" style="width:' + percent + '%;"></div>';
+        html += '   </div>';
+        html += '</div>';
+
+        return html;
+    }
+    
+    function renderMonthAttendance(resp) {
+        var stats = resp.stats;
+
+        if (stats.length === 0) {
+            $("#attendanceChartArea").html(
+                '<div class="empty-text">선택한 월의 근태 통계가 없습니다.</div>'
+            );
+            return;
+        }
+
+        var normalTotal = 0;
+        var lateTotal = 0;
+        var earlyTotal = 0;
+        var lateEarlyTotal = 0;
+        var absentTotal = 0;
+
+        var html = '';
+
+        html += '<div class="chart-legend" style="margin-top:4px;">';
+        html += '   <span><i class="legend-dot bar-blue"></i>정상근무</span>';
+        html += '   <span><i class="legend-dot bar-green"></i>휴가</span>';
+        html += '   <span><i class="legend-dot bar-yellow"></i>지각</span>';
+        html += '   <span><i class="legend-dot bar-red"></i>조퇴</span>';
+        html += '   <span><i class="legend-dot bar-purple"></i>지각-조퇴</span>';
+        html += '   <span><i class="legend-dot bar-gray"></i>결근</span>';
+        html += '</div>';
+
+        html += '<div class="chart-area">';
+
+        html += '   <div class="chart-grid">';
+        html += '       <div class="chart-grid-line">' + resp.chartMax + '</div>';
+        html += '       <div class="chart-grid-line">' + resp.chart4 + '</div>';
+        html += '       <div class="chart-grid-line">' + resp.chart3 + '</div>';
+        html += '       <div class="chart-grid-line">' + resp.chart2 + '</div>';
+        html += '       <div class="chart-grid-line">' + resp.chart1 + '</div>';
+        html += '       <div class="chart-grid-line">0</div>';
+        html += '   </div>';
+
+        html += '   <div class="chart-bars">';
+
+        for (var i = 0; i < stats.length; i++) {
+            var stat = stats[i];
+
+            normalTotal += stat.normalCount;
+            lateTotal += stat.lateCount;
+            earlyTotal += stat.earlyLeaveCount;
+            lateEarlyTotal += stat.lateEarlyCount;
+            absentTotal += stat.absentCount;
+
+            html += '<div class="chart-group">';
+            html += createChartBar('bar-blue', stat.normalCount, resp.chartMax);
+            html += createChartBar('bar-green', stat.leaveCount, resp.chartMax);
+            html += createChartBar('bar-yellow', stat.lateCount, resp.chartMax);
+            html += createChartBar('bar-red', stat.earlyLeaveCount, resp.chartMax);
+            html += createChartBar('bar-purple', stat.lateEarlyCount, resp.chartMax);
+            html += createChartBar('bar-gray', stat.absentCount, resp.chartMax);
+            html += '   <div class="chart-label">' + stat.label + '</div>';
+            html += '</div>';
+        }
+
+        html += '   </div>';
+        html += '</div>';
+
+        html += '<div class="attn-mini-grid">';
+        html += createMiniCard('출근', normalTotal);
+        html += createMiniCard('지각', lateTotal + lateEarlyTotal);
+        html += createMiniCard('조퇴', earlyTotal + lateEarlyTotal);
+        html += createMiniCard('결근', absentTotal);
+        html += '</div>';
+
+        $("#attendanceChartArea").html(html);
+    }
+
+    function createChartBar(colorClass, count, chartMax) {
+        var height = 0;
+
+        if (chartMax > 0) {
+            height = count * 100 / chartMax;
+        }
+
+        return '<div class="chart-bar ' + colorClass + '" style="height:' + height + '%;"></div>';
+    }
+
+    function createMiniCard(title, count) {
+        var html = '';
+
+        html += '<div class="attn-mini-card">';
+        html += '   <div class="attn-mini-title">' + title + '</div>';
+        html += '   <div class="attn-mini-value">' + count + '건</div>';
+        html += '</div>';
+
+        return html;
+    }
+    
+});
+</script>
 
 <jsp:include page="/WEB-INF/views/template/footer2.jsp"></jsp:include>

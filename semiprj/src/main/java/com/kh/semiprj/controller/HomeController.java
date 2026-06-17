@@ -30,7 +30,11 @@ public class HomeController {
 	@RequestMapping("/")
 	public String home(HttpSession session, Model model) {
 		String loginId = (String) session.getAttribute("loginId");
-	    String empNo = appDao.selectEmpNoById(loginId);
+		if(session.getAttribute("loginId") == null) {
+	        return "redirect:/emp/login";
+	    }
+		
+		String empNo = appDao.selectEmpNoById(loginId);
 	    
 	    // 내 전자결재 최근 3개만
 	    model.addAttribute("myAppList", appDao.selectMyRecentList(empNo));
@@ -42,6 +46,7 @@ public class HomeController {
 	    model.addAttribute("todayEventList" , eventDao.selectTodayEvent(empNo));
 		return "/home2";
 	}
+	
     @PostMapping("/menu/toggle")
     @ResponseBody
     public void toggle(@RequestParam boolean managerToggle,

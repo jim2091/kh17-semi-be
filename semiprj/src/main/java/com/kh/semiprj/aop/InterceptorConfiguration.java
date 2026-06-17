@@ -26,12 +26,13 @@ public class InterceptorConfiguration implements WebMvcConfigurer{
 	private PdsReadInterceptor pdsReadInterceptor;
 	@Autowired
 	private MessageOwnerInterceptor messageOwnerInterceptor;
+	@Autowired
+	private AccountStatusInterceptor accountStatusInterceptor;
 	
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
 		registry.addInterceptor(homeInterceptors).addPathPatterns("/**");
-
-
+		
 		// 2. 자료실 조회수 증가 인터셉터
 		registry.addInterceptor(pdsReadInterceptor)
 				.addPathPatterns("/pds/detail");
@@ -75,23 +76,13 @@ public class InterceptorConfiguration implements WebMvcConfigurer{
 
 		registry.addInterceptor(masterOnlyInterceptor).addPathPatterns(
 				"/pds/write"
+				,"/pds/edit"
 				,"/message/delete"
 				,"/message/adminList"
 				,"/admin/**" // 하단에 중복 분리되어 있던 코드를 이쪽으로 통합했습니다.
 				);
 
-		// 5. 본인 소유의 게시글만 수정, 삭제가 가능하도록 하는 인터셉터 (코드 내 특수문자 공백 제거)
-		registry.addInterceptor(boardOwnerInterceptor)
-				.addPathPatterns("/board/edit", "/board/delete");
 		
-		// 6. 게시글 조회수 증가 처리 인터셉터
-		registry.addInterceptor(boardReadInterceptor)
-				.addPathPatterns("/board/detail");
-		
-		// 7. 댓글 소유자만 수정, 삭제가 가능하도록 하는 인터셉터
-		registry.addInterceptor(replyOwnerInterceptor)
-				.addPathPatterns("/rest/reply/edit");
-
 		// 8. 최고관리자 거부 정책 인터셉터
 		// 뭔가 이상한데요? /admin은 관리자가 보는 페이지일텐데 관리자 접근을 막는다..? 일단 주석처리 할게요
 		
@@ -121,5 +112,17 @@ public class InterceptorConfiguration implements WebMvcConfigurer{
 		//- 메세지 소유자만 상세 페이지 접근할 수 있도록 하는 인터셉터
 		registry.addInterceptor(messageOwnerInterceptor)
 				.addPathPatterns("/message/detail");
+		
+		registry.addInterceptor(accountStatusInterceptor)
+				.addPathPatterns("/**")
+				.excludePathPatterns(
+						"/emp/edit"
+						,"/emp/wait"
+						,"/emp/login"
+						,"/css/**"
+                        ,"/js/**"
+                        ,"/images/**"
+                        ,"/error"
+						);
 	}
 }
