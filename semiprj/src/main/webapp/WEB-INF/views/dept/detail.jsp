@@ -147,8 +147,8 @@ $(function(){
 			                    <c:forEach var="emp" items="${memberList}">
 			                        <tr>
 			                            <td>
-			                            	<a href="${pageContext.request.contextPath}/emp/detail?empNo=${empDto.empNo}" 
-						                			class="gw-table-link">${empDto.empName}
+			                            	<a href="${pageContext.request.contextPath}/emp/detail?empNo=${emp.empNo}" 
+						                			class="gw-table-link">${emp.empName}
 						                    </a>
 					                    </td>
 			                            <td>${emp.empPosition}</td>

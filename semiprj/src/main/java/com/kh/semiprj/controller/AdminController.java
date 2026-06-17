@@ -65,7 +65,8 @@ public class AdminController {
 	@PostMapping("/register")
 	public String register(@ModelAttribute EmpDto empDto) {
 //		System.out.println(empDto);		
-		empDao.insertFromAdmin(empDto);		
+		empDao.insertFromAdmin(empDto);	
+		empDao.insertDeptEmp(empDto.getEmpNo(), empDto.getEmpDept());
 
 		return "redirect:./list";
 		// 홈으로 리다이렉트해놓았는데, 사원목록구현후 사원목록페이지로 리다이렉트할 예정입니다
@@ -146,7 +147,8 @@ public class AdminController {
 		} else {
 			empDto.setEmpRetiredDate(null);
 		}
-
+		empDao.deleteDeptEmp(empDto.getEmpNo());
+		empDao.insertDeptEmp(empDto.getEmpNo(), empDto.getEmpDept());
 		empDao.updateByMaster(empDto);
 		return "redirect:./detail?empNo=" + empDto.getEmpNo();
 	}
@@ -285,5 +287,7 @@ public class AdminController {
 		model.addAttribute("attnList", adminAttnService.getAdminAttendanceList(searchDto, pageVO));
 		return "admin/attn/manage";
 	}
+	
+	
 
 }
