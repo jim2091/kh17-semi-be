@@ -265,16 +265,6 @@ public class EmpDao {
 		return jdbcTemplate.query(sql, empMapper, params);
 	}
 
-	public void insertDeptEmp(String empNo, int deptId) {
-	    String sql = "insert into dept_emp(emp_no, dept_id) values(?, ?)";
-	    jdbcTemplate.update(sql, empNo, deptId);
-	}
-
-	public void deleteDeptEmp(String empNo) {
-	    String sql = "delete from dept_emp where emp_no = ?";
-	    jdbcTemplate.update(sql, empNo);
-	}
-}
 	// dept_emp 삽입용 메소드
 	public void insertDeptEmp(String empNo, int deptId) {
 	    String sql = "insert into dept_emp(emp_no, dept_id) values(?, ?)";
@@ -286,10 +276,5 @@ public class EmpDao {
 	    String sql = "delete from dept_emp where emp_no = ?";
 	    jdbcTemplate.update(sql, empNo);
 	}
-	
-	
-	
-	
-	
-	
+
 }
