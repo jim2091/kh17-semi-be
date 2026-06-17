@@ -37,12 +37,57 @@ public class AppDao {
         return seq != null ? seq : 0;
     }   
     
-    //관리자가 전부 확인
-    public List<AppDto> selectAllList() {
-        String sql = "select a.*, e.emp_name from app a "
-                   + "join emp e on a.app_req_id = e.emp_no "
-                   + "order by a.app_id desc";
-        return jdbcTemplate.query(sql, appMapper);
+ // 1. 관리자 결재 전체 목록/검색 통합 조회 (요청하신 파라미터 매핑 스타일 반영)
+    public List<AppDto> selectAllList(PageVO pageVO) {
+        // [검색일 때]
+        if (pageVO.isSearch()) {
+            String sql = "select * from ("
+                       + "  select rownum RN, TMP.* FROM ("
+                       + "      select a.*, e.emp_name from app a "
+                       + "      join emp e on a.app_req_id = e.emp_no "
+                       + "      where " + pageVO.getColumn() + " like '%' || ? || '%' "
+                       + "      order by a.app_id desc"
+                       + "  ) TMP"
+                       + ") where RN between ? and ?";
+            
+            // 내 방식대로 직관적으로 변수 꺼내서 바인딩하기
+            int beginRow = pageVO.getBeginRownum();
+            int endRow = pageVO.getEndRownum();
+            
+            Object[] params = { pageVO.getKeyword(), beginRow, endRow };
+            return jdbcTemplate.query(sql, appMapper, params);
+        } 
+        // [일반 목록일 때]
+        else {
+            String sql = "select * from ("
+                       + "  select rownum RN, TMP.* FROM ("
+                       + "      select a.*, e.emp_name from app a "
+                       + "      join emp e on a.app_req_id = e.emp_no "
+                       + "      order by a.app_id desc"
+                       + "  ) TMP"
+                       + ") where RN between ? and ?";
+            
+            int beginRow = pageVO.getBeginRownum();
+            int endRow = pageVO.getEndRownum();
+            
+            Object[] params = { beginRow, endRow };
+            return jdbcTemplate.query(sql, appMapper, params);
+        }
+    }
+
+    // 2. 페이징 네비게이터를 위한 전체 카운트 메서드 (동일한 플로우 적용)
+    public int countAll(PageVO pageVO) {
+        if (pageVO.isSearch()) {
+            String sql = "select count(*) from app a join emp e on a.app_req_id = e.emp_no "
+                       + "where " + pageVO.getColumn() + " like '%' || ? || '%'";
+            
+            Object[] params = { pageVO.getKeyword() };
+            return jdbcTemplate.queryForObject(sql, Integer.class, params);
+        } else {
+            String sql = "select count(*) from app a join emp e on a.app_req_id = e.emp_no";
+            
+            return jdbcTemplate.queryForObject(sql, Integer.class);
+        }
     }
 
 	// app_type 페이징
