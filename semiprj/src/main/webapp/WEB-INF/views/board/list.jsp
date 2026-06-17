@@ -164,7 +164,9 @@
 		</thead>
 		<tbody>
 			<c:forEach var="boardDto" items="${list}" varStatus="stat">
-			<tr class="${stat.index < noticeCount ? 'notice-row' : ''}">
+			<tr class="${stat.index < noticeCount ? 'notice-row' : ''}" 
+				align="center" onclick="location.href='./detail?boardNo=${boardDto.boardNo}'" 
+				style="cursor:pointer;">
 				<td>
 					<span class="board-head">
 						${boardDto.boardHead}
