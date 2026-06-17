@@ -145,6 +145,15 @@
     transform:scale(1.2);
     border:3px solid #222;
 }
+.detail-item .field.success,
+.detail-item .field.fail {
+    background-color: var(--input-bg);
+    background-repeat: no-repeat;
+    background-position-x: right 0.5em;
+    background-position-y: center;
+    background-size: 1em;
+}
+	
 </style>
 
 <div class="pds-width">
@@ -331,8 +340,66 @@
     });
     
     $(".save-btn").click(function(){
+
+        let valid = true;
+
+        // 제목 검사
+        const title = $("[name=eventTitle]").val().trim();
+	        if(title === "") {
+	            $("[name=eventTitle]").removeClass("success").addClass("fail");
+	            valid = false;
+	        } 
+	        else {
+	            $("[name=eventTitle]").removeClass("fail").addClass("success");
+	        }
+		// 내용 검사
+		const content = $("[name=eventContent]").val().trim();
+			if(content === "") {
+				$("[name=eventContent]").removeClass("success").addClass("fail");
+				valid = false;
+			}
+			else{
+				$("[name=eventContent]").removeClass("fail").addClass("success");
+			}
+		// 카테고리 검사
+		const category = $("[name=eventCategory]").val().trim();
+			if(category === "") {
+				$("[name=eventCategory]").removeClass("success").addClass("fail");
+				valid = false;
+			}
+			else{
+				$("[name=eventCategory]").removeClass("fail").addClass("success");
+			}
+        // 시작일시 검사
+        const start = $("[name=eventStart]").val();
+	        if(start === "") {
+	            $("[name=eventStart]").removeClass("success").addClass("fail");
+	            valid = false;
+	        } 
+	        else {
+	            $("[name=eventStart]").removeClass("fail").addClass("success");
+	        }
+
+        // 종료일시 검사
+        const end = $("[name=eventEnd]").val();
+	        if(end === "") {
+	            $("[name=eventEnd]").removeClass("success").addClass("fail");
+	            valid = false;
+	        } 
+	        else {
+	            $("[name=eventEnd]").removeClass("fail").addClass("success");
+	        }
+
+        // 시작 > 종료 검사
+        if(start !== "" && end !== "" && start > end) {
+            $("[name=eventEnd]").removeClass("success").addClass("fail");
+            valid = false;
+        }
+
+        if(!valid) return; // 하나라도 실패면 Ajax 전송 안함
+
         const data = {
-            eventTitle : $("[name=eventTitle]").val(),
+            eventTitle   : title,
             eventContent : $("[name=eventContent]").val(),
             eventCategory : $("[name=eventCategory]").val(),
             eventStart : $("[name=eventStart]").val(),
@@ -347,10 +414,8 @@
             type : "post",
             contentType : "application/json",
             data : JSON.stringify(data),
-
             success : function(response){
                 alert("등록 완료");
-                
                 calendar.createEvents([
                     {
                         id : response.eventNo,
@@ -457,12 +522,14 @@
             <label>일정 제목</label>
             <input type="text" name="eventTitle" class="gw-form-input field">
             <div class="success-feedback"></div>
-            <div class="fail-feedback"></div>
+            <div class="fail-feedback">필수 항목입니다.</div>
         </div>
 
         <div class="detail-item">
             <label>일정 내용</label>
             <textarea name="eventContent" class="gw-form-input field"></textarea>
+            <div class="success-feedback"></div>
+            <div class="fail-feedback">필수 항목입니다.</div>
         </div>
 
 		<div class="detail-row">
@@ -470,14 +537,14 @@
 	            <label>시작 일시</label>
 	            <input type="datetime-local" name="eventStart" class="gw-form-input field">
 	            <div class="success-feedback"></div>
-	            <div class="fail-feedback"></div>
+	            <div class="fail-feedback">날짜 선택해주세요</div>
 	        </div>
 	
 	        <div class="detail-item">
 	            <label>종료 일시</label>
 	            <input type="datetime-local" name="eventEnd" class="gw-form-input field">
 	            <div class="success-feedback"></div>
-	            <div class="fail-feedback"></div>
+	            <div class="fail-feedback">날짜 선택해주세요</div>
 	        </div>
 		</div>
 
@@ -491,7 +558,7 @@
 				</c:if>
             </select>
             <div class="success-feedback"></div>
-            <div class="fail-feedback"></div>
+            <div class="fail-feedback">일정 선택해주세요</div>
         </div>
         
         <div class="detail-item">

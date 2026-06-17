@@ -117,16 +117,16 @@ public class DeptController {
 			model.addAttribute("parentDeptDto",parentDeptDto);	
 		}
 		
-		EmpDto empDto = empDao.selectOneDeptHeadId(deptDto.getDeptHeadId());//부서장 이름을 불러오기위해
+		EmpDto empDto = empDao.selectOneDeptHeadId(deptDto.getDeptHeadId());//부서장 이름 출력
 		model.addAttribute("empDto",empDto);
 
-		List<EmpDto> memberList = deptDao.selectListByDeptRecursive(deptId);
+		List<EmpDto> memberList = deptDao.selectListByDeptRecursive(deptId);//직원 목록 출력
 		model.addAttribute("memberList", memberList);
 
-		List<DeptDto> childDeptList = deptDao.selectChildDept(deptId);
+		List<DeptDto> childDeptList = deptDao.selectChildDept(deptId);//하위부서 출력
 		model.addAttribute("childDeptList",childDeptList);
 
-		List<DeptDto> allDeptList = deptDao.selectTreeList();
+		List<DeptDto> allDeptList = deptDao.selectTreeList(); //전체 출력
 		model.addAttribute("list", allDeptList);
 		
 		
@@ -225,10 +225,15 @@ public class DeptController {
 	@GetMapping("/manager")
 	public String managerDashboard(HttpSession session, Model model, 
 						@RequestParam(required=false) String deptId, 
-						@RequestParam(required=false) String month) {
+						@RequestParam(required=false) String month, 
+						@RequestParam(required=false, defaultValue="month") String attnMode
+						) {
 		String loginId = (String) session.getAttribute("loginId");
 		EmpDto empDto = empDao.selectOne(loginId);
-		ManagerDashboardVO dashboard = deptDashboardService.createDashboard(empDto.getEmpNo(), deptId, month);
+		ManagerDashboardVO dashboard =
+	            deptDashboardService.createDashboard(
+	                    empDto.getEmpNo(), deptId, month, attnMode
+	            );
 		
 		if (dashboard == null) {
 			return "redirect:/";
