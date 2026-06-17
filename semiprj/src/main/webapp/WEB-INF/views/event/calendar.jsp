@@ -113,6 +113,38 @@
     grid-template-columns:1fr 1fr;
     gap:16px;
 }
+.color-picker{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-top:8px;
+}
+
+.color-picker input[type=radio]{
+    display:none;
+}
+
+.color-circle{
+    width:24px;
+    height:24px;
+    border-radius:50%;
+    display:inline-block;
+    cursor:pointer;
+    border:2px solid transparent;
+    transition:0.2s;
+}
+
+.blue{ background:#60A5FA; }
+.green{ background:#6FCF97; }
+.purple{ background:#B197FC; }
+.orange{ background:#F6B26B; }
+.red{ background:#F28B82; }
+.gray{ background:#A0AEC0; }
+
+.color-picker input[type=radio]:checked + .color-circle{
+    transform:scale(1.2);
+    border:3px solid #222;
+}
 .detail-item .field.success,
 .detail-item .field.fail {
     background-color: var(--input-bg);
@@ -189,9 +221,7 @@
     });
     
     function updateMonth() {
-
         const date = calendar.getDate();
-
         $(".current-month").text(
             date.getFullYear() + "년 " +
             (date.getMonth() + 1) + "월"
@@ -201,11 +231,9 @@
     updateMonth();
     
     function formatDate(date){
-
         if (!date || !(date instanceof Date) || isNaN(date.getTime())) {
             return "";
         }
-
         const y = date.getFullYear();
         const m = String(date.getMonth()+1).padStart(2,'0');
         const d = String(date.getDate()).padStart(2,'0');
@@ -218,18 +246,11 @@
     calendar.on('selectDateTime', function(e){
     	const start = formatDate(e.start);
     	//console.log("new start =", start);
-
     	$("[name=eventStart]").val(start);
-
         //$("[name=eventStart]").val(formatDate(e.start));
-
         $("[name=eventEnd]").val(formatDate(e.end));
-        
-
         $(".modal").show();
     });
-    
-    
     
     // 2. [조회] 페이지가 로드되자마자 스프링에서 데이터를 받아와 달력에 뿌리기
     $(document).ready(function() {
@@ -240,17 +261,7 @@
             success: function(data) {
             	
             	 const events = data.map(function(item){
-            		 
-            		 let backgroundColor;
-            		 
-            		 if(item.eventCategory === "개인일정"){
-            	            backgroundColor = "#4CAF50";
-            	        }
-            	        else{
-            	            backgroundColor = "#2196F3";
-            	        }
-            		 
-            		 
+
             	        return {
             	            id: item.eventNo,
             	            calendarId: item.eventCategory,
@@ -258,12 +269,15 @@
             	            category: item.eventOption,
             	            start: item.eventStart,
             	            end: item.eventEnd,
-            	            backgroundColor : backgroundColor,
+            	            backgroundColor : item.eventColor,
+            	            borderColor : item.eventColor,
             	            
             	            raw : {
-            	                content : item.eventContent
-            	            }
-            	            
+            	                content : item.eventContent,
+            	                color : item.eventColor,
+            	                empName : item.empName,
+            	                deptName : item.deptName
+            	            }  
             	        };
             	    });
 
@@ -276,63 +290,55 @@
             }
         });
     });
-    
-    
-
-       
+  
     calendar.on('clickEvent', function(e){
         currentEventNo = e.event.id;
 
         $(".detail-title").val(e.event.title);
         $(".detail-content").val(e.event.raw.content);
+        $(".detail-writer").text(e.event.raw.empName);
+        $(".detail-dept").text(e.event.raw.deptName);
         
         const start = formatDate(e.event.start.toDate());
-
         $(".detail-start").val(start);
-        
-        
-        const end = formatDate(e.event.start.toDate());
-            
+
+        const end = formatDate(e.event.end.toDate());
         $(".detail-end").val(end);
         
         $(".detail-category").val(e.event.calendarId);
         
-
-
+        $("input[name='eventColor'][value='" +
+        		e.event.raw.color +
+        		"']").prop("checked", true);
+       
         $(".detail-modal").show();
     });
    
 	$(function(){
-		
 		$(".btn-prev").click(function(){
-
 		    calendar.prev();
 		    updateMonth();
-
 		});
 
 		$(".btn-next").click(function(){
-
 		    calendar.next();
 		    updateMonth();
-
 		});
 
 		$(".btn-today").click(function(){
-
 		    calendar.today();
 		    updateMonth();
-
 		});
-		
-		
+
 	$(".detail-close-btn").click(function(){
 	    $(".detail-modal").hide();
 	});
+	
     $(".close-btn").click(function(){
         $(".modal").hide();
         calendar.unselect();
     });
+    
     $(".save-btn").click(function(){
 
         let valid = true;
@@ -395,11 +401,12 @@
         const data = {
             eventTitle   : title,
             eventContent : $("[name=eventContent]").val(),
-            eventCategory: $("[name=eventCategory]").val(),
-            eventStart   : start,
-            eventEnd     : end,
-            eventOption  : "time",
-            eventOrigin  : "${sessionScope.loginNo}"
+            eventCategory : $("[name=eventCategory]").val(),
+            eventStart : $("[name=eventStart]").val(),
+            eventEnd : $("[name=eventEnd]").val(),
+            eventOption : "time",
+            eventOrigin : "${sessionScope.loginNo}",
+            eventColor : $("[name=eventColor]:checked").val(),
         };
 
         $.ajax({
@@ -409,34 +416,38 @@
             data : JSON.stringify(data),
             success : function(response){
                 alert("등록 완료");
-                calendar.createEvents([{
-                    id       : response.eventNo,
-                    title    : data.eventTitle,
-                    category : "time",
-                    start    : data.eventStart,
-                    end      : data.eventEnd,
-                    raw      : { content : data.eventContent }
-                }]);
+                calendar.createEvents([
+                    {
+                        id : response.eventNo,
+                        title : data.eventTitle,
+                        category : "time",
+                        start : data.eventStart,
+                        end : data.eventEnd, 
+                        backgroundColor : data.eventColor,
+                        borderColor : data.eventColor,
+                        
+                        raw : {
+                            content : data.eventContent
+                        }
+                        
+                    }
+                ]);
                 $(".modal").hide();
             }
         });
     });
     
     $(".edit-btn").click(function(){
-        
-
         const data = {
             eventNo : currentEventNo,
             eventTitle : $(".detail-title").val(),
             eventContent : $(".detail-content").val(),
-            
-                
-            
             eventStart : $(".detail-start").val(),
             eventEnd : $(".detail-end").val(),
-            
             eventCategory : $(".detail-category").val(), 
-            eventOption : "time"
+            eventOption : "time",
+            eventColor :
+                $("input[name='eventColor']:checked").val()
         };
         console.log("start=", $(".detail-start").val());
         console.log("end=", $(".detail-end").val());
@@ -541,11 +552,49 @@
             <label>일정 분류</label>
             <select name="eventCategory" class="gw-form-input field">
                 <option value="개인일정">개인일정</option>
-                <option value="사내일정">사내일정</option>
+                <option value="부서일정">부서일정</option>
+                <c:if test="${sessionScope.empLevel == '관리자'}">
+				    <option value="사내일정">사내일정</option>
+				</c:if>
             </select>
             <div class="success-feedback"></div>
             <div class="fail-feedback">일정 선택해주세요</div>
         </div>
+        
+        <div class="detail-item">
+		    <label>일정 색상</label>
+			<div class="color-picker">
+			    <label>
+			        <input type="radio" name="eventColor" value="#3B82F6" checked>
+			        <span class="color-circle blue"></span>
+			    </label>
+			
+			    <label>
+			        <input type="radio" name="eventColor" value="#22C55E">
+			        <span class="color-circle green"></span>
+			    </label>
+			
+			    <label>
+			        <input type="radio" name="eventColor" value="#8B5CF6">
+			        <span class="color-circle purple"></span>
+			    </label>
+			
+			    <label>
+			        <input type="radio" name="eventColor" value="#F97316">
+			        <span class="color-circle orange"></span>
+			    </label>
+			
+			    <label>
+			        <input type="radio" name="eventColor" value="#EF4444">
+			        <span class="color-circle red"></span>
+			    </label>
+			
+			    <label>
+			        <input type="radio" name="eventColor" value="#6B7280">
+			        <span class="color-circle gray"></span>
+			    </label>
+			</div>
+		</div>
 
         <div style="
 		    display:flex;
@@ -606,9 +655,47 @@
         	<label>일정 분류</label>
             <select class="gw-form-select detail-category">
                 <option value="개인일정">개인일정</option>
-                <option value="사내일정">사내일정</option>
+                <option value="부서일정">부서일정</option>
+                <c:if test="${sessionScope.empLevel == '관리자'}">
+				    <option value="사내일정">사내일정</option>
+				</c:if>
             </select>
         </div>
+        
+        <div class="detail-item">
+		    <label>일정 색상</label>
+			<div class="color-picker">
+			    <label>
+			        <input type="radio" name="eventColor" value="#60A5FA" checked>
+			        <span class="color-circle blue"></span>
+			    </label>
+			
+			    <label>
+			        <input type="radio" name="eventColor" value="#6FCF97">
+			        <span class="color-circle green"></span>
+			    </label>
+			
+			    <label>
+			        <input type="radio" name="eventColor" value=#B197FC>
+			        <span class="color-circle purple"></span>
+			    </label>
+			
+			    <label>
+			        <input type="radio" name="eventColor" value="#F6B26B">
+			        <span class="color-circle orange"></span>
+			    </label>
+			
+			    <label>
+			        <input type="radio" name="eventColor" value="#F28B82">
+			        <span class="color-circle red"></span>
+			    </label>
+			
+			    <label>
+			        <input type="radio" name="eventColor" value="#A0AEC0">
+			        <span class="color-circle gray"></span>
+			    </label>
+			</div>
+		</div>
 
 		<div style="
 		    display:flex;
