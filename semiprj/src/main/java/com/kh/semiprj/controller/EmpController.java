@@ -297,12 +297,13 @@ public class EmpController {
 	}
 	
 	@GetMapping("/edit")
-	public String edit(@RequestParam String empNo, Model model) {
-		EmpDto empDto = empDao.selectOneByDetail(empNo);
+	public String edit(HttpSession session, Model model) {
+		String loginId = (String) session.getAttribute("loginId");
+		EmpDto empDto = empDao.selectOne(loginId);
 		if(empDto == null) throw new TargetNotfoundException("대상이 존재하지 않습니다");
 		model.addAttribute("empDto", empDto);
 		
-		 int deptNo = empDto.getEmpDept();
+		int deptNo = empDto.getEmpDept();
 
 		DeptDto deptDto = deptDao.selectOne(deptNo);
 		model.addAttribute("deptDto", deptDto);
@@ -316,10 +317,6 @@ public class EmpController {
 				@RequestParam MultipartFile attach) throws IllegalStateException, IOException {
 	    EmpDto findEmpDto = empDao.selectOneByDetail(empDto.getEmpNo());
 	    if(findEmpDto == null) throw new TargetNotfoundException("존재하지 않는 회원");
-	    
-	  
-	   
-		
 	    
 	    empDao.updateByUser(empDto); 
 	    
@@ -394,6 +391,10 @@ public class EmpController {
 		return "emp/history";
 	}
 	
+	@GetMapping("/wait")
+	public String wait2() {//wait가 자바에 이미 있는 메서드인듯
+		return "emp/wait";
+	}
 
 	
 	

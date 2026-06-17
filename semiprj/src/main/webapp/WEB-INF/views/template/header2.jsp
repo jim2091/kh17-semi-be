@@ -178,10 +178,18 @@
 				    </div>
 				
 				</div>
-	
-	            <a href="/emp/logout">
-	            	<span class="gw-login-out">로그아웃</span>
-	            </a>
+				
+				<c:if test="${sessionScope.loginId == null}">
+					<a href="/emp/login">
+		            	<span class="gw-login-out">로그인</span>
+		            </a>
+				</c:if>
+				<c:if test="${sessionScope.loginId != null}">
+					<a href="/emp/logout">
+		            	<span class="gw-login-out">로그아웃</span>
+		            </a>
+				</c:if>
+	            
 	
 	            <a href="/emp/mypage" class="gw-user">
 	                <img src="/emp/profile?empNo=${sessionScope.loginNo}">

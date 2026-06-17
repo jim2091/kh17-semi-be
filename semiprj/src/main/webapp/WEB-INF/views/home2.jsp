@@ -60,7 +60,7 @@
             <div class="summary-icon"><i class="fa-solid fa-file-circle-check"></i></div>
             <div class="summary-title">미결재 문서</div>
             <div class="summary-value">${penddingAppCount}건</div>
-            <a href="#" class="summary-link">결재하러 가기 ></a>
+            <a href="/appr/list" class="summary-link">결재하러 가기 ></a>
         </div>
 
         <div class="summary-card">
@@ -74,7 +74,7 @@
             <div class="summary-icon"><i class="fa-solid fa-calendar-day"></i></div>
             <div class="summary-title">오늘 일정</div>
             <div class="summary-value">${todayEventCount}건</div>
-            <a href="#" class="summary-link">일정보기 ></a>
+            <a href="/event/calendar" class="summary-link">일정보기 ></a>
         </div>
 
        <div class="summary-card attendance-summary" style="display: flex; flex-direction: column; justify-content: space-between; min-height: 200px;">
@@ -149,7 +149,7 @@
                     <div class="card-actions">
 				        <button type="button" class="widget-up">▲</button>
 				        <button type="button" class="widget-down">▼</button>
-				        <a href="#" class="card-more">일정 전체보기 ></a>
+				        <a href="/event/calendarList" class="card-more">일정 전체보기 ></a>
 				    </div>
                 
             </div>
@@ -175,7 +175,7 @@
                 <div class="card-actions">
 		        	<button type="button" class="widget-up">▲</button>
 		        	<button type="button" class="widget-down">▼</button>
-                	<a href="#" class="card-more">></a>
+                	<a href="/event/calendar" class="card-more">></a>
 		    	</div>
             </div>
             <div class="card-body">
