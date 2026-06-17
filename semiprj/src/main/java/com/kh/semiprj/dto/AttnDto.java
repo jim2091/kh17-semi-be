@@ -30,6 +30,7 @@ public class AttnDto {
     private String positionCode;
     private String startDate;
     private String endDate;
+    private String vacReason;
 
     public String getConvertedWorkTime() {
         if (this.attnWorkTime <= 0) {

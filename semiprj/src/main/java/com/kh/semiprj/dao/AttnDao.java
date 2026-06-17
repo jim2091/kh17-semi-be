@@ -100,11 +100,14 @@ public class AttnDao {
         return jdbcTemplate.queryForObject(sql, Double.class, empNo, startDate, endDate);
     }
 
+    /**
+     * 🛠️ 변경 완료: 미출근자(IN_TIME이 NULL)뿐만 아니라, 미퇴근자(OUT_TIME이 NULL)까지 전부 결근 처리
+     */
     public void updateStatusToAbsent() {
         String sql = "UPDATE attn SET "
                    + "  attn_record = '결근' "
                    + "WHERE TRUNC(attn_work_date) = TRUNC(SYSDATE - 1) "
-                   + "  AND attn_in_time IS NULL " 
+                   + "  AND (attn_in_time IS NULL OR attn_out_time IS NULL) " // 💡 핵심 조건 결합 (출근 안 했거나 퇴근 안 했거나)
                    + "  AND emp_no NOT IN ( "
                    + "      SELECT main_app.app_req_id FROM vac_history vh "
                    + "      JOIN app main_app ON vh.app_id = main_app.app_id "
@@ -230,7 +233,6 @@ public class AttnDao {
         jdbcTemplate.update(sql, empNo);
     }
 
-    // 💡 [핵심 추가] 서비스 레이어의 복합 분기 결과('지각-조퇴' 등)를 명확히 갱신하기 위한 전용 메서드
     public void updateLeftEarlyStatus(String empNo, String recordStatus) {
         String sql = "UPDATE attn SET attn_record = ? WHERE emp_no = ? AND TRUNC(attn_work_date) = TRUNC(SYSDATE)";
         jdbcTemplate.update(sql, recordStatus, empNo);

@@ -139,6 +139,10 @@ $(function(){
 			        	<i class="fa-solid fa-user-clock"></i>
 			        	<span>대기 직원 목록</span>
 			        </a>
+			        <a href="/admin/vacList">
+			        	<i class="fa-solid fa-calendar-plus"></i>
+			        	<span>연차 지급</span>
+			        </a>
 				</div>
 			</div>
 	        

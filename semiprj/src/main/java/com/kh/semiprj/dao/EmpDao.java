@@ -24,14 +24,18 @@ public class EmpDao {
 	);
 	
 	public EmpDto selectOne(String empId) {
-		String sql = "select * from emp where emp_id = ?";
+		String sql = "select e.*, d.dept_name as emp_dept_name from emp e "
+				   + "left outer join dept d on e.emp_dept = d.dept_id "
+				   + "where e.emp_id = ?";
 		Object[] params = { empId };
 		List<EmpDto> list = jdbcTemplate.query(sql, empMapper, params);
 		return list.isEmpty() ? null : list.get(0);
 	}
 	
 	public EmpDto selectOneByDetail(String empNo) {
-		String sql = "select * from emp where emp_no = ?";
+		String sql = "select e.*, d.dept_name as emp_dept_name from emp e "
+				   + "left outer join dept d on e.emp_dept = d.dept_id "
+				   + "where e.emp_no = ?";
 		Object[] params = { empNo };
 		List<EmpDto> list = jdbcTemplate.query(sql, empMapper, params);
 		return list.isEmpty() ? null : list.get(0);
@@ -67,9 +71,10 @@ public class EmpDao {
 	}
 	
 	public List<EmpDto> selectListByUser(){
-		String sql = "select * from emp where emp_approval_status= 'Y' "
-				+ "and emp_level != '관리자' "
-				+ "order by emp_no asc";
+		String sql = "select e.*, d.dept_name as emp_dept_name from emp e "
+				   + "left outer join dept d on e.emp_dept = d.dept_id "
+				   + "where e.emp_approval_status= 'Y' and e.emp_level != '관리자' "
+				   + "order by e.emp_no asc";
 		return jdbcTemplate.query(sql, empMapper);
 	}
 	
@@ -77,35 +82,36 @@ public class EmpDao {
 		if(column == null || keyword == null) return selectListByUser();
 		if(column.isEmpty()||keyword.isEmpty()) return selectListByUser();
 		
-
 		if(!allowColumns.contains(column)) return List.of();
-		String sql = "select * from emp "
-				+ "where instr( "+column+", ?) >0 and emp_level != '관리자' "
-						+ "and emp_approval_status= 'Y' "
-						+ "order by "+column+" asc, emp_no asc";
+		String sql = "select e.*, d.dept_name as emp_dept_name from emp e "
+				   + "left outer join dept d on e.emp_dept = d.dept_id "
+				   + "where instr(e."+column+", ?) > 0 and e.emp_level != '관리자' "
+				   + "and e.emp_approval_status= 'Y' "
+				   + "order by e."+column+" asc, e.emp_no asc";
 		Object[] params = {keyword};
 		return jdbcTemplate.query(sql, empMapper, params);
 	}
-	public List<EmpDto> selectListByDept(String deptKeyword){
 
+	public List<EmpDto> selectListByDept(String deptKeyword){
 	    if(deptKeyword == null || deptKeyword.isEmpty()) {
 	        return selectListByUser();
 	    }
 
-	    String sql =
-	            "select * from emp "
-	          + "where emp_dept = ? "
-	          + "and emp_level != '관리자' "
-	          + "and emp_approval_status = 'Y' "
-	          + "order by emp_no asc";
+	    String sql = "select e.*, d.dept_name as emp_dept_name from emp e "
+	               + "left outer join dept d on e.emp_dept = d.dept_id "
+	               + "where e.emp_dept = ? and e.emp_level != '관리자' "
+	               + "and e.emp_approval_status = 'Y' "
+	               + "order by e.emp_no asc";
 
 	    Object[] params = {Integer.parseInt(deptKeyword)};
-
 	    return jdbcTemplate.query(sql, empMapper, params);
 	}
+
 	public List<EmpDto> selectListByAdmin(){
-		String sql = "select * from emp where emp_approval_status= 'Y' "
-				+ "order by emp_no asc";
+		String sql = "select e.*, d.dept_name as emp_dept_name from emp e "
+				   + "left outer join dept d on e.emp_dept = d.dept_id "
+				   + "where e.emp_approval_status= 'Y' "
+				   + "order by e.emp_no asc";
 		return jdbcTemplate.query(sql, empMapper);
 	}
 	
@@ -113,33 +119,29 @@ public class EmpDao {
 		if(column == null || keyword == null) return selectListByAdmin();
 		if(column.isEmpty()||keyword.isEmpty()) return selectListByAdmin();
 		
-
 		if(!allowColumns.contains(column)) return List.of();
-		String sql = "select * from emp "
-				+ "where instr( "+column+", ?) >0 "
-						+ "and emp_approval_status= 'Y' "
-						+ "order by "+column+" asc, emp_no asc";
+		String sql = "select e.*, d.dept_name as emp_dept_name from emp e "
+				   + "left outer join dept d on e.emp_dept = d.dept_id "
+				   + "where instr(e."+column+", ?) > 0 and e.emp_approval_status= 'Y' "
+				   + "order by e."+column+" asc, e.emp_no asc";
 		Object[] params = {keyword};
 		return jdbcTemplate.query(sql, empMapper, params);
 	}
-	public List<EmpDto> selectListByAdminByDept(String deptKeyword){
 
+	public List<EmpDto> selectListByAdminByDept(String deptKeyword){
 	    if(deptKeyword == null || deptKeyword.isEmpty()) {
 	        return selectListByAdmin();
 	    }
 
-	    String sql =
-	            "select * from emp "
-	          + "where emp_dept = ? "
-	          + "and emp_approval_status = 'Y' "
-	          + "order by emp_no asc";
+	    String sql = "select e.*, d.dept_name as emp_dept_name from emp e "
+	               + "left outer join dept d on e.emp_dept = d.dept_id "
+	               + "where e.emp_dept = ? and e.emp_approval_status = 'Y' "
+	               + "order by e.emp_no asc";
 
 	    Object[] params = {Integer.parseInt(deptKeyword)};
-
 	    return jdbcTemplate.query(sql, empMapper, params);
 	}
 	
-	//관리자가 사원정보에서 수정해야할 부분 - 사원권한,사원부서,사원직위,사원담당사수,사원활성화,사원입사일,사원퇴사일
 	public boolean updateByMaster(EmpDto empDto) {
 		String sql = "update emp "
 				+ "set emp_level=?, emp_dept=?, emp_position=?, "
@@ -152,20 +154,19 @@ public class EmpDao {
 				};
 		return jdbcTemplate.update(sql, params)>0;
 	}
-	public void useN(String empNo) {//사원 비활성화 
+
+	public void useN(String empNo) {
 		 String sql = "update emp set emp_use_yn = 'N', emp_approval_status = 'N' where emp_no = ?";
 		 Object[] params = {empNo};
-		    jdbcTemplate.update(sql, params);
+		 jdbcTemplate.update(sql, params);
 	}
 
-	public void useY(String empNo) {//사원 활성화
+	public void useY(String empNo) {
 		 String sql = "update emp set emp_use_yn = 'Y', emp_approval_status= 'Y' where emp_no = ?";
 		 Object[] params = {empNo};
 		 jdbcTemplate.update(sql, params);
 	}
 	
-	
-	//사용자가 변경해야할 정보 : 생년월일, 이메일(인증까지),연락처, 주소
 	public boolean updateByUser(EmpDto empDto) {
 		String sql = "update emp "
 				+ "set emp_birth=?, emp_email=?, emp_contact=?, "
@@ -195,29 +196,27 @@ public class EmpDao {
 		String sql = "insert into emp_profile(emp_no, attach_no) values(?, ?)";
 		Object[] params = {empNo, attachNo};
 		jdbcTemplate.update(sql, params);
-		}
+	}
 	
 	public int searchProfile(String empNo) {
 		String sql = "select attach_no from ("
 				+ "select attach_no from emp_profile where emp_no = ? order by attach_no desc) "
 				+ "where rownum = 1";
 		Object[] params = {empNo};
-		
 		return jdbcTemplate.queryForObject(sql, int.class, params);
 	}
+
 	public EmpDto selectOneByEmpEmail(String empEmail) {
 		String sql = "select * from emp where emp_email=?";
 		Object[] params = {empEmail};
 		List<EmpDto> list = jdbcTemplate.query(sql, empMapper, params);
-			return list.isEmpty() ? null : list.get(0);
+		return list.isEmpty() ? null : list.get(0);
 	}
 	
-	//부서장 이름을 보여주는 메소드
     public EmpDto selectOneDeptHeadId(String empNo) {
     	String sql = "select * from emp where emp_no= ?";
     	Object[]params = {empNo};
     	List<EmpDto> list = jdbcTemplate.query(sql, empMapper, params);
-        
         return list.isEmpty() ? null : list.get(0);
     }
     
@@ -228,40 +227,39 @@ public class EmpDao {
     }
 	
 	public List<EmpDto> searchByName(String keyword) {
-		String sql = "select e.*, "
-				+ "d.dept_name emp_dept_name "
-				+ "from emp e "
-				+ "left join dept d "
-				+ "on e.emp_dept = d.dept_id "
-			+ "where instr(e.emp_name, ?) > 0"
-			+ "and emp_use_yn = 'Y' "
-			+ "order by emp_name asc";
+		String sql = "select e.*, d.dept_name as emp_dept_name from emp e "
+				   + "left join dept d on e.emp_dept = d.dept_id "
+				   + "where instr(e.emp_name, ?) > 0 and emp_use_yn = 'Y' "
+				   + "order by emp_name asc";
 		Object[] params = {keyword};
 		return jdbcTemplate.query(sql, empMapper, params);
 	}
 	
-	
-	//emp-picker용
 	public List<EmpDto> search(String keyword){
 		if (keyword == null || keyword.trim().isEmpty()) {
-			String sql = "select * from emp where emp_use_yn = 'Y'"
-							+ "order by emp_name asc";
+			String sql = "select e.*, d.dept_name as emp_dept_name from emp e "
+					   + "left outer join dept d on e.emp_dept = d.dept_id "
+					   + "where e.emp_use_yn = 'Y' order by e.emp_name asc";
 			return jdbcTemplate.query(sql, empMapper);
 		}
 		
-		String sql = "select * from emp where emp_use_yn = 'Y' and ("
-						+ "instr(emp_no, ?) > 0 or instr(emp_name, ?) > 0 "
-						+ "or instr(emp_dept, ?) > 0 or instr(emp_position, ?) > 0"
-					+ ") order by emp_name asc";
+		String sql = "select e.*, d.dept_name as emp_dept_name from emp e "
+				   + "left outer join dept d on e.emp_dept = d.dept_id "
+				   + "where e.emp_use_yn = 'Y' and ("
+				   + "instr(e.emp_no, ?) > 0 or instr(e.emp_name, ?) > 0 "
+				   + "or instr(e.emp_dept, ?) > 0 or instr(e.emp_position, ?) > 0"
+				   + ") order by e.emp_name asc";
 		Object[] params = {keyword, keyword, keyword, keyword};
-		
 		return jdbcTemplate.query(sql, empMapper, params);
 	}
-	
-	
-	
-	
-	
-	
-	
+
+	public void insertDeptEmp(String empNo, int deptId) {
+	    String sql = "insert into dept_emp(emp_no, dept_id) values(?, ?)";
+	    jdbcTemplate.update(sql, empNo, deptId);
+	}
+
+	public void deleteDeptEmp(String empNo) {
+	    String sql = "delete from dept_emp where emp_no = ?";
+	    jdbcTemplate.update(sql, empNo);
+	}
 }

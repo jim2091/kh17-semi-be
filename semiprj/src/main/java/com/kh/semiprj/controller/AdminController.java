@@ -1,7 +1,9 @@
 package com.kh.semiprj.controller;
 
 import java.sql.Timestamp;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -65,7 +67,8 @@ public class AdminController {
 	@PostMapping("/register")
 	public String register(@ModelAttribute EmpDto empDto) {
 //		System.out.println(empDto);		
-		empDao.insertFromAdmin(empDto);		
+		empDao.insertFromAdmin(empDto);	
+		empDao.insertDeptEmp(empDto.getEmpNo(), empDto.getEmpDept());
 
 		return "redirect:./list";
 		// 홈으로 리다이렉트해놓았는데, 사원목록구현후 사원목록페이지로 리다이렉트할 예정입니다
@@ -146,7 +149,8 @@ public class AdminController {
 		} else {
 			empDto.setEmpRetiredDate(null);
 		}
-
+		empDao.deleteDeptEmp(empDto.getEmpNo());
+		empDao.insertDeptEmp(empDto.getEmpNo(), empDto.getEmpDept());
 		empDao.updateByMaster(empDto);
 		return "redirect:./detail?empNo=" + empDto.getEmpNo();
 	}
@@ -180,6 +184,34 @@ public class AdminController {
 		}
 //		model.addAttribute("list", list);
 		return "admin/waiting_list";
+	}
+	@RequestMapping("/vacList")
+	public String list1(@RequestParam(required = false) String column, 
+						@RequestParam(required = false) String keyword, 
+						@RequestParam(required = false) String deptKeyword,
+						Model model) {
+		
+		List<EmpDto> list;
+		
+		if("emp_dept".equals(column)) {
+	        list = empDao.selectListByAdminByDept(deptKeyword);
+	    }
+	    else {
+	        list = empDao.selectListByAdmin(column, keyword);
+	    }
+		model.addAttribute("list", list);
+
+		// 부서 전체 목록을 가져와서 Map으로 변환
+		List<DeptDto> deptList = deptDao.selectTreeList();
+		Map<Integer, DeptDto> deptMap = new HashMap<>();
+		for(DeptDto deptDto : deptList) {
+			deptMap.put(deptDto.getDeptId(), deptDto);
+		}
+		model.addAttribute("deptMap", deptMap);
+
+		// ================= [이 부분을 수정했습니다] =================
+		// 기존: "admin/vac_list" -> 변경: "admin/vac/vac_list"
+		return "admin/vac/vac_list"; 
 	}
 
 	@RequestMapping("/approval")
@@ -285,5 +317,7 @@ public class AdminController {
 		model.addAttribute("attnList", adminAttnService.getAdminAttendanceList(searchDto, pageVO));
 		return "admin/attn/manage";
 	}
+	
+	
 
 }
