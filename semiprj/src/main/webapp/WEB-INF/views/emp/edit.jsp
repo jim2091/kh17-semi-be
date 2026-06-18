@@ -176,18 +176,7 @@ $(function(){
     var originEmailVerified = $("#originEmailVerified").val();
     var certifiedEmail = null;
     
-    //최초 진입 상태
-    init();
 
-    function init(){
-        //기존 값들 체크
-        checkBirth();
-        checkContact();
-        checkAddress();
-        checkEmail();
-        checkPassword();
-
-    }
 
     //생년월일 검사
     function checkBirth(){
@@ -364,7 +353,7 @@ $(function(){
             state.emailValid = false;
             state.emailCertValid = false;
 
-            $(".btn-cert-send").hide();
+            $(".btn-cert-send").show();
             $(".btn-cert-retry").hide();
             $(".cert-area").empty();
 
@@ -378,7 +367,7 @@ $(function(){
                     .addClass("fail");
             state.emailCertValid = false;
 
-            $(".btn-cenr-send").hide();
+            $(".btn-cenr-send").show();
             $(".btn-cert-retry").hide();
             $(".cert-area").empty();
 
