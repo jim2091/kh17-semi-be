@@ -59,8 +59,11 @@ public class VacService {
 
 	@Transactional(rollbackFor = Exception.class) 
 	public void approveVacationSuccess(int appId, String empNo) {
-
-		VacAppDto vacAppDto = vacAppDao.selectVacOne(appId);
+		
+		// 1. 단건 조회
+		VacAppDto vacAppDto = vacAppDao.selectVacOne(appId); 
+		
+		// [방어 코드] 문서가 없거나 '연차'가 아니라면 즉시 종료
 
 		if (vacAppDto == null || !"연차".equals(vacAppDto.getVacType())) {
 			return;
