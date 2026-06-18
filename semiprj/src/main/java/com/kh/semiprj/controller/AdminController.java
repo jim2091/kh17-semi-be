@@ -117,6 +117,7 @@ public class AdminController {
 	public String edit(@RequestParam String empNo, Model model) {
 		EmpDto empDto = empDao.selectOneByDetail(empNo);
 		model.addAttribute("empDto", empDto);
+		model.addAttribute("deptList",deptDao.selectTreeList());
 		return "admin/edit";
 	}
 
