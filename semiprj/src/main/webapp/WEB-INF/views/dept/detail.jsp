@@ -49,6 +49,7 @@ $(function(){
 			                <th>상위 부서</th>
 			                <th>부서장</th>
 			                <th>개설일</th>
+			                <th>활성화</th>
 			            </tr>
 			        </thead>
 			        <tbody>
@@ -72,6 +73,16 @@ $(function(){
 			                    </a>
 			                </td>
 			                <td><fmt:formatDate value="${deptDto.deptCreateAt}" pattern="yyyy-MM-dd"/></td>
+			                <td>
+							    <c:choose>
+							        <c:when test="${deptDto.deptYn == 'Y'}">
+							            <span style="color: #007bff; font-weight: bold;">활성화</span>
+							        </c:when>
+							        <c:otherwise>
+							            <span style="color: #dc3545; font-weight: bold;">비활성화</span>
+							        </c:otherwise>
+							    </c:choose>
+							</td>
 			            </tr>
 			        </tbody>
 			    </table>

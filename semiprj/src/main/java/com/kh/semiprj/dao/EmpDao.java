@@ -225,6 +225,7 @@ public class EmpDao {
 		return list.isEmpty() ? null : list.get(0);
 	}
 	
+	//부서장 이름 불러오는 메소드
     public EmpDto selectOneDeptHeadId(String empNo) {
     	String sql = "select * from emp where emp_no= ?";
     	Object[]params = {empNo};

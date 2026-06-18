@@ -60,7 +60,9 @@ $(function(){
     };
 	
     setTimeout(function(){
-        $("[name=deptHeadIdKeyword]").trigger("check");
+        if ($("input[name=messageReceiver]").length > 0) {
+            $("[name=deptHeadIdKeyword]").trigger("check");
+        }
     }, 50);
     
     /* 상위 부서 */
@@ -105,7 +107,6 @@ $(function(){
 	    state.deptHeadIdValid = valid;
 	});
 
-    /* 자동완성 */
     /* 자동완성 */
     $("[name=deptHeadIdKeyword]").on("keyup", function(){
         var keyword = $(this).val();
@@ -163,7 +164,6 @@ $(function(){
     }
 
     /* 모달 확인 */
-    /* 모달 확인 (기존 2개 중복된 confirm-btn 이벤트를 지우고 이것 하나만 남겨주세요) */
     $(document).on("click", ".confirm-btn", function(){
         // 바깥 선택 리스트 비우기
         $(".receiver-selected-list").empty();
