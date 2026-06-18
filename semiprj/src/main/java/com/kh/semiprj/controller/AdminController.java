@@ -341,7 +341,6 @@ public class AdminController {
 	    model.addAttribute("lineList", lineList);
 	    model.addAttribute("loginEmpNo", empNo);
 
-	    // [예외 처리] 문서 종류(AppType)가 Null인 경우를 대비한 안전 코드 보정
 	    if (appDto.getAppType() == null) {
 	        return "admin/app/detail";
 	    }
