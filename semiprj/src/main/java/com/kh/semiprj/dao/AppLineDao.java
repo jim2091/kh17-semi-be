@@ -1,26 +1,22 @@
 package com.kh.semiprj.dao;
 
-
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-
 import com.kh.semiprj.dto.AppLineDto;
 import com.kh.semiprj.mapper.AppLineMapper;
-
 import lombok.RequiredArgsConstructor;
 
 @Repository
 @RequiredArgsConstructor
 public class AppLineDao {
+	
     @Autowired
     private JdbcTemplate jdbcTemplate;
     @Autowired
     private AppLineMapper appLineMapper;
-    
     
     
     //결재자 등록 
@@ -68,6 +64,7 @@ public class AppLineDao {
         Object[] params = { appId };
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(AppLineDto.class), params);
     }
+    
     
     // 내가 결재해야 할 목록 (진행중인 것만)
     public List<AppLineDto> selectMyApprList(String empNo) {
