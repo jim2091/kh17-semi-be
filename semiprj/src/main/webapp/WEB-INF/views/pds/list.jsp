@@ -72,7 +72,7 @@
 
                 <tbody>
                     <c:forEach var="pdsDto" items="${list}">
-                        <tr>
+                        <tr align="center" onclick="location.href='./detail?pdsNo=${pdsDto.pdsNo}'" style="cursor:pointer;">
                             <c:if test="${sessionScope.loginRole == '관리자'}">
                                 <td class="gw-check-col">
                                     <input type="checkbox" name="pdsNoList" value="${pdsDto.pdsNo}">
