@@ -192,11 +192,37 @@
 }
 </style>
 
+<script>
+//행 클릭했을때 선택되는 함수
+$(document).ready(function() {
+    
+    // 1. 테이블의 행(tr)을 클릭했을 때 이벤트 발생
+    $(document).on("click", ".emp-result-body tr", function(e) {
+        
+        // 클릭한 요소가 체크박스 자체라면 이중 작동을 막기 위해 함수를 종료합니다.
+        if ($(e.target).is('input[type="checkbox"]')) {
+            return;
+        }
+
+        // 현재 행에 있는 체크박스를 찾습니다.
+        var $checkbox = $(this).find('input[type="checkbox"]');
+        
+        // 체크박스의 체크 상태를 반대로 뒤집습니다. (true -> false / false -> true)
+        var isChecked = !$checkbox.prop('checked');
+        $checkbox.prop('checked', isChecked);
+        
+        // 중요: 기존에 만들어두신 '체크박스 변경 시 실행되는 이벤트'를 강제로 트리거(실행)합니다.
+        $checkbox.trigger('change');
+    });
+
+});
+</script>
+
 <div class="modal-overlay">
 	<div class="emp-picker-modal">
 		
 		<div class="modal-header">
-			<h3>수신자 선택</h3>
+			<h3>사원 선택</h3>
 			<button type="button" class="close-btn">
 				✕
 			</button>
@@ -245,3 +271,4 @@
 	</div>
 	
 </div>
+
