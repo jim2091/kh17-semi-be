@@ -162,23 +162,17 @@ public class AdminController {
 		return "admin/waiting_list";
 	}
 
-	// =========================================================================
-	// 💡 데이터베이스(vac_info)에 실존하는 데이터만 바인딩
-	// =========================================================================
 	@RequestMapping("/vacList")
 	public String list1(Model model) {
-		// 1. DB 연차 정보 테이블(vac_info) 전체를 가져옵니다
 		List<VacInfoDto> vacInfoList = vacDao.selectList(); 
 		List<Map<String, Object>> grantedList = new ArrayList<>();
 		
-		// 부서 아이디 - 부서명 캐싱용 맵 생성
 		List<DeptDto> deptList = deptDao.selectTreeList();
 		Map<Integer, String> deptMap = new HashMap<>();
 		for(DeptDto d : deptList) {
 			deptMap.put(d.getDeptId(), d.getDeptName());
 		}
 		
-		// 2. 루프를 돌며 각 연차의 대상자(사원) 정보와 결합하여 정보 패키징
 		if (vacInfoList != null) {
 			for(VacInfoDto info : vacInfoList) {
 				EmpDto emp = empDao.selectOneByDetail(info.getEmpNo());
@@ -203,7 +197,6 @@ public class AdminController {
 		return "admin/vac/vac_list"; 
 	}
 
-	// 🔎 모달창 내 비동기 사원명 검색을 처리할 Ajax API 라우터
 	@GetMapping("/vac/searchEmp")
 	@ResponseBody
 	public List<Map<String, Object>> searchEmpAjax(@RequestParam String keyword) {
@@ -227,21 +220,20 @@ public class AdminController {
 		return resultList;
 	}
 
-	// =========================================================================
-	// 💡 모달창 지급 시 DB에만 실시간 저장
-	// =========================================================================
 	@PostMapping("/vac/grant")
 	public String vacGrantSubmit(
-			@RequestParam String empNo,
-			@RequestParam int vacYear,
+			@RequestParam("empNoList") List<String> empNoList, 
+			@RequestParam("vacYear") String vacYearStr, 
 			@RequestParam int vacDays, 
 			@RequestParam String vacReason) {
 		
-		vacDao.insertOrUpdateVacation(empNo, vacYear, vacDays, vacReason);
+		String cleanedYear = vacYearStr.replace("'", "").replace("\"", "").trim();
+		int vacYear = Integer.parseInt(cleanedYear); 
+		
+		vacService.grantBulkVacation(empNoList, vacYear, vacDays, vacReason);
 		return "redirect:../vacList";
 	}
 
-	// 💡 체크박스로 선택된 사원 연차 내역을 실제 DB에서 삭제 처리
 	@GetMapping("/vac/removeHistory")
 	public String vacRemoveHistory(@RequestParam(value = "empNoList", required = false) List<String> empNoList) {
 		if (empNoList != null && !empNoList.isEmpty()) {
@@ -293,41 +285,42 @@ public class AdminController {
 		return "admin/history";
 	}
 
-	// [수정 완결] 전자결재 관리자 접근 및 다중 중첩 필터링 연동
-		@RequestMapping("/app/list")
-		public String appList(
-				HttpSession session, 
-				@ModelAttribute PageVO pageVO, 
-				@RequestParam(required = false) String searchEmpName,
-				@RequestParam(required = false) String searchAppType,
-				@RequestParam(required = false) String searchAppStatus,
-				Model model) {
-			
-			String loginId = (String) session.getAttribute("loginId");
-			if (loginId == null) {
-				return "redirect:/login";
-			}
-			
-			int totalCount = appDao.countAll(searchEmpName, searchAppType, searchAppStatus);
-			pageVO.setCount(totalCount); 
-
-			List<AppDto> list = appDao.selectAllList(pageVO, searchEmpName, searchAppType, searchAppStatus);
-			
-			model.addAttribute("list", list);
-			model.addAttribute("pageVO", pageVO); 
-			
-			model.addAttribute("searchEmpName", searchEmpName);
-			model.addAttribute("searchAppType", searchAppType);
-			model.addAttribute("searchAppStatus", searchAppStatus);
-			
-			String searchParams = "searchEmpName=" + (searchEmpName != null ? searchEmpName : "") 
-								+ "&searchAppType=" + (searchAppType != null ? searchAppType : "") 
-								+ "&searchAppStatus=" + (searchAppStatus != null ? searchAppStatus : "");
-			model.addAttribute("searchParams", searchParams);
-
-			return "/admin/app/list";
+	// 🎯 [충돌 해결 완료] 다중 조건 검색 필터링 매개변수 및 페이징 파라미터 온전하게 결합
+	@RequestMapping("/app/list")
+	public String appList(
+			HttpSession session, 
+			@ModelAttribute PageVO pageVO, 
+			@RequestParam(required = false) String searchEmpName,
+			@RequestParam(required = false) String searchAppType,
+			@RequestParam(required = false) String searchAppStatus,
+			Model model) {
+		
+		String loginId = (String) session.getAttribute("loginId");
+		if (loginId == null) {
+			return "redirect:/login";
 		}
-		// 상세
+		
+		int totalCount = appDao.countAll(searchEmpName, searchAppType, searchAppStatus);
+		pageVO.setCount(totalCount); 
+
+		// 원격(origin/main)의 필터링 조건 포함 리스트 조회 연동
+		List<AppDto> list = appDao.selectAllList(pageVO, searchEmpName, searchAppType, searchAppStatus);
+		
+		model.addAttribute("list", list);
+		model.addAttribute("pageVO", pageVO); 
+		
+		model.addAttribute("searchEmpName", searchEmpName);
+		model.addAttribute("searchAppType", searchAppType);
+		model.addAttribute("searchAppStatus", searchAppStatus);
+		
+		String searchParams = "searchEmpName=" + (searchEmpName != null ? searchEmpName : "") 
+							+ "&searchAppType=" + (searchAppType != null ? searchAppType : "") 
+							+ "&searchAppStatus=" + (searchAppStatus != null ? searchAppStatus : "");
+		model.addAttribute("searchParams", searchParams);
+
+		return "/admin/app/list";
+	}
+
 	@RequestMapping("/app/detail")
 	public String detail(Model model, @RequestParam int appId, HttpSession session) {
 	    String loginId = (String) session.getAttribute("loginId");
@@ -345,7 +338,6 @@ public class AdminController {
 	        return "admin/app/detail";
 	    }
 
-	    // 문서 종류에 따라 추가 정보 동적 조회
 	    if ("휴가신청서".equals(appDto.getAppType())) {
 	        VacAppDto vacAppDto = appDao.selectVacByAppId(appId);
 	        model.addAttribute("vacAppDto", vacAppDto);

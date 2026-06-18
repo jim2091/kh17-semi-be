@@ -50,22 +50,27 @@
     color: #dc2626;
 }
 
-/* 하단 정렬 컨테이너 */
+/* 🎯 [디자인 전면 변경] 답답하게 꼬여있던 absolute 구조 전면 폐기 */
 .attn-bottom-wrapper {
-    position: relative;
-    margin-top: 30px;
+    margin-top: 35px;
     padding: 0 10px;
-    height: 45px;
     display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-direction: column; /* 요약 배너를 위로 보내고 페이징/버튼을 아래로 내림 */
+    gap: 24px; /* 1층(배너)과 2층(페이징/버튼) 사이의 확실한 여유 공간 확보 */
+    width: 100%;
 }
 
-/* 왼쪽 배치: 연차 요약 정보 */
-.vac-summary-banner {
-    position: absolute;
-    left: 0;
+/* 🎯 [1층] 요약 배너 영역: 왼쪽 정렬 및 두 배너 간격 최적화 */
+.vac-summary-container {
     display: flex;
+    flex-direction: column;
+    gap: 8px; /* 연차 배너와 휴가 배너 사이 간격 */
+    align-items: flex-start;
+}
+
+/* 요약 배너 공통 디자인 */
+.vac-summary-banner {
+    display: inline-flex;
     align-items: center;
     gap: 12px;
     background: var(--main-light);
@@ -75,20 +80,30 @@
     padding: 10px 16px;
     font-weight: 700;
     font-size: 14px;
+    width: fit-content;
 }
 
 .vac-summary-banner span strong {
-    color: var(--warning-color);
     font-size: 15px;
 }
 
-/* 오른쪽 배치: 휴가원 작성 버튼 */
+/* 🎯 [2층] 페이징 및 버튼 영역을 담는 새 하단 정렬 컨테이너 */
+.action-and-paging-row {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* 페이징은 무조건 가운데 고정 */
+    position: relative;
+    width: 100%;
+    height: 40px;
+}
+
+/* 🎯 [2층 오른쪽] 휴가원 작성 버튼 단독 배치 */
 .btn-vac-action {
     position: absolute;
     right: 0;
 }
 
-/* 가운데 배치: 페이징 디자인 스타일 보정 */
+/* [2층 가운데] 페이징 디자인 스타일 보정 */
 .gw-pagination {
     display: flex;
     align-items: center;
@@ -220,7 +235,6 @@
                                             <c:when test="${dto.attnRecord == '정상근무'}">
                                                 <span class="attn-head status-normal">정상</span>
                                             </c:when>
-                                            <%-- 💡 [변경] 복합 상태인 '지각-조퇴' 결과에 대해서도 경고용 주황색 배지가 적용되도록 조건을 추가했습니다. --%>
                                             <c:when test="${dto.attnRecord == '지각' || dto.attnRecord == '조퇴' || dto.attnRecord == '지각-조퇴'}">
                                                 <span class="attn-head status-warning">${dto.attnRecord}</span>
                                             </c:when>
@@ -249,37 +263,48 @@
     
     <div class="attn-bottom-wrapper">
         
-        <div class="vac-summary-banner">
-            <i class="fa-solid fa-umbrella-beach"></i>
-            <span>총 연차: <strong>${empty vacInfo ? 0 : vacInfo.VAC_TOT}</strong>일</span>
-            <div style="width: 1px; height: 14px; background: var(--card-border);"></div>
-            <span>잔여 연차: <strong style="color: var(--main-color);">${empty vacInfo ? 0 : vacInfo.VAC_CNT}</strong>일</span>
+        <div class="vac-summary-container">
+            <div class="vac-summary-banner">
+                <i class="fa-solid fa-umbrella-beach"></i>
+                <span>총 연차: <strong style="color: var(--warning-color);">${empty vacInfo ? 0 : vacInfo.VAC_TOT}</strong>일</span>
+                <div style="width: 1px; height: 14px; background: var(--card-border);"></div>
+                <span>잔여 연차: <strong style="color: var(--main-color);">${empty vacInfo ? 0 : vacInfo.VAC_CNT}</strong>일</span>
+            </div>
+            
+            <div class="vac-summary-banner">
+                <i class="fa-solid fa-umbrella-beach"></i>
+                <span>총 휴가: <strong style="color: var(--warning-color);">${empty leaveInfo ? 15 : (empty leaveInfo.leaveTot ? leaveInfo.LEAVE_TOT : leaveInfo.leaveTot)}</strong>일</span>
+                <div style="width: 1px; height: 14px; background: var(--card-border);"></div>
+                <span>잔여 휴가: <strong style="color: var(--main-color);">${empty leaveInfo ? 15 : (empty leaveInfo.leaveCnt ? leaveInfo.LEAVE_CNT : leaveInfo.leaveCnt)}</strong>일</span>
+            </div>
         </div>
         
-        <div class="gw-pagination">
-            <c:if test="${pageVO.hasPrevious()}">
-                <a href="/attn/list?page=${pageVO.previousBlock}&year=${search.year}&month=${search.month}" class="page-box">
-                    <i class="fa-solid fa-angle-left"></i>
+        <div class="action-and-paging-row">
+            <div class="gw-pagination">
+                <c:if test="${pageVO.hasPrevious()}">
+                    <a href="/attn/list?page=${pageVO.previousBlock}&year=${search.year}&month=${search.month}" class="page-box">
+                        <i class="fa-solid fa-angle-left"></i>
+                    </a>
+                </c:if>
+    
+                <c:forEach var="i" begin="${pageVO.beginBlock}" end="${pageVO.endBlock}">
+                    <a href="/attn/list?page=${i}&year=${search.year}&month=${search.month}" 
+                       class="page-box ${i == pageVO.page ? 'active' : ''}">${i}</a>
+                </c:forEach>
+    
+                <c:if test="${pageVO.hasNext()}">
+                    <a href="/attn/list?page=${pageVO.nextBlock}&year=${search.year}&month=${search.month}" class="page-box">
+                        <i class="fa-solid fa-angle-right"></i>
+                    </a>
+                </c:if>
+            </div>
+            
+            <div class="btn-vac-action">
+                <a href="/app/vacInsert" class="gw-btn-primary">
+                    <i class="fa-solid fa-file-signature"></i>
+                    <span>휴가원 작성</span>
                 </a>
-            </c:if>
-
-            <c:forEach var="i" begin="${pageVO.beginBlock}" end="${pageVO.endBlock}">
-                <a href="/attn/list?page=${i}&year=${search.year}&month=${search.month}" 
-                   class="page-box ${i == pageVO.page ? 'active' : ''}">${i}</a>
-            </c:forEach>
-
-            <c:if test="${pageVO.hasNext()}">
-                <a href="/attn/list?page=${pageVO.nextBlock}&year=${search.year}&month=${search.month}" class="page-box">
-                    <i class="fa-solid fa-angle-right"></i>
-                </a>
-            </c:if>
-        </div>
-        
-        <div class="btn-vac-action">
-            <a href="/app/vacInsert" class="gw-btn-primary">
-                <i class="fa-solid fa-file-signature"></i>
-                <span>휴가원 작성</span>
-            </a>
+            </div>
         </div>
         
     </div>
