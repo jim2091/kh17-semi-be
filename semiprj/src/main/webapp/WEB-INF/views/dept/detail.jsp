@@ -183,7 +183,8 @@ $(function(){
 			        </a>
 			        <a href="./block?deptId=${deptDto.deptId}"
 			           class="gw-btn-outline"
-			           style="${deptDto.deptYn == 'Y' ? 'color:var(--danger-color); border-color:var(--danger-color);' : 'color:var(--success-color); border-color:var(--success-color);'}">
+			           style="${deptDto.deptYn == 'Y' ? 'color:var(--danger-color); border-color:var(--danger-color);' 
+			           : 'color:var(--success-color); border-color:var(--success-color);'}">
 			            <i class="fa-solid ${deptDto.deptYn == 'Y' ? 'fa-ban' : 'fa-circle-check'}"></i>
 			            ${deptDto.deptYn == 'Y' ? '비활성화' : '활성화'}
 			        </a>
