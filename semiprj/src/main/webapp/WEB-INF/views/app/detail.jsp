@@ -5,134 +5,152 @@
 
 <jsp:include page="/WEB-INF/views/template/header2.jsp"></jsp:include>
 
-<script>
-	$(function() {
-		var savedTheme = localStorage.getItem("gwTheme");
+<style>
+/* 전자결재 상세 페이지 전용 확장 스타일 스킨 */
+.appr-detail-container {
+	margin-bottom: 50px;
+}
 
-		if (savedTheme) {
-			$("body").addClass(savedTheme);
-		} else {
-			$("body").addClass("theme-blue");
-		}
+.appr-info-card {
+	background: white;
+	border-radius: 12px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+	border: 1px solid #e2e8f0;
+	padding: 28px;
+	margin-bottom: 20px;
+}
 
-		$(".theme-btn").click(function() {
-			$(".theme-popup").toggle();
-		});
+.appr-card-title {
+	font-size: 16px;
+	font-weight: 700;
+	color: var(--main-color, #3b82f6);
+	margin: 0 0 16px 0;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	border-bottom: 1px solid #f1f5f9;
+	padding-bottom: 12px;
+}
+/* 대기/진행/완료/반려 뱃지 가공 */
+.status-pill {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 4px 12px;
+	border-radius: 20px;
+	font-size: 12px;
+	font-weight: 700;
+}
 
-		$(".theme-item").click(
-				function() {
-					var theme = $(this).data("theme");
+.status-approve {
+	background: #e8f5e9;
+	color: #2e7d32;
+}
 
-					$("body").removeClass(
-							"theme-blue theme-green theme-purple theme-dark")
-							.addClass(theme);
+.status-reject {
+	background: #ffebee;
+	color: #c62828;
+}
 
-					localStorage.setItem("gwTheme", theme);
+.status-progress {
+	background: #fff8e1;
+	color: #f57f17;
+}
 
-					$(".theme-popup").hide();
-				});
+.status-wait {
+	background: #f1f5f9;
+	color: #64748b;
+}
 
-		$(".check-all").change(function() {
-			$("input[name=pdsNoList]").prop("checked", this.checked);
-		});
+/* 상세 테이블 정밀 튜닝 */
+.appr-detail-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 14px;
+}
 
-		$("input[name=pdsNoList]")
-				.change(
-						function() {
-							$(".check-all")
-									.prop(
-											"checked",
-											$("input[name=pdsNoList]").length == $("input[name=pdsNoList]:checked").length);
-						});
-	});
-</script>
+.appr-detail-table th {
+	padding: 14px 16px;
+	text-align: left;
+	color: #475569;
+	font-weight: 600;
+	background: #f8fafc;
+	border: 1px solid #e2e8f0;
+	width: 130px;
+}
 
-<div style="padding: 30px;">
-	<div class="gw-page-head pds-width">
-		<div class="gw-breadcrumb">홈 / 전자결재 / 상세</div>
+.appr-detail-table td {
+	padding: 14px 16px;
+	color: #334155;
+	border: 1px solid #e2e8f0;
+}
+</style>
+
+
+<div class="pds-width appr-detail-container">
+
+	<!-- 1. 상단 브레드크럼 및 액션 타이틀 플로우 결합 -->
+	<div class="gw-page-head">
+		<div class="gw-breadcrumb">홈 > 전자결재 > 문서상세</div>
+		<div
+			style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+			<h1>결재 문서 상세조회</h1>
+		</div>
 	</div>
 
-
-	<%-- 상단 타이틀 --%>
-	<div
-		style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-		<h2
-			style="margin: 0; font-size: 22px; font-weight: 700; color: var(--main-color);">📄
-			결재문서 상세</h2>
-		<button onclick="location.href='./list'"
-			style="padding: 8px 16px; background: #f0f0f0; color: #333; border: none; border-radius: 6px; font-size: 13px; cursor: pointer;">
-			← 목록으로</button>
-	</div>
-
-	<%-- 문서 기본 정보 --%>
-	<div
-		style="background: white; border-radius: 10px; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08); padding: 24px; margin-bottom: 16px;">
-		<h3
-			style="margin: 0 0 16px 0; font-size: 15px; color: var(--main-color); font-weight: 600;">문서
-			정보</h3>
-		<table
-			style="width: 100%; border-collapse: collapse; font-size: 14px;">
-			<tr style="border-bottom: 1px solid #f0f0f0;">
-				<th
-					style="padding: 12px 16px; text-align: left; color: #888; font-weight: 600; width: 120px; background: #fafafa;">문서종류</th>
-				<td style="padding: 12px 16px;">${appDto.appType}</td>
-				<th
-					style="padding: 12px 16px; text-align: left; color: #888; font-weight: 600; width: 120px; background: #fafafa;">진행상황</th>
-				<td style="padding: 12px 16px;"><c:choose>
+	<!-- 2. 문서 기본 정보 카드 영역 -->
+	<div class="appr-info-card">
+		<h3 class="appr-card-title">
+			<i class="fa-solid fa-file-lines"></i> 문서 기본 정보
+		</h3>
+		<table class="appr-detail-table">
+			<tr>
+				<th>문서종류</th>
+				<td>${appDto.appType}</td>
+				<th>진행상황</th>
+				<td><c:choose>
 						<c:when test="${appDto.appStatus == '승인'}">
-							<span
-								style="background: #e8f5e9; color: #2e7d32; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;">승인</span>
+							<span class="status-pill status-approve">승인</span>
 						</c:when>
 						<c:when test="${appDto.appStatus == '반려'}">
-							<span
-								style="background: #ffebee; color: #c62828; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;">반려</span>
+							<span class="status-pill status-reject">반려</span>
 						</c:when>
 						<c:otherwise>
-							<span
-								style="background: #fff8e1; color: #f57f17; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;">처리중</span>
+							<span class="status-pill status-progress">처리중</span>
 						</c:otherwise>
 					</c:choose></td>
 			</tr>
-			<tr style="border-bottom: 1px solid #f0f0f0;">
-				<th
-					style="padding: 12px 16px; text-align: left; color: #888; font-weight: 600; background: #fafafa;">문서명</th>
-				<td style="padding: 12px 16px;" colspan="3">${appDto.appTitle}</td>
-			</tr>
-			<tr style="border-bottom: 1px solid #f0f0f0;">
-				<th
-					style="padding: 12px 16px; text-align: left; color: #888; font-weight: 600; background: #fafafa;">기안자</th>
-				<td style="padding: 12px 16px;">${appDto.empName}</td>
-				<th
-					style="padding: 12px 16px; text-align: left; color: #888; font-weight: 600; background: #fafafa;">기안일</th>
-				<td style="padding: 12px 16px;">${appDto.appDate}</td>
+			<tr>
+				<th>문서명</th>
+				<td colspan="3" style="font-weight: 600;">${appDto.appTitle}</td>
 			</tr>
 			<tr>
-				<th
-					style="padding: 12px 16px; text-align: left; color: #888; font-weight: 600; background: #fafafa;">내용</th>
-				<td style="padding: 12px 16px;" colspan="3">${appDto.appContent}</td>
+				<th>기안자</th>
+				<td>${appDto.empName}</td>
+				<th>기안일</th>
+				<td>${appDto.appDate}</td>
+			</tr>
+			<tr>
+				<th>기안 내용</th>
+				<td colspan="3" style="line-height: 1.6; padding: 20px 16px;">${appDto.appContent}</td>
 			</tr>
 		</table>
 	</div>
 
+	<!-- 3. 하위 컴포넌트 데이터 연동형 카드 세트 (조건부 렌더링) -->
 	<%-- 휴가신청서 추가 정보 --%>
 	<c:if test="${not empty vacAppDto}">
-		<div
-			style="background: white; border-radius: 10px; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08); padding: 24px; margin-bottom: 16px;">
-			<h3
-				style="margin: 0 0 16px 0; font-size: 15px; color: var(--main-color); font-weight: 600;">
-				휴가 정보</h3>
-			<table
-				style="width: 100%; border-collapse: collapse; font-size: 14px;">
-				<tr style="border-bottom: 1px solid #f0f0f0;">
-					<th
-						style="padding: 12px 16px; text-align: left; color: #888; font-weight: 600; width: 120px; background: #fafafa;">휴가
-						구분</th>
-					<td style="padding: 12px 16px;">${vacAppDto.vacType}</td>
-					<th
-						style="padding: 12px 16px; text-align: left; color: #888; font-weight: 600; width: 120px; background: #fafafa;">휴가
-						기간</th>
-					<td style="padding: 12px 16px;">${vacAppDto.vacStartDate}~
-						${vacAppDto.vacEndDate}</td>
+		<div class="appr-info-card">
+			<h3 class="appr-card-title">
+				<i class="fa-solid fa-umbrella-beach"></i> 휴가 신청 상세 정보
+			</h3>
+			<table class="appr-detail-table">
+				<tr>
+					<th>휴가 구분</th>
+					<td>${vacAppDto.vacType}</td>
+					<th>휴가 기간</th>
+					<td style="font-weight: 600; color: var(--main-color);">${vacAppDto.vacStartDate}
+						~ ${vacAppDto.vacEndDate}</td>
 				</tr>
 			</table>
 		</div>
@@ -140,34 +158,27 @@
 
 	<%-- 품의서 추가 정보 --%>
 	<c:if test="${not empty expAppDto}">
-		<div
-			style="background: white; border-radius: 10px; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08); padding: 24px; margin-bottom: 16px;">
-			<h3
-				style="margin: 0 0 16px 0; font-size: 15px; color: var(--main-color); font-weight: 600;">
-				품의 정보</h3>
-			<table
-				style="width: 100%; border-collapse: collapse; font-size: 14px;">
-				<tr style="border-bottom: 1px solid #f0f0f0;">
-					<th
-						style="padding: 12px 16px; text-align: left; color: #888; font-weight: 600; width: 120px; background: #fafafa;">지출일</th>
-					<td style="padding: 12px 16px;">${expAppDto.expDate}</td>
-					<th
-						style="padding: 12px 16px; text-align: left; color: #888; font-weight: 600; width: 120px; background: #fafafa;">지출금액</th>
-					<td style="padding: 12px 16px;"><fmt:formatNumber
+		<div class="appr-info-card">
+			<h3 class="appr-card-title">
+				<i class="fa-solid fa-coins"></i> 지출 품의 상세 정보
+			</h3>
+			<table class="appr-detail-table">
+				<tr>
+					<th>지출일</th>
+					<td>${expAppDto.expDate}</td>
+					<th>지출금액</th>
+					<td style="font-weight: 700; color: #2e7d32;"><fmt:formatNumber
 							value="${expAppDto.expPrice}" pattern="#,###" />원</td>
 				</tr>
-				<tr style="border-bottom: 1px solid #f0f0f0;">
-					<th
-						style="padding: 12px 16px; text-align: left; color: #888; font-weight: 600; background: #fafafa;">지출내역</th>
-					<td style="padding: 12px 16px;" colspan="3">${expAppDto.expHistory}</td>
+				<tr>
+					<th>지출내역</th>
+					<td colspan="3">${expAppDto.expHistory}</td>
 				</tr>
-				<tr style="border-bottom: 1px solid #f0f0f0;">
-					<th
-						style="padding: 12px 16px; text-align: left; color: #888; font-weight: 600; background: #fafafa;">지출방법</th>
-					<td style="padding: 12px 16px;">${expAppDto.expHow}</td>
-					<th
-						style="padding: 12px 16px; text-align: left; color: #888; font-weight: 600; background: #fafafa;">지출목적</th>
-					<td style="padding: 12px 16px;">${expAppDto.expPurpose}</td>
+				<tr>
+					<th>지출방법</th>
+					<td>${expAppDto.expHow}</td>
+					<th>지출목적</th>
+					<td>${expAppDto.expPurpose}</td>
 				</tr>
 			</table>
 		</div>
@@ -175,85 +186,81 @@
 
 	<%-- 업무기안서 추가 정보 --%>
 	<c:if test="${not empty dftAppDto}">
-		<div
-			style="background: white; border-radius: 10px; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08); padding: 24px; margin-bottom: 16px;">
-			<h3
-				style="margin: 0 0 16px 0; font-size: 15px; color: var(--main-color); font-weight: 600;">
-				업무기안 정보</h3>
-			<table
-				style="width: 100%; border-collapse: collapse; font-size: 14px;">
+		<div class="appr-info-card">
+			<h3 class="appr-card-title">
+				<i class="fa-solid fa-file-signature"></i> 업무 기안 상세 정보
+			</h3>
+			<table class="appr-detail-table">
 				<tr>
-					<th
-						style="padding: 12px 16px; text-align: left; color: #888; font-weight: 600; width: 120px; background: #fafafa;">업무일</th>
-					<td style="padding: 12px 16px;">${dftAppDto.dftDate}</td>
+					<th>업무 예정일</th>
+					<td style="font-weight: 600;">${dftAppDto.dftDate}</td>
 				</tr>
 			</table>
 		</div>
 	</c:if>
 
-	<%-- 결재선 --%>
-	<div
-		style="background: white; border-radius: 10px; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08); padding: 24px;">
-		<h3
-			style="margin: 0 0 16px 0; font-size: 15px; color: var(--main-color); font-weight: 600;">결재선</h3>
-		<table
-			style="width: 100%; border-collapse: collapse; font-size: 14px;">
+	<!-- 4. 결재선 추적 리스트 패널 (인라인 제거 후 리스트형 테이블 완전 동기화) -->
+	<div class="gw-list-panel pds-width" style="margin-top: 24px;">
+		<div class="gw-table-top">
+			<div>
+				<div class="gw-table-title">
+					<i class="fa-solid fa-users-gear"></i> 문서 결재선 상태
+				</div>
+			</div>
+		</div>
+		<table class="gw-table">
 			<thead>
-				<tr style="background: #f8f9fa; border-bottom: 1px solid #eee;">
-					<th
-						style="padding: 12px 16px; text-align: left; color: #555; font-weight: 600;">순서</th>
-					<th
-						style="padding: 12px 16px; text-align: left; color: #555; font-weight: 600;">결재자</th>
-					<th
-						style="padding: 12px 16px; text-align: left; color: #555; font-weight: 600;">부서</th>
-					<th
-						style="padding: 12px 16px; text-align: left; color: #555; font-weight: 600;">직급</th>
-					<th
-						style="padding: 12px 16px; text-align: center; color: #555; font-weight: 600;">상태</th>
-					<th
-						style="padding: 12px 16px; text-align: left; color: #555; font-weight: 600;">결재일</th>
-					<th
-						style="padding: 12px 16px; text-align: left; color: #555; font-weight: 600;">반려사유</th>
+				<tr>
+					<th style="width: 10%;">순서</th>
+					<th style="width: 15%;">결재자</th>
+					<th style="width: 15%;">부서</th>
+					<th style="width: 15%;">직급</th>
+					<th style="width: 15%;">상태</th>
+					<th style="width: 15%;">결재일</th>
+					<th style="width: 15%;">반려사유</th>
 				</tr>
 			</thead>
 			<tbody>
 				<c:forEach var="line" items="${lineList}">
-					<tr style="border-bottom: 1px solid #f0f0f0;">
-						<td style="padding: 12px 16px;">${line.appLineOrder}</td>
-						<td style="padding: 12px 16px;">${line.empName}</td>
-						<td style="padding: 12px 16px; color: #888;">${line.empDept}</td>
-						<td style="padding: 12px 16px; color: #888;">${line.empPosition}</td>
-						<td style="padding: 12px 16px; text-align: center;"><c:choose>
+					<tr>
+						<td><span class="gw-badge" style="background: #64748b;">${line.appLineOrder}순위</span></td>
+						<td style="font-weight: 600;">${line.empName}</td>
+						<td>${line.empDept}</td>
+						<td>${line.empPosition}</td>
+						<td><c:choose>
 								<c:when test="${line.appLineStatus == '완료'}">
-									<span
-										style="background: #e8f5e9; color: #2e7d32; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;">완료</span>
+									<span class="status-pill status-approve">완료</span>
 								</c:when>
 								<c:when test="${line.appLineStatus == '반려'}">
-									<span
-										style="background: #ffebee; color: #c62828; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;">반려</span>
+									<span class="status-pill status-reject">반려</span>
 								</c:when>
 								<c:when test="${line.appLineStatus == '진행중'}">
-									<span
-										style="background: #fff8e1; color: #f57f17; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;">진행중</span>
+									<span class="status-pill status-progress">진행중</span>
 								</c:when>
 								<c:otherwise>
-									<span
-										style="background: #f5f5f5; color: #999; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;">대기</span>
+									<span class="status-pill status-wait">대기</span>
 								</c:otherwise>
 							</c:choose></td>
-						<td style="padding: 12px 16px; color: #888;">${line.appLineDate}</td>
-						<td style="padding: 12px 16px; color: #c62828;">${line.appLineRej}</td>
+						<td class="gw-muted">${not empty line.appLineDate ? line.appLineDate : '-'}</td>
+						<td style="color: #c62828; font-size: 13px;">${not empty line.appLineRej ? line.appLineRej : '-'}</td>
 					</tr>
 				</c:forEach>
 				<c:if test="${empty lineList}">
 					<tr>
-						<td colspan="7"
-							style="padding: 40px; text-align: center; color: #aaa;">
-							결재선이 없습니다.</td>
+						<td colspan="7" class="gw-table-empty"
+							style="padding: 40px; text-align: center; color: #aaa;">지정된
+							결재선 데이터가 실시간 추적되지 않았습니다.</td>
 					</tr>
 				</c:if>
 			</tbody>
 		</table>
+		<div
+			style="display: flex; justify-content: center; margin-top: 35px; width: 100%;">
+			<button onclick="location.href='./list'" class="gw-btn-outline"
+				style="padding: 12px 32px; font-size: 14px; font-weight: 600; cursor: pointer;">
+				<i class="fa-solid fa-arrow-left"></i> 목록으로
+			</button>
+		</div>
 	</div>
 
-</div>
+	<jsp:include page="/WEB-INF/views/template/footer2.jsp"></jsp:include>

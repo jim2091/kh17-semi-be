@@ -22,7 +22,7 @@ $(function(){
 
 <div class="pds-width">
 	<div class="gw-page-head">
-	    <div class="gw-breadcrumb">홈 > 마이페이지 > 로그인 이력</div>
+	    <div class="gw-breadcrumb">홈 / 마이페이지 / 로그인 이력</div>
 	    <h1>로그인 이력</h1>
 	    <p>본인 계정의 전체 로그인 이력을 볼 수 있습니다.</p>
 	</div>
@@ -81,8 +81,8 @@ $(function(){
 		</table>
 		
 		<div class="gw-pagination">
-	  		<jsp:include page="/WEB-INF/views/template/pagination_loginhistory.jsp"></jsp:include>
-		</div>
+            <jsp:include page="/WEB-INF/views/template/pagination.jsp"></jsp:include>
+       </div>
 	</div>
 </div>
 

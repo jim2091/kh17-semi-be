@@ -10,4 +10,5 @@ public class VacInfoDto {
 	private int vacTot;
 	private int vacCnt;
 	private int vacUsed;
+	private String vacReason;
 }
