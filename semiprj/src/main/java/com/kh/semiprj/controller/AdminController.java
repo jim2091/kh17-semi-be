@@ -163,22 +163,19 @@ public class AdminController {
 	}
 
 	// =========================================================================
-	// 💡 데이터베이스(vac_info)에 실존하는 데이터만 바인딩
+	// 데이터베이스(vac_info)에 실존하는 데이터만 바인딩
 	// =========================================================================
 	@RequestMapping("/vacList")
 	public String list1(Model model) {
-		// 1. DB 연차 정보 테이블(vac_info) 전체를 가져옵니다
 		List<VacInfoDto> vacInfoList = vacDao.selectList(); 
 		List<Map<String, Object>> grantedList = new ArrayList<>();
 		
-		// 부서 아이디 - 부서명 캐싱용 맵 생성
 		List<DeptDto> deptList = deptDao.selectTreeList();
 		Map<Integer, String> deptMap = new HashMap<>();
 		for(DeptDto d : deptList) {
 			deptMap.put(d.getDeptId(), d.getDeptName());
 		}
 		
-		// 2. 루프를 돌며 각 연차의 대상자(사원) 정보와 결합하여 정보 패키징
 		if (vacInfoList != null) {
 			for(VacInfoDto info : vacInfoList) {
 				EmpDto emp = empDao.selectOneByDetail(info.getEmpNo());
@@ -203,7 +200,7 @@ public class AdminController {
 		return "admin/vac/vac_list"; 
 	}
 
-	// 🔎 모달창 내 비동기 사원명 검색을 처리할 Ajax API 라우터
+	// 모달창 내 비동기 사원명 검색 처리 Ajax API
 	@GetMapping("/vac/searchEmp")
 	@ResponseBody
 	public List<Map<String, Object>> searchEmpAjax(@RequestParam String keyword) {
@@ -228,20 +225,25 @@ public class AdminController {
 	}
 
 	// =========================================================================
-	// 💡 모달창 지급 시 DB에만 실시간 저장
+	// 🎯 [최종 보정] 따옴표 꼬임 완벽 방어형 일괄 지급 컨트롤러
 	// =========================================================================
 	@PostMapping("/vac/grant")
 	public String vacGrantSubmit(
-			@RequestParam String empNo,
-			@RequestParam int vacYear,
+			@RequestParam("empNoList") List<String> empNoList, 
+			@RequestParam("vacYear") String vacYearStr, // 💡 형변환 예외 방지를 위해 String으로 수신
 			@RequestParam int vacDays, 
 			@RequestParam String vacReason) {
 		
-		vacDao.insertOrUpdateVacation(empNo, vacYear, vacDays, vacReason);
+		// 💡 앞뒤에 혹시 붙어있을지 모를 싱글 쿼테이션(')을 완벽히 제거합니다.
+		String cleanedYear = vacYearStr.replace("'", "").replace("\"", "").trim();
+		int vacYear = Integer.parseInt(cleanedYear); // 안전하게 정수 변환
+		
+		// 서비스 레이어로 다중 안전 처리 연계
+		vacService.grantBulkVacation(empNoList, vacYear, vacDays, vacReason);
 		return "redirect:../vacList";
 	}
 
-	// 💡 체크박스로 선택된 사원 연차 내역을 실제 DB에서 삭제 처리
+	// 체크박스로 선택된 사원 연차 내역 삭제 처리
 	@GetMapping("/vac/removeHistory")
 	public String vacRemoveHistory(@RequestParam(value = "empNoList", required = false) List<String> empNoList) {
 		if (empNoList != null && !empNoList.isEmpty()) {
@@ -307,7 +309,7 @@ public class AdminController {
 
 		List<AppDto> list = appDao.selectAllList(pageVO);
 		model.addAttribute("list", list);
-		model.addAttribute("pageVO", pageVO); // JSP 페이징 바 출력용 추가
+		model.addAttribute("pageVO", pageVO); 
 		return "/admin/app/list";
 	}
 
@@ -325,12 +327,10 @@ public class AdminController {
 	    model.addAttribute("lineList", lineList);
 	    model.addAttribute("loginEmpNo", empNo);
 
-	    // [예외 처리] 문서 종류(AppType)가 Null인 경우를 대비한 안전 코드 보정
 	    if (appDto.getAppType() == null) {
 	        return "admin/app/detail";
 	    }
 
-	    // 문서 종류에 따라 추가 정보 동적 조회
 	    if ("휴가신청서".equals(appDto.getAppType())) {
 	        VacAppDto vacAppDto = appDao.selectVacByAppId(appId);
 	        model.addAttribute("vacAppDto", vacAppDto);

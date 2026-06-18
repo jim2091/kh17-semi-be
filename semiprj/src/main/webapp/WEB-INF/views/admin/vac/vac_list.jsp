@@ -113,7 +113,6 @@
 		gap: 6px;
 	}
 	
-	/* 🎯 스크롤 높이를 살짝 늘리고 직관적인 형태로 스크롤 박스 유지 */
 	.search-result-box {
 		margin-top: 8px;
 		max-height: 160px;
@@ -122,6 +121,10 @@
 		border-radius: 6px;
 		display: none;
 		background: #fafafa;
+		position: absolute;
+		width: 100%;
+		z-index: 10;
+		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 	}
 	.search-result-item {
 		padding: 10px 12px;
@@ -139,24 +142,37 @@
 		font-weight: 600;
 	}
 	
-	.selected-emp-badge {
+	.selected-container {
 		margin-top: 10px;
-		padding: 12px 16px;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 6px;
+		max-height: 120px;
+		overflow-y: auto;
+		padding: 2px;
+	}
+	.selected-emp-badge {
+		padding: 6px 12px;
 		background: #f8fafc;
 		border: 1px solid #e2e8f0;
 		color: #334155;
-		border-radius: 8px;
+		border-radius: 6px;
 		font-weight: 600;
-		display: none;
 		font-size: 13px;
-		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+		display: inline-flex;
 		align-items: center;
-		gap: 8px;
-		animation: fadeIn 0.2s ease-out;
+		gap: 6px;
+		animation: fadeIn 0.15s ease-out;
 	}
-	.selected-emp-badge i {
-		color: #3b82f6; 
+	.selected-emp-badge .btn-remove-selected {
+		cursor: pointer;
+		color: #9ca3af;
 		font-size: 14px;
+		transition: color 0.2s;
+	}
+	.selected-emp-badge .btn-remove-selected:hover {
+		color: #dc2626;
 	}
 	
 	@keyframes fadeIn {
@@ -166,8 +182,9 @@
 </style>
 
 <script>
-// 전역 변수로 사원 전체 리스트 마스터 데이터 보관
+// 전역 변수 설정
 let allEmployees = []; 
+let selectedEmpNos = new Set(); // 중복 선택 방지용 Set 자료구조
 
 $(function(){
     $("#check-all").change(function(){
@@ -191,34 +208,80 @@ $(function(){
         }
     });
 
-    // 🎯 검색 칸을 클릭(포커스)하면 전체 사원 목록 우선 노출
-    $("#modalSearchName").focus(function(){
-    	renderFilteredList(""); 
+    // 연속 선택 클릭 포커스 꼬임 완벽 보정
+    $("#modalSearchName").on("focus click", function(e){
+    	e.stopPropagation(); 
+    	renderFilteredList($(this).val().trim()); 
     });
 
-    // 🎯 사용자가 키보드를 입력할 때마다 실시간 글자 포함 매칭 필터링
+    // 실시간 글자 매칭 필터링
     $("#modalSearchName").on("input", function(){
     	const keyword = $(this).val().trim();
     	renderFilteredList(keyword);
     });
 
-    // 🎯 빈 화면이나 외부 클릭 시 리스트 박스 닫기 제어
-    $(document).mouseup(function(e){
-        const container = $(".form-group");
+    // 외부 영역 클릭 시 검색창 닫기
+    $(document).on("mouseup click", function(e){
+        const container = $(".form-group-search");
         if (!container.is(e.target) && container.has(e.target).length === 0) {
             $("#searchResultBox").hide();
         }
     });
 
-    // 필터링 및 렌더링 핵심 스크립트 기능 정의
+    // 🎯 [토글식 원클릭 처리] 버튼 기능 통합 및 외관 자동 변경 함수
+    function updateToggleButton() {
+        const $btn = $("#btn-toggle-all-emp");
+        
+        // 현재 담긴 인원수와 DB 전체 인원수를 대조하여 상태 분기
+        if (selectedEmpNos.size > 0 && selectedEmpNos.size === allEmployees.length) {
+            $btn.text(" 전체 선택 해제")
+                .css({
+                    "color": "#dc2626",
+                    "border-color": "#fca5a5",
+                    "background-color": "#fff5f5"
+                }).data("state", "clear");
+        } else {
+            $btn.text(" 전체 사원 선택")
+                .css({
+                    "color": "#2563eb",
+                    "border-color": "#bfdbfe",
+                    "background-color": "#eff6ff"
+                }).data("state", "select");
+        }
+    }
+
+    // 버튼 통합 클릭 이벤트 처리
+    $("#btn-toggle-all-emp").click(function(e) {
+        e.preventDefault();
+        if(allEmployees.length === 0) {
+            alert("가져온 사원 데이터가 없습니다.");
+            return;
+        }
+
+        const currentState = $(this).data("state");
+
+        if (currentState === "clear") {
+            // [상태: 해제] 전체 셋 비우기
+            selectedEmpNos.clear();
+            $("#selectedContainer").empty();
+        } else {
+            // [상태: 선택] 전체 한 번에 밀어넣기
+            allEmployees.forEach(emp => {
+                if(!selectedEmpNos.has(emp.empNo)) {
+                    addEmployeeBadge(emp.empNo, emp.empName, emp.empId, emp.deptName);
+                }
+            });
+        }
+        
+        $("#searchResultBox").hide();
+        updateToggleButton(); // 버튼 디자인 실시간 갱신
+    });
+
     function renderFilteredList(keyword) {
     	const $resultBox = $("#searchResultBox");
     	$resultBox.empty();
     	
-    	// 대소문자 구분 없이 비교하기 위해 소문자 변환 처리
     	const searchKeyword = keyword.toLowerCase();
-    	
-    	// 입력값이 없으면 전체 리스트를 보여주고, 입력값이 있으면 해당 이름이 포함된 데이터만 필터링
     	const filtered = allEmployees.filter(emp => {
     		return emp.empName.toLowerCase().includes(searchKeyword);
     	});
@@ -230,17 +293,18 @@ $(function(){
     			const deptInfo = emp.deptName ? " - " + emp.deptName : "";
     			const $item = $('<div class="search-result-item"></div>')
     				.text(emp.empName + " (" + emp.empId + ")" + deptInfo)
-    				.attr("data-no", emp.empNo)
-    				.attr("data-info", emp.empName + " (" + emp.empId + ")" + deptInfo);
+    				.attr("data-no", emp.empNo);
     			
-    			$item.click(function(){
-    				const empNo = $(this).attr("data-no");
-    				const empInfo = $(this).attr("data-info");
+    			$item.off("click").click(function(e){
+    				e.preventDefault();
+    				e.stopPropagation(); 
     				
-    				$("#modalEmpNo").val(empNo);
-    				$("#modalSearchName").val(emp.empName); // 인풋창에 선택한 이름 입력
-    				$("#selectedEmpBadge").html('<i class="fa-solid fa-square-check"></i> 지정된 대상: ' + empInfo).css("display", "flex");
+    				addEmployeeBadge(emp.empNo, emp.empName, emp.empId, emp.deptName);
+    				
+    				// 선택 즉시 인풋 초기화 및 포커스 아웃(blur)시켜 재클릭 인식 구조화
+    				$("#modalSearchName").val("").blur(); 
     				$resultBox.hide();
+                    updateToggleButton(); // 단일 선택 시에도 유기적으로 버튼 추적
     			});
     			$resultBox.append($item);
     		});
@@ -248,33 +312,62 @@ $(function(){
     	$resultBox.show();
     }
 
+    // 다중 선택 뱃지 동적 생성
+    function addEmployeeBadge(empNo, empName, empId, deptName) {
+    	if(selectedEmpNos.has(empNo)) {
+    		return; 
+    	}
+    	
+    	selectedEmpNos.add(empNo);
+    	const deptInfo = deptName ? " - " + deptName : "";
+    	
+    	const $badge = $('<div class="selected-emp-badge" id="badge-' + empNo + '"></div>')
+    		.html('<i class="fa-solid fa-user-check" style="color:#3b82f6;"></i> ' + empName + ' (' + empId + ')' + deptInfo + 
+    		      ' <input type="hidden" name="empNoList" value="' + empNo + '">' + 
+    		      ' <i class="fa-solid fa-xmark btn-remove-selected"></i>');
+    	
+    	$badge.find(".btn-remove-selected").click(function(e){
+    		e.stopPropagation();
+    		selectedEmpNos.delete(empNo);
+    		$badge.remove();
+            updateToggleButton(); // 개별 삭제로 인원 변동 시 상태 실시간 갱신 보정
+    	});
+    	
+    	$("#selectedContainer").append($badge);
+    }
+
+    // 전송 전 유효성 검사
     $("#vacGrantForm").submit(function(e){
-    	if($("#modalEmpNo").val() === "") {
-    		alert("사원을 목록에서 클릭하여 대상을 명확히 지정해 주세요.");
+    	if(selectedEmpNos.size === 0) {
+    		alert("연차를 지급할 대상을 한 명 이상 선택해 주세요.");
     		e.preventDefault();
     		return false;
     	}
     });
+
+    // 모달을 열 때 버튼 상태 초기값 바인딩 세팅 연계
+    window.initVacModalToggle = function() {
+        updateToggleButton();
+    };
 });
 
-// 🎯 모달이 열릴 때 전체 회사 사람 데이터를 단 한 번만 가져와 동적 바인딩 로드
 function openVacGrantModal() {
 	$("#modalSearchName").val("");
-	$("#modalEmpNo").val("");
+	$("#selectedContainer").empty();
+	selectedEmpNos.clear();
 	$("#searchResultBox").hide().empty();
-	$("#selectedEmpBadge").hide().text("");
 	
-	// 전체 목록 조회를 위해 빈 값 또는 사원명 조건으로 최초 1회 전체 Fetch 호출
 	$.ajax({
 		url: "${pageContext.request.contextPath}/admin/vac/searchEmp", 
 		type: "GET",
 		data: { 
 			column: "emp_name", 
-			keyword: "" // 빈 문자열을 보내어 전체 목록 리턴 유도
+			keyword: "" 
 		},
 		success: function(results) {
-			allEmployees = results || []; // 마스터 어레이에 보관
+			allEmployees = results || []; 
 		    document.getElementById("vacGrantModal").style.display = "flex";
+            if(window.initVacModalToggle) window.initVacModalToggle(); // 초기화 트리거 실행
 		},
 		error: function() {
 			alert("사원 목록 데이터를 초기화하는 과정에서 에러가 발생했습니다.");
@@ -377,17 +470,17 @@ window.onclick = function(event) {
         </div>
         
         <form id="vacGrantForm" action="${pageContext.request.contextPath}/admin/vac/grant" method="post">
-        	<input type="hidden" name="empNo" id="modalEmpNo">
         	
             <div class="gw-modal-body">
-                <div class="form-group">
+                <div class="form-group form-group-search" style="position: relative;">
                     <label for="modalSearchName">지급 대상 사원명 검색</label>
-                    <div class="search-input-group">
-                        <!-- 클릭 즉시 전체 표출을 위한 핸들러 연동 전용 인풋 구조 구성 -->
-                    	<input type="text" id="modalSearchName" class="gw-form-input" placeholder="이름을 입력하거나 클릭하세요" autocomplete="off">
+                    <div class="search-input-group" style="display: flex; gap: 6px;">
+                    	<input type="text" id="modalSearchName" class="gw-form-input" style="flex: 1;" placeholder="이름을 입력하거나 클릭하여 추가하세요" autocomplete="off">
+                    	<button type="button" id="btn-toggle-all-emp" class="gw-btn-outline" style="white-space: nowrap; padding: 0 14px; font-size: 13px; font-weight: 600; transition: all 0.2s;"></button>
                     </div>
                     <div class="search-result-box" id="searchResultBox"></div>
-                    <div class="selected-emp-badge" id="selectedEmpBadge"></div>
+                    
+                    <div class="selected-container" id="selectedContainer"></div>
                 </div>
                 
                 <div class="form-group">
@@ -406,7 +499,7 @@ window.onclick = function(event) {
                 
                 <div class="form-group">
                     <label for="vacReason">지급 사유</label>
-                    <input type="text" name="vacReason" id="vacReason" class="gw-form-input" placeholder="변경 사유 입력" required>
+                    <input type="text" name="vacReason" id="vacReason" class="gw-form-input" placeholder="지급 사유 입력" required>
                 </div>
             </div>
             
