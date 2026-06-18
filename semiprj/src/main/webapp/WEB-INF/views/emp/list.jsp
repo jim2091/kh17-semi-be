@@ -38,6 +38,7 @@
 	    font-weight:600;
 	    color:#111827;
 	}
+	
 </style>
 
 <script>
@@ -47,7 +48,7 @@ $(function(){
         if(column === "emp_dept") {
             // 부서 검색 시 기존 텍스트창 name 제거 후 select 박스 활성화
             $("#keyword-input").hide().removeAttr("name");
-            $("#dept-select").show().attr("name", "keyword");
+            $("#dept-select").show().attr("name", "deptKeyword");
         }
         else {
             // 일반 검색 시 select 박스 무력화 후 텍스트 입력창 활성화
@@ -55,7 +56,7 @@ $(function(){
             $("#dept-select").hide().removeAttr("name");
         }
     }
-    toggleSearchInput();
+    toggleSearchInput();	
     $("#column-select").change(toggleSearchInput);
 });
 </script>
@@ -78,7 +79,7 @@ $(function(){
 			
 			<input type="text" name="keyword" id="keyword-input" placeholder="검색어 입력" 
 								class="gw-form-input" value="${param.keyword}">
-			<select name="deptKeyword" id="dept-select" class="gw-form-select" style="display:none;">
+			<select id="dept-select" class="gw-form-select" style="display:none;">
 				<c:forEach var="dept" items="${deptList}">
 			        <option value="${dept.deptId}">${dept.deptName}</option>
 			    </c:forEach>
@@ -107,12 +108,11 @@ $(function(){
 						<th>직위</th>
 						<th>담당사수</th>
 						<th>입사일</th>
-						<th>상세조회</th>
 				</tr>
 			</thead>
 			<tbody>
 				<c:forEach var="empDto" items="${list}">
-					<tr align="center">
+					<tr align="center" onclick="location.href='./detail?empNo=${empDto.empNo}'" style="cursor:pointer;">
 							<td>
 								<div class="emp-name-cell">
 									<img src="/emp/profile?empNo=${empDto.empNo}" class="profile-image">
@@ -124,7 +124,6 @@ $(function(){
 							<td><span class="position-badge">${empDto.empPosition}</span></td>
 							<td>${empDto.empMentor}</td>
 							<td><fmt:formatDate value = "${empDto.empHireDate}" pattern="yyyy.MM.dd"/></td>
-							<td><a href="./detail?empNo=${empDto.empNo}" class="gw-btn-outline">보기</a></td>
 					</tr>
 				</c:forEach>
 				

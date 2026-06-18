@@ -123,6 +123,7 @@ public class AdminController {
 		EmpDto empDto = empDao.selectOneByDetail(empNo);
 		// if(empDto == null) throw new TargetNotfoundException("대상이 존재하지 않습니다");
 		model.addAttribute("empDto", empDto);
+		model.addAttribute("deptList",deptDao.selectTreeList());
 		return "admin/edit";
 	}
 	/*
