@@ -178,13 +178,6 @@
 
 <script>
 $(function(){
-    var savedTheme = localStorage.getItem("gwTheme");
-    if (savedTheme) {
-        $("body").removeClass("theme-blue theme-green theme-purple theme-dark").addClass(savedTheme);
-    } else {
-        $("body").addClass("theme-blue");
-    }
-
     var state = {
         expPriceValid: false, 
         ok: function() {

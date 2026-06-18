@@ -293,25 +293,41 @@ public class AdminController {
 		return "admin/history";
 	}
 
-	// 전자결재 관리자 접근 및 페이징 처리 반영
-	@RequestMapping("/app/list")
-	public String appList(HttpSession session, @ModelAttribute PageVO pageVO, Model model) {
-		String loginId = (String) session.getAttribute("loginId");
-		if (loginId == null) return "redirect:/login";
-		
-		String empLevel = (String) session.getAttribute("empLevel");
-		if (!"관리자".equals(empLevel)) return "redirect:/app/list";
-		
-		int totalCount = appDao.countAll(pageVO);
-		pageVO.setCount(totalCount);
+	// [수정 완결] 전자결재 관리자 접근 및 다중 중첩 필터링 연동
+		@RequestMapping("/app/list")
+		public String appList(
+				HttpSession session, 
+				@ModelAttribute PageVO pageVO, 
+				@RequestParam(required = false) String searchEmpName,
+				@RequestParam(required = false) String searchAppType,
+				@RequestParam(required = false) String searchAppStatus,
+				Model model) {
+			
+			String loginId = (String) session.getAttribute("loginId");
+			if (loginId == null) {
+				return "redirect:/login";
+			}
+			
+			int totalCount = appDao.countAll(searchEmpName, searchAppType, searchAppStatus);
+			pageVO.setCount(totalCount); 
 
-		List<AppDto> list = appDao.selectAllList(pageVO);
-		model.addAttribute("list", list);
-		model.addAttribute("pageVO", pageVO); // JSP 페이징 바 출력용 추가
-		return "/admin/app/list";
-	}
+			List<AppDto> list = appDao.selectAllList(pageVO, searchEmpName, searchAppType, searchAppStatus);
+			
+			model.addAttribute("list", list);
+			model.addAttribute("pageVO", pageVO); 
+			
+			model.addAttribute("searchEmpName", searchEmpName);
+			model.addAttribute("searchAppType", searchAppType);
+			model.addAttribute("searchAppStatus", searchAppStatus);
+			
+			String searchParams = "searchEmpName=" + (searchEmpName != null ? searchEmpName : "") 
+								+ "&searchAppType=" + (searchAppType != null ? searchAppType : "") 
+								+ "&searchAppStatus=" + (searchAppStatus != null ? searchAppStatus : "");
+			model.addAttribute("searchParams", searchParams);
 
-	// 상세 정보 및 결재 문서 종류별 예외 처리 고도화
+			return "/admin/app/list";
+		}
+		// 상세
 	@RequestMapping("/app/detail")
 	public String detail(Model model, @RequestParam int appId, HttpSession session) {
 	    String loginId = (String) session.getAttribute("loginId");
