@@ -7,24 +7,18 @@
 <style>
 .modal {
     display:none;
-
     position:fixed;
     top:0;
     left:0;
-
     width:100%;
     height:100%;
-
     background-color:rgba(0,0,0,0.4);
-
     z-index:9999;
 }
 
 .modal-content{
     width:650px;
-
     background:white;
-
     margin:100px auto;
     padding:20px;
 }
@@ -42,6 +36,47 @@
 
 .togglebox input:checked ~ .fa-eye-slash {
     display:inline-block;
+}
+
+.form-item{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    width:360px;
+}
+
+.success-feedback,
+.fail-feedback{
+    text-align:left;
+    font-size:13px;
+    margin-top:4px;
+}
+.input-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.input-row .gw-form-input{
+    flex:1;
+}
+.form-item:has(.field.success) .success-feedback{
+    display:block;
+}
+
+.form-item:has(.field.fail) .fail-feedback{
+    display:block;
+}
+.form-item .success-feedback,
+.form-item .fail-feedback{
+    display:none;
+}
+.form-item:has(.field.success) .success-feedback{
+    display:block;
+}
+
+.form-item:has(.field.fail) .fail-feedback{
+    display:block;
 }
 </style>
     <link href="https://cdn.jsdelivr.net/npm/lightpick@1.6.2/css/lightpick.min.css" rel="stylesheet">
@@ -259,246 +294,236 @@
     </script>
 </head>
 <body>
-<div class="gw-page-head">
-    <div class="gw-breadcrumb">
-        관리자 > 사원 등록
-    </div>
+<div class="pds-width">
+	<div class="gw-page-head">
+	    <div class="gw-breadcrumb">홈 / 직원관리 / 사원등록</div>
+	    <h1>사원 등록</h1>
+	    <p>신규 사원을 등록합니다.</p>
+	</div>
+	
+	<form action="./register" method="post" autocomplete="off" class="form-check">
+	<div style="
+	    display:grid;
+	    grid-template-columns:280px 1fr;
+	    gap:20px;
+	">
+		<div class="gw-list-panel center">
+	    <img src="https://placehold.co/160x160"
+	         width="160"
+	         height="160"
+	         style="
+	            border-radius:50%;
+	            object-fit:cover;
+	            border:4px solid var(--main-light);
+	         ">
 
-    <h1>사원 등록</h1>
-    <p>신규 직원을 등록합니다.</p>
-</div>
-<form action="./register"
-      method="post"
-      autocomplete="off"
-      class="form-check">
-
-<div style="
-    display:grid;
-    grid-template-columns:280px 1fr;
-    gap:20px;
-">
-<div class="gw-list-panel center">
-
-    <img src="https://placehold.co/160x160"
-         width="160"
-         height="160"
-         style="
-            border-radius:50%;
-            object-fit:cover;
-            border:4px solid var(--main-light);
-         ">
-
-    <h2>신규 사원</h2>
-
-    <div class="gw-muted">
-        등록 전
-    </div>
-
-    <div class="gw-muted">
-        부서 미지정
-    </div>
-
-    <div class="gw-muted">
-        직위 미지정
-    </div>
-
-</div>
-<div class="gw-list-panel">
-
-<table class="gw-table">
-<tbody>
-<tr>
-    <th width="180">사원번호</th>
-    <td>
-    <div style="display:flex; gap:10px;">
-        <input type="text"
-               name="empNo"
-               class="gw-form-input field">
-
-        <div class="success-feedback">
-            사용 가능한 사원번호입니다
-        </div>
-
-        <div class="fail-feedback">
-            <div>숫자로 8자리입니다</div>
-            <div>사원번호가 이미 사용중입니다</div>
-        </div>
-    </div></td>
-</tr>
-<tr>
-    <th>아이디</th>
-    <td>
-        <div style="display:flex; gap:10px;">
-        <input type="text"
-               name="empId"
-               class="gw-form-input field">
-
-        <div class="success-feedback">
-            사용 가능한 아이디입니다
-        </div>
-
-        <div class="fail-feedback">
-            <div>영문 소문자로 시작하며 숫자 포함 5~20글자로 작성하세요</div>
-            <div>아이디가 이미 사용중입니다</div>
-        </div>
-    </div>
-    </td>
-</tr>
-<tr>
-    <th>비밀번호</th>
-    <td>
-    <div style="display:flex; gap:10px;">
-    	<label class="togglebox">
-                <input type="checkbox">
-                <i class="fa-solid fa-eye"></i>
-                <i class="fa-solid fa-eye-slash"></i>
-        </label>
-        <input type="password"
-               name="empPw"
-               class="gw-form-input field">
-
-        <div class="fail-feedback">
-            8~16자의 영문 대/소문자, 숫자, 특수문자를 사용해 주세요.
-        </div>
-        
-    </div>
-    </td>
-</tr>
-<tr>
-    <th>비밀번호 확인</th>
-    <td>
-    <div style="display:flex; gap:10px;">
-        <label class="togglebox">
-                <input type="checkbox">
-                <i class="fa-solid fa-eye"></i>
-                <i class="fa-solid fa-eye-slash"></i>
-        </label>
-        <input type="password"
-               class="gw-form-input password-check field">
-
-        <div class="success-feedback">
-            비밀번호가 일치합니다
-        </div>
-
-        <div class="fail-feedback">
-            비밀번호가 일치하지 않습니다
-        </div>
-        
-    </div>
-    </td>
-</tr>
-<tr>
-    <th>사원명</th>
-    <td>
-    <div style="display:flex; gap:10px;">
-        <input type="text"
-               name="empName"
-               class="gw-form-input field">
-    	<div class="success-feedback"></div>
-        <div class="fail-feedback"></div>
-    </div>
-    </td>
-</tr>
-<tr>
-    <th>생년월일</th>
-    <td>
-    <div style="display:flex; gap:10px;">
-        <input type="text"
-               name="empBirth"
-               class="gw-form-input field">
-    </div>
-    </td>
-</tr>
-<tr>
-    <th>권한</th>
-    <td>
-    <div style="display:flex; gap:10px;">
-        <select name="empLevel"
-                class="gw-form-select field">
-
-            <option>사용자</option>
-            <option>관리자</option>
-
-        </select>
-        <div class="success-feedback"></div>
-        <div class="fail-feedback">필수항목입니다</div>
-    </div>
-    </td>
-</tr>
-<tr>
-    <th>직위</th>
-    <td>
-    <div style="display:flex; gap:10px;">
-        <select name="empPosition"
-                class="gw-form-select field">
-
-            <option>사원</option>
-            <option>선임</option>
-            <option>주임</option>
-            <option>대리</option>
-            <option>과장</option>
-            <option>차장</option>
-            <option>부장</option>
-            <option>이사</option>
-            <option>상무</option>
-            <option>전무</option>
-            <option>부사장</option>
-            <option>사장</option>
-            <option>부회장</option>
-            <option>회장</option>
-
-        </select>
-    	<div class="success-feedback"></div>
-        <div class="fail-feedback">필수항목입니다</div>
-    </div>
-    </td>
-</tr>
-<tr>
-    <th>부서</th>
-    <td>
-    <div style="display:flex; gap:10px;">
-        <select name="empDept" class="gw-form-select field">
-			<c:forEach var="dept" items="${deptList}">
-		        <option value="${dept.deptId}">${dept.deptName}</option>
-		    </c:forEach>
-        </select>
-    <div class="success-feedback"></div>
-    <div class="fail-feedback">필수항목입니다</div>
-    </div>
-    </td>
-</tr>
-<tr>
-    <th>입사일</th>
-    <td>
-    <div style="display:flex; gap:10px;">
-        <input type="text"
-               name="hireDateStr"
-               class="gw-form-input field">
-    </div>
-    </td>
-</tr>
-<tr>
-    <th>담당사수</th>
-    <td>
-
-        <div style="display:flex; gap:10px;">
-
-            <input type="text"
-                   name="empMentor"
-                   class="gw-form-input field">
-
-            <button type="button"
-                    class="gw-btn-outline mentor-search">
-                검색
-            </button>
-
-        </div>
-
-    </td>
-</tr>
+	    <h2>신규 사원</h2>
+	
+	    <div class="gw-muted">
+	        등록 전
+	    </div>
+	
+	    <div class="gw-muted">
+	        부서 미지정
+	    </div>
+	
+	    <div class="gw-muted">
+	        직위 미지정
+	    </div>
+	</div>
+	
+	<div class="gw-list-panel">
+		<table class="gw-table">
+		<tbody>
+			<tr>
+			    <th width="180">사원번호</th>
+			    <td>
+				    <div class="form-item">
+				        <input type="text" name="empNo" class="gw-form-input field">
+				        <div class="success-feedback">사용 가능한 사원번호입니다.</div>
+				        <div class="fail-feedback">
+				            <div>사원번호는 숫자로 8자리입니다.</div>
+				            <div>이미 사용중인 사원번호입니다.</div>
+				        </div>
+				    </div>
+			    </td>
+			</tr>
+		
+			<tr>
+			    <th>아이디</th>
+			    <td>
+			        <div class="form-item">
+			        <input type="text" name="empId" class="gw-form-input field">
+			        <div class="success-feedback">사용 가능한 아이디입니다.</div>
+			        <div class="fail-feedback">
+			            <div>영문 소문자로 시작하며 숫자 포함 5~20글자로 작성하세요.</div>
+			            <div>이미 사용중인 아이디입니다.</div>
+			        </div>
+			    </div>
+			    </td>
+			</tr>
+		
+			<tr>
+			    <th>비밀번호</th>
+			    <td>
+			    <div class="form-item">
+			    	<div class="input-row">
+				        <input type="password"
+				               name="empPw"
+				               class="gw-form-input field">
+				        <label class="togglebox">
+			                <input type="checkbox">
+			                <i class="fa-solid fa-eye"></i>
+			                <i class="fa-solid fa-eye-slash"></i>
+				        </label>
+				    </div>
+			        <div class="fail-feedback">
+			            8~16자의 영문 대/소문자, 숫자, 특수문자를 사용해 주세요.
+			        </div>
+			    </div>
+			    </td>
+			</tr>
+		
+			<tr>
+			    <th>비밀번호 확인</th>
+			    <td>
+			    <div class="form-item">
+			   		<div class="input-row field">
+				        <input type="password" class="gw-form-input password-check field">
+						<label class="togglebox">
+			                <input type="checkbox">
+			                <i class="fa-solid fa-eye"></i>
+			                <i class="fa-solid fa-eye-slash"></i>
+				        </label>
+				    </div>
+			        <div class="success-feedback">
+			            비밀번호가 일치합니다.
+			        </div>
+			        <div class="fail-feedback">
+			            비밀번호가 일치하지 않습니다.
+			        </div>
+			    </div>
+			    </td>
+			</tr>
+		
+		<tr>
+		    <th>사원명</th>
+		    <td>
+		    <div class="form-item">
+		        <input type="text"
+		               name="empName"
+		               class="gw-form-input field">
+		    	<div class="success-feedback"></div>
+		        <div class="fail-feedback">필수 입력 항목입니다.</div>
+		    </div>
+		    </td>
+		</tr>
+		
+		<tr>
+		    <th>생년월일</th>
+		    <td>
+		    <div style="display:flex; gap:10px;">
+		        <input type="text"
+		               name="empBirth"
+		               class="gw-form-input field">
+		    </div>
+		    </td>
+		</tr>
+		
+		<tr>
+		    <th>권한</th>
+		    <td>
+		    <div style="display:flex; gap:10px;">
+		        <select name="empLevel"
+		                class="gw-form-select field">
+		
+		            <option>사용자</option>
+		            <option>관리자</option>
+		
+		        </select>
+		        <div class="success-feedback"></div>
+		        <div class="fail-feedback">필수항목입니다</div>
+		    </div>
+		    </td>
+		</tr>
+		
+		<tr>
+		    <th>직위</th>
+		    <td>
+		    <div style="display:flex; gap:10px;">
+		        <select name="empPosition"
+		                class="gw-form-select field">
+		
+		            <option>사원</option>
+		            <option>선임</option>
+		            <option>주임</option>
+		            <option>대리</option>
+		            <option>과장</option>
+		            <option>차장</option>
+		            <option>부장</option>
+		            <option>이사</option>
+		            <option>상무</option>
+		            <option>전무</option>
+		            <option>부사장</option>
+		            <option>사장</option>
+		            <option>부회장</option>
+		            <option>회장</option>
+		
+		        </select>
+		    	<div class="success-feedback"></div>
+		        <div class="fail-feedback">필수항목입니다</div>
+		    </div>
+		    </td>
+		</tr>
+		
+		<tr>
+		    <th>부서</th>
+		    <td>
+		    <div style="display:flex; gap:10px;">
+		        <select name="empDept" class="gw-form-select field">
+					<c:forEach var="dept" items="${deptList}">
+				        <option value="${dept.deptId}">${dept.deptName}</option>
+				    </c:forEach>
+		        </select>
+		    <div class="success-feedback"></div>
+		    <div class="fail-feedback">필수항목입니다</div>
+		    </div>
+		    </td>
+		</tr>
+		
+		<tr>
+		    <th>입사일</th>
+		    <td>
+		    <div style="display:flex; gap:10px;">
+		        <input type="text"
+		               name="hireDateStr"
+		               class="gw-form-input field">
+		    </div>
+		    </td>
+		</tr>
+		
+		<tr>
+		    <th>담당사수</th>
+		    <td>
+		
+		        <div style="display:flex; gap:10px;">
+		
+		            <input type="text"
+		                   name="empMentor"
+		                   class="gw-form-input field">
+		
+		            <button type="button"
+		                    class="gw-btn-outline mentor-search">
+		                검색
+		            </button>
+		
+		        </div>
+		
+		    </td>
+		</tr>
 </tbody>
 </table>
-
+</div>
 </div>
 </div>
 <div class="mt-30"
@@ -523,6 +548,7 @@
 
 </div>
 </form>
+
 <div class="container modal">
     <div class="modal-content">
     	<div class="gw-page-head"
@@ -544,24 +570,5 @@
 </div>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 <jsp:include page="/WEB-INF/views/template/footer2.jsp"></jsp:include>
