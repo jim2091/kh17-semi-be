@@ -413,6 +413,7 @@ $(function(){
 		<div class="form-group">
 			<label>결재자 설정<span class="required">*</span></label>
 			<div class="approval-row-flex">
+
 				<div class="appr-box-item">
 					<span class="appr-badge gold">1순위</span> <input type="text"
 						id="approverDisplay_1" class="input-field" placeholder="미지정"
@@ -420,7 +421,8 @@ $(function(){
 						name="approver1" value=""> <input type="hidden"
 						id="approverName_1" name="approverName1" value=""> <input
 						type="hidden" id="approverLevel_1" name="approverLevel1" value="">
-					<input type="hidden" id="approverDept_1" value="">
+					<input type="hidden" id="approverDept_1" value=""> <input
+						type="hidden" id="approverPositionLevel_1" value="">
 				</div>
 
 				<div class="appr-box-item">
@@ -430,7 +432,8 @@ $(function(){
 						name="approver2" value=""> <input type="hidden"
 						id="approverName_2" name="approverName2" value=""> <input
 						type="hidden" id="approverLevel_2" name="approverLevel2" value="">
-					<input type="hidden" id="approverDept_2" value="">
+					<input type="hidden" id="approverDept_2" value=""> <input
+						type="hidden" id="approverPositionLevel_2" value="">
 				</div>
 
 				<div class="appr-box-item">
@@ -440,7 +443,8 @@ $(function(){
 						name="approver3" value=""> <input type="hidden"
 						id="approverName_3" name="approverName3" value=""> <input
 						type="hidden" id="approverLevel_3" name="approverLevel3" value="">
-					<input type="hidden" id="approverDept_3" value="">
+					<input type="hidden" id="approverDept_3" value=""> <input
+						type="hidden" id="approverPositionLevel_3" value="">
 				</div>
 
 				<button type="button" class="btn-search-unified"
@@ -458,10 +462,10 @@ $(function(){
 				placeholder="상세 사유를 기입해 주세요.">
 		</div>
 
-	<div class="form-group">
-    <label>기안일</label> 
-    <input type="text" name="appDate" class="input-field" readonly>
-</div>
+		<div class="form-group">
+			<label>기안일</label> <input type="text" name="appDate"
+				class="input-field" readonly>
+		</div>
 
 		<div class="form-group">
 			<label>휴가 시작일<span class="required">*</span></label> <input

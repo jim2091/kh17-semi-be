@@ -3,6 +3,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
 <style>
+/* 기존 CSS 스타일 시트와 완전히 동일 (코드 가독성을 위해 CSS 생략) */
 .modal-overlay {
 	display: none;
 	position: fixed;
@@ -198,18 +199,13 @@
 }
 </style>
 
-
-
 <div class="modal-overlay">
 	<div class="emp-picker-modal">
-
-		<%-- 헤더 --%>
 		<div class="modal-header">
 			<h3>전자결재자 선택</h3>
 			<button type="button" class="close-btn">✕</button>
 		</div>
 
-		<%-- 선택된 결재자 목록 --%>
 		<div class="selected-emp-area">
 			<div class="selected-title">
 				결재자 (<span class="selected-count">0</span> / 3명)
@@ -217,14 +213,12 @@
 			<div class="selected-list"></div>
 		</div>
 
-		<%-- 검색창 (클래스명 중복 간섭 원천 배제) --%>
 		<div class="search-area">
 			<input type="text" class="keyword-appr"
 				placeholder="이름 또는 부서 입력 (빈 값 조회 시 전체 출력)">
 			<button type="button" class="search-emp-btn-appr">🔍 검색</button>
 		</div>
 
-		<%-- 검색 결과 --%>
 		<div class="search-emp-result">
 			<table class="emp-table">
 				<thead>
@@ -238,18 +232,16 @@
 				</thead>
 				<tbody class="emp-result-body">
 					<tr>
-						<td colspan="5" class="empty-result"></td>
+						<td colspan="5" class="empty-result">조회 버튼을 누르면 사원 목록이 출력됩니다.</td>
 					</tr>
 				</tbody>
 			</table>
 		</div>
 
-		<%-- 푸터 --%>
 		<div class="modal-footer">
 			<button type="button" class="cancel-btn">취소</button>
 			<button type="button" class="confirm-btn">선택 완료</button>
 		</div>
-
 	</div>
 </div>
 
@@ -264,7 +256,7 @@
     const selectedList  = document.querySelector('.selected-list');
     const selectedCount = document.querySelector('.selected-count');
 
-    // 1. 모달 오픈 핸들러 ([버그 수정] 부서 데이터 수집 필드 복구 연동)
+    // 1. 모달 오픈 핸들러
     window.openApproverPopup = function(index) {
         internalApprovers = [];
         keyword.value = '';
@@ -274,14 +266,16 @@
             const noField = document.getElementById('approverNo_' + i);
             const nameField = document.getElementById('approverName_' + i);
             const levelField = document.getElementById('approverLevel_' + i);
-            const deptField = document.getElementById('approverDept_' + i); // [수정] hidden 부서 캐싱 필드 참조
+            const deptField = document.getElementById('approverDept_' + i);
+            const rawLvlField = document.getElementById('approverPositionLevel_' + i); // 부모창에 가중치를 숨겨둘 hidden 필드가 필요할 수 있습니다.
             
             if (noField && noField.value) {
                 internalApprovers.push({
                     empNo: noField.value,
                     empName: nameField ? nameField.value : '',
                     empPosition: levelField ? levelField.value : '사원',
-                    empDept: deptField ? deptField.value : '소속없음' // [수정] undefined 방어 단선 매핑
+                    empDept: deptField ? deptField.value : '소속없음',
+                    positionLevel: rawLvlField ? parseInt(rawLvlField.value, 10) : 0 // 기본값 0 방어선
                 });
             }
         }
@@ -320,7 +314,10 @@
 
     // 3. 가선택 단건 삭제
     function removeTargetEmp(empNo) {
+        // [버그 방지] 중간 순위가 빠지면 뒤에 순서가 당겨져야 하므로 정석 필터 후 재검색 시 초기화 방어
         internalApprovers = internalApprovers.filter(item => item.empNo !== empNo);
+        
+        // 검색 결과 창 내 체크박스 동기화 해제
         const chk = resultBody.querySelector('.appr-modal-check[data-no="' + empNo + '"]');
         if (chk) {
             chk.checked = false;
@@ -329,7 +326,7 @@
         updateSelectedView();
     }
 
-    // 4. 비동기 검색 통신
+    // 4. 비동기 검색 통신 ([변경] data-level 속성 추가 바인딩)
     function executeSearch() {
         const kw = keyword.value.trim();
         let url = '${pageContext.request.contextPath}/app/searchApprover?keyword=' + encodeURIComponent(kw);
@@ -347,7 +344,8 @@
                     const isChecked = internalApprovers.some(item => item.empNo === emp.empNo);
                     
                     html += '<tr class="appr-emp-row" style="' + (isChecked ? 'background: #e8f5e9;' : '') + '">';
-                    html += '<td><input type="checkbox" class="appr-modal-check" data-no="' + emp.empNo + '" data-name="' + emp.empName + '" data-position="' + (emp.empPosition || '사원') + '" data-dept="' + (emp.empDept || '소속없음') + '"' + (isChecked ? ' checked' : '') + '></td>';
+                    // [핵심 변경] data-level 속성에 DB에서 뽑아온 실제 서열 숫자(positionLevel)를 담아줍니다.
+                    html += '<td><input type="checkbox" class="appr-modal-check" data-no="' + emp.empNo + '" data-name="' + emp.empName + '" data-position="' + (emp.empPosition || '사원') + '" data-dept="' + (emp.empDept || '소속없음') + '" data-level="' + (emp.positionLevel || 0) + '"' + (isChecked ? ' checked' : '') + '></td>';
                     html += '<td>' + emp.empNo + '</td>';
                     html += '<td>' + emp.empName + '</td>';
                     html += '<td>' + (emp.empPosition || '사원') + '</td>';
@@ -361,8 +359,15 @@
                         const checkbox = row.querySelector('.appr-modal-check');
                         if (e.target !== checkbox) {
                             checkbox.checked = !checkbox.checked;
+                            handleCheckState(checkbox); // [버그 수정] TR 클릭 시 검증 함수로 우회 유도
                         }
-                        handleCheckState(checkbox);
+                    });
+                });
+                
+                // [추가] 체크박스 자체 직접 클릭 인터셉트 추가 방어
+                resultBody.querySelectorAll('.appr-modal-check').forEach(function(chk) {
+                    chk.addEventListener('change', function() {
+                        handleCheckState(chk);
                     });
                 });
             })
@@ -371,31 +376,56 @@
             });
     }
 
-    // 5. 체크박스 선택 순서 누적 제어
+ // 5. [동급 허용 반영] 체크박스 선택 시 직급 서열 순서 유효성 검증
     function handleCheckState(chk) {
         const empNo = chk.getAttribute('data-no');
         const empName = chk.getAttribute('data-name');
         const empPosition = chk.getAttribute('data-position');
         const empDept = chk.getAttribute('data-dept');
+        const positionLevel = parseInt(chk.getAttribute('data-level'), 10); // 내 직급 서열 (예: 4)
         const row = chk.closest('tr');
 
         if (chk.checked) {
+            // 인원 한도 체크
             if (internalApprovers.length >= MAX_APPROVERS) {
+                alert("결재자는 최대 3명까지만 지정할 수 있습니다.");
                 chk.checked = false;
                 return;
             }
-            internalApprovers.push({ empNo, empName, empPosition, empDept });
+
+            // [직급 서열 순차 규칙 검증 바리케이드]
+            if (internalApprovers.length > 0) {
+                // 현재 누적 선택된 결재자 리스트의 가장 마지막 사람 정보를 가져옵니다.
+                const lastApprover = internalApprovers[internalApprovers.length - 1];
+                
+                // [수정 핵심] '<=' 에서 '<' 로 변경! 
+                // 내 직급 레벨이 마지막 사람의 직급 레벨보다 '엄격히 낮을 때'만 차단합니다. (동급은 패스)
+                if (positionLevel < lastApprover.positionLevel) {
+                    alert("⚠️ 결재자 직급 지정 요건 위반\n\n현재 최종 결재선 대기자 [" + lastApprover.empName + " " + lastApprover.empPosition + "] 보다\n높은 직위의 직원만 다음 결재자로 추가할 수 있습니다.\n(동일 직급은 지정 가능)");
+                    chk.checked = false;
+                    row.style.background = '';
+                    return; // 담지 않고 엔진 이탈
+                }
+            }
+
+            internalApprovers.push({ empNo, empName, empPosition, empDept, positionLevel });
             row.style.background = '#e8f5e9';
         } else {
+            // 체크 해제 프로세스
+            if (internalApprovers.length > 0 && internalApprovers[internalApprovers.length - 1].empNo !== empNo) {
+                alert("결재선 정렬 무결성을 유지하기 위해, 마지막 순위 결재자부터 순서대로 취소해 주세요.");
+                chk.checked = true; // 체크박스 상태 롤백
+                return;
+            }
             internalApprovers = internalApprovers.filter(item => item.empNo !== empNo);
             row.style.background = '';
         }
         updateSelectedView();
     }
-
-    // 6. 부모 폼 일괄 바인딩 
+    // 6. 부모 폼 일괄 바인딩 (기존 로직 유지)
     document.querySelector('.confirm-btn').addEventListener('click', function(){
         if (internalApprovers.length === 0) {
+            alert("최소 1명 이상의 결재자를 선택하셔야 상신이 가능합니다.");
             return; 
         }
 
@@ -405,12 +435,14 @@
             const lvlField  = document.getElementById('approverLevel_' + i);
             const dspField  = document.getElementById('approverDisplay_' + i);
             const deptField = document.getElementById('approverDept_' + i);
+            const rawLvlField = document.getElementById('approverPositionLevel_' + i); // 가중치 hidden 필드 세트
 
             if (noField)   noField.value = '';
             if (nameField) nameField.value = '';
             if (lvlField)  lvlField.value = '';
             if (dspField)  dspField.value = '';
             if (deptField) deptField.value = '';
+            if (rawLvlField) rawLvlField.value = '';
         }
 
         internalApprovers.forEach(function(emp, index) {
@@ -421,11 +453,13 @@
             const lvlField  = document.getElementById('approverLevel_' + order);
             const dspField  = document.getElementById('approverDisplay_' + order);
             const deptField = document.getElementById('approverDept_' + order);
+            const rawLvlField = document.getElementById('approverPositionLevel_' + order);
 
             if (noField)   noField.value = emp.empNo;
             if (nameField) nameField.value = emp.empName;
             if (lvlField)  lvlField.value = emp.empPosition;
-            if (deptField) deptField.value = emp.empDept; // [수정] 부서 캐싱 동기화 (재진입 시 undefined 방쇄용)
+            if (deptField) deptField.value = emp.empDept;
+            if (rawLvlField) rawLvlField.value = emp.positionLevel; // 모달을 재진입했을 때 검증선 복구를 위해 hidden 백업 완료
             
             if (dspField) {
                 dspField.value = emp.empName + " / " + emp.empDept + " / " + emp.empPosition;
@@ -447,7 +481,4 @@
     });
 
 })();
-
-
-
 </script>

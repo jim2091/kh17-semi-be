@@ -37,7 +37,7 @@ public class AppDao {
         return seq != null ? seq : 0;
     }   
     
- // 1. 관리자 결재 전체 목록/검색 통합 조회 (요청하신 파라미터 매핑 스타일 반영)
+ // 1. 관리자 결재 전체 목록/검색 통합 조회 (최근 결재순 정렬 고도화)
     public List<AppDto> selectAllList(PageVO pageVO) {
         // [검색일 때]
         if (pageVO.isSearch()) {
@@ -46,7 +46,7 @@ public class AppDao {
                        + "      select a.*, e.emp_name from app a "
                        + "      join emp e on a.app_req_id = e.emp_no "
                        + "      where " + pageVO.getColumn() + " like '%' || ? || '%' "
-                       + "      order by a.app_id desc"
+                       + "      order by a.app_id desc" // [수정] asc -> desc로 변경하여 최근 결재부터 정렬
                        + "  ) TMP"
                        + ") where RN between ? and ?";
             
@@ -63,7 +63,7 @@ public class AppDao {
                        + "  select rownum RN, TMP.* FROM ("
                        + "      select a.*, e.emp_name from app a "
                        + "      join emp e on a.app_req_id = e.emp_no "
-                       + "      order by a.app_id desc"
+                       + "      order by a.app_id desc" // 기존 desc 유지 완벽
                        + "  ) TMP"
                        + ") where RN between ? and ?";
             
@@ -75,7 +75,7 @@ public class AppDao {
         }
     }
 
-    // 2. 페이징 네비게이터를 위한 전체 카운트 메서드 (동일한 플로우 적용)
+    // 2. 페이징 네비게이터를 위한 전체 카운트 메서드 (기존 유지)
     public int countAll(PageVO pageVO) {
         if (pageVO.isSearch()) {
             String sql = "select count(*) from app a join emp e on a.app_req_id = e.emp_no "
@@ -89,7 +89,6 @@ public class AppDao {
             return jdbcTemplate.queryForObject(sql, Integer.class);
         }
     }
-
 	// app_type 페이징
 	public List<AppDto> selectByAppTypeList(PageVO pageVO) {
 		if (pageVO == null) {
@@ -431,37 +430,42 @@ public class AppDao {
     }
 
     
-    // picker를 사용하기 위한 메소드 (AI)
+ // picker를 사용하기 위한 메소드 (오직 직급레벨 순서 최우선 정렬)
     public List<Map<String, Object>> searchApproverForPicker(String keyword, List<String> excludes) {
-    	String sql = "select e.emp_no, e.emp_name, e.emp_position, d.dept_name as emp_dept "
-    	           + "from emp e "
-    	           + "left join dept d on to_number(e.emp_dept) = d.dept_id "  // ← to_number
-    	           + "where e.emp_use_yn = 'Y' "
-    	           + "and (e.emp_name like ? or d.dept_name like ?) ";
-    	
-    	List<Object> params = new ArrayList<>();
-    	params.add("%" + keyword + "%");
-    	params.add("%" + keyword + "%");
-    	
-    	if (excludes != null && !excludes.isEmpty()) {
-    		String placeholders = excludes.stream()
-    				.map(e -> "?")
-    				.collect(java.util.stream.Collectors.joining(", "));
-    		sql += "and emp_no not in (" + placeholders + ") ";
-    		params.addAll(excludes);
-    	}
-    	
-    	sql += "order by emp_dept, emp_name";
-    	
-    	return jdbcTemplate.query(sql, (rs, rn) -> {
-    		Map<String, Object> map = new HashMap<>();
-    		map.put("empNo",       rs.getString("emp_no"));
-    		map.put("empName",     rs.getString("emp_name"));
-    		map.put("empPosition", rs.getString("emp_position"));
-    		map.put("empDept",     rs.getString("emp_dept"));
-    		map.put("positionLevel", 0);
-    		return map;
-    	}, params.toArray());
+        String sql = "select e.emp_no, e.emp_name, e.emp_position, d.dept_name as emp_dept, p.position_level "
+                   + "from emp e "
+                   + "left join dept d on to_number(e.emp_dept) = d.dept_id "
+                   + "left join position_item p on e.position_id = p.position_id "
+                   + "where e.emp_use_yn = 'Y' "
+                   + "and (e.emp_name like ? or d.dept_name like ?) ";
+        
+        List<Object> params = new ArrayList<>();
+        params.add("%" + keyword + "%");
+        params.add("%" + keyword + "%");
+        
+        if (excludes != null && !excludes.isEmpty()) {
+            String placeholders = excludes.stream()
+                    .map(e -> "?")
+                    .collect(java.util.stream.Collectors.joining(", "));
+            sql += "and e.emp_no not in (" + placeholders + ") ";
+            params.addAll(excludes);
+        }
+        
+        // [핵심 수정] 부서명을 1순위에서 제거하고, 오직 직급 낮은 순(asc) -> 이름 순으로 확실하게 줄 세웁니다.
+        // NULL 값(직급 없는 사람)은 오라클 관례상 맨 뒤로 밀어버립니다 (NULLS LAST).
+        sql += "order by p.position_level asc nulls last, e.emp_name asc";
+        
+        return jdbcTemplate.query(sql, (rs, rn) -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("empNo",       rs.getString("emp_no"));
+            map.put("empName",     rs.getString("emp_name"));
+            map.put("empPosition", rs.getString("emp_position"));
+            map.put("empDept",     rs.getString("emp_dept"));
+            
+            int level = rs.getInt("position_level");
+            map.put("positionLevel", rs.wasNull() ? 99 : level); // 컨트롤러 방어선과 일치하도록 99 부여
+            return map;
+        }, params.toArray());
     }
     
  // 특정 결재 문서의 기안자 사원번호 조회
