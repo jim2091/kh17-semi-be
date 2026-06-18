@@ -225,6 +225,7 @@ public class EmpDao {
 		return list.isEmpty() ? null : list.get(0);
 	}
 	
+	//부서장 이름 불러오는 메소드
     public EmpDto selectOneDeptHeadId(String empNo) {
     	String sql = "select * from emp where emp_no= ?";
     	Object[]params = {empNo};
@@ -275,6 +276,13 @@ public class EmpDao {
 	public void deleteDeptEmp(String empNo) {
 	    String sql = "delete from dept_emp where emp_no = ?";
 	    jdbcTemplate.update(sql, empNo);
+	}
+	
+	// 부서장인지
+	public boolean isManager(String empNo) {
+		String sql = "select count(*) from dept where dept_head_id = ? ";
+		int count = jdbcTemplate.queryForObject(sql, int.class, empNo);
+		return count > 0;
 	}
 
 }

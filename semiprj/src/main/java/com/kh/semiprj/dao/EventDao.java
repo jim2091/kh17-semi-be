@@ -68,11 +68,11 @@ public class EventDao {
 	public boolean update(EventDto eventDto) {
 	    String sql = "update event set event_title = ?, "
 	    				+ "event_content = ?, event_start = ?, event_end = ?, "
-	    				+ "event_category = ?, event_option=?, event_color=? where event_no = ?";
+	    				+ "event_option=?, event_color=? where event_no = ?";
 	    Object[] params = {
 	    		eventDto.getEventTitle(), eventDto.getEventContent(), 
 		        eventDto.getEventStart(), eventDto.getEventEnd(), 
-		        eventDto.getEventCategory(), eventDto.getEventOption(), 
+		        eventDto.getEventOption(), 
 		        eventDto.getEventColor(), eventDto.getEventNo()
 	    };
 	    return	jdbcTemplate.update(sql, params) >0;

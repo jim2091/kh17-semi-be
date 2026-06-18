@@ -47,9 +47,9 @@
     font-size:15px;
 }
 .status-badge{
-    padding:6px 12px;
+    padding:6px 14px;
     border-radius:999px;
-    font-size:13px;
+    font-size:12px;
     font-weight:700;
 }
 
@@ -60,6 +60,35 @@
 .status-badge.waiting{
     background:#fef3c7;
     color:#d97706;
+}
+.mypage-layout{
+    display:grid;
+    grid-template-columns:320px 1fr;
+    gap:30px;
+    align-items:start;
+}
+.section-title-text{
+    display:flex;
+    align-items:center;
+    gap:12px;
+
+    margin:10px 0 20px;
+
+    font-size:28px;
+    font-weight:800;
+    color:#2563eb;
+}
+.section-title-text::before{
+    content:"";
+    width:6px;
+    height:28px;
+
+    border-radius:999px;
+    background:#2563eb;
+}
+.status-badge.danger{
+    background:#fee2e2;
+    color:#dc2626;
 }
 </style>
 
@@ -334,7 +363,7 @@
 	
     <form action="./edit" method="post" autocomplete="off" enctype="multipart/form-data" class="form-check">
 		<input type="hidden" name="empNo" value="${empDto.empNo}">
-		<div style="display:grid; grid-template-columns:280px 1fr; gap:20px;">
+		<div class="mypage-layout">
 		
 		<div class="gw-list-panel center">
 		    <img src="./profile?empNo=${empDto.empNo}"
@@ -355,30 +384,52 @@
 			    <div class="profile-status-item">
 			        <span>
 			            <i class="fa-solid fa-envelope"></i>
-			            이메일 인증
+			            <span>이메일 인증</span>
 			        </span>
-			        <span class="status-badge success">
-			            인증완료
-			        </span>
+			        <c:choose>
+				        <c:when test="${empDto.empEmailVerified == 'Y'}">
+				            <span class="status-badge success">
+				                인증완료
+				            </span>
+				        </c:when>
+				
+				        <c:otherwise>
+				            <span class="status-badge danger">
+				                미인증
+				            </span>
+				        </c:otherwise>
+				    </c:choose>
 			    </div>
 			    <div class="profile-status-item">
 			        <span>
 			            <i class="fa-solid fa-user"></i>
 			            계정 상태
 			        </span>
-			        <span class="status-badge waiting">
-			            승인대기중
-			        </span>
+			        <c:choose>
+				        <c:when test="${empDto.empApprovalStatus == 'Y'}">
+				            <span class="status-badge success">
+				                승인완료
+				            </span>
+				        </c:when>
+				
+				        <c:otherwise>
+				            <span class="status-badge waiting">
+				                승인대기중
+				            </span>
+				        </c:otherwise>
+				    </c:choose>
 			    </div>
     
 				<p class="profile-position">
-				    관리자 승인 후 모든 서비스를 이용할 수 있습니다.
+				    관리자 승인 후 <br>
+				    모든 서비스를 이용할 수 있습니다.
 				</p>
 			</div>
 			
 
 		    <div class="field mt-30 center">
 		        <input type="file"
+		        		id="attach"
 		               name="attach"
 		               class="gw-form-input field w-100 attach" style="display:none;">
 		               
@@ -394,9 +445,13 @@
 		</div>
 
 	<div class="gw-list-panel">
+		<div class="section-title-text mb-10">
+		    기본 정보
+		</div>
+		
     	<table class="gw-table">
         	<tbody>
-	            <tr>
+				<tr>
 	                <th width="180">사원아이디</th>
 	                <td>
 	                <div style="display:flex; gap:10px;">
@@ -507,27 +562,50 @@
 	                </div>
 	                </td>
 	            </tr>
+			</tbody>
+			</table>
+			
+			
+			<div class="section-title-text mt-30">
+			    계정 보안
+			</div>
+			
+			<table class="gw-table mb-10">
+				<tbody>
 	            <tr>
-	                <th>기존 비밀번호</th>
+	                <th width="180">기존 비밀번호</th>
 	                <td>
+	                	<div style="display:flex; gap:10px;">
 	                	<input type="password" name="originPw" class="gw-form-input field">
+	                	<div class="success-feedback"></div>
+	            		<div class="fail-feedback"></div>
+	            		</div>
 	                </td>
 	            </tr>
 	            <tr>
                     <th>새 비밀번호</th>
                     <td>
+                    	<div style="display:flex; gap:10px;">
                         <input type="password" name="changePw" class="gw-form-input field">
+                        <div class="success-feedback"></div>
+	            		<div class="fail-feedback"></div>
+	            		</div>
                     </td>
                 </tr>
                 <tr>
                     <th>새 비밀번호 확인</th>
                     <td>
+                    	<div style="display:flex; gap:10px;">
                         <input type="password" name="changePw" class="gw-form-input field">
+                        <div class="success-feedback"></div>
+	            		<div class="fail-feedback"></div>
+	            		</div>
                     </td>
                 </tr>
 	        </tbody>
 	    </table>
 	</div>
+	
 	</div>
 	<div class="mt-30"
 	     style="
@@ -542,12 +620,6 @@
 	        <i class="fa-solid fa-floppy-disk"></i>
 	        수정하기
 	    </button>
-	    
-	    <a href="./password"
-	       class="gw-btn-outline">
-	        <i class="fa-solid fa-key"></i>
-	        비밀번호 변경
-	    </a>
 	
 	    <a href="./mypage"
 	       class="gw-btn-outline">

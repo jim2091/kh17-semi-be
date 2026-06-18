@@ -63,9 +63,11 @@ $(function(){
     };
 
     setTimeout(function(){
-        $("[name=deptHeadIdKeyword]").trigger("check");
+        if ($("input[name=messageReceiver]").length > 0) {
+            $("[name=deptHeadIdKeyword]").trigger("check");
+        }
     }, 50);
-
+    
     /* 상위 부서 */
     $("[name=parentDeptId]").on("change input", function(){
         var valid = $(this).val().length > 0;
@@ -211,7 +213,8 @@ $(function(){
 
     /* 제출 */
     $(".form-check").on("submit", function(){
-        $("[name=deptHeadIdKeyword]").trigger("check");
+    	state.deptHeadIdValid = $("input[name=messageReceiver]").length > 0;
+    	$("[name=deptHeadIdKeyword]").trigger("check");
         $("[name=parentDeptId]").trigger("change");
         $("[name=deptName]").trigger("input");
         $("[name=deptContent]").trigger("blur");

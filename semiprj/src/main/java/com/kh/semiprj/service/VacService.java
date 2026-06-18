@@ -27,14 +27,14 @@ public class VacService {
 	private VacDao vacDao;
 
 	// ==========================================
-	// 🎯 [수정 완료] 체크한 대상의 휴가 날짜 이력과 연차 보유 현황 행을 전부 실시간 삭제
+	// 🎯 체크한 대상의 휴가 날짜 이력과 연차 보유 현황 행을 전부 실시간 삭제
 	// ==========================================
 	@Transactional
 	public void deleteBulkVacationHistory(List<String> empNoList) {
 		if (empNoList == null || empNoList.isEmpty()) return;
 		
 		for(String empNo : empNoList) {
-			// 1. 하위 휴가 상세 일자 삭제 (문법 오류 났던 쿼리 수정본 실행)
+			// 1. 하위 휴가 상세 일자 삭제
 			vacDao.deleteHistoryByEmpNo(empNo); 
 			
 			// 2. 메인 화면에 뿌려지는 연차 관리대장(vac_info)의 데이터 행을 삭제!
@@ -61,7 +61,7 @@ public class VacService {
 	}
 
 	// ==========================================
-	// 사원이 휴가 신청서를 작성할 때 시점
+	// [신청 시점] 공통 결재 및 휴가신청서 마스터만 저장
 	// ==========================================
 	@Transactional
 	public void registerVacation(VacAppDto vacAppDto) {
@@ -70,41 +70,48 @@ public class VacService {
 	}
 
 	// ==========================================
-	// 결재가 최종 승인되어 실제로 연차를 차감하는 시점
+	// [최종 승인 완료 시점] 진짜로 vac_history에 저장한 뒤 그 개수만큼 vac_info를 깎는 마스터 스위치
 	// ==========================================
-	@Transactional
+	@Transactional(rollbackFor = Exception.class) // 에러 발생 시 데이터가 꼬이지 않도록 전체 롤백 방어
 	public void approveVacationSuccess(int appId, String empNo) {
 		
-		VacAppDto vacAppDto = vacAppDao.selectOne(appId); 
+		// 1. 단건 조회 (더 정확한 데이터 검증용 쿼리 반영)
+		VacAppDto vacAppDto = vacAppDao.selectVacOne(appId); 
 		
+		// [방어 코드] 문서가 없거나 '연차'가 아니라면 즉시 종료
 		if (vacAppDto == null || !"연차".equals(vacAppDto.getVacType())) {
-			return; 
+			return;
 		}
 		
 		LocalDate start = LocalDate.parse(vacAppDto.getVacStartDate());
 		LocalDate end = LocalDate.parse(vacAppDto.getVacEndDate());
 		
-		int actualVacationDays = 0;
-		
+		// 2. 시작일부터 종료일까지 하루씩 증가하며 주말을 제외하고 vac_history에 밀어 넣기
 		while (!start.isAfter(end)) {
 			DayOfWeek dayOfWeek = start.getDayOfWeek();
 			
+			// 토요일과 일요일이 아닐 때만(평일일 때만) 이력 인입
 			if (dayOfWeek != DayOfWeek.SATURDAY && dayOfWeek != DayOfWeek.SUNDAY) {
-				
 				VacHistoryDto histDto = new VacHistoryDto();
 				histDto.setAppId(appId);
 				histDto.setVacDate(start.toString());
 				
-				vacDao.insertVacHistory(histDto);
-				
-				actualVacationDays++;
+				vacDao.insertVacHistory(histDto); // vac_history에 실시간 INSERT 실행
 			}
 			start = start.plusDays(1);
 		}
 		
+		// 3. 계산된 실제 평일 연차 소진 일수를 DB 이력 기준으로 정확하게 카운트
+		int actualVacationDays = vacDao.countVacationDaysFromHistory(appId);
+		
+		// 4. 소진 일수가 존재하면 vac_info 테이블 최종 차감 갱신 수행 (신청서 시작일 기준 연도 산출 보정 반영)
 		if (actualVacationDays > 0) {
-			int currentYear = LocalDate.now().getYear();
+			LocalDate startDateForYear = LocalDate.parse(vacAppDto.getVacStartDate());
+			int currentYear = startDateForYear.getYear(); 
+			
 			vacDao.decreaseVacationCount(empNo, currentYear, actualVacationDays);
+			
+			System.out.println("✔ [연차 원격 차감 성공] 사번: " + empNo + " | 차감 연도: " + currentYear + " | 일수: " + actualVacationDays + "일");
 		}
 	}
 }

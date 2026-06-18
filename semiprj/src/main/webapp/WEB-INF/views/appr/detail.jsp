@@ -21,6 +21,11 @@
 </script>
 
 <div style="padding: 30px;">
+	<div class="gw-page-head pds-width">
+		<div class="gw-breadcrumb">홈 > 전자결재 > 상세</div>
+	</div>
+
+<div style="padding: 30px;">
 
 	<%-- 상단 타이틀 --%>
 	<div

@@ -28,6 +28,8 @@ public class InterceptorConfiguration implements WebMvcConfigurer{
 	private MessageOwnerInterceptor messageOwnerInterceptor;
 	@Autowired
 	private AccountStatusInterceptor accountStatusInterceptor;
+	@Autowired
+	private DeptDashboardInterceptor deptDashboardInterceptor;
 	
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
@@ -124,5 +126,7 @@ public class InterceptorConfiguration implements WebMvcConfigurer{
                         ,"/images/**"
                         ,"/error"
 						);
+		registry.addInterceptor(deptDashboardInterceptor)
+				.addPathPatterns("/dept/manager");
 	}
 }

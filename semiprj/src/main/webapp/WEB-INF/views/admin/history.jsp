@@ -2,6 +2,7 @@
     pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+
 <jsp:include page="/WEB-INF/views/template/header2.jsp"></jsp:include>
 
 <script>
@@ -19,50 +20,45 @@ $(function(){
 });
 
 </script>
-
-<div class="gw-page-head">
-    <div class="gw-breadcrumb">
-        사용자 > 마이페이지 > 로그인이력
-    </div>
-
-    <h1>사원 목록</h1>
-    <p>직원 정보를 조회하고 검색할 수 있습니다.</p>
-</div>
-	
-	<div class="cell">
-	<form action="./history" method="get" class="gw-search-form">
-	<input type="hidden" name="empNo" value="${empDto.empNo}">
-	시작일<input type="date" name="beginDate" class="gw-form-input" value="${param.beginDate}">
-	 - 종료일<input type="date" name="endDate" class="gw-form-input" value="${param.endDate}">
-	<button type="submit" class="gw-btn-primary search-btn">
-		<i class="fa-solid fa-magnifying-glass"></i>
-	</button>
-	</form>
+<div class="pds-width">
+	<div class="gw-page-head">
+	    <div class="gw-breadcrumb">홈 / 직원관리 / 상세조회 / 로그인 이력</div>
+	    <h1>로그인 이력</h1>
+	    <p>해당 사원의 전체 로그인 이력을 볼 수 있습니다.</p>
 	</div>
 	
-
+	<div class="gw-search-panel">
+		<form action="./history" method="get" class="gw-search-form">
+		<input type="hidden" name="empNo" value="${empDto.empNo}">
+		<label class="gw-table-title">기간</label>
+		<input type="date" name="beginDate" class="gw-form-input" value="${param.beginDate}">
+		<span class="gw-table-title">~</span>
+		<input type="date" name="endDate" class="gw-form-input" value="${param.endDate}">
+		<button type="submit" class="gw-btn-primary search-btn">
+			<i class="fa-solid fa-magnifying-glass"></i>
+		</button>
+		</form>
+	</div>
+	
 	<div class="gw-list-panel">
-
-    <div class="gw-table-top">
-        <div>
-            <div class="gw-table-title">
-                <h1>[${empDto.empName}]님의 로그인 이력</h1>
-            </div>
-
-            <div class="gw-table-sub">
-                총 ${loginhistory.size()}회
-            </div>
-        </div>
-    </div>
-
+	    <div class="gw-table-top">
+	        <div>
+	            <div class="gw-table-title">
+	                [ ${empDto.empName} ] 님의 로그인 이력
+	            </div>
+	            <div class="gw-table-sub">
+	                총 ${loginhistory.size()}회
+	            </div>
+	        </div>
+	    </div>
 
  		<table class="gw-table">
 			<thead>
-			<tr align="center">
-				<th>일시</th>
-				<th>접속주소</th>
-				<th>에이전트</th>
-			</tr>
+				<tr align="center">
+					<th>일시</th>
+					<th>접속주소</th>
+					<th>에이전트</th>
+				</tr>
 			</thead>
 		<tbody>
 		<c:forEach var= "empHistoryDto" items="${loginhistory}">
@@ -74,12 +70,21 @@ $(function(){
 			<td>${empHistoryDto.empHistoryAgent}</td>
 		</tr>
 		</c:forEach>
+		
+		<c:if test="${empty loginhistory}">
+		    <tr>
+		        <td colspan="3" style="padding: 40px; text-align: center; color: #aaa;">
+		            조회된 로그인 이력이 없습니다.
+		        </td>
+		    </tr>
+		</c:if>
 	</tbody>
 		</table>
 		<div class="gw-pagination">
-	  		<jsp:include page="/WEB-INF/views/template/pagination_loginhistory.jsp"></jsp:include>
-		</div>
+            <jsp:include page="/WEB-INF/views/template/pagination.jsp"></jsp:include>
+       </div>
 	</div>
+</div>
 
 
 <jsp:include page="/WEB-INF/views/template/footer2.jsp"></jsp:include>

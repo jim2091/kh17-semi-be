@@ -6,12 +6,23 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import com.kh.semiprj.dto.VacHistoryDto;
-import com.kh.semiprj.dto.VacInfoDto; 
+import com.kh.semiprj.dto.VacInfoDto;
+import com.kh.semiprj.mapper.VacInfoMapper;
 
+// 연차(휴가)관리 dao
 @Repository
 public class VacDao {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
+	@Autowired
+	private VacInfoMapper vacInfoMapper;
+	
+	//시퀀스 발급기
+	public int sequence() {
+		String sql = "select vac_history_seq.nextval from dual"; // vac_history 전용 시퀀스로 지정
+		Integer seq = jdbcTemplate.queryForObject(sql, Integer.class);
+		return seq != null ? seq : 0;
+	}
 
 	// =================================================================
 	// 💡 데이터베이스(vac_info)에 영구 저장된 행만 실시간 조회합니다.
@@ -57,9 +68,9 @@ public class VacDao {
 
 	// 1. 연차 사용 상세 날짜 등록 (vac_history 인입)
 	public void insertVacHistory(VacHistoryDto dto) {
-		String sql = "insert into vac_history(vac_hist_no, vac_date, app_id) "
-				+ "values(vac_history_seq.nextval, ?, ?)";
-		Object[] ob = { dto.getVacDate(), dto.getAppId() };
+		String sql = "insert into vac_history(vac_hist_no, vac_date, app_id) values(?, ?, ?)"; 
+																									
+		Object[] ob = { dto.getVacHistNo(), dto.getVacDate(), dto.getAppId() };
 		jdbcTemplate.update(sql, ob);
 	}
 
@@ -77,15 +88,24 @@ public class VacDao {
 		}, ob);
 	}
 	
-	// 사원의 잔여 연차 감소 및 사용 연차 증가 처리 (vac_info 갱신)
+	// 3. 사원의 잔여 연차 감소 및 사용 연차 증가 처리 (vac_info 갱신)
 	public void decreaseVacationCount(String empNo, int vacYear, int days) {
-		String sql = "UPDATE vac_info "
-				   + "SET vac_cnt = vac_cnt - ?, "
-				   + "    vac_used = vac_used + ? "
+		String sql = "UPDATE vac_info " 
+				   + "SET vac_cnt = vac_cnt - ?, " // 잔여 일수 차감
+				   + "    vac_used = vac_used + ? " // 사용 일수 누적
 				   + "WHERE emp_no = ? AND vac_year = ?";
-		
+
 		Object[] ob = { days, days, empNo, vacYear };
 		jdbcTemplate.update(sql, ob);
+	}
+	
+	// vac_info 의 개인 연차가 자동으로 차감되는 처리을 위한 개수 카운트
+	public int countVacationDaysFromHistory(int appId) {
+		String sql = "select count(*) from vac_history where app_id = ?";
+		Object[] ob = { appId };
+
+		// 테이블에서 상숫값(COUNT) 하나만 직관적으로 추출하는 스프링 표준 메서드 (Null 방어 포함)
+		return jdbcTemplate.queryForObject(sql, Integer.class, ob);
 	}
 
 	// 사원 번호 기반 단건 상세조회 기능 구현
@@ -124,7 +144,7 @@ public class VacDao {
 	}
 
 	// =================================================================
-	// ✨ [새로 추가] 화면에 출력되는 연차 보유 현황 행 자체를 삭제하는 메서드
+	// ✨ 화면에 출력되는 연차 보유 현황 행 자체를 삭제하는 메서드
 	// =================================================================
 	public void deleteVacInfoByEmpNo(String empNo) {
 		String sql = "DELETE FROM vac_info WHERE emp_no = ?";

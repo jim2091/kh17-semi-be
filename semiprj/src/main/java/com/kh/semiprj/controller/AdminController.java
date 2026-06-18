@@ -163,11 +163,11 @@ public class AdminController {
 	}
 
 	// =========================================================================
-	// 💡 [변경 및 확정] 임시 세션을 지우고, DB(vac_info)에 실존하는 데이터만 바인딩
+	// 💡 데이터베이스(vac_info)에 실존하는 데이터만 바인딩
 	// =========================================================================
 	@RequestMapping("/vacList")
 	public String list1(Model model) {
-		// 1. DB 연차 정보 테이블(vac_info) 전체를 가져옵니다 (데이터가 없으면 자동으로 빈 목록 처리됨)
+		// 1. DB 연차 정보 테이블(vac_info) 전체를 가져옵니다
 		List<VacInfoDto> vacInfoList = vacDao.selectList(); 
 		List<Map<String, Object>> grantedList = new ArrayList<>();
 		
@@ -190,9 +190,9 @@ public class AdminController {
 					map.put("empId", emp.getEmpId());
 					map.put("deptName", deptMap.get(emp.getEmpDept()));
 					map.put("vacYear", info.getVacYear());
-					map.put("vacTot", info.getVacTot());     // DB 컬럼명 vac_tot 매핑
-					map.put("vacCnt", info.getVacCnt());     // DB 컬럼명 vac_cnt 매핑
-					map.put("vacUsed", info.getVacUsed());   // DB 컬럼명 vac_used 매핑
+					map.put("vacTot", info.getVacTot());     
+					map.put("vacCnt", info.getVacCnt());     
+					map.put("vacUsed", info.getVacUsed());   
 					map.put("vacReason", info.getVacReason());
 					grantedList.add(map);
 				}
@@ -228,26 +228,23 @@ public class AdminController {
 	}
 
 	// =========================================================================
-	// 💡 [변경 및 확정] 모달창 지급 시 세션 누적 제거하고 오직 DB에만 실시간 저장
+	// 💡 모달창 지급 시 DB에만 실시간 저장
 	// =========================================================================
 	@PostMapping("/vac/grant")
 	public String vacGrantSubmit(
 			@RequestParam String empNo,
 			@RequestParam int vacYear,
-			@RequestParam int vacDays, // 파라미터 수신 유지
+			@RequestParam int vacDays, 
 			@RequestParam String vacReason) {
 		
-		// DB에 실제 연차 지급/업데이트 쿼리 반영 (Dao 내부에서 vac_tot와 vac_cnt에 대입됨)
 		vacDao.insertOrUpdateVacation(empNo, vacYear, vacDays, vacReason);
-		
 		return "redirect:../vacList";
 	}
 
-	// 💡 [변경 및 확정] 체크박스로 선택된 사원 연차 내역을 실제 DB에서 삭제 처리
+	// 💡 체크박스로 선택된 사원 연차 내역을 실제 DB에서 삭제 처리
 	@GetMapping("/vac/removeHistory")
 	public String vacRemoveHistory(@RequestParam(value = "empNoList", required = false) List<String> empNoList) {
 		if (empNoList != null && !empNoList.isEmpty()) {
-			// 서비스 레이어를 통해 vac_info 테이블 및 하위 이력 일괄 삭제 처리 연계
 			vacService.deleteBulkVacationHistory(empNoList);
 		}
 		return "redirect:../vacList";
@@ -296,17 +293,25 @@ public class AdminController {
 		return "admin/history";
 	}
 
+	// 전자결재 관리자 접근 및 페이징 처리 반영
 	@RequestMapping("/app/list")
-	public String appList(HttpSession session, Model model) {
+	public String appList(HttpSession session, @ModelAttribute PageVO pageVO, Model model) {
 		String loginId = (String) session.getAttribute("loginId");
 		if (loginId == null) return "redirect:/login";
+		
 		String empLevel = (String) session.getAttribute("empLevel");
 		if (!"관리자".equals(empLevel)) return "redirect:/app/list";
-		List<AppDto> list = appDao.selectAllList();
+		
+		int totalCount = appDao.countAll(pageVO);
+		pageVO.setCount(totalCount);
+
+		List<AppDto> list = appDao.selectAllList(pageVO);
 		model.addAttribute("list", list);
+		model.addAttribute("pageVO", pageVO); // JSP 페이징 바 출력용 추가
 		return "/admin/app/list";
 	}
 
+	// 상세 정보 및 결재 문서 종류별 예외 처리 고도화
 	@RequestMapping("/app/detail")
 	public String detail(Model model, @RequestParam int appId, HttpSession session) {
 	    String loginId = (String) session.getAttribute("loginId");
@@ -319,7 +324,13 @@ public class AdminController {
 	    model.addAttribute("appDto", appDto);
 	    model.addAttribute("lineList", lineList);
 	    model.addAttribute("loginEmpNo", empNo);
-	    if (appDto.getAppType() == null) return "app/detail";
+
+	    // [예외 처리] 문서 종류(AppType)가 Null인 경우를 대비한 안전 코드 보정
+	    if (appDto.getAppType() == null) {
+	        return "admin/app/detail";
+	    }
+
+	    // 문서 종류에 따라 추가 정보 동적 조회
 	    if ("휴가신청서".equals(appDto.getAppType())) {
 	        VacAppDto vacAppDto = appDao.selectVacByAppId(appId);
 	        model.addAttribute("vacAppDto", vacAppDto);
