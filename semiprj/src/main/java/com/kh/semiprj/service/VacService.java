@@ -41,10 +41,9 @@ public class VacService {
 		
 		// [방어 코드] 문서가 없거나 '연차'가 아니라면 즉시 종료
 		if (vacAppDto == null || !"연차".equals(vacAppDto.getVacType())) {
-			return; 
+			return;
 		}
-		
-		// 2. 문자열 날짜를 LocalDate 객체로 변환하여 루프 준비
+
 		LocalDate start = LocalDate.parse(vacAppDto.getVacStartDate());
 		LocalDate end = LocalDate.parse(vacAppDto.getVacEndDate());
 		
@@ -60,7 +59,7 @@ public class VacService {
 				
 				vacDao.insertVacHistory(histDto); // vac_history에 실시간 INSERT 실행
 			}
-			start = start.plusDays(1); // 다음 날로 전진
+			start = start.plusDays(1);
 		}
 		
 		

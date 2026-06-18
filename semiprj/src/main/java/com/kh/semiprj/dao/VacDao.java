@@ -7,18 +7,31 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import com.kh.semiprj.dto.VacHistoryDto;
+import com.kh.semiprj.dto.VacInfoDto;
+import com.kh.semiprj.mapper.VacInfoMapper;
 
-//연차(휴가)관리 dao
+// 연차(휴가)관리 dao
 @Repository
 public class VacDao {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
+	@Autowired
+	private VacInfoMapper vacInfoMapper;
+	
+	
+	//시퀀스 발급기
+	public int sequence() {
+		String sql = "select vac_history_seq.nextval from dual"; // vac_history 전용 시퀀스로 지정
+		Integer seq = jdbcTemplate.queryForObject(sql, Integer.class);
+		return seq != null ? seq : 0;
+	}
 
 	// 1. 연차 사용 상세 날짜 등록 (vac_history 인입)
 	public void insertVacHistory(VacHistoryDto dto) {
-		String sql = "insert into vac_history(vac_hist_no, vac_date, app_id) "
-				+ "values(vac_history_seq.nextval, ?, ?)";
-		Object[] ob = { dto.getVacDate(), dto.getAppId() };
+		String sql = "insert into vac_history(vac_hist_no, vac_date, app_id) " + "values(?, ?, ?)"; 
+																									
+																									
+		Object[] ob = { dto.getVacHistNo(), dto.getVacDate(), dto.getAppId() };
 		jdbcTemplate.update(sql, ob);
 	}
 

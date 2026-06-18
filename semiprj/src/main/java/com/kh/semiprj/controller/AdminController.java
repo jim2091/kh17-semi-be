@@ -251,20 +251,19 @@ public class AdminController {
 	}
 
 	// 전자결재 관리자 접근
-	@RequestMapping("/app/list")
-	public String appList(HttpSession session, Model model) {
-		String loginId = (String) session.getAttribute("loginId");
-		if (loginId == null)
-			return "redirect:/login";
+		@RequestMapping("/app/list")
+		public String appList(HttpSession session, @ModelAttribute PageVO pageVO, Model model) {
+			String loginId = (String) session.getAttribute("loginId");
+			if (loginId == null)
+				return "redirect:/login";
+			int totalCount = appDao.countAll(pageVO);
+			pageVO.setCount(totalCount);
 
-		String empLevel = (String) session.getAttribute("empLevel");
-		if (!"관리자".equals(empLevel))
-			return "redirect:/app/list"; // 관리자 아니면 차단
-
-		List<AppDto> list = appDao.selectAllList();
-		model.addAttribute("list", list);
-		return "/admin/app/list";
-	}
+			List<AppDto> list = appDao.selectAllList(pageVO);
+			model.addAttribute("list", list);
+			model.addAttribute("pageVO", pageVO); // JSP 페이징 바 출력용 추가
+			return "/admin/app/list";
+		}
 	// 상세
 	@RequestMapping("/app/detail")
 	public String detail(Model model, @RequestParam int appId, HttpSession session) {
