@@ -36,16 +36,23 @@ public class VacDao {
 			return dto;
 		}, ob);
 	}
-	
-	// 사원의 잔여 연차 감소 및 사용 연차 증가 처리 (vac_info 갱신)
-		public void decreaseVacationCount(String empNo, int vacYear, int days) {
-			String sql = "UPDATE vac_info "
-					   + "SET vac_cnt = vac_cnt - ?, "  // 잔여 일수 차감
-					   + "    vac_used = vac_used + ? " // 사용 일수 누적
-					   + "WHERE emp_no = ? AND vac_year = ?";
-			
-			Object[] ob = { days, days, empNo, vacYear };
-			jdbcTemplate.update(sql, ob);
-		}
 
+	// 3. 사원의 잔여 연차 감소 및 사용 연차 증가 처리 (vac_info 갱신)
+	public void decreaseVacationCount(String empNo, int vacYear, int days) {
+		String sql = "UPDATE vac_info " + "SET vac_cnt = vac_cnt - ?, " // 잔여 일수 차감
+				+ "    vac_used = vac_used + ? " // 사용 일수 누적
+				+ "WHERE emp_no = ? AND vac_year = ?";
+
+		Object[] ob = { days, days, empNo, vacYear };
+		jdbcTemplate.update(sql, ob);
+	}
+	
+	//vac_info 의 개인 연차가 자동으로 차감되는 처리
+	public int countVacationDaysFromHistory(int appId) {
+		String sql = "select count(*) from vac_history where app_id = ?";
+		Object[] ob = { appId };
+
+		// 테이블에서 상숫값(COUNT) 하나만 직관적으로 추출하는 스프링 표준 메서드 (Null 방어 포함)
+		return jdbcTemplate.queryForObject(sql, Integer.class, ob);
+	}
 }
