@@ -115,18 +115,18 @@ public class InterceptorConfiguration implements WebMvcConfigurer{
 		registry.addInterceptor(messageOwnerInterceptor)
 				.addPathPatterns("/message/detail");
 		
-		registry.addInterceptor(accountStatusInterceptor)
-				.addPathPatterns("/**")
-				.excludePathPatterns(
-						"/emp/edit"
-						,"/emp/wait"
-						,"/emp/login"
-						,"/css/**"
-                        ,"/js/**"
-                        ,"/images/**"
-                        ,"/error"
-						);
-		registry.addInterceptor(deptDashboardInterceptor)
-				.addPathPatterns("/dept/manager");
+//		registry.addInterceptor(accountStatusInterceptor)
+//				.addPathPatterns("/**")
+//				.excludePathPatterns(
+//						"/emp/edit"
+//						,"/emp/wait"
+//						,"/emp/login"
+//						,"/css/**"
+//                        ,"/js/**"
+//                        ,"/images/**"
+//                        ,"/error"
+//						);
+//		registry.addInterceptor(deptDashboardInterceptor)
+//				.addPathPatterns("/dept/manager");
 	}
 }

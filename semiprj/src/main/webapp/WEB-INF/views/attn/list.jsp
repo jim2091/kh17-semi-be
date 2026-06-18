@@ -12,6 +12,11 @@
     margin: 0 auto;
 }
 
+/* 🎯 [여기 수정] 검색창과 근무 내역 명세 사이의 답답한 틈을 해결 */
+.gw-search-panel.attn-width {
+    margin-bottom: 30px; 
+}
+
 /* 관리자단 프레임 프론트와 일치화: 토요일 / 일요일 가독성 강조 색상 추가 */
 .sat-color { color: #2f80ed !important; font-weight: bold; }
 .sun-color { color: #eb5757 !important; font-weight: bold; }
@@ -50,25 +55,24 @@
     color: #dc2626;
 }
 
-/* 🎯 [디자인 전면 변경] 답답하게 꼬여있던 absolute 구조 전면 폐기 */
+/* 답답하게 꼬여있던 absolute 구조 전면 폐기 */
 .attn-bottom-wrapper {
     margin-top: 35px;
     padding: 0 10px;
     display: flex;
-    flex-direction: column; /* 요약 배너를 위로 보내고 페이징/버튼을 아래로 내림 */
-    gap: 24px; /* 1층(배너)과 2층(페이징/버튼) 사이의 확실한 여유 공간 확보 */
+    flex-direction: column; 
+    gap: 24px; 
     width: 100%;
 }
 
-/* 🎯 [1층] 요약 배너 영역: 왼쪽 정렬 및 두 배너 간격 최적화 */
+/* 요약 배너 영역 */
 .vac-summary-container {
     display: flex;
     flex-direction: column;
-    gap: 8px; /* 연차 배너와 휴가 배너 사이 간격 */
+    gap: 8px; 
     align-items: flex-start;
 }
 
-/* 요약 배너 공통 디자인 */
 .vac-summary-banner {
     display: inline-flex;
     align-items: center;
@@ -87,23 +91,21 @@
     font-size: 15px;
 }
 
-/* 🎯 [2층] 페이징 및 버튼 영역을 담는 새 하단 정렬 컨테이너 */
+/* 페이징 및 버튼 영역을 담는 새 하단 정렬 컨테이너 */
 .action-and-paging-row {
     display: flex;
     align-items: center;
-    justify-content: center; /* 페이징은 무조건 가운데 고정 */
+    justify-content: center; 
     position: relative;
     width: 100%;
     height: 40px;
 }
 
-/* 🎯 [2층 오른쪽] 휴가원 작성 버튼 단독 배치 */
 .btn-vac-action {
     position: absolute;
     right: 0;
 }
 
-/* [2층 가운데] 페이징 디자인 스타일 보정 */
 .gw-pagination {
     display: flex;
     align-items: center;
@@ -148,6 +150,7 @@
     <p>본인의 월별 근무 현황 및 연차 잔여 일수를 확인할 수 있습니다.</p>
 </div>
 
+<!-- 이 클래스(.gw-search-panel.attn-width) 하단에 마진이 적용되어 틈이 생깁니다 -->
 <div class="gw-search-panel attn-width">
     <form id="searchForm" action="/attn/list" method="get" class="gw-search-form">
         <select id="yearSelect" name="year" class="gw-form-select" onchange="changeDate()">
@@ -262,7 +265,6 @@
     </table>
     
     <div class="attn-bottom-wrapper">
-        
         <div class="vac-summary-container">
             <div class="vac-summary-banner">
                 <i class="fa-solid fa-umbrella-beach"></i>
@@ -273,9 +275,9 @@
             
             <div class="vac-summary-banner">
                 <i class="fa-solid fa-umbrella-beach"></i>
-                <span>총 휴가: <strong style="color: var(--warning-color);">${empty leaveInfo ? 15 : (empty leaveInfo.leaveTot ? leaveInfo.LEAVE_TOT : leaveInfo.leaveTot)}</strong>일</span>
+                <span>총 휴가: <strong style="color: var(--warning-color);">${empty leaveInfo ? 0 : leaveInfo.LEAVE_TOT}</strong>일</span>
                 <div style="width: 1px; height: 14px; background: var(--card-border);"></div>
-                <span>잔여 휴가: <strong style="color: var(--main-color);">${empty leaveInfo ? 15 : (empty leaveInfo.leaveCnt ? leaveInfo.LEAVE_CNT : leaveInfo.leaveCnt)}</strong>일</span>
+                <span>잔여 휴가: <strong style="color: var(--main-color);">${empty leaveInfo ? 0 : leaveInfo.LEAVE_CNT}</strong>일</span>
             </div>
         </div>
         
@@ -306,7 +308,6 @@
                 </a>
             </div>
         </div>
-        
     </div>
 </div>
 
