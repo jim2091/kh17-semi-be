@@ -27,6 +27,7 @@ public class CertRestController {
 	
 	@PostMapping("/send")
 	public void send(@RequestParam String certEmail) throws MessagingException, IOException {
+		System.out.println("certEmail = " + certEmail);
 		emailService.sendCertNumber(certEmail);
 	}
 	@PostMapping("/check")
