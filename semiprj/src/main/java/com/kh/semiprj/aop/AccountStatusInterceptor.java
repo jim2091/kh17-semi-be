@@ -91,10 +91,11 @@ public class AccountStatusInterceptor implements HandlerInterceptor {
     }
 
     private boolean isEditAllowed(String uri) {
-        return uri.equals("/emp/edit")
+    	return uri.equals("/emp/edit")
                 || uri.startsWith("/emp/edit/")
                 || uri.startsWith("/rest/emp/")
-                || uri.startsWith("/cert/");
+                || uri.startsWith("/rest/cert/")
+                || uri.equals("/emp/logout");
     }
 
     private boolean isWaitAllowed(String uri) {

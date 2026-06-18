@@ -26,6 +26,7 @@ import com.kh.semiprj.dto.DftAppDto;
 import com.kh.semiprj.dto.ExpAppDto;
 import com.kh.semiprj.dto.VacAppDto;
 import com.kh.semiprj.service.VacService;
+import com.kh.semiprj.vo.PageVO;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -318,64 +319,81 @@ public class AppController {
 	}
 
 	@RequestMapping("/list")
-	public String list(@RequestParam(required = false) String appType, @RequestParam(required = false) String column,
-			@RequestParam(required = false) String keyword, HttpSession session, Model model) {
+	public String list(
+			HttpSession session,
+			@ModelAttribute PageVO pageVO,
+			// 기안자 제외, 나머지 2개 필터만 깔끔하게 접수
+			@RequestParam(required = false) String searchAppType,
+			@RequestParam(required = false) String searchAppStatus,
+			Model model) {
 
 		String loginId = (String) session.getAttribute("loginId");
+		if (loginId == null) return "redirect:/login";
+		
 		String empNo = appDao.selectEmpNoById(loginId);
 		String empName = appDao.selectEmpNameById(loginId);
+		
 		model.addAttribute("empName", empName);
 		model.addAttribute("currentTab", "app");
 
-		List<AppDto> list;
+		// 1. 내 문서함 필터 기준 카운트 및 페이징 바인딩
+		int totalCount = appDao.countMyListByFilter(empNo, searchAppType, searchAppStatus);
+		pageVO.setCount(totalCount);
 
-		if (keyword != null && !keyword.isEmpty() && column != null) {
-			list = appDao.searchList(empNo, column, keyword);
-		} else if (appType != null && !appType.isEmpty()) {
-			list = appDao.selectMyListByType(empNo, appType);
-		} else {
-			list = appDao.selectMyList(empNo);
-		}
+		// 2. 동적 중첩 쿼리 실행
+		List<AppDto> list = appDao.selectMyListByFilter(pageVO, empNo, searchAppType, searchAppStatus);
+		
 		model.addAttribute("list", list);
+		model.addAttribute("pageVO", pageVO);
+		
+		// 3. JSP 상태 복원용 속성 바인딩
+		model.addAttribute("searchAppType", searchAppType);
+		model.addAttribute("searchAppStatus", searchAppStatus);
+		
+		// 페이징 클릭 시 풀림 방지 파라미터 캐싱
+		String searchParams = "searchAppType=" + (searchAppType != null ? searchAppType : "") 
+							+ "&searchAppStatus=" + (searchAppStatus != null ? searchAppStatus : "");
+		model.addAttribute("searchParams", searchParams);
+
 		return "/app/list";
 	}
 
 	// 사이드바 용 필터링(걸러내기)
-	@GetMapping("/myNoneList")
-	public String myNoneAppr(HttpSession session, Model model) {
-		String empNo = appDao.selectEmpNoById((String) session.getAttribute("loginId"));
-		model.addAttribute("list", appDao.selectMyNoneList(empNo));
-		return "/app/list";
-	}
-
-	@GetMapping("/myAppr")
-	public String myAppr(HttpSession session, Model model) {
-		String empNo = appDao.selectEmpNoById((String) session.getAttribute("loginId"));
-		model.addAttribute("list", appDao.selectMyApprList(empNo));
-		return "/app/list";
-	}
-
-	@GetMapping("/myIng")
-	public String myIng(HttpSession session, Model model) {
-		String empNo = appDao.selectEmpNoById((String) session.getAttribute("loginId"));
-		model.addAttribute("list", appDao.selectMyIngList(empNo));
-		return "/app/list";
-	}
-
-	@GetMapping("/myRej")
-	public String myRej(HttpSession session, Model model) {
-		String empNo = appDao.selectEmpNoById((String) session.getAttribute("loginId"));
-		model.addAttribute("list", appDao.selectMyRejList(empNo));
-		return "/app/list";
-	}
-
-	@GetMapping("/myList")
-	public String myList(HttpSession session, Model model) {
-		String loginId = (String) session.getAttribute("loginId");
-		String empNo = appDao.selectEmpNoById(loginId);
-		model.addAttribute("list", appDao.selectMyList(empNo));
-		return "/app/list";
-	}
+//	@GetMapping("/myNoneList")
+//	public String myNoneAppr(HttpSession session, Model model) {
+//		String empNo = appDao.selectEmpNoById((String) session.getAttribute("loginId"));
+//		model.addAttribute("list", appDao.selectMyNoneList(empNo));
+//		return "/app/list";
+//	}
+//
+//	@GetMapping("/myAppr")
+//	public String myAppr(HttpSession session, Model model) {
+//		String empNo = appDao.selectEmpNoById((String) session.getAttribute("loginId"));
+//		model.addAttribute("list", appDao.selectMyApprList(empNo));
+//		return "/app/list";
+//	}
+//
+//	@GetMapping("/myIng")
+//	public String myIng(HttpSession session, Model model) {
+//		String empNo = appDao.selectEmpNoById((String) session.getAttribute("loginId"));
+//		model.addAttribute("list", appDao.selectMyIngList(empNo));
+//		return "/app/list";
+//	}
+//
+//	@GetMapping("/myRej")
+//	public String myRej(HttpSession session, Model model) {
+//		String empNo = appDao.selectEmpNoById((String) session.getAttribute("loginId"));
+//		model.addAttribute("list", appDao.selectMyRejList(empNo));
+//		return "/app/list";
+//	}
+//
+//	@GetMapping("/myList")
+//	public String myList(HttpSession session, Model model) {
+//		String loginId = (String) session.getAttribute("loginId");
+//		String empNo = appDao.selectEmpNoById(loginId);
+//		model.addAttribute("list", appDao.selectMyList(empNo));
+//		return "/app/list";
+//	}
 
 //	//picker 용 매핑
 //	@GetMapping("/searchApprover")

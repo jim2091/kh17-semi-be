@@ -90,269 +90,459 @@
     background:#fee2e2;
     color:#dc2626;
 }
+.email-edit-box{
+    width:100%;
+}
+
+.email-control-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.email-input{
+    flex:1;
+    min-width:0;
+    width:auto;
+}
+
+.email-btn{
+    width:90px;
+    flex-shrink:0;
+    padding:0 14px;
+    white-space:nowrap;
+}
+
+.email-feedback{
+    margin-top:8px;
+    text-align:left;
+    font-size:13px;
+    line-height:1.4;
+}
+
+.cert-area{
+    margin-top:10px;
+}
+
+.cert-wrapper{
+    width:100%;
+    padding:12px;
+    border:1px solid var(--border-color);
+    border-radius:14px;
+    background:var(--main-light);
+}
+
+.cert-control-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.cert-input{
+    width:180px;
+}
+
+.cert-btn{
+    width:90px;
+    flex-shrink:0;
+    white-space:nowrap;
+}
+
+.cert-feedback{
+    margin-top:8px;
+    text-align:left;
+}
 </style>
 
 <script>
-	$(function(){
-	    var state = {
-	        attachValid : false,
-	        empBirthValid : false, 
-	        empEmailValid : false, 
-	        empEmailCertValid : false, 
-	        empContactValid : false, 
-	        empAddressValid : false, 
-	        ok : function(){
-	            return Object.values(this)
-	                .filter(v => typeof v === "boolean")
-	                .every(v => v === true); 
-	        }
-	    };
+$(function(){
+    var state = {
+        birthValid: false,
+        emailValid: false,
+        emailCertValid: false,
+        contactValid: false,
+        addressValid: false,
+        passwordValid: false,
+        
+        ok: function(){
+            return Object.values(this)
+            .filter(v => typeof v === "boolean")
+            .every(v => v === true);
+        }
+    };
 
-     // 1. 초기 이미지 검증
-     var originSrc = $(".preview").attr("src");
-     if (originSrc && originSrc.trim() !== "") {
-         state.attachValid = true;
-         $("[name=attach]").addClass("success");
-     } else {
-         state.attachValid = false; 
-     } 	
 
-     $("[name=attach]").on("input", function(){
-         var originSrc = $(".preview").attr("src");
-         if(originSrc.startsWith("blob:")){
-             URL.revokeObjectURL(originSrc);
-         }
+    var originEmail = $("#originEmail").val();
+    var originEmailVerified = $("#originEmailVerified").val();
+    var certifiedEmail = null;
+    
+    //최초 진입 상태
+    init();
 
-         if(this.files.length > 0){
-             var address = URL.createObjectURL(this.files[0]);
-             $(".preview").attr("src", address);
-             $(this).addClass("success");
-             state.attachValid = true;
-         }
-         else{
-             $(".preview").attr("src", "https://dummyimage.com/200x200?text=NO");
-         }
-     });
-     
-     $(".attach").on("change", function(){
-         const fileName = this.files.length > 0
-             ? this.files[0].name
-             : "";
-         $(".file-name").text(fileName);
-     });
+    function init(){
+        //기존 값들 체크
+        checkBirth();
+        checkContact();
+        checkAddress();
+        checkEmail();
+        checkPassword();
 
-     // 2. 생년월일 검증 함수
-     function checkBirth() {
-         var regex = /^([0-9]{4})-(((02)-(0[1-9]|1[0-9]|2[0-9]))|((0[469]|11)-(0[1-9]|1[0-9]|2[0-9]|30))|((0[13578]|1[02])-(0[1-9]|1[0-9]|2[0-9]|3[01])))$/;
-         var valid = regex.test($("[name=empBirth]").val());
-         $("[name=empBirth]").removeClass("success fail").addClass(valid? "success": "fail");
-         state.empBirthValid = valid;
-     }
-     $("[name=empBirth]").on("blur", checkBirth);
+    }
 
-     // 3. 연락처 검증 함수
-     function checkContact() {
-         var regex = /^010[1-9][0-9]{7}$/;
-         var valid = regex.test($("[name=empContact]").val());
-         $("[name=empContact]").removeClass("success fail").addClass(valid? "success": "fail");
-         state.empContactValid = valid;
-     }
-     $("[name=empContact]").on("blur", checkContact);  
+    //생년월일 검사
+    function checkBirth(){
+        var birth = $("[name=empBirth]").val();
+        var regex = /^([0-9]{4})-(((02)-(0[1-9]|1[0-9]|2[0-9]))|((0[469]|11)-(0[1-9]|1[0-9]|2[0-9]|30))|((0[13578]|1[02])-(0[1-9]|1[0-9]|2[0-9]|3[01])))$/;
+        var valid = regex.test(birth);
 
-     // 4. 이메일 검증 함수 (★ async: false 추가하여 동기식으로 변경)
-     function checkEmail() {
-         var regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9\.\-]+\.[a-zA-Z]{2,}$/;
-         var empEmail = $("[name=empEmail]").val();
-         var valid = regex.test(empEmail);
+        $("[name=empBirth]").removeClass("success fail")
+                .addClass(valid ? "success" : "fail");
+        state.birthValid = valid;
+    }
 
-         if(valid == false || empEmail == null){
-             $("[name=empEmail]").removeClass("success fail")
-                 .addClass("fail").attr("data-error", "1");
-             state.empEmailValid = false;
-             return;
-         }
+    $("[name=empBirth]").on("blur", checkBirth);
 
-         // 이메일 전송 완료 상태(readonly)라면 중복검사를 스킵합니다.
-         if($("[name=empEmail]").prop("readonly")) {
-             state.empEmailValid = true;
-             return;
-         }
+    var datePicker = new Lightpick({ 
+        field : $("[name=empBirth]")[0],
+        format : "YYYY-MM-DD",
+        firstDay : 7,
+        maxDate : moment(),
+        onSelect: function(date){
+            checkBirth(); // 날짜 선택 시 바로 유효성 검사 작동
+        }
+    });
 
-         $.ajax({
-             url : "/rest/emp/validEmail",
-             method : "post",
-             data : {empEmail : empEmail},
-             async : false, // 순차적 실행을 위해 동기식 설정
-             success : function(response){
-                 if(response === true){
-                     $("[name=empEmail]").removeClass("success fail").addClass("success");
-                     state.empEmailValid = true;
-                 }
-                 else{
-                     $("[name=empEmail]").removeClass("success fail")
-                     .addClass("fail").attr("data-error", "2");
-                     state.empEmailValid = false;
-                 }
-             }
-         });
-     }
-     $("[name=empEmail]").on("blur", checkEmail);
+    //연락처 검사
+    function checkContact(){
+        var contact = $("[name=empContact]").val();
+        var regex = /^010[1-9][0-9]{7}$/;
+        var valid = regex.test(contact);
 
-     // 5. 주소 검증 함수
-     function checkAddress() {
-         var empPost = $("[name=empPost]").val();
-         var empAddress1 = $("[name=empAddress1]").val();
-         var empAddress2 = $("[name=empAddress2]").val();
+        $("[name=empContact]").removeClass("success fail")
+                .addClass(valid ? "success" : "fail");
+        state.contactValid = valid;
+    }
 
-         var empty = empPost.length == 0 && empAddress1.length == 0 && empAddress2.length == 0;
-         var full = empPost.length > 0 && empAddress1.length > 0 && empAddress2.length > 0;
-         var valid = empty || full;
-         
-         $("[name=empPost], [name=empAddress1], [name=empAddress2]")
-                 .removeClass("success fail").addClass(valid? "success": "fail");
-         
-         state.empAddressValid = valid;
-     }
-     $("[name=empAddress2]").on("blur", checkAddress);
+    $("[name=empContact]").on("blur", checkContact);
 
-     // 숫자만 입력 제한
-     $(".field.field-numeric").on("input", function(){
-         var regex = /[^0-9]+/g;
-         var replacement = $(this).val().replace(regex, "");
-         $(this).val(replacement);
-     });
+    //주소 검사
+    function checkAddress(){
+        var post = $("[name=empPost]").val().trim();
+        var address1 = $("[name=empAddress1]").val().trim();
+        var address2 = $("[name=empAddress2]").val().trim();
+        var valid = post.length > 0 && address1.length > 0 && address2.length > 0;
 
-     // 6. 인증번호 발송 및 확인 로직
-     $(".btn-cert-send").on("click", function(){
-         var empEmail = $("[name=empEmail]").val();
-         checkEmail(); // 발송 전 이메일 유효성 체크 확실히 실행
-         if(state.empEmailValid == false) return;
-         $.ajax({
-             url:"/rest/cert/send",
-             method:"post",
-             data:{certEmail:empEmail},
-             success:function(){
-                 window.alert("이메일 발송 완료 \n이메일을 확인해주세요");
-                 var template = $("#cert-template").html();
-                 $(".cert-area").html(template);
-             },
-             error:function(){
-                 window.alert("이메일 발송에 실패했습니다. \n잠시 후 다시 시도해보세요");
-             },
-             beforeSend:function(){
-                 $(".btn-cert-send").find("span").text("인증메일 발송중");
-                 $(".btn-cert-send").find("i").removeClass("fa-envelope").addClass("fa-spinner fa-spin");
-                 $(".btn-cert-send").prop("disabled", true);  
-             },
-             complete:function(){
-                 $(".btn-cert-send").find("span").text("인증메일 재발송");
-                 $(".btn-cert-send").find("i").removeClass("fa-spinner fa-spin").addClass("fa-envelope");
-                 $(".btn-cert-send").prop("disabled", false);                    
-             },
-         });
-     });
+        $("[name=empPost], [name=empAddress1], [name=empAddress2]")
+                .removeClass("success fail")
+                .addClass(valid ? "success" : "fail");
+        state.addressValid = valid;
+    }
 
-     $(".cert-area").on("click", ".btn-cert-check", function(){
-         var certEmail = $("[name=empEmail]").val();
-         var certNumber = $(".field-cert").val();
-         var certRegex = /^[0-9]{6}$/;
-         var certValid = certRegex.test(certNumber);
-         if(certValid == false) return;
+    $("[name=empAddress2]").on("blur", checkAddress);
 
-         $.ajax({
-             url:"/rest/cert/check",
-             method : "post",
-             data : {certEmail : certEmail, certNumber: certNumber},
-             success : function(response){
-                 if(response === true){
-                     state.empEmailCertValid = true;
-                     $("[name=empEmail]").removeClass("success fail").addClass("success");
-                     $(".cert-area").empty();
-                     $(".btn-cert-send").hide();
-                     $(".btn-cert-retry").show();
-                     $("[name=empEmail]").prop("readonly", true);
-                 }
-                 else{
-                     state.empEmailCertValid = false;
-                     $(".field-cert").addClass("fail");
-                 }
-             }
-         });
-     });
-
-     $(".btn-cert-retry").on("click", function(){
-         $(".btn-cert-retry").hide();
-         $(".btn-cert-send").show();
-         $("[name=empEmail]").removeClass("success fail").prop("readonly", false).val("");
-         state.empEmailValid = false;
-         state.empEmailCertValid = false;
-         $("[name=empEmail]").trigger("focus");
-     });
-
-     // 7. 카카오 주소 API (.btn-address-search에서 .btn-post로 클래스명 수정)
-     $("[name=empPost], [name=empAddress1], .btn-post")
-         .on("click", function(){
+    // 카카오 주소 API
+    $("[name=empPost], [name=empAddress1], .btn-post")
+        .on("click", function(){
             new kakao.Postcode({
-             oncomplete: function(data) {
-                 var addr = (data.userSelectedType === 'R') ? data.roadAddress : data.jibunAddress;
-                 $("[name=empPost]").val(data.zonecode);
-                 $("[name=empAddress1]").val(addr);
-                 
-                 $("[name=empAddress2]").trigger("focus");
-                 checkAddress(); // 주소 입력 후 즉시 유효성 검사 실행
-             }
+            oncomplete: function(data) {
+                var addr = (data.userSelectedType === 'R') ? data.roadAddress : data.jibunAddress;
+                $("[name=empPost]").val(data.zonecode);
+                $("[name=empAddress1]").val(addr);
+                
+                $("[name=empAddress2]").trigger("focus");
+                checkAddress(); // 주소 입력 후 즉시 유효성 검사 실행
+            }
             }).open(); 
-         });
-      
-     var datePicker = new Lightpick({ 
-         field : $("[name=empBirth]")[0],
-         format : "YYYY-MM-DD",
-         firstDay : 7,
-         maxDate : moment(),
-         onSelect: function(date){
-             checkBirth(); // 날짜 선택 시 바로 유효성 검사 작동
-         }
-     });
-     
-     // 8. 폼 전송 이벤트 (매개변수 e 추가 및 개별 검사 명시화)
-     $(".form-check").on("submit", function(e){
-         // 실시간 검증 함수들을 최종적으로 한 번씩 강제 실행
-         checkBirth();
-         checkEmail();
-         checkContact();
-         checkAddress();
+        });
 
-         // 만약 이미 이메일 인증이 완료된 계정이라면(인증 버튼이 숨겨진 상태 등) 
-         // 강제로 true 처리하여 통과시킵니다.
-         if($("[name=empEmail]").prop("readonly")) {
-             state.empEmailCertValid = true;
-         }
+    //비밀번호 검사
+    function checkPassword(){
+        var originPw = $("[name=originPw]").val();
+        var changePw = $("[name=changePw]").val();
+        var changePwCheck = $("[name=changePwCheck]").val();
 
-         console.log("최종 검증 상태: ", state);
-         console.log("전송 가능 여부: ", state.ok());
-         
-         if (!state.ok()) {
-             alert("필수 입력사항을 모두 올바르게 입력해주세요.");
-             e.preventDefault(); // 전송 완전 차단
-             return false; 
-         }
-     });
+        var allEmpty = originPw.length === 0 && changePw.length === 0 && changePwCheck.length === 0;
+
+        if (allEmpty){
+            $("[name=originPw], [name=changePw], [name=changePwCheck]")
+                    .removeClass("success fail")
+
+            state.passwordValid = true;
+            return;
+        }
+
+        var valid = originPw.length > 0 && changePw.length > 0 
+                && changePwCheck.length > 0 && changePw === changePwCheck;
+        
+        $("[name=originPw], [name=changePw], [name=changePwCheck]")
+                .removeClass("success fail")
+                .addClass(valid ? "success" : "fail");
+        state.passwordValid = valid;
+    }
+
+    $("[name=originPw], [name=changePw], [name=changePwCheck]").on("input blur", checkPassword);
+
+    //이메일 형식 검사
+    function checkEmailFormatOnly(){
+        var email = $("[name=empEmail]").val().trim();
+        var regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9\.\-]+\.[a-zA-Z]{2,}$/;
+        var valid = regex.test(email);
+
+        $("[name=empEmail]").removeClass("success fail")
+                .addClass(valid ? "success" : "fail");
+
+        state.emailValid =valid;
+        
+        return valid;
+    }
+
+    //이메일 변경 검사
+    function checkEmailChanged(){
+        var email = $("[name=empEmail]").val().trim();
+        var changed = email !== originEmail;
+
+        if(email === certifiedEmail){
+            state.emailCertValid = true;
+            $(".btn-cert-send").hide();
+            $(".btn-cert-retry").show();
+            $(".cert-area").empty();
+            return false;
+        }
+
+        if(!changed && originEmailVerified === "Y"){
+            state.emailCertValid = true;
+            $(".btn-cert-send").hide();
+            $(".btn-cert-retry").show();
+            $(".cert-area").empty();
+            return false;
+        }
+
+        state.emailCertValid = false;
+
+        $(".btn-cert-send").show();
+        $(".btn-cert-retry").hide();
+        $(".cert-area").empty();
+
+        return true;
+    }
+
+    function checkEmailDuplicate(){
+        var email = $("[name=empEmail]").val().trim();
+
+        if(email === originEmail){
+            state.emailValid= true;
+            return true;
+        }
+
+        var result = false;
+
+        $.ajax({
+            url : "/rest/emp/validEmail",
+            method : "post",
+            data : {
+                empEmail : email
+            },
+            async : false,
+            success : function(response){
+                if(response === true){
+                    result = true;
+                    state.emailValid = true;
+                }
+                else{
+                    result = false;
+                    state.emailValid = false;
+                }
+            }
+        });
+        return result;
+    }
+
+    function checkEmail(){
+        var formatValid = checkEmailFormatOnly();
+
+        if(!formatValid){
+            state.emailValid = false;
+            state.emailCertValid = false;
+
+            $(".btn-cert-send").hide();
+            $(".btn-cert-retry").hide();
+            $(".cert-area").empty();
+
+            return;
+        }
+
+        var duplicateValid = checkEmailDuplicate();
+
+        if(!duplicateValid){
+            $("[name=empEmail]").removeClass("success fail")
+                    .addClass("fail");
+            state.emailCertValid = false;
+
+            $(".btn-cenr-send").hide();
+            $(".btn-cert-retry").hide();
+            $(".cert-area").empty();
+
+            return;
+        }
+
+        checkEmailChanged();
+    }
+    
+    $("[name=empEmail]").on("input blur", checkEmail);
+    
+    //인증버튼
+    $(".btn-cert-send").on("click", function(){
+        
+        checkEmail();
+
+        if(state.emailValid === false){
+            alert("이메일을 먼저 확인해주세요.")
+            return;
+        }
+
+        var email = $("[name=empEmail]").val();
+        console.log(email);
+
+        $.ajax({
+            url : "/rest/cert/send",
+            method : "post",
+            data : {
+                certEmail : email
+            },
+            beforeSend : function(){
+                $(".btn-cert-send").prop("disabled", true).text("발송중...");
+            },
+            success : function(){
+                alert("인증메일이 발송되었습니다.");
+
+                var template = $("#cert-template").html();
+
+                $(".cert-area").html(template);
+            },
+
+            error : function(){
+                alert("인증메일 발송 실패");
+            },
+
+            complete : function(){
+                $(".btn-cert-send").prop("disabled", false).text("인증");
+            }
+        });
+    });
+
+    $(".cert-area").on("click", ".btn-cert-check", function(){
+        var email = $("[name=empEmail]").val().trim();
+        var certNumber = $(".field-cert").val().trim();
+        var regex = /^[0-9]{6}$/;
+
+        if(!regex.test(certNumber)){
+            $(".field-cert").removeClass("success").addClass("fail");
+            state.emailCertValid = false;
+            return;
+        }
+        $.ajax({
+            url : "/rest/cert/check",
+            method : "post",
+            data : {
+                certEmail : email,
+                certNumber : certNumber
+            },
+            success : function(response){
+                if(response === true){
+                    state.emailCertValid = true;
+                    certifiedEmail = email;
+                    
+                    $("[name=empEmail]").removeClass("fail")
+                            .addClass("success")
+                            .prop("readonly", true);
+                    $(".field-cert").removeClass("fail")
+                            .addClass("success")
+                            .prop("readonly", true);
+                    $(".cert-area").empty();
+
+                    $(".btn-cert-send").hide();
+                    $(".btn-cert-retry").show();
+
+                    alert("이메일 인증이 완료되었습니다.");
+                }
+                else{
+                    state.emailCertValid = false;
+
+                    $(".field-cert").removeClass("success")
+                            .addClass("fail");
+                }
+            },
+            error : function(){
+                alert("인증 확인 중 오류가 발생했습니다.");
+            }
+        });
+    });
+
+    $(".btn-cert-retry").on("click", function(){
+        $("[name=empEmail]")
+                .prop("readonly", false)
+                .removeClass("success fail")
+                .focus();
+        $(".cert-area").empty();
+        $(".btn-cert-send").show();
+        $(".btn-cert-retry").hide();
+
+        state.emailValid = false;
+        state.emailCertValid = false;
+        certifiedEmail = null;
+    });
+
+    $(".form-check").on("submit", function(e){
+        checkBirth();
+        checkContact();
+        checkAddress();
+        checkPassword();
+        checkEmail();
+        
+        console.log("state =", state);
+    	console.log("submit 가능 =", state.ok());
+
+
+        if(!state.ok()){
+            e.preventDefault();
+            alert("입력값을 다시 확인해주세요.")
+            return false;
+        }
+    });
+
+
+    //숫자만 입력
+    $(".field.field-numeric").on("input", function(){
+        var regex = /[^0-9]+/g;
+        var replacement = $(this).val().replace(regex, "");
+        $(this).val(replacement);
+    });
+
+    
+    
 });
- </script>
-    <script type="text/template" id="cert-template">
-    <div class="cert-wrapper flex-area" style="flex-wrap: wrap;">
-        <input type="text" inputmode="numeric" class="field field-cert" placeholder="인증번호입력" 
-                size="6" maxlength="6">
-        <button type="button" class="btn btn-positive btn-cert-check ms-10">
-            <i class="fa-solid fa-lock"></i>
-            <span>인증번호확인</span>
-        </button>
-    <div class="fail-feedback w-100">
-        인증번호를 다시 확인해주세요.
-    </div>
-    </div>
+</script>
 
-    </script>
+<script type="text/template" id="cert-template">
+    <div class="cert-wrapper">
+        <div class="cert-control-row">
+            <input type="text"
+                   inputmode="numeric"
+                   class="gw-form-input field field-cert cert-input"
+                   placeholder="인증번호 6자리"
+                   maxlength="6">
+
+            <button type="button" class="gw-btn-primary btn-cert-check cert-btn">
+                <i class="fa-solid fa-lock"></i>
+                <span>확인</span>
+            </button>
+        </div>
+
+        <div class="fail-feedback cert-feedback">
+            인증번호를 다시 확인해주세요.
+        </div>
+    </div>
+</script>
 
 <div class="pds-width">
 	<div class="gw-page-head">
@@ -363,6 +553,8 @@
 	
     <form action="./edit" method="post" autocomplete="off" enctype="multipart/form-data" class="form-check">
 		<input type="hidden" name="empNo" value="${empDto.empNo}">
+		<input type="hidden" id="originEmail" value="${empDto.empEmail}">
+		<input type="hidden" id="originEmailVerified" value="${empDto.empEmailVerified}">
 		<div class="mypage-layout">
 		
 		<div class="gw-list-panel center">
@@ -477,32 +669,34 @@
 	            <tr>
 	                <th>이메일</th>
 	                <td>
-	                    <div style="display:flex; gap:10px;">
-	                        <input type="text"
-	                               name="empEmail"
-	                               value="${empDto.empEmail}"
-	                               class="gw-form-input field">
-	                        <c:if test="${empDto.empEmailVerified == null || empDto.empEmailVerified == 'N'}">       
-	
-	                        <button type="button"
-	                                class="gw-btn-outline btn-cert-send">
-	                            인증
-	                        </button>
-	                         <button type="button" class="gw-btn-outline btn-cert-retry ms-10" 
-		                        style="display: none;">
-		                    <i class="fa-solid fa-rotate-right"></i>
-		                    <span>다시 이메일 인증하기</span>
-		                	</button>
-		                	<div class="success-feedback w-100">사용할 수 있는 이메일입니다</div>
-			                <div class="fail-feedback w-100">
-			                    <div>형식에 맞지 않는 이메일입니다</div>
-			                    <div>이미 사용중인 이메일입니다</div>
-			                </div>
-	                        </c:if>
-	                    </div>
-	
-	                    <div class="cert-area mt-10"></div>
-	                </td>
+					    <div class="email-edit-box">
+					        <div class="email-control-row">
+					            <input type="text"
+					                   name="empEmail"
+					                   value="${empDto.empEmail}"
+					                   class="gw-form-input field email-input">
+					
+					            <button type="button"
+					                    class="gw-btn-outline btn-cert-send email-btn">
+					                인증
+					            </button>
+					
+					            <button type="button"
+					                    class="gw-btn-outline btn-cert-retry email-btn"
+					                    style="display:none;">
+					                <i class="fa-solid fa-rotate-right"></i>
+					                <span>재인증</span>
+					            </button>
+					        </div>
+					
+					        <div class="fail-feedback email-feedback">
+					            <div>형식에 맞지 않는 이메일입니다</div>
+					            <div>이미 사용중인 이메일입니다</div>
+					        </div>
+					
+					        <div class="cert-area"></div>
+					    </div>
+					</td>
 	            </tr>
 
 	            <tr>
@@ -596,7 +790,7 @@
                     <th>새 비밀번호 확인</th>
                     <td>
                     	<div style="display:flex; gap:10px;">
-                        <input type="password" name="changePw" class="gw-form-input field">
+                        <input type="password" name="changePwCheck" class="gw-form-input field">
                         <div class="success-feedback"></div>
 	            		<div class="fail-feedback"></div>
 	            		</div>

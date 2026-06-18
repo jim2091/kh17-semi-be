@@ -83,24 +83,35 @@
 			href="/appr/list" class="gw-tab-item">결재 문서함</a>
 	</div>
 
-	<div class="gw-search-panel pds-width">
+	<div class="gw-search-panel pds-width"
+		style="padding: 16px 20px; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); border: 1px solid #e2e8f0; margin-bottom: 20px;">
 		<form action="./list" method="get" class="gw-search-form"
-			autocomplete="off">
-			<input type="hidden" name="appType" value="${param.appType}">
+			style="display: flex; gap: 20px; align-items: center;">
 
-			<select name="column" class="gw-form-select">
-				<option value="app_title"
-					${param.column == 'app_title'  ? 'selected' : ''}>서류명</option>
-				<option value="app_type"
-					${param.column == 'app_type'   ? 'selected' : ''}>문서종류</option>
-				<option value="app_status"
-					${param.column == 'app_status' ? 'selected' : ''}>진행상황</option>
-			</select> <input type="text" name="keyword" class="gw-form-input"
-				placeholder="검색어를 입력하세요." value="${param.keyword}">
+			<div style="display: flex; align-items: center; gap: 8px;">
+				<label
+					style="font-size: 13px; font-weight: 700; color: #475569; white-space: nowrap;">문서종류</label>
+				<select name="searchAppType" class="gw-form-select"
+					style="margin: 0; min-width: 150px;" onchange="this.form.submit();">
+					<option value="">전체 문서 종류</option>
+					<option value="휴가신청서" ${searchAppType == '휴가신청서' ? 'selected' : ''}>휴가신청서</option>
+					<option value="품의서" ${searchAppType == '품의서' ? 'selected' : ''}>품의서</option>
+					<option value="업무기안서" ${searchAppType == '업무기안서' ? 'selected' : ''}>업무기안서</option>
+				</select>
+			</div>
 
-			<button type="submit" class="gw-btn-primary">
-				<i class="fa-solid fa-magnifying-glass"></i> <span>검색</span>
-			</button>
+			<div style="display: flex; align-items: center; gap: 8px;">
+				<label
+					style="font-size: 13px; font-weight: 700; color: #475569; white-space: nowrap;">진행상황</label>
+				<select name="searchAppStatus" class="gw-form-select"
+					style="margin: 0; min-width: 130px;" onchange="this.form.submit();">
+					<option value="">전체 결재 상태</option>
+					<option value="처리중" ${searchAppStatus == '처리중' ? 'selected' : ''}>처리중</option>
+					<option value="승인" ${searchAppStatus == '승인' ? 'selected' : ''}>승인</option>
+					<option value="반려" ${searchAppStatus == '반려' ? 'selected' : ''}>반려</option>
+				</select>
+			</div>
+
 		</form>
 	</div>
 
@@ -152,7 +163,7 @@
 										<span class="appr-status-badge appr-status-reject">반려</span>
 									</c:when>
 									<c:otherwise>
-										<span class="appr-status-badge appr-status-progress">처리중</span>
+										<span class="appr-status-badge appr-status-progress">${appDto.appStatus}</span>
 									</c:otherwise>
 								</c:choose></td>
 						</tr>
