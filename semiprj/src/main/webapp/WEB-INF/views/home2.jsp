@@ -24,6 +24,20 @@
         rgba(255,255,255,1)
     );
 }
+/* 일정 제목 숨김 */
+.toastui-calendar-weekday-event-title {
+    display:none !important;
+}
+
+/* 점 형태로 표시 */
+.toastui-calendar-weekday-event-block {
+    height:6px !important;
+    min-height:6px !important;
+    border-radius:999px !important;
+}
+#home-calendar{
+    height:500px !important;
+}
 </style>
 
 
@@ -620,12 +634,13 @@ $(function(){
     });
 });
 
-	<%-- 작은 카드에서는 어차피 일정 제대로 안보여서 안찍도록 숨겼어요
+
     $.ajax({
         url : "/event/api/events",
         type : "get",
         dataType : "json",
         success : function(data){
+        	console.log(data);
             const events = data.map(function(item){
                 let color;
 
@@ -651,7 +666,7 @@ $(function(){
             homeCalendar.createEvents(events);
         }
     });
-    --%>
+
 </script>
 
 <jsp:include page="/WEB-INF/views/template/footer2.jsp"></jsp:include>

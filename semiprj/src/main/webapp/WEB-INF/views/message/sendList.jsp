@@ -26,11 +26,24 @@
     display:inline-block;
     padding:4px 10px;
 
-    border:1px solid #bfdbfe;
+    border:1px solid #cbd5e1;
     border-radius:999px;
 
-    background:#eff6ff;
-    color:#2563eb;
+    background:#f8fafc;
+	color:#64748b;
+
+    font-size:12px;
+    font-weight:600;
+}
+	.message-unread{
+    display:inline-block;
+    padding:4px 10px;
+
+    border:1px solid #93c5fd;
+    border-radius:999px;
+
+    background:#dbeafe;
+	color:#2563eb;
 
     font-size:12px;
     font-weight:600;
@@ -118,6 +131,11 @@
 							<c:if test="${messageDto.messageRead == 'Y'}">
 								<span class="message-read">
 						            읽음
+						        </span>
+							</c:if>
+							<c:if test="${messageDto.messageRead == 'N'}">
+								<span class="message-unread">
+						            안읽음
 						        </span>
 							</c:if>
 						</td>
