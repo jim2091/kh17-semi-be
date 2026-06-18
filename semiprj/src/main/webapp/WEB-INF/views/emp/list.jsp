@@ -78,28 +78,11 @@ $(function(){
 			
 			<input type="text" name="keyword" id="keyword-input" placeholder="검색어 입력" 
 								class="gw-form-input" value="${param.keyword}">
-<<<<<<< HEAD
-			
-			<select id="dept-select" class="gw-form-select" style="display:none;">
-	            <option value="">부서선택</option>
-				<option value="10" ${param.keyword=='10'? 'selected' : '' }>대표이사실</option>
-				<option value="20" ${param.keyword=='20'? 'selected' : '' }>개발본부</option>
-				<option value="21" ${param.keyword=='21'? 'selected' : '' }>플랫폼개발팀</option>
-				<option value="22" ${param.keyword=='22'? 'selected' : '' }>인프라운영팀</option>
-				<option value="30" ${param.keyword=='30'? 'selected' : '' }>경영지원본부</option>
-				<option value="31" ${param.keyword=='31'? 'selected' : '' }>인사팀</option>
-				<option value="32" ${param.keyword=='32'? 'selected' : '' }>총무팀</option>
-				<option value="40" ${param.keyword=='40'? 'selected' : '' }>영업본부</option>
-				<option value="41" ${param.keyword=='41'? 'selected' : '' }>국내영업팀</option>
-				<option value="42" ${param.keyword=='42'? 'selected' : '' }>고객지원팀</option>
-        	</select>
-=======
-			<select name="empDept" class="gw-form-select">
+			<select name="deptKeyword" id="dept-select" class="gw-form-select" style="display:none;">
 				<c:forEach var="dept" items="${deptList}">
 			        <option value="${dept.deptId}">${dept.deptName}</option>
 			    </c:forEach>
 	        </select>
->>>>>>> refs/remotes/origin/main
 			<button type="submit" class="gw-btn-primary">
 				<i class="fa-solid fa-magnifying-glass"></i> 
 				<span>검색</span>

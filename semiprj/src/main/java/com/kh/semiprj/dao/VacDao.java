@@ -50,7 +50,7 @@ public class VacDao {
 		}, ob);
 	}
 
-	// 사원의 잔여 연차 감소 및 사용 연차 증가 처리 (vac_info 갱신)
+	// 3. 사원의 잔여 연차 감소 및 사용 연차 증가 처리 (vac_info 갱신)
 	public void decreaseVacationCount(String empNo, int vacYear, int days) {
 		String sql = "UPDATE vac_info " + "SET vac_cnt = vac_cnt - ?, " // 잔여 일수 차감
 				+ "    vac_used = vac_used + ? " // 사용 일수 누적
@@ -59,18 +59,13 @@ public class VacDao {
 		Object[] ob = { days, days, empNo, vacYear };
 		jdbcTemplate.update(sql, ob);
 	}
+	
+	//vac_info 의 개인 연차가 자동으로 차감되는 처리
+	public int countVacationDaysFromHistory(int appId) {
+		String sql = "select count(*) from vac_history where app_id = ?";
+		Object[] ob = { appId };
 
-	// 사번과 연도를 기준으로 연차 정보 단건 조회
-	public VacInfoDto selectVacInfoByEmpNo(String empNo, int year) {
-		String sql = "select * from vac_info where emp_no = ? and vac_year = ?";
-		Object[] params = { empNo, year };
-
-		try {
-			// 데이터가 정확히 1건 있을 때 객체로 매핑하여 리턴
-			return jdbcTemplate.queryForObject(sql, vacInfoMapper, params);
-		} catch (org.springframework.dao.EmptyResultDataAccessException e) {
-			// [예외 처리] 만약 신입사원이라 데이터가 단 1건도 없다면 에러를 뿜지 않고 깔끔하게 null 리턴
-			return null;
-		}
+		// 테이블에서 상숫값(COUNT) 하나만 직관적으로 추출하는 스프링 표준 메서드 (Null 방어 포함)
+		return jdbcTemplate.queryForObject(sql, Integer.class, ob);
 	}
 }

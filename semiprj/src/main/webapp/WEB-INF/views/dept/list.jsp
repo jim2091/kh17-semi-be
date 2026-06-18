@@ -61,7 +61,7 @@
             </thead>
             <tbody>
                 <c:forEach var="deptDto" items="${list}">
-                    <tr>
+                    <tr align="center" onclick="location.href='./detail?deptId=${deptDto.deptId}'" style="cursor:pointer;">
                         <td>
                             <code style="font-size: 13px; font-weight: 700; color: var(--sub-text);">
                                 ${deptDto.deptId}
