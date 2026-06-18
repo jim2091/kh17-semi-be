@@ -55,55 +55,70 @@ public class ApprController {
 		return "/appr/list";
 	}
 
-	// 승인
+	// 승인 처리 컨트롤러 매핑 교정
 		@PostMapping("/approve")
 		public String approve(@RequestParam int appLineId, @RequestParam int appId, @RequestParam int currentOrder,
 				HttpSession session) {
 			
-			// [방어 코드 추가] 세션 만료 시 로그인 페이지나 목록으로 튕겨서 NullPointerException을 방지합니다.
 			String loginId = (String) session.getAttribute("loginId");
 			if (loginId == null) {
-				return "redirect:/login"; // 프로젝트 환경에 맞는 로그인 경로로 지정
+				return "redirect:/login"; 
 			}
 			
 			String empNo = appDao.selectEmpNoById(loginId);
 			AppLineDto line = appLineDao.selectOne(appLineId);
-			if (!line.getAppAppId().equals(empNo))
+			
+			// [방어 코드] 본인 결재선이 아니면 즉시 차단
+			if (line == null || !line.getAppAppId().equals(empNo)) {
 				return "redirect:./list";
+			}
 
+			// 현재 결재선 승인 처리
 			appLineDao.approve(appLineId);
 
+			// 다음 결재권자 유무 업데이트 및 카운트 채취
 			int nextCount = appLineDao.updateNextApprover(appId, currentOrder);
 			if (nextCount > 0) {
-				appDao.updateAppStatus(appId, "결재중");
+				appDao.updateAppStatus(appId, "처리중");
 			} else {
-				// [최종 승인 시점]
+				// ➔ 차례가 더 없으므로 최종 문서 승인 종결 처리
 				appDao.updateAppStatus(appId, "승인");
 				
-				// 1. 최종 승인이 났으므로 이 문서의 최초 기안자 사원번호(empNo)를 DB에서 조회해 옵니다.
-				String requesterEmpNo = appDao.selectEmpNoByAppId(appId);
+				// 💡 [교정 핵심] 결재 마스터 테이블에서 해당 문서의 종류(Type)를 추출합니다.
+				// (참고: appDao에 selectAppTypeById 같은 메서드가 없다면 쿼리로 app_type을 꺼내와야 합니다.)
+				String appType = appDao.selectAppTypeById(appId); 
 				
-				// 2. [연동 완결] 내가 만든 연차 마스터 스위치를 가동합니다.
-				// 내부에서 알아서 '연차' 문서인지 검증하고 vac_history 적재 및 vac_info 최종 차감까지 원스톱으로 처리됩니다.
-				vacService.approveVacationSuccess(appId, requesterEmpNo);
+				// 💡 오직 '휴가신청서' 도메인일 때만 주말 제외 및 연차 자동 차감 프로세스를 연동합니다.
+				if ("휴가신청서".equals(appType)) {
+					String requesterEmpNo = appDao.selectEmpNoByAppId(appId);
+					vacService.approveVacationSuccess(appId, requesterEmpNo);
+				} else {
+					System.out.println("✔ [일반 문서 승인 완료] 문서유형: " + appType + " | 연차 연동 없이 최종 종결 처리");
+				}
 			}
 			return "redirect:./detail?appId=" + appId;
 		}
 
-	// 반려
-	@PostMapping("/reject")
-	public String reject(@RequestParam int appLineId, @RequestParam int appId, @RequestParam String appLineRej,
-			HttpSession session) {
-		String empNo = appDao.selectEmpNoById((String) session.getAttribute("loginId"));
-		AppLineDto line = appLineDao.selectOne(appLineId);
-		if (!line.getAppAppId().equals(empNo))
-			return "redirect:./list";
+		// 반려 (기존 로직 유지 및 안전 방어선 보강)
+		@PostMapping("/reject")
+		public String reject(@RequestParam int appLineId, @RequestParam int appId, @RequestParam String appLineRej,
+				HttpSession session) {
+			String loginId = (String) session.getAttribute("loginId");
+			if (loginId == null) {
+				return "redirect:/login";
+			}
+			
+			String empNo = appDao.selectEmpNoById(loginId);
+			AppLineDto line = appLineDao.selectOne(appLineId);
+			
+			if (line == null || !line.getAppAppId().equals(empNo)) {
+				return "redirect:./list";
+			}
 
-		appLineDao.reject(appLineId, appLineRej);
-		appDao.updateAppStatus(appId, "반려");
-		return "redirect:./detail?appId=" + appId;
-	}
-
+			appLineDao.reject(appLineId, appLineRej);
+			appDao.updateAppStatus(appId, "반려");
+			return "redirect:./detail?appId=" + appId;
+		}
 	@RequestMapping("/detail")
 	public String detail(Model model, @RequestParam int appId, HttpSession session) {
 		String loginId = (String) session.getAttribute("loginId");

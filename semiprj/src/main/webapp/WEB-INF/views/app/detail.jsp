@@ -86,16 +86,6 @@
 }
 </style>
 
-<script>
-	$(function() {
-		var savedTheme = localStorage.getItem("gwTheme");
-		if (savedTheme) {
-			$("body").addClass(savedTheme);
-		} else {
-			$("body").addClass("theme-blue");
-		}
-	});
-</script>
 
 <div class="pds-width appr-detail-container">
 

@@ -272,30 +272,6 @@
 </style>
 <script>
 	$(function() {
-		var savedTheme = localStorage.getItem("gwTheme");
-
-		if (savedTheme) {
-			$("body").addClass(savedTheme);
-		} else {
-			$("body").addClass("theme-blue");
-		}
-
-		$(".theme-btn").click(function() {
-			$(".theme-popup").toggle();
-		});
-
-		$(".theme-item").click(
-				function() {
-					var theme = $(this).data("theme");
-
-					$("body").removeClass(
-							"theme-blue theme-green theme-purple theme-dark")
-							.addClass(theme);
-
-					localStorage.setItem("gwTheme", theme);
-
-					$(".theme-popup").hide();
-				});
 
 		$(".check-all").change(function() {
 			$("input[name=pdsNoList]").prop("checked", this.checked);
@@ -315,13 +291,6 @@
 
 <script>
 $(function(){
-    // [추가] list.jsp와 동일한 테마 영속성 검증 및 body 클래스 인젝션
-    var savedTheme = localStorage.getItem("gwTheme");
-    if (savedTheme) {
-        $("body").removeClass("theme-blue theme-green theme-purple theme-dark").addClass(savedTheme);
-    } else {
-        $("body").addClass("theme-blue");
-    }
 
     var state = {
         vacStartDateValid : false,
@@ -333,33 +302,69 @@ $(function(){
 
     var today = moment().format("YYYY-MM-DD");
     $("[name=appDate]").val(today);
-    
-    //시간까지 나타내기 (밑의 기인일자 수정 필요함)
-    //var todayWithTime = moment().format("YYYY-MM-DD HH:mm:ss");
-    //$("[name=appDate]").val(todayWithTime);
 
     var startEl = $("[name=vacStartDate]")[0];
     var endEl   = $("[name=vacEndDate]")[0];
-    var startPicker, endPicker;
+    var startPicker = null, endPicker = null;
 
-    if(startEl && endEl) {
-        startPicker = new Lightpick({
-            field: startEl, format: "YYYY-MM-DD", firstDay: 7, minDate: moment(),
-            onSelect: function(){ $("[name=vacStartDate]").trigger("change"); }
-        });
-        endPicker = new Lightpick({
-            field: endEl, format: "YYYY-MM-DD", firstDay: 7, minDate: moment(),
-            onSelect: function(){ $("[name=vacEndDate]").trigger("change"); }
-        });
+    // 💡 [실무형 리팩토링] 달력을 생성하는 공통 빌더 함수 정의
+    function initPickers(isSickLeave) {
+        // 기존에 돌고 있던 캘린더 객체가 있다면 완벽하게 박살내서 잔여 락 메모리 제거
+        if (startPicker) { startPicker.destroy(); startPicker = null; }
+        if (endPicker) { endPicker.destroy(); endPicker = null; }
+
+        if (startEl && endEl) {
+            // 병가(isSickLeave == true)면 minDate를 주지 않고, 일반 휴가면 오늘로 잠금
+            startPicker = new Lightpick({
+                field: startEl, format: "YYYY-MM-DD", firstDay: 7, 
+                minDate: isSickLeave ? null : moment(),
+                onSelect: function(){ $("[name=vacStartDate]").trigger("change"); }
+            });
+            endPicker = new Lightpick({
+                field: endEl, format: "YYYY-MM-DD", firstDay: 7, 
+                minDate: isSickLeave ? null : moment(),
+                onSelect: function(){ $("[name=vacEndDate]").trigger("change"); }
+            });
+        }
     }
+
+    // 초기 실행 시점에는 기본이 '연차'이므로 과거 차단 모드(false)로 빌드
+    initPickers(false);
+
+    // 💡 라디오 버튼 체인지 이벤트 발생 시 캘린더 아키텍처 재조립 가동
+    $("input[name=vacType]").on("change", function() {
+        var currentType = $(this).val();
+        var isSick = (currentType === "병가");
+
+        // 병가 여부에 맞게 달력을 폭파 후 새로 빌드합니다. (과거 달력 활성화의 핵심)
+        initPickers(isSick);
+        
+        // 날짜 인풋창 초기화 처리로 싱크 꼬임 방어
+        $("[name=vacStartDate]").val("").removeClass("success fail");
+        $("[name=vacEndDate]").val("").removeClass("success fail");
+        state.vacStartDateValid = false;
+        state.vacEndDateValid = false;
+    });
 
     $("[name=vacStartDate]").on("change", function(){
         var appDate   = $("[name=appDate]").val() || today;
         var startDate = $(this).val();
         var endDate   = $("[name=vacEndDate]").val();
+        var vacType   = $("input[name=vacType]:checked").val();
+        
         if(!startDate){ $(this).removeClass("success fail"); state.vacStartDateValid = false; return; }
-        if(startDate < appDate){ $(this).removeClass("success").addClass("fail"); state.vacStartDateValid = false; }
-        else { $(this).removeClass("fail").addClass("success"); state.vacStartDateValid = true; if(endPicker) endPicker.setMinDate(moment(startDate)); }
+        
+        // 병가가 아니면서 기안일보다 과거일 때만 차단
+        if(vacType !== "병가" && startDate < appDate){ 
+            $(this).removeClass("success").addClass("fail"); 
+            state.vacStartDateValid = false; 
+        }
+        else { 
+            $(this).removeClass("fail").addClass("success"); 
+            state.vacStartDateValid = true; 
+            // 병가가 아닐 때만 시작일에 맞춰 종료일 하한선 조율
+            if(endPicker && vacType !== "병가") endPicker.setMinDate(moment(startDate)); 
+        }
         if(endDate) $("[name=vacEndDate]").trigger("change");
     });
 

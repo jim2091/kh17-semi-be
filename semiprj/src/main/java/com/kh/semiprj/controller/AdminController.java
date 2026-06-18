@@ -250,18 +250,43 @@ public class AdminController {
 		return "admin/history";
 	}
 
-	// 전자결재 관리자 접근
+	// [수정 완결] 전자결재 관리자 접근 및 다중 중첩 필터링 연동
 		@RequestMapping("/app/list")
-		public String appList(HttpSession session, @ModelAttribute PageVO pageVO, Model model) {
+		public String appList(
+				HttpSession session, 
+				@ModelAttribute PageVO pageVO, 
+				// ① 각각의 독립된 필터링 파라미터를 수집합니다 (null 값 안전 유입 처리)
+				@RequestParam(required = false) String searchEmpName,
+				@RequestParam(required = false) String searchAppType,
+				@RequestParam(required = false) String searchAppStatus,
+				Model model) {
+			
 			String loginId = (String) session.getAttribute("loginId");
-			if (loginId == null)
+			if (loginId == null) {
 				return "redirect:/login";
-			int totalCount = appDao.countAll(pageVO);
-			pageVO.setCount(totalCount);
+			}
+			
+			// ② [교정] 중첩 필터링 조건에 부합하는 전체 행 개수를 구합니다
+			int totalCount = appDao.countAll(searchEmpName, searchAppType, searchAppStatus);
+			pageVO.setCount(totalCount); // PageVO 내부 연산(beginRownum, endRownum) 실시간 구동
 
-			List<AppDto> list = appDao.selectAllList(pageVO);
+			// ③ [교정] 수집된 3대 다중 필터를 페이징 규격과 함께 DAO로 토스합니다
+			List<AppDto> list = appDao.selectAllList(pageVO, searchEmpName, searchAppType, searchAppStatus);
+			
 			model.addAttribute("list", list);
-			model.addAttribute("pageVO", pageVO); // JSP 페이징 바 출력용 추가
+			model.addAttribute("pageVO", pageVO); // JSP 페이징 바 출력용
+			
+			// ④ [추가] 사용자가 선택했던 필터링 상태를 JSP 셀렉트 박스/인풋에 박아두기 위해 전송
+			model.addAttribute("searchEmpName", searchEmpName);
+			model.addAttribute("searchAppType", searchAppType);
+			model.addAttribute("searchAppStatus", searchAppStatus);
+			
+			// [추가] 페이징 네비게이터 링크 클릭 시 검색 조건이 증발하지 않도록 파라미터 문자열 모델 바인딩
+			String searchParams = "searchEmpName=" + (searchEmpName != null ? searchEmpName : "") 
+								+ "&searchAppType=" + (searchAppType != null ? searchAppType : "") 
+								+ "&searchAppStatus=" + (searchAppStatus != null ? searchAppStatus : "");
+			model.addAttribute("searchParams", searchParams);
+
 			return "/admin/app/list";
 		}
 	// 상세

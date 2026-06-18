@@ -1,37 +1,26 @@
 package com.kh.semiprj.dao;
 
+import java.util.ArrayList;
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-
 import com.kh.semiprj.dto.VacHistoryDto;
-import com.kh.semiprj.dto.VacInfoDto;
-import com.kh.semiprj.mapper.VacInfoMapper;
 
-// 연차(휴가)관리 dao
 @Repository
 public class VacDao {
+
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
-	@Autowired
-	private VacInfoMapper vacInfoMapper;
-	
-	
-	//시퀀스 발급기
-	public int sequence() {
-		String sql = "select vac_history_seq.nextval from dual"; // vac_history 전용 시퀀스로 지정
-		Integer seq = jdbcTemplate.queryForObject(sql, Integer.class);
-		return seq != null ? seq : 0;
-	}
 
-	// 1. 연차 사용 상세 날짜 등록 (vac_history 인입)
+	// 1. [교정 완결] 연차 사용 상세 날짜 등록 (오라클 시퀀스 직접 이식)
 	public void insertVacHistory(VacHistoryDto dto) {
-		String sql = "insert into vac_history(vac_hist_no, vac_date, app_id) " + "values(?, ?, ?)"; 
-																									
-																									
-		Object[] ob = { dto.getVacHistNo(), dto.getVacDate(), dto.getAppId() };
+		// 💡 물음표를 2개로 줄이고, 첫 번째 기본키 자리에 시퀀스를 직접 선언했습니다.
+		String sql = "insert into vac_history(vac_hist_no, vac_date, app_id) "
+				+ "values(vac_history_seq.nextval, ?, ?)";
+
+		// 💡 중복 에러의 주범이었던 dto.getVacHistNo()를 과감히 제거하고 날짜와 appId만 바인딩합니다.
+		Object[] ob = { dto.getVacDate(), dto.getAppId() };
 		jdbcTemplate.update(sql, ob);
 	}
 
@@ -40,7 +29,9 @@ public class VacDao {
 		String sql = "select * from vac_history where app_id = ? order by vac_date asc";
 		Object[] ob = { appId };
 
-		// 람다식을 활용한 RowMapper 구현 (Null 값 방어 포함)
+		if (appId <= 0)
+			return new ArrayList<>();
+
 		return jdbcTemplate.query(sql, (rs, rowNum) -> {
 			VacHistoryDto dto = new VacHistoryDto();
 			dto.setVacHistNo(rs.getInt("vac_hist_no"));
@@ -59,13 +50,16 @@ public class VacDao {
 		Object[] ob = { days, days, empNo, vacYear };
 		jdbcTemplate.update(sql, ob);
 	}
-	
-	//vac_info 의 개인 연차가 자동으로 차감되는 처리
+
+	// 4. 연차 차감 일수 산출을 위한 기록 카운트
 	public int countVacationDaysFromHistory(int appId) {
 		String sql = "select count(*) from vac_history where app_id = ?";
 		Object[] ob = { appId };
 
-		// 테이블에서 상숫값(COUNT) 하나만 직관적으로 추출하는 스프링 표준 메서드 (Null 방어 포함)
-		return jdbcTemplate.queryForObject(sql, Integer.class, ob);
+		if (appId <= 0)
+			return 0;
+
+		Integer count = jdbcTemplate.queryForObject(sql, Integer.class, ob);
+		return count != null ? count : 0;
 	}
 }
