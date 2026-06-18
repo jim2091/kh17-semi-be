@@ -276,7 +276,8 @@
             	                content : item.eventContent,
             	                color : item.eventColor,
             	                empName : item.empName,
-            	                deptName : item.deptName
+            	                deptName : item.deptName,
+            	                eventOrigin : item.eventOrigin
             	            }  
             	        };
             	    });
@@ -293,6 +294,14 @@
   
     calendar.on('clickEvent', function(e){
         currentEventNo = e.event.id;
+        
+        $(".detail-category").prop("disabled", false);
+
+        $(".edit-btn").show();
+        $(".delete-btn").show();
+        
+        const loginNo = "${sessionScope.loginNo}";
+        const loginRole = "${sessionScope.loginRole}";
 
         $(".detail-title").val(e.event.title);
         $(".detail-content").val(e.event.raw.content);
@@ -310,7 +319,37 @@
         $("input[name='eventColor'][value='" +
         		e.event.raw.color +
         		"']").prop("checked", true);
-       
+        
+        if(
+                e.event.calendarId === "사내일정"
+                && loginRole !== "관리자"
+            ){
+                $(".detail-category").prop("disabled", true);
+
+                $(".edit-btn").hide();
+                $(".delete-btn").hide();
+
+                $(".detail-title").prop("readonly", true);
+                $(".detail-content").prop("readonly", true);
+                $(".detail-start").prop("disabled", true);
+                $(".detail-end").prop("disabled", true);
+            }
+            else{
+                $(".detail-category").prop("disabled", false);
+
+                $(".edit-btn").show();
+                $(".delete-btn").show();
+
+                $(".detail-title").prop("readonly", false);
+                $(".detail-content").prop("readonly", false);
+                $(".detail-start").prop("disabled", false);
+                $(".detail-end").prop("disabled", false);
+            }
+
+            $("input[name='eventColor'][value='" +
+                e.event.raw.color +
+                "']").prop("checked", true);
+
         $(".detail-modal").show();
     });
    
@@ -419,6 +458,7 @@
                 calendar.createEvents([
                     {
                         id : response.eventNo,
+                        calendarId : data.eventCategory,
                         title : data.eventTitle,
                         category : "time",
                         start : data.eventStart,
@@ -444,7 +484,7 @@
             eventContent : $(".detail-content").val(),
             eventStart : $(".detail-start").val(),
             eventEnd : $(".detail-end").val(),
-            eventCategory : $(".detail-category").val(), 
+            //eventCategory : $(".detail-category").val(), 
             eventOption : "time",
             eventColor :
                 $("input[name='eventColor']:checked").val()
@@ -552,10 +592,9 @@
             <label>일정 분류</label>
             <select name="eventCategory" class="gw-form-input field">
                 <option value="개인일정">개인일정</option>
-                <option value="부서일정">부서일정</option>
-                <c:if test="${sessionScope.empLevel == '관리자'}">
-				    <option value="사내일정">사내일정</option>
-				</c:if>
+				<c:if test="${sessionScope.loginRole == '관리자'}">
+			        <option value="사내일정">사내일정</option>
+			    </c:if>
             </select>
             <div class="success-feedback"></div>
             <div class="fail-feedback">일정 선택해주세요</div>
@@ -653,13 +692,9 @@
 
         <div class="detail-item">
         	<label>일정 분류</label>
-            <select class="gw-form-select detail-category">
-                <option value="개인일정">개인일정</option>
-                <option value="부서일정">부서일정</option>
-                <c:if test="${sessionScope.empLevel == '관리자'}">
-				    <option value="사내일정">사내일정</option>
-				</c:if>
-            </select>
+			    <input type="text"
+			           class="gw-form-input detail-category"
+			           readonly>
         </div>
         
         <div class="detail-item">

@@ -3,6 +3,8 @@ package com.kh.semiprj.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -46,18 +48,47 @@ public class EventController {
     @PostMapping("/rest/event")
     @ResponseBody
     public EventDto insert(
-            @RequestBody EventDto eventDto){
+            @RequestBody EventDto eventDto, HttpSession session){
+    	String loginRole =
+                (String)session.getAttribute("loginRole");
+
+        if("사내일정".equals(eventDto.getEventCategory())
+                && !"관리자".equals(loginRole)){
+            return null;
+        }
         eventDao.insertEvent(eventDto);
         return eventDto;
     }
 
     @PutMapping("/rest/event")
     @ResponseBody
-    public String edit(@RequestBody EventDto eventDto) {
-        boolean result = eventDao.update(eventDto);
-        //System.out.println("수정요청들어옴");
-        //System.out.println(eventDto);
-        return result? "success" : "fail";
+    public String edit(@RequestBody EventDto eventDto, HttpSession session) {
+    	 EventDto origin =
+    		        eventDao.selectOne(eventDto.getEventNo());
+
+	    String loginNo =
+	        (String)session.getAttribute("loginNo");
+
+	    String loginRole =
+	        (String)session.getAttribute("loginRole");
+
+	    if(
+	        origin.getEventCategory().equals("사내일정")
+	        && !"관리자".equals(loginRole)
+	    ){
+	        return "forbidden";
+	    }
+
+	    if(
+	        !origin.getEventOrigin().equals(loginNo)
+	        && !"관리자".equals(loginRole)
+	    ){
+	        return "forbidden";
+	    }
+
+	    boolean result = eventDao.update(eventDto);
+
+	    return result ? "success" : "fail";
     }
 
     @DeleteMapping("/rest/event")
