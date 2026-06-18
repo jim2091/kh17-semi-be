@@ -12,27 +12,36 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.kh.semiprj.dao.AppDao;
 import com.kh.semiprj.dao.AppLineDao;
+import com.kh.semiprj.dao.VacAppDao;
 import com.kh.semiprj.dto.AppDto;
 import com.kh.semiprj.dto.AppLineDto;
 import com.kh.semiprj.dto.DftAppDto;
 import com.kh.semiprj.dto.ExpAppDto;
 import com.kh.semiprj.dto.VacAppDto;
+import com.kh.semiprj.service.LeaveService;
 import com.kh.semiprj.service.VacService;
 
 import jakarta.servlet.http.HttpSession;
 
-//결재자를 통제하는 컨트롤러
 @Controller
 @RequestMapping("/appr")
 public class ApprController {
+
 	@Autowired
 	private AppDao appDao;
+
 	@Autowired
 	private AppLineDao appLineDao;
+
+	@Autowired
+	private VacAppDao vacAppDao;
+
 	@Autowired
 	private VacService vacService;
 
-	// 결재자가 보는 리스트
+	@Autowired
+	private LeaveService leaveService;
+
 	@RequestMapping("/list")
 	public String list(HttpSession session, Model model) {
 		String loginId = (String) session.getAttribute("loginId");
@@ -42,7 +51,6 @@ public class ApprController {
 		String empNo = appDao.selectEmpNoById(loginId);
 		List<AppLineDto> list = appLineDao.selectMyApprList(empNo);
 
-		// appDto 목록도 같이 조회
 		List<AppDto> appList = new ArrayList<>();
 		for (AppLineDto line : list) {
 			AppDto appDto = appDao.selectOneById(line.getAppId());
@@ -55,49 +63,64 @@ public class ApprController {
 		return "/appr/list";
 	}
 
-	// 승인
-		@PostMapping("/approve")
-		public String approve(@RequestParam int appLineId, @RequestParam int appId, @RequestParam int currentOrder,
-				HttpSession session) {
-			
-			// [방어 코드 추가] 세션 만료 시 로그인 페이지나 목록으로 튕겨서 NullPointerException을 방지합니다.
-			String loginId = (String) session.getAttribute("loginId");
-			if (loginId == null) {
-				return "redirect:/login"; // 프로젝트 환경에 맞는 로그인 경로로 지정
-			}
-			
-			String empNo = appDao.selectEmpNoById(loginId);
-			AppLineDto line = appLineDao.selectOne(appLineId);
-			if (!line.getAppAppId().equals(empNo))
-				return "redirect:./list";
+	@PostMapping("/approve")
+	public String approve(@RequestParam int appLineId, @RequestParam int appId, @RequestParam int currentOrder,
+			HttpSession session) {
 
-			appLineDao.approve(appLineId);
-
-			int nextCount = appLineDao.updateNextApprover(appId, currentOrder);
-			if (nextCount > 0) {
-				appDao.updateAppStatus(appId, "결재중");
-			} else {
-				// [최종 승인 시점]
-				appDao.updateAppStatus(appId, "승인");
-				
-				// 1. 최종 승인이 났으므로 이 문서의 최초 기안자 사원번호(empNo)를 DB에서 조회해 옵니다.
-				String requesterEmpNo = appDao.selectEmpNoByAppId(appId);
-				
-				// 2. [연동 완결] 내가 만든 연차 마스터 스위치를 가동합니다.
-				// 내부에서 알아서 '연차' 문서인지 검증하고 vac_history 적재 및 vac_info 최종 차감까지 원스톱으로 처리됩니다.
-				vacService.approveVacationSuccess(appId, requesterEmpNo);
-			}
-			return "redirect:./detail?appId=" + appId;
+		String loginId = (String) session.getAttribute("loginId");
+		if (loginId == null) {
+			return "redirect:/login";
 		}
 
-	// 반려
+		String empNo = appDao.selectEmpNoById(loginId);
+		AppLineDto line = appLineDao.selectOne(appLineId);
+
+		if (line == null || !line.getAppAppId().equals(empNo)) {
+			return "redirect:./list";
+		}
+
+		appLineDao.approve(appLineId);
+
+		int nextCount = appLineDao.updateNextApprover(appId, currentOrder);
+		if (nextCount > 0) {
+			appDao.updateAppStatus(appId, "처리중");
+		} else {
+			appDao.updateAppStatus(appId, "승인");
+
+			String appType = appDao.selectAppTypeById(appId);
+
+			if ("휴가신청서".equals(appType)) {
+				String requesterEmpNo = appDao.selectEmpNoByAppId(appId);
+				VacAppDto vacAppDto = vacAppDao.selectVacOne(appId);
+
+				if (vacAppDto != null) {
+					String vacType = vacAppDto.getVacType();
+
+					if ("휴가".equals(vacType)) {
+						leaveService.approveVacationSuccess(appId, requesterEmpNo);
+					} else if ("연차".equals(vacType) || "병가".equals(vacType)) {
+						vacService.approveVacationSuccess(appId, requesterEmpNo);
+					}
+				}
+			}
+		}
+		return "redirect:./detail?appId=" + appId;
+	}
+
 	@PostMapping("/reject")
 	public String reject(@RequestParam int appLineId, @RequestParam int appId, @RequestParam String appLineRej,
 			HttpSession session) {
-		String empNo = appDao.selectEmpNoById((String) session.getAttribute("loginId"));
+		String loginId = (String) session.getAttribute("loginId");
+		if (loginId == null) {
+			return "redirect:/login";
+		}
+
+		String empNo = appDao.selectEmpNoById(loginId);
 		AppLineDto line = appLineDao.selectOne(appLineId);
-		if (!line.getAppAppId().equals(empNo))
+
+		if (line == null || !line.getAppAppId().equals(empNo)) {
 			return "redirect:./list";
+		}
 
 		appLineDao.reject(appLineId, appLineRej);
 		appDao.updateAppStatus(appId, "반려");
@@ -115,7 +138,6 @@ public class ApprController {
 
 		List<AppLineDto> lineList = appLineDao.selectByAppId(appId);
 
-		// 내 차례인지 확인
 		AppLineDto myTurn = null;
 		for (AppLineDto line : lineList) {
 			if (line.getAppAppId().equals(empNo) && line.getAppLineStatus().equals("진행중")) {
@@ -124,7 +146,6 @@ public class ApprController {
 			}
 		}
 
-		// 문서 종류에 따라 추가 정보 조회
 		if ("휴가신청서".equals(appDto.getAppType())) {
 			VacAppDto vacAppDto = appDao.selectVacByAppId(appId);
 			model.addAttribute("vacAppDto", vacAppDto);
@@ -141,5 +162,4 @@ public class ApprController {
 		model.addAttribute("myTurn", myTurn);
 		return "appr/detail";
 	}
-
 }
