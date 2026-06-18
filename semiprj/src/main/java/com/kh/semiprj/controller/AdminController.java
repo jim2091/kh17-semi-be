@@ -292,7 +292,7 @@ public class AdminController {
 
 	    // [예외 처리] 문서 종류(AppType)가 Null인 경우를 대비한 equals 위치 변경
 	    if (appDto.getAppType() == null) {
-	        return "app/detail";
+	        return "admin/app/detail";
 	    }
 
 	    // 문서 종류에 따라 추가 정보 조회
