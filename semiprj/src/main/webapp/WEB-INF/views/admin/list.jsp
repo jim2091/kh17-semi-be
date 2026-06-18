@@ -26,7 +26,7 @@
         <select name="column" class="gw-form-select" id="column-select">
             <option value="emp_no" ${param.column == 'emp_no' ? 'selected' : ''}>사원번호</option>
             <option value="emp_id" ${param.column == 'emp_id' ? 'selected' : ''}>사원아이디</option>
-            <option value="emp_name" ${param.column == 'emp_name' ? 'selected' : ''}>사원실명</option>
+            <option value="emp_name" ${param.column == 'emp_name' ? 'selected' : ''}>사원명</option>
             <option value="emp_dept" ${param.column == 'emp_dept' ? 'selected' : ''}>부서</option>
             <option value="emp_position" ${param.column == 'emp_position' ? 'selected' : ''}>직위</option>
             <option value="emp_use_yn" ${param.column == 'emp_use_yn' ? 'selected' : ''}>활성화여부</option>
@@ -67,7 +67,7 @@
         <thead>
             <tr>
                 <th style="width: 120px;">사원번호</th>
-                <th style="width: 140px;">사원실명</th>
+                <th style="width: 140px;">사원명</th>
                 <th style="width: 160px;">부서</th>
                 <th style="width: 120px;">직위</th>
                 <th style="width: 110px;">활성화여부</th>
