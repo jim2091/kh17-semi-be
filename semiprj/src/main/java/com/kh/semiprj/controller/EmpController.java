@@ -96,6 +96,9 @@ public class EmpController {
 		    session.removeAttribute("managerToggle");
 		}
 		
+		//부서장인지
+		session.setAttribute("isManager", empDao.isManager(findEmpDto.getEmpNo()));
+		
 
 		return "redirect:/";
 	}
@@ -103,10 +106,11 @@ public class EmpController {
 	@RequestMapping("/logout")
 	public String logout(HttpSession session) {
 		session.removeAttribute("loginId");
-		session.removeAttribute("loginLevel");
 		session.removeAttribute("loginNo");
-		session.removeAttribute("loginName");
+		session.removeAttribute("empLevel");
+		session.removeAttribute("loginRole");
 		session.removeAttribute("masterToggle");
+		session.removeAttribute("isManager");
 		
 		return "redirect:/";
 	}

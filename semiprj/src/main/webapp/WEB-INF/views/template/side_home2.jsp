@@ -119,7 +119,14 @@ $(function(){
             <i class="fa-solid fa-paper-plane"></i>
             <span>쪽지함</span>
         </a>
-
+		
+		<c:if test="${sessionScope.isManager}">
+			<div class="gw-menu-title">MY DEPT</div>
+				<a href="/dept/manager">
+	            <i class="fa-solid fa-gauge-high"></i>
+	            <span>부서대시보드</span>
+	        </a>
+		</c:if>
 		
 		<c:if test="${sessionScope.loginRole == '관리자'}">
 	        <div class="gw-menu-title">MANAGEMENT</div>

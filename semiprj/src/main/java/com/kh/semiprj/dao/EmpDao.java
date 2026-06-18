@@ -276,5 +276,12 @@ public class EmpDao {
 	    String sql = "delete from dept_emp where emp_no = ?";
 	    jdbcTemplate.update(sql, empNo);
 	}
+	
+	// 부서장인지
+	public boolean isManager(String empNo) {
+		String sql = "select count(*) from dept where dept_head_id = ? ";
+		int count = jdbcTemplate.queryForObject(sql, int.class, empNo);
+		return count > 0;
+	}
 
 }
