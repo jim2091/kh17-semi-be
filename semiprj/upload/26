@@ -1,0 +1,90 @@
+drop table app_line;
+drop table dft_app;
+drop table vac_app;
+drop table exp_app;
+drop table app;
+drop sequence app_seq;
+drop sequence app_line_seq;
+
+create table app(
+app_id number primary key,
+app_req_id varchar2(24) not null,
+app_title varchar2(12) not null,
+app_content varchar(600) not null,
+app_type varchar2(15) not null,
+app_date timestamp default  systimestamp,
+app_status char(6) not null,
+app_save_yn char(1) default 'N'
+);
+
+create sequence app_seq;
+
+alter table emp
+add constraint pk_emp_emp_no primary key(emp_no);
+alter table app modify (app_req_id varchar2);
+alter table app modify (app_req_id null);
+alter table app modify (app_req_id number);
+alter table app modify (app_req_id);
+
+alter table app
+add constraint fk_app_emp
+foreign key (app_req_id)
+references emp(mep_no)
+on delete set null;
+
+
+create table dft_app(
+app_id references app(app_id) on delete cascade not null,
+dft_date timestamp not null
+);
+
+ 
+create table vac_app(
+app_id references app(app_id) on delete cascade not null,
+vac_start_date timestamp not null,
+vac_end_date timestamp not null,
+vac_type char(6) not null,
+check (vac_type in('연차', '휴가'))
+);
+
+
+create table exp_app(
+app_id references app(app_id) on delete cascade not null,
+exp_date timestamp not null,
+exp_price number not null,
+exp_history varchar2(600) not null,
+exp_how varchar2(300) not null,
+emp_purpose varchar2(300) 
+);
+
+
+create table app_line(
+app_line_id number primary key,
+app_id number,
+app_app_id number,
+app_line_order number,
+app_line_type  varchar2(30) not null,
+app_line_status varchar2(9) not null,
+app_line_date timestamp default systimestamp,
+app_line_rej varchar2(300),
+check (app_line_type in('업무기안서', '휴가신청서', '품의서')),
+check (app_line_status in('진행중', '완료', '반려'))
+);
+
+create sequence app_line_seq;
+
+
+alter table app_line
+add constraint fk_app_line_app
+foreign key (app_id)
+references app(app_id)
+on delete set null;
+
+
+alter table app_line
+add constraint fk_app_line_emp
+foreign key (app_app_id)
+references emp(emp_no)
+on delete set null;
+
+commit;

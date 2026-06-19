@@ -5,16 +5,16 @@
 
 <jsp:include page="/WEB-INF/views/template/header2.jsp"></jsp:include>
 
-<style>
-/* ========================================================
-   전자결재 문서함 전용 커스텀 확장 탭 & 뱃지 스킨 (개정본)
-   ======================================================== */
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
+<style>
 .gw-tabs {
 	display: flex;
-	gap: 6px; /* 💡 탭 사이 간격을 이미지 비율에 맞춰 소폭 조정 */
+	gap: 6px; 
 	margin-bottom: 24px;
-	border-bottom: 2px solid var(--main-color, #22c55e); /* 💡 하단 선을 이미지의 초록색 테마로 동기화 */
+	border-bottom: 2px solid var(--main-color, #22c55e); 
 }
 
 .gw-tab-item {
@@ -22,25 +22,22 @@
 	text-decoration: none;
 	font-size: 14px;
 	font-weight: 600;
-	color: #475569; /* 💡 글자색을 이미지와 유사한 다크 그레이로 보정 */
-	background: #f8fafc; /* 💡 선택 안 된 탭: 이미지 특유의 아주 연한 투명 톤 회색 배경 */
+	color: #475569; 
+	background: #f8fafc; 
 	border-radius: 8px 8px 0 0;
 	transition: all 0.2s ease-in-out;
 }
 
-/* 마우스 호버 시 자연스러운 시각 피드백 추가 */
 .gw-tab-item:hover {
 	background: #e2e8f0;
 	color: #1e293b;
 }
 
-/* 💡 [핵심] 선택된 활성화 상태: 이미지와 같이 테두리 없이 꽉 찬 완벽한 초록색 배경 구현 */
 .gw-tab-item.active {
 	background: var(--main-color, #22c55e); 
-	color: #ffffff !important; /* 💡 글자색 흰색 강제 유지 */
+	color: #ffffff !important; 
 }
 
-/* 💡 진행 상황별 상태 뱃지 (기존 둥근 스킨 규격 유지) */
 .appr-status-badge {
 	display: inline-flex;
 	align-items: center;
@@ -51,40 +48,51 @@
 	font-weight: 600;
 }
 
-/* 🟢 완료 상태 (초록색 뱃지) */
 .appr-status-approve {
 	background: #e8f5e9;
 	color: #2e7d32;
 }
 
-/* 🔴 반려 상태 (빨간색 뱃지) */
 .appr-status-reject {
 	background: #ffebee;
 	color: #c62828;
 }
 
-/* 🟡 진행 상태 (노란색 뱃지) */
 .appr-status-progress {
 	background: #fff8e1;
 	color: #f57f17;
 }
 
-/* ⚪ 대기 상태 (회색 뱃지) */
 .appr-status-wait {
 	background: #f5f5f5;
 	color: #71717a;
 }
 
-/* 테이블 열 마우스 오버 효과 추가 (UX 향상) */
 .gw-table tbody tr {
 	cursor: pointer;
 	transition: background-color 0.15s ease;
 }
 .gw-table tbody tr:hover {
-	background-color: #f8fafc; /* 💡 마우스 올렸을 때 은은한 회색 라인 효과 추가 */
+	background-color: #f8fafc; 
+}
+
+.btn-appr-type {
+	font-size: 13px; 
+	padding: 8px 14px; 
+	text-decoration: none; 
+	border: 1px solid var(--main-color, #3b82f6); 
+	color: var(--main-color, #3b82f6); 
+	border-radius: 6px; 
+	font-weight: 600; 
+	transition: all 0.2s;
+	background-color: transparent;
+}
+
+.btn-appr-type:hover {
+	background-color: var(--main-color, #3b82f6);
+	color: #ffffff !important;
 }
 </style>
-
 
 <div class="pds-width">
 	<div class="gw-page-head">
@@ -94,9 +102,8 @@
 	</div>
 
 	<div class="gw-tabs">
-		<a href="/app/list" class="gw-tab-item active">기안 문서함</a> <%-- 💡 현재 페이지 활성화 --%>
+		<a href="/app/list" class="gw-tab-item active">기안 문서함</a> 
 		<a href="/appr/list" class="gw-tab-item">결재 문서함</a>
-		<%-- 💡 [교정] gw-tap-item 오타 수정하여 탭 레이아웃 규격 일치 --%>
 		<a href="/app/bothlist" class="gw-tab-item">전체 문서함</a>
 	</div>
 
@@ -120,7 +127,6 @@
 				<label style="font-size: 13px; font-weight: 700; color: #475569; white-space: nowrap;">진행상황</label>
 				<select name="searchAppStatus" class="gw-form-select"
 					style="margin: 0; min-width: 130px; padding: 6px 12px; border: 1px solid #cbd5e1; border-radius: 6px;" onchange="this.form.submit();">
-					<%-- 💡 [교정] 전사 상태 데이터 규칙(대기/진행/완료/반려)에 맞춰 value 바인딩 구조 일치 --%>
 					<option value="">전체 결재 상태</option>
 					<option value="대기" ${searchAppStatus == '대기' ? 'selected' : ''}>대기</option>
 					<option value="진행" ${searchAppStatus == '진행' ? 'selected' : ''}>진행</option>
@@ -139,14 +145,13 @@
 				<div class="gw-table-sub" style="font-size: 13px; color: #64748b; margin-top: 2px;">총 ${list.size()}개의 문서</div>
 			</div>
 			<div class="gw-table-actions" style="margin-left: auto; display: flex; gap: 8px;">
-				<a href="./vacInsert" class="gw-btn-outline"
-					style="font-size: 13px; padding: 8px 14px; text-decoration: none; border: 1px solid #22c55e; color: #22c55e; border-radius: 6px; font-weight: 600; transition: all 0.2s;"> 
+				<a href="./vacInsert" class="btn-appr-type"> 
 					<i class="fa-solid fa-umbrella-beach"></i> 휴가신청서
-				</a> <a href="./expInsert" class="gw-btn-outline"
-					style="font-size: 13px; padding: 8px 14px; text-decoration: none; border: 1px solid #22c55e; color: #22c55e; border-radius: 6px; font-weight: 600; transition: all 0.2s;"> 
+				</a> 
+				<a href="./expInsert" class="btn-appr-type"> 
 					<i class="fa-solid fa-coins"></i> 품의서
-				</a> <a href="./dftInsert" class="gw-btn-outline"
-					style="font-size: 13px; padding: 8px 14px; text-decoration: none; border: 1px solid #22c55e; color: #22c55e; border-radius: 6px; font-weight: 600; transition: all 0.2s;"> 
+				</a> 
+				<a href="./dftInsert" class="btn-appr-type"> 
 					<i class="fa-solid fa-file-signature"></i> 업무기안서
 				</a>
 			</div>
