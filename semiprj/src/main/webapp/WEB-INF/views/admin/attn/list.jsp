@@ -87,9 +87,9 @@
         
         <select id="search-column" class="gw-form-select" style="width: 140px;">
             <option value="all">전체 검색</option>
-            <option value="dept" ${not empty param.deptCode || not empty search.deptCode ? 'selected' : ''}>부서별</option>
-            <option value="position" ${not empty param.positionCode || not empty search.positionCode ? 'selected' : ''}>직위별</option>
-            <option value="name" ${not empty param.empName || not empty search.empName ? 'selected' : ''}>직원명별</option>
+            <option value="dept" ${(not empty param.deptCode || not empty search.deptCode) ? 'selected' : ''}>부서별</option>
+            <option value="position" ${(not empty param.positionCode || not empty search.positionCode) ? 'selected' : ''}>직위별</option>
+            <option value="name" ${(not empty param.empName || not empty search.empName) ? 'selected' : ''}>직원명별</option>
         </select>
 
         <input type="text" name="empName" id="keyword-empName" placeholder="직원명을 입력하세요." 
@@ -211,22 +211,32 @@
 <script>
 $(function(){
     function toggleSearchInput() {
-        const column = $("#search-column").val();
+        // 🎯 서버에서 계산해 준 검색 종류 값을 우선적으로 가져오고, 없으면 셀렉트 박스 값 사용
+        let column = "${searchColumn}";
+        if(!column || column === "all") {
+            column = $("#search-column").val();
+        } else {
+            $("#search-column").val(column); // 셀렉트 박스 상태 강제 매핑
+        }
+        
         $("#keyword-empName, #keyword-dept, #keyword-position").hide().prop("disabled", true);
         
         if(column === "dept") { $("#keyword-dept").show().prop("disabled", false); } 
         else if(column === "position") { $("#keyword-position").show().prop("disabled", false); } 
         else if(column === "name") { $("#keyword-empName").show().prop("disabled", false); }
-        else if(column === "all") {
-            $("#keyword-dept").val("").prop("disabled", true);
-            $("#keyword-position").val("").prop("disabled", true);
-            $("#keyword-empName").val("").prop("disabled", true);
-        }
     }
+    
     toggleSearchInput();
+    
     $("#search-column").change(function() {
+        // 변경 시에는 기존 서버 유지값을 초기화하고 셀렉트 박스 기준으로 작동
         $("#keyword-dept").val(""); $("#keyword-position").val(""); $("#keyword-empName").val("");
-        toggleSearchInput();
+        const column = $(this).val();
+        $("#keyword-empName, #keyword-dept, #keyword-position").hide().prop("disabled", true);
+        
+        if(column === "dept") { $("#keyword-dept").show().prop("disabled", false); } 
+        else if(column === "position") { $("#keyword-position").show().prop("disabled", false); } 
+        else if(column === "name") { $("#keyword-empName").show().prop("disabled", false); }
     });
 });
 </script>
