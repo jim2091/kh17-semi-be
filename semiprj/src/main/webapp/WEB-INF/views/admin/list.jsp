@@ -89,7 +89,7 @@
                                 <span class="gw-status-active">활성화</span>
                             </c:when>
                             <c:otherwise>
-                                <span class="gw-muted">비활성</span>
+                                <span class="gw-muted">비활성화</span>
                             </c:otherwise>
                         </c:choose>
                     </td>

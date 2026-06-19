@@ -23,6 +23,7 @@
 	.emp-name-cell{
 	    display:flex;
 	    align-items:center;
+	    justify-content:center;
 	    gap:12px;
 	}
 	
@@ -106,14 +107,13 @@ $(function(){
 						<th>아이디</th>
 						<th>부서</th>
 						<th>직위</th>
-						<th>담당사수</th>
 						<th>입사일</th>
 				</tr>
 			</thead>
 			<tbody>
 				<c:forEach var="empDto" items="${list}">
 					<tr align="center" onclick="location.href='./detail?empNo=${empDto.empNo}'" style="cursor:pointer;">
-							<td>
+							<td >
 								<div class="emp-name-cell">
 									<img src="/emp/profile?empNo=${empDto.empNo}" class="profile-image">
 									<span class="emp-name">${empDto.empName}</span>
@@ -122,7 +122,6 @@ $(function(){
 							<td>${empDto.empId}</td>
 							<td>${empDto.empDeptName}</td>
 							<td><span class="position-badge">${empDto.empPosition}</span></td>
-							<td>${empDto.mentorName}</td>
 							<td><fmt:formatDate value = "${empDto.empHireDate}" pattern="yyyy.MM.dd"/></td>
 					</tr>
 				</c:forEach>
