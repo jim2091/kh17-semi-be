@@ -182,7 +182,7 @@
 	border-radius: 8px;
 	font-size: 13.5px;
 	color: #475569;
-	box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
 }
 
 .gw-file-delete-btn {
@@ -194,6 +194,7 @@
 	padding: 2px 6px;
 	border-radius: 4px;
 }
+
 .gw-file-delete-btn:hover {
 	background: #fef2f2;
 }
@@ -277,10 +278,6 @@ $(function(){
             return false;
         }
     });
-
-    // -----------------------------------------------------------------
-    // 💡 [추가] 비동기 파일 업로드 자바스크립트 엔진 통합
-    // -----------------------------------------------------------------
     $("#gw-file-chooser").on("change", function() {
         var files = this.files;
         if(files.length === 0) return;
@@ -307,7 +304,6 @@ $(function(){
                     return;
                 }
                 
-                // 1. 화면 목록 큐에 렌더링
                 var $li = $("<li class='gw-file-item'></li>");
                 var $nameSpan = $("<span></span>").html("<i class='fa-regular fa-file-lines'></i> " + file.name + " (" + (file.size / 1024).toFixed(1) + " KB)");
                 var $deleteBtn = $("<button type='button' class='gw-file-delete-btn'>삭제</button>");
@@ -315,11 +311,9 @@ $(function(){
                 $li.append($nameSpan).append($deleteBtn);
                 $("#gw-file-queue").append($li);
                 
-                // 2. 컨트롤러 파라미터 수집을 위한 hidden input 동적 생성
                 var $hiddenInput = $("<input type='hidden' name='attachNo'>").val(attachNo);
                 $("#gw-hidden-attach-fields").append($hiddenInput);
                 
-                // 3. 삭제 처리 바인딩
                 $deleteBtn.on("click", function() {
                     $li.remove();
                     $hiddenInput.remove();
@@ -423,11 +417,16 @@ $(function(){
 		</div>
 
 		<div class="gw-upload-container">
-			<span class="gw-upload-label"><i class="fa-solid fa-paperclip"></i> 첨부파일 증빙자료</span>
+			<span class="gw-upload-label"> <i
+				class="fa-solid fa-paperclip"></i> 첨부파일 증빙자료 (PDF / Word 문서만 허용)
+			</span>
 			<div class="gw-file-input-wrapper">
-				<input type="file" id="gw-file-chooser" multiple style="display: none;">
-				<button type="button" class="btn-search-unified" style="background-color: #475569;" 
-						onclick="document.getElementById('gw-file-chooser').click();">
+				<input type="file" id="gw-file-chooser" multiple
+					accept=".pdf, .doc, .docx"
+					style="display: none;">
+				<button type="button" class="btn-search-unified"
+					style="background-color: #475569;"
+					onclick="document.getElementById('gw-file-chooser').click();">
 					<i class="fa-solid fa-file-arrow-up"></i> 파일 선택
 				</button>
 			</div>
