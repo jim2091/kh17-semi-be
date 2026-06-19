@@ -762,21 +762,45 @@ button {
 ========================= */
 .dashboard-grid {
     display: grid;
-    grid-template-columns: 1.1fr 1fr 1fr;
+    grid-template-columns: 2fr 1fr;
     gap: 18px;
-    align-items: stretch;
+    align-items: start;
+}
+
+.movable-widget-area {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+
+.fixed-widget-area {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
 }
 
 .dashboard-card {
-    height: 300px;
+    height: 400px;
     padding: 22px;
     background: var(--card-bg);
     border: 1px solid var(--card-border);
     border-radius: 16px;
     box-shadow: 0 8px 22px var(--card-shadow);
     transition: box-shadow .18s ease, transform .18s ease;
-
     overflow: hidden;
+}
+
+.calendar-card {
+    height: 500px;
+    grid-column: 3 / 4;
+    grid-row: 1 / 3;
+}
+
+.quick-menu {
+    height: 300px;
+    min-height: 300px;
+    grid-column: 3 / 4;
+    grid-row: 3 / 4;
 }
 
 .dashboard-card:hover {
