@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import com.kh.semiprj.dto.EmpDto;
 import com.kh.semiprj.mapper.EmpMapper;
+import com.kh.semiprj.vo.PageVO;
 
 @Repository
 public class EmpDao {
@@ -69,6 +70,9 @@ public class EmpDao {
 		
 		jdbcTemplate.update(sql, params);
 	}
+	
+	
+	
 	
 	/*
 	 * public List<EmpDto> selectListByUser(){ 
@@ -284,5 +288,251 @@ public class EmpDao {
 		int count = jdbcTemplate.queryForObject(sql, int.class, empNo);
 		return count > 0;
 	}
+	
+	// * 페이징 처리가 된 목록 *
+	//전체 페이지
+	public List<EmpDto> selectListByPage(PageVO pageVO) {
+		 String sql =
+	        "select * from (" +
+	        " select rownum rn, TMP.* from (" +
+	        "   select * from emp order by emp_no asc" +
+	        " ) TMP" +
+	        ") where rn between ? and ?";
 
+	    Object[] params = {
+	        pageVO.getBeginRownum(),
+	        pageVO.getEndRownum()
+	    };
+
+	    return jdbcTemplate.query(sql, empMapper, params);
+	}
+	//검색 페이지
+	public List<EmpDto> selectSearchByPage(PageVO pageVO){
+	    String sql =
+	        "select * from (" +
+	        " select rownum rn, TMP.* from (" +
+	        "   select * from emp " +
+	        "   where instr(#1, ?) > 0 " +
+	        "   order by emp_no asc" +
+	        " ) TMP" +
+	        ") where rn between ? and ?";
+
+	    sql = sql.replace("#1", pageVO.getColumn());
+
+	    Object[] params = {
+	        pageVO.getKeyword(),
+	        pageVO.getBeginRownum(),
+	        pageVO.getEndRownum()
+	    };
+
+	    return jdbcTemplate.query(sql, empMapper, params);
+	}
+	//부서 전용 검색 페이지
+	public List<EmpDto> selectListByDeptPage(
+	        String deptKeyword,
+	        PageVO pageVO) {
+
+	    String sql =
+	        "select * from (" +
+	        " select rownum rn, TMP.* from (" +
+	        "   select * from emp " +
+	        "   where emp_dept = ? " +
+	        "   order by emp_no asc" +
+	        " ) TMP" +
+	        ") where rn between ? and ?";
+
+	    Object[] params = {
+	        Integer.parseInt(deptKeyword),
+	        pageVO.getBeginRownum(),
+	        pageVO.getEndRownum()
+	    };
+
+	    return jdbcTemplate.query(
+	        sql,
+	        empMapper,
+	        params
+	    );
+	}
+	//전체 개수
+	public int count() {
+	    String sql = "select count(*) from emp";
+	    return jdbcTemplate.queryForObject(sql, int.class);
+	}
+	//검색 개수
+	public int count(PageVO pageVO) {
+	    String sql =
+	        "select count(*) from emp " +
+	        "where instr(#1, ?) > 0";
+
+	    sql = sql.replace("#1", pageVO.getColumn());
+
+	    Object[] params = {
+	        pageVO.getKeyword()
+	    };
+
+	    return jdbcTemplate.queryForObject(
+	        sql,
+	        int.class,
+	        params
+	    );
+	}
+	//부서 전용 개수
+	public int countByDept(String deptKeyword) {
+	    String sql =
+	        "select count(*) " +
+	        "from emp " +
+	        "where emp_dept = ?";
+
+	    return jdbcTemplate.queryForObject(
+	        sql,
+	        int.class,
+	        Integer.parseInt(deptKeyword)
+	    );
+	}
+	
+	//관리자 전체 개수
+	public int countAdmin() {
+	    String sql =
+	        "select count(*) from emp " +
+	        "where emp_approval_status = 'Y'";
+
+	    return jdbcTemplate.queryForObject(sql, int.class);
+	}
+	//관리자 검색 개수
+	public int countAdmin(PageVO pageVO) {
+
+	    String sql =
+	        "select count(*) from emp " +
+	        "where instr(#1, ?) > 0 " +
+	        "and emp_approval_status = 'Y'";
+
+	    sql = sql.replace("#1", pageVO.getColumn());
+
+	    Object[] params = {
+	        pageVO.getKeyword()
+	    };
+
+	    return jdbcTemplate.queryForObject(
+	        sql,
+	        int.class,
+	        params
+	    );
+	}
+	//관리자 전체 페이지
+	public List<EmpDto> selectAdminListByPage(PageVO pageVO){
+
+	    String sql =
+	        "select * from (" +
+	        " select rownum rn, TMP.* from (" +
+	        "   select e.*, d.dept_name as emp_dept_name " +
+	        "   from emp e " +
+	        "   left outer join dept d on e.emp_dept = d.dept_id " +
+	        "   where e.emp_approval_status = 'Y' " +
+	        "   order by e.emp_no asc" +
+	        " ) TMP" +
+	        ") where rn between ? and ?";
+
+	    Object[] params = {
+	        pageVO.getBeginRownum(),
+	        pageVO.getEndRownum()
+	    };
+
+	    return jdbcTemplate.query(sql, empMapper, params);
+	}
+	//관리자 검색 페이지
+	public List<EmpDto> selectAdminSearchByPage(PageVO pageVO){
+
+	    String sql =
+	        "select * from (" +
+	        " select rownum rn, TMP.* from (" +
+	        "   select e.*, d.dept_name as emp_dept_name " +
+	        "   from emp e " +
+	        "   left outer join dept d on e.emp_dept = d.dept_id " +
+	        "   where instr(e.#1, ?) > 0 " +
+	        "   and e.emp_approval_status = 'Y' " +
+	        "   order by e.#1 asc, e.emp_no asc" +
+	        " ) TMP" +
+	        ") where rn between ? and ?";
+
+	    sql = sql.replace("#1", pageVO.getColumn());
+
+	    Object[] params = {
+	        pageVO.getKeyword(),
+	        pageVO.getBeginRownum(),
+	        pageVO.getEndRownum()
+	    };
+
+	    return jdbcTemplate.query(sql, empMapper, params);
+	}
+	//부서 검색 개수
+	public int countAdminByDept(String deptKeyword){
+
+	    String sql =
+	        "select count(*) from emp " +
+	        "where emp_dept = ? " +
+	        "and emp_approval_status = 'Y'";
+
+	    Object[] params = {
+	        Integer.parseInt(deptKeyword)
+	    };
+
+	    return jdbcTemplate.queryForObject(
+	        sql,
+	        int.class,
+	        params
+	    );
+	}
+	//부서 검색 페이지
+	public List<EmpDto> selectAdminDeptByPage(
+	        String deptKeyword,
+	        PageVO pageVO){
+
+	    String sql =
+	        "select * from (" +
+	        " select rownum rn, TMP.* from (" +
+	        "   select e.*, d.dept_name as emp_dept_name " +
+	        "   from emp e " +
+	        "   left outer join dept d on e.emp_dept = d.dept_id " +
+	        "   where e.emp_dept = ? " +
+	        "   and e.emp_approval_status = 'Y' " +
+	        "   order by e.emp_no asc" +
+	        " ) TMP" +
+	        ") where rn between ? and ?";
+
+	    Object[] params = {
+	        Integer.parseInt(deptKeyword),
+	        pageVO.getBeginRownum(),
+	        pageVO.getEndRownum()
+	    };
+
+	    return jdbcTemplate.query(sql, empMapper, params);
+	}
+	//대기 사원 목록 페이지
+	public List<EmpDto> selectListForWaitingByPage(PageVO pageVO){
+		String sql =
+			"select * from ( " +
+			"	select rownum rn, TMP.* from ( " +
+			"		select * from emp " +
+			"		where emp_approval_status = 'N' " +
+			"		and emp_email_verified = 'Y' " +
+			"		order by emp_no asc " +
+			"	) TMP " +
+			") where rn between ? and ?";
+
+		Object[] params = {
+			pageVO.getBeginRownum(),
+			pageVO.getEndRownum()
+		};
+
+		return jdbcTemplate.query(sql, empMapper, params);
+	}
+	//대기 사원 카운트
+	public int countWaiting() {
+		String sql =
+			"select count(*) from emp " +
+			"where emp_approval_status = 'N' " +
+			"and emp_email_verified = 'Y'";
+
+		return jdbcTemplate.queryForObject(sql, int.class);
+	}
 }

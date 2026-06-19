@@ -88,6 +88,14 @@
     font-weight:600;
     color:#111827;
 }
+.emp-time-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 13px;
+    color: var(--main-color, #2563eb);
+    font-weight: 600;
+}
 </style>
 
 <div class="pds-width">
@@ -150,25 +158,29 @@
 	<div class="gw-card mt-50">
 	    <div style="display:flex; justify-content:space-between; align-items:center;">
 	        <div class="gw-table-title">최근 로그인 이력</div>
-	        <a href="./history?empNo=${empDto.empNo}"
-	           class="gw-btn-outline">
+	        <a href="./history?empNo=${empDto.empNo}" class="gw-btn-outline">
 	            더보기<i class="fa-solid fa-caret-right"></i>
 	        </a>
 	    </div>
 	    <table class="gw-table gw-list-panel mt-10">
 				<thead>
 				<tr>
-					<th>일시</th>
-					<th>접속주소</th>
+					<th style="width:220px;">일시</th>
+					<th style="width:180px;">접속주소</th>
 					<th>에이전트</th>
 				</tr>
 				</thead>
 			<tbody>
 			<c:forEach var= "empHistoryDto" items="${loginHistory}">
 				<tr>
-					<td>${empHistoryDto.empHistoryTime}</td>
+					<td>
+                        <span class="emp-time-badge">
+                            <i class="fa-regular fa-clock"></i>
+                            ${empHistoryDto.empHistoryTime}
+                        </span>
+                    </td>
 					<td>${empHistoryDto.empHistoryAddress}</td>
-					<td class="agent-cell">${empHistoryDto.empHistoryAgent}</td>
+					<td class="agent-cell" style="color:#666;">${empHistoryDto.empHistoryAgent}</td>
 				</tr>
 			</c:forEach>
 			</tbody>

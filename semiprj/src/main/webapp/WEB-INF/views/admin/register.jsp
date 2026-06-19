@@ -78,6 +78,145 @@
 .form-item:has(.field.fail) .fail-feedback{
     display:block;
 }
+/* ===== 상단 영역: 그리드 안정성 확보 및 높이 대칭화 ===== */
+.mypage-layout {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 30px;
+    margin-top: 20px;
+}
+
+
+.emp-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 999px;
+}
+
+.emp-badge-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+}
+
+.emp-badge.active   { background: #dcfce7; color: #15803d; }
+.emp-badge.inactive { background: #fee2e2; color: #dc2626; }
+.emp-badge.admin    { background: #f3e8ff; color: #7e22ce; }
+.emp-badge.staff    { background: #e0f2fe; color: #0369a1; }
+
+/* 우측 상세 정보 콘텐츠 패널 */
+.info-content-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.02);
+    box-sizing: border-box;
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #2563eb;
+    margin-bottom: 24px;
+}
+
+/* 테이블 구조 */
+.info-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.info-table tr {
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.info-table tr:last-child {
+    border-bottom: none;
+}
+
+.info-table th {
+    width: 150px;
+    text-align: left;
+    padding: 16px 12px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #475569;
+}
+
+.info-table td {
+    padding: 16px 12px;
+    font-size: 14px;
+    color: #1e293b;
+    font-weight: 500;
+}
+
+.info-table td.link {
+    color: #2563eb;
+    font-weight: 600;
+}
+.mentor-item{
+    display:flex;
+    align-items:center;
+    gap:20px;
+
+    padding:14px 18px;
+    margin-bottom:10px;
+
+    border:1px solid #e4e8f0;
+    border-radius:12px;
+
+    background:white;
+    cursor:pointer;
+
+    transition:all 0.15s ease;
+}
+
+.mentor-item:hover{
+    background:#f8f9ff;
+    border-color:var(--main-light);
+    transform:translateY(-1px);
+}
+
+.mentor-name{
+    width:90px;
+    font-size:15px;
+    font-weight:700;
+    color:#222;
+}
+
+.mentor-position{
+    width:70px;
+    color:#666;
+}
+
+.mentor-dept{
+    display:inline-flex;
+    align-items:center;
+
+    padding:4px 10px;
+    border-radius:999px;
+
+    background:#f1f3ff;
+    color:var(--main-color);
+
+    font-size:12px;
+    font-weight:600;
+}
+
+.mentor-no{
+    color:#999;
+    font-size:14px;
+}
 </style>
     <link href="https://cdn.jsdelivr.net/npm/lightpick@1.6.2/css/lightpick.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js"></script>
@@ -165,7 +304,7 @@
 
             });
             $("[name=empPw], .password-check").on("blur", function(){
-                var regex = /^(?=.*[A-Za-z])(?=.*[0-9])|(?=.*[A-Za-z])(?=.*[!@#$%^&*])|(?=.*[0-9])(?=.*[!@#$%^&*]).{8,16}$/;
+                var regex = /^(?=.*[A-Za-z])(?=.*[0-9])(?=.*[!@#$%^&*])[A-Za-z0-9!@#$%^&*]{8,16}$/;
                 state.empPwValid = regex.test($("[name=empPw]").val());
                 $("[name=empPw]").removeClass("success fail")
                             .addClass(state.empPwValid ? "success": "fail");
@@ -260,7 +399,18 @@
                     $(".result").empty();
 
                     for(let i=0; i < response.length; i++) {
-                    	const row = $(`
+                    	const row = $(
+                    			'<div class="mentor-item">'
+                    	        + '<div class="mentor-name">' + response[i].empName + '</div>'
+                    	        + '<div class="mentor-position">' + response[i].empPosition + '</div>'
+                    	        + '<div class="mentor-dept">' + response[i].empDeptName + '</div>'
+                    	        + '<div class="mentor-no">' + response[i].empNo + '</div>'
+                    	    + '</div>'
+                    	);
+                    			
+                    			
+                    			/*
+                    			`
                     		    <div class="gw-list-panel"
                     		         style="cursor:pointer; margin-bottom:10px;">
                     		        <strong>${response[i].empName}</strong>
@@ -271,14 +421,20 @@
                     		            ${response[i].empPosition}
                     		        </div>
                     		    </div>
-                    		`);
-                        
+                    		`); */
+                    	
                         row.css("cursor", "pointer");
                         
                         row.click(function(){
 
-                            $("[name=empMentor]").val(
+                        	 // 화면 표시용
+                            $("[name=empMentorName]").val(
                                 response[i].empName
+                            );
+
+                            // 실제 저장용
+                            $("[name=empMentor]").val(
+                                response[i].empNo
                             );
 
                             $(".modal").hide();
@@ -292,8 +448,7 @@
         });
 
     </script>
-</head>
-<body>
+
 <div class="pds-width">
 	<div class="gw-page-head">
 	    <div class="gw-breadcrumb">홈 / 직원관리 / 사원등록</div>
@@ -302,238 +457,207 @@
 	</div>
 	
 	<form action="./register" method="post" autocomplete="off" class="form-check">
-	<div style="
-	    display:grid;
-	    grid-template-columns:280px 1fr;
-	    gap:20px;
-	">
-		<div class="gw-list-panel center">
-	    <img src="https://placehold.co/160x160"
-	         width="160"
-	         height="160"
-	         style="
-	            border-radius:50%;
-	            object-fit:cover;
-	            border:4px solid var(--main-light);
-	         ">
 
-	    <h2>신규 사원</h2>
-	
-	    <div class="gw-muted">
-	        등록 전
-	    </div>
-	
-	    <div class="gw-muted">
-	        부서 미지정
-	    </div>
-	
-	    <div class="gw-muted">
-	        직위 미지정
-	    </div>
-	</div>
-	
-	<div class="gw-list-panel">
-		<table class="gw-table">
-		<tbody>
-			<tr>
-			    <th width="180">사원번호</th>
-			    <td>
-				    <div class="form-item">
-				        <input type="text" name="empNo" class="gw-form-input field">
-				        <div class="success-feedback">사용 가능한 사원번호입니다.</div>
+	<div class="info-content-card">
+           <div class="section-title">
+               <i class="fa-regular fa-id-card"></i> 사원 정보 입력
+           </div>
+           
+		<table class="info-table">
+			<tbody>
+				<tr>
+				    <th width="180">사원번호 <span class="required">*</span></th>
+				    <td>
+					    <div class="form-item">
+					        <input type="text" name="empNo" class="gw-form-input field">
+					        <div class="success-feedback">사용 가능한 사원번호입니다.</div>
+					        <div class="fail-feedback">
+					            <div><i class="fa-solid fa-circle-exclamation"></i> 숫자로 8자리 입력해주세요.</div>
+					            <div><i class="fa-solid fa-circle-exclamation"></i> 이미 사용중인 사원번호입니다.</div>
+					        </div>
+					    </div>
+				    </td>
+				</tr>
+		
+				<tr>
+				    <th>아이디 <span class="required">*</span></th>
+				    <td>
+				        <div class="form-item">
+				        <input type="text" name="empId" class="gw-form-input field">
+				        <div class="success-feedback">사용 가능한 아이디입니다.</div>
 				        <div class="fail-feedback">
-				            <div>사원번호는 숫자로 8자리입니다.</div>
-				            <div>이미 사용중인 사원번호입니다.</div>
+				            <div><i class="fa-solid fa-circle-exclamation"></i> 영문 소문자로 시작하며 숫자 포함 5~20글자로 작성하세요.</div>
+				            <div><i class="fa-solid fa-circle-exclamation"></i> 이미 사용중인 아이디입니다.</div>
 				        </div>
 				    </div>
-			    </td>
-			</tr>
+				    </td>
+				</tr>
 		
-			<tr>
-			    <th>아이디</th>
-			    <td>
-			        <div class="form-item">
-			        <input type="text" name="empId" class="gw-form-input field">
-			        <div class="success-feedback">사용 가능한 아이디입니다.</div>
-			        <div class="fail-feedback">
-			            <div>영문 소문자로 시작하며 숫자 포함 5~20글자로 작성하세요.</div>
-			            <div>이미 사용중인 아이디입니다.</div>
-			        </div>
-			    </div>
-			    </td>
-			</tr>
+				<tr>
+				    <th>비밀번호 <span class="required">*</span></th>
+				    <td>
+				    <div class="form-item">
+				    	<div class="input-row">
+					        <input type="password"
+					               name="empPw"
+					               class="gw-form-input field">
+					        <label class="togglebox">
+				                <input type="checkbox">
+				                <i class="fa-solid fa-eye"></i>
+				                <i class="fa-solid fa-eye-slash"></i>
+					        </label>
+					    </div>
+				        <div class="fail-feedback">
+				            <i class="fa-solid fa-circle-exclamation"></i> 8~16자의 영문 대/소문자, 숫자, 특수문자를 사용해 주세요.
+				        </div>
+				    </div>
+				    </td>
+				</tr>
 		
-			<tr>
-			    <th>비밀번호</th>
-			    <td>
-			    <div class="form-item">
-			    	<div class="input-row">
-				        <input type="password"
-				               name="empPw"
+				<tr>
+				    <th>비밀번호 확인 <span class="required">*</span></th>
+				    <td>
+				    <div class="form-item">
+				   		<div class="input-row field">
+					        <input type="password" class="gw-form-input password-check field">
+							<label class="togglebox">
+				                <input type="checkbox">
+				                <i class="fa-solid fa-eye"></i>
+				                <i class="fa-solid fa-eye-slash"></i>
+					        </label>
+					    </div>
+				        <div class="success-feedback">
+				            비밀번호가 일치합니다.
+				        </div>
+				        <div class="fail-feedback">
+				            <i class="fa-solid fa-circle-exclamation"></i> 비밀번호가 일치하지 않습니다.
+				        </div>
+				    </div>
+				    </td>
+				</tr>
+		
+				<tr>
+				    <th>사원명 <span class="required">*</span></th>
+				    <td>
+				    <div class="form-item">
+				        <input type="text"
+				               name="empName"
 				               class="gw-form-input field">
-				        <label class="togglebox">
-			                <input type="checkbox">
-			                <i class="fa-solid fa-eye"></i>
-			                <i class="fa-solid fa-eye-slash"></i>
-				        </label>
+				    	<div class="success-feedback"></div>
+				        <div class="fail-feedback"><i class="fa-solid fa-circle-exclamation"></i> 필수 입력 항목입니다.</div>
 				    </div>
-			        <div class="fail-feedback">
-			            8~16자의 영문 대/소문자, 숫자, 특수문자를 사용해 주세요.
-			        </div>
-			    </div>
-			    </td>
-			</tr>
+				    </td>
+				</tr>
 		
-			<tr>
-			    <th>비밀번호 확인</th>
-			    <td>
-			    <div class="form-item">
-			   		<div class="input-row field">
-				        <input type="password" class="gw-form-input password-check field">
-						<label class="togglebox">
-			                <input type="checkbox">
-			                <i class="fa-solid fa-eye"></i>
-			                <i class="fa-solid fa-eye-slash"></i>
-				        </label>
+				<tr>
+				    <th>생년월일</th>
+				    <td>
+				    <div style="display:flex; gap:10px;">
+				        <input type="text"
+				               name="empBirth"
+				               class="gw-form-input field">
 				    </div>
-			        <div class="success-feedback">
-			            비밀번호가 일치합니다.
-			        </div>
-			        <div class="fail-feedback">
-			            비밀번호가 일치하지 않습니다.
-			        </div>
-			    </div>
-			    </td>
-			</tr>
+				    </td>
+				</tr>
 		
-		<tr>
-		    <th>사원명</th>
-		    <td>
-		    <div class="form-item">
-		        <input type="text"
-		               name="empName"
-		               class="gw-form-input field">
-		    	<div class="success-feedback"></div>
-		        <div class="fail-feedback">필수 입력 항목입니다.</div>
-		    </div>
-		    </td>
-		</tr>
+				<tr>
+				    <th>권한</th>
+				    <td>
+				    <div style="display:flex; gap:10px;">
+				        <select name="empLevel"
+				                class="gw-form-select field">
+				
+				            <option>사용자</option>
+				            <option>관리자</option>
+				
+				        </select>
+				        <div class="success-feedback"></div>
+				        <div class="fail-feedback"><i class="fa-solid fa-circle-exclamation"></i> 필수 입력 항목입니다.</div>
+				    </div>
+				    </td>
+				</tr>
 		
-		<tr>
-		    <th>생년월일</th>
-		    <td>
-		    <div style="display:flex; gap:10px;">
-		        <input type="text"
-		               name="empBirth"
-		               class="gw-form-input field">
-		    </div>
-		    </td>
-		</tr>
+				<tr>
+				    <th>직위</th>
+				    <td>
+				    <div style="display:flex; gap:10px;">
+				        <select name="empPosition"
+				                class="gw-form-select field">
+				            <option>사원</option>
+				            <option>선임</option>
+				            <option>주임</option>
+				            <option>대리</option>
+				            <option>과장</option>
+				            <option>차장</option>
+				            <option>부장</option>
+				            <option>이사</option>
+				            <option>상무</option>
+				            <option>전무</option>
+				            <option>부사장</option>
+				            <option>사장</option>
+				            <option>부회장</option>
+				            <option>회장</option>
+				        </select>
+				    	<div class="success-feedback"></div>
+				        <div class="fail-feedback"><i class="fa-solid fa-circle-exclamation"></i> 필수 입력 항목입니다.</div>
+				    </div>
+				    </td>
+				</tr>
 		
-		<tr>
-		    <th>권한</th>
-		    <td>
-		    <div style="display:flex; gap:10px;">
-		        <select name="empLevel"
-		                class="gw-form-select field">
+				<tr>
+				    <th>부서</th>
+				    <td>
+				    <div style="display:flex; gap:10px;">
+				        <select name="empDept" class="gw-form-select field">
+							<c:forEach var="dept" items="${deptList}">
+						        <option value="${dept.deptId}">${dept.deptName}</option>
+						    </c:forEach>
+				        </select>
+				    <div class="success-feedback"></div>
+				    <div class="fail-feedback"><i class="fa-solid fa-circle-exclamation"></i> 필수 입력 항목입니다.</div>
+				    </div>
+				    </td>
+				</tr>
 		
-		            <option>사용자</option>
-		            <option>관리자</option>
+				<tr>
+				    <th>입사일</th>
+				    <td>
+				    <div style="display:flex; gap:10px;">
+				        <input type="text"
+				               name="hireDateStr"
+				               class="gw-form-input field">
+				    </div>
+				    </td>
+				</tr>
 		
-		        </select>
-		        <div class="success-feedback"></div>
-		        <div class="fail-feedback">필수항목입니다</div>
-		    </div>
-		    </td>
-		</tr>
-		
-		<tr>
-		    <th>직위</th>
-		    <td>
-		    <div style="display:flex; gap:10px;">
-		        <select name="empPosition"
-		                class="gw-form-select field">
-		
-		            <option>사원</option>
-		            <option>선임</option>
-		            <option>주임</option>
-		            <option>대리</option>
-		            <option>과장</option>
-		            <option>차장</option>
-		            <option>부장</option>
-		            <option>이사</option>
-		            <option>상무</option>
-		            <option>전무</option>
-		            <option>부사장</option>
-		            <option>사장</option>
-		            <option>부회장</option>
-		            <option>회장</option>
-		
-		        </select>
-		    	<div class="success-feedback"></div>
-		        <div class="fail-feedback">필수항목입니다</div>
-		    </div>
-		    </td>
-		</tr>
-		
-		<tr>
-		    <th>부서</th>
-		    <td>
-		    <div style="display:flex; gap:10px;">
-		        <select name="empDept" class="gw-form-select field">
-					<c:forEach var="dept" items="${deptList}">
-				        <option value="${dept.deptId}">${dept.deptName}</option>
-				    </c:forEach>
-		        </select>
-		    <div class="success-feedback"></div>
-		    <div class="fail-feedback">필수항목입니다</div>
-		    </div>
-		    </td>
-		</tr>
-		
-		<tr>
-		    <th>입사일</th>
-		    <td>
-		    <div style="display:flex; gap:10px;">
-		        <input type="text"
-		               name="hireDateStr"
-		               class="gw-form-input field">
-		    </div>
-		    </td>
-		</tr>
-		
-		<tr>
-		    <th>담당사수</th>
-		    <td>
-		
-		        <div style="display:flex; gap:10px;">
-		
-		            <input type="text"
-		                   name="empMentor"
-		                   class="gw-form-input field">
-		
-		            <button type="button"
-		                    class="gw-btn-outline mentor-search">
-		                검색
-		            </button>
-		
-		        </div>
-		
-		    </td>
-		</tr>
-</tbody>
-</table>
+				<tr>
+				    <th>담당사수</th>
+				    <td>
+				        <div style="display:flex; gap:10px;">
+				            <!-- 화면 표시용 -->
+				            <input type="text"
+				                   name="empMentorName"
+				                   class="gw-form-input"
+				                   readonly>
+				
+				            <!-- 실제 저장용 -->
+				            <input type="hidden"
+				                   name="empMentor">
+				
+				            <button type="button"
+				                    class="gw-btn-outline mentor-search">
+				                검색
+				            </button>
+				        </div>
+				    </td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
 </div>
-</div>
-</div>
-<div class="mt-30"
-     style="
-        display:flex;
-        justify-content:center;
-        gap:10px;
-        flex-wrap:wrap;
-     ">
 
+<!-- [최하단] 제어 버튼 -->
+<div class="center mt-50 mb-50">
     <button type="submit"
             class="gw-btn-primary">
         <i class="fa-solid fa-user-plus"></i>
@@ -545,7 +669,6 @@
         <i class="fa-solid fa-list"></i>
         목록으로
     </a>
-
 </div>
 </form>
 
@@ -562,13 +685,14 @@
             gap:10px;
             margin-bottom:20px;
         ">
-        <input type="text" name="keyword" class="gw-form-input" placeholder="사원 검색" value="${param.keyword}">
+       <input type="text"
+               name="keyword"
+               class="gw-form-input"
+               placeholder="사원 검색">
         <button type="button" class="gw-btn-primary search-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
-        <div class="result"></div>
     </div>
+    <div class="result"></div>
 </div>
 </div>
-</body>
-</html>
 
 <jsp:include page="/WEB-INF/views/template/footer2.jsp"></jsp:include>

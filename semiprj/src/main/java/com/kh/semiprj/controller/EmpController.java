@@ -29,6 +29,7 @@ import com.kh.semiprj.service.AttachService;
 import com.kh.semiprj.service.EmailService;
 import com.kh.semiprj.vo.CertNumVo;
 import com.kh.semiprj.vo.HistoryPageVO;
+import com.kh.semiprj.vo.PageVO;
 
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -257,29 +258,51 @@ public class EmpController {
 		return "emp/mypage";
 	}
 	@RequestMapping("/list")
-	public String list(@RequestParam(required = false) String column, 
-						@RequestParam(required = false) String keyword, 
-						@RequestParam(required = false) String deptKeyword,
-						Model model) {
-		List<EmpDto> list;
+	public String list(@ModelAttribute PageVO pageVO,
+					@RequestParam(required = false) String deptKeyword,
+					Model model) {
 		
-		if("emp_dept".equals(column)) {
-	        list = empDao.selectListByDept(deptKeyword);
+		 if("emp_dept".equals(pageVO.getColumn())) {
+	        pageVO.setCount(
+	            empDao.countByDept(deptKeyword)
+	        );
+	        model.addAttribute(
+	            "list",
+	            empDao.selectListByDeptPage(
+	                deptKeyword,
+	                pageVO
+	            )
+	        );
+	    }
+	    else if(pageVO.isSearch()) {
+
+	        pageVO.setCount(
+	            empDao.count(pageVO)
+	        );
+
+	        model.addAttribute(
+	            "list",
+	            empDao.selectSearchByPage(pageVO)
+	        );
 	    }
 	    else {
-	        list = empDao.selectListByUser(column, keyword);
+
+	        pageVO.setCount(
+	            empDao.count()
+	        );
+
+	        model.addAttribute(
+	            "list",
+	            empDao.selectListByPage(pageVO)
+	        );
 	    }
-		
-		
-		model.addAttribute("list", list);
-		
-		for(EmpDto empDto : list){
-		    DeptDto deptDto = deptDao.selectOne(empDto.getEmpDept());
-		    model.addAttribute("deptDto", deptDto);
-		}
-		model.addAttribute("deptList",deptDao.selectTreeList());
-		
-		return "emp/list";
+
+	    model.addAttribute(
+	        "deptList",
+	        deptDao.selectTreeList()
+	    );
+
+	    return "emp/list";
 	}
 	@RequestMapping("/detail")
 	public String detail(@RequestParam String empNo, Model model) {

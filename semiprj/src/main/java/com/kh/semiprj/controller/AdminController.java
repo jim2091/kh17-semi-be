@@ -75,30 +75,60 @@ public class AdminController {
 
 	@PostMapping("/register")
 	public String register(@ModelAttribute EmpDto empDto) {
+		System.out.println(empDto);
+	    System.out.println("hireDate = " + empDto.getEmpHireDate());
 		empDao.insertFromAdmin(empDto);	
 		empDao.insertDeptEmp(empDto.getEmpNo(), empDto.getEmpDept());
 		return "redirect:./list";
 	}
 
 	@RequestMapping("/list")
-	public String list(@RequestParam(required = false) String column, 
-						@RequestParam(required = false) String keyword, 
-						@RequestParam(required = false) String deptKeyword,
-			Model model) {
-		List<EmpDto> list;
-		if("emp_dept".equals(column)) {
-	        list = empDao.selectListByAdminByDept(deptKeyword);
+	public String list(@ModelAttribute("pageVO") PageVO pageVO,
+	        @RequestParam(required = false) String deptKeyword,
+	        Model model) {
+
+	    if("emp_dept".equals(pageVO.getColumn())) {
+
+	        pageVO.setCount(
+	            empDao.countAdminByDept(deptKeyword)
+	        );
+
+	        model.addAttribute(
+	            "list",
+	            empDao.selectAdminDeptByPage(
+	                deptKeyword,
+	                pageVO
+	            )
+	        );
+	    }
+	    else if(pageVO.isSearch()) {
+
+	        pageVO.setCount(
+	            empDao.countAdmin(pageVO)
+	        );
+
+	        model.addAttribute(
+	            "list",
+	            empDao.selectAdminSearchByPage(pageVO)
+	        );
 	    }
 	    else {
-	        list = empDao.selectListByAdmin(column, keyword);
+
+	        pageVO.setCount(
+	            empDao.countAdmin()
+	        );
+
+	        model.addAttribute(
+	            "list",
+	            empDao.selectAdminListByPage(pageVO)
+	        );
 	    }
-		model.addAttribute("list", list);
-		for(EmpDto empDto : list){
-		    DeptDto deptDto = deptDao.selectOne(empDto.getEmpDept());
-		    model.addAttribute("deptDto", deptDto);
-		}
-		model.addAttribute("deptList",deptDao.selectTreeList());
-		return "admin/list";
+
+	    model.addAttribute("pageUrl", "./list");
+	    model.addAttribute("deptList",
+	        deptDao.selectTreeList());
+
+	    return "admin/list";
 	}
 
 	@RequestMapping("/detail")
@@ -152,15 +182,19 @@ public class AdminController {
 	}
 
 	@RequestMapping("/waitingList")
-	public String waitingList(Model model) {
-		List<EmpDto> list = empDao.selectListForWaiting();
-		if (list == null || list.isEmpty()) {
-			model.addAttribute("isEmpty", true);
-		} else {
-			model.addAttribute("isEmpty", false);
+	public String waitingList(@ModelAttribute("pageVO") PageVO pageVO, Model model) {
+		pageVO.setCount(
+				empDao.countWaiting()
+			);
+	
+			List<EmpDto> list =
+				empDao.selectListForWaitingByPage(pageVO);
+	
 			model.addAttribute("list", list);
-		}
-		return "admin/waiting_list";
+			model.addAttribute("isEmpty", list.isEmpty());
+			model.addAttribute("pageUrl", "./waitingList");
+			
+			return "admin/waiting_list";
 	}
 
 	@RequestMapping("/vacList")

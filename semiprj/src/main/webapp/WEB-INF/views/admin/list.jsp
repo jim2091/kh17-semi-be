@@ -53,7 +53,7 @@
         <div>
             <div class="gw-table-title">직원 목록</div>
             <div class="gw-table-sub">
-                총 ${list.size()}명의 직원
+                총 ${pageVO.count}명의 직원
             </div>
         </div>
         <div class="gw-table-actions">
@@ -121,7 +121,8 @@
     </table>
 
     <div class="gw-pagination">
-        <jsp:include page="/WEB-INF/views/template/pagination.jsp"></jsp:include>
+    	<c:set var="pageUrl" value="./list"/>
+        <jsp:include page="/WEB-INF/views/template/pagination_board.jsp"></jsp:include>
     </div>
 </div>
 <script>

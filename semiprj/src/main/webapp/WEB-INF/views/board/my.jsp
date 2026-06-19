@@ -47,6 +47,12 @@
 			            ${pageVO.beginRownum}-${pageVO.endRownum} / 총 ${pageVO.count}개의 글
 			        </div>
 			    </div>
+			    <div class="gw-table-actions">
+				    <a href="./list" class="gw-btn-outline">
+		                <i class="fa-solid fa-list"></i>
+		                <span>게시판</span>
+		            </a>
+				</div>
 		    </div>
 
 	
