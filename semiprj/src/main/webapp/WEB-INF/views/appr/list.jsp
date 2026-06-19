@@ -106,7 +106,7 @@
 	<div class="gw-tabs">
 		<a href="/app/list" class="gw-tab-item">기안 문서함</a> 
 		<a href="/appr/list" class="gw-tab-item active">결재 문서함</a> <%-- 💡 현재 페이지 활성화 --%>
-		<a href="/app/bothlist" class="gw-tab-item">전체 문서함</a> <%-- 💡 [추가] 통합 연계 이동용 링크 신설 --%>
+		<a href="/app/bothList" class="gw-tab-item">전체 문서함</a> <%-- 💡 [추가] 통합 연계 이동용 링크 신설 --%>
 	</div>
 
 	<div class="gw-search-panel pds-width"

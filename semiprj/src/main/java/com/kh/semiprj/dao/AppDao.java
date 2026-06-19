@@ -387,15 +387,22 @@ public class AppDao {
         return jdbcTemplate.query(sql, appMapper, empNo);
     }
 
-    // ===== 전체 조회 (관리자용) =====
-    public List<AppDto> selectAllList(PageVO pageVO, String searchEmpName,
-            String searchAppType, String searchAppStatus) {
+ // ===== 전사 전체 조회 (관리자용 페이징/검색 목록) =====
+    public List<AppDto> selectAllList(PageVO pageVO, String searchEmpName, String searchAppType, String searchAppStatus) {
+        // [예외 처리] PageVO 내부 연산 오류로 인한 0 이하의 값 유입 시 오라클 1-index 표준에 맞게 강제 보정
+        int begin = pageVO.getBeginRownum();
+        int end = pageVO.getEndRownum();
+        if (begin <= 0) begin = 1;
+        if (end <= 0) end = 10;
+
+        // 기본 베이스 SQL 및 테이블 조인 정의
         String baseSql = "select a.*, e.emp_name from app a "
                        + "join emp e on a.app_req_id = e.emp_no "
                        + "where 1=1 ";
 
         List<Object> paramList = new ArrayList<>();
 
+        // 컨트롤러가 수신한 3대 가변 필드 동적 쿼리 바인딩 파이프라인
         if (searchEmpName != null && !searchEmpName.trim().isEmpty()) {
             baseSql += "and e.emp_name like ? ";
             paramList.add("%" + searchEmpName.trim() + "%");
@@ -409,19 +416,22 @@ public class AppDao {
             paramList.add(searchAppStatus.trim());
         }
 
+        // 최신 글 정렬 기준 부여
         baseSql += "order by a.app_id desc";
 
+        // 오라클 표준 3중 서브쿼리 페이징 래퍼 빌드
         String finalSql = "select * from ("
                         + "  select rownum RN, TMP.* FROM (" + baseSql + ") TMP"
                         + ") where RN between ? and ?";
 
-        paramList.add(pageVO.getBeginRownum());
-        paramList.add(pageVO.getEndRownum());
+        // 가공된 시작/종료 ROWNUM 인덱스를 바인딩 가변 배열 끝에 순차 결합
+        paramList.add(begin);
+        paramList.add(end);
 
-        if (pageVO.getBeginRownum() <= 0 || pageVO.getEndRownum() <= 0) return new ArrayList<>();
         return jdbcTemplate.query(finalSql, appMapper, paramList.toArray());
     }
 
+    // ===== 전사 전체 조회 개수 (관리자용 페이징 카운트) =====
     public int countAll(String searchEmpName, String searchAppType, String searchAppStatus) {
         String sql = "select count(*) from app a "
                    + "join emp e on a.app_req_id = e.emp_no "
@@ -429,6 +439,7 @@ public class AppDao {
 
         List<Object> paramList = new ArrayList<>();
 
+        // selectAllList 메서드와 100% 정합성을 맞춘 카운팅 동적 조건절
         if (searchEmpName != null && !searchEmpName.trim().isEmpty()) {
             sql += "and e.emp_name like ? ";
             paramList.add("%" + searchEmpName.trim() + "%");
@@ -443,10 +454,11 @@ public class AppDao {
         }
 
         try {
+            // Null 값 및 런타임 익셉션 예외 방어 레이어 처리
             Integer count = jdbcTemplate.queryForObject(sql, Integer.class, paramList.toArray());
             return count != null ? count : 0;
         } catch (Exception e) {
-            return 0;
+            return 0; 
         }
     }
 
