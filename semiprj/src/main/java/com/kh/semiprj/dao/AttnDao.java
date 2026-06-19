@@ -47,23 +47,39 @@ public class AttnDao {
 
 	public List<AttnDto> getAttendanceList(AttnDto attnDto, PageVO pageVO) {
 		String sql = "SELECT * FROM ( "
-				   + "SELECT ROWNUM RN, TMP.* FROM ( " // ◀ 💡 RROWNUM 오타 수정 완료!
+				   + "SELECT ROWNUM RN, TMP.* FROM ( " 
 				   + "SELECT "
 				   + "  a.attn_id, a.emp_no, a.attn_work_date, a.attn_in_time, a.attn_out_time, a.attn_work_time, "
 				   + "  CASE "
+				   + "     /* 1순위: 연차 내역(vac_history) 조회 */ "
 				   + "     WHEN EXISTS ( "
 				   + "       SELECT 1 FROM vac_history vh "
 				   + "       JOIN app main_app ON vh.app_id = main_app.app_id "
 				   + "       WHERE main_app.app_req_id = a.emp_no "
 				   + "         AND main_app.app_status = '승인' "
-				   + "         AND vh.vac_date = TO_CHAR(a.attn_work_date, 'YYYY-MM-DD') "
+				   + "         AND TO_CHAR(TO_DATE(vh.vac_date, 'YYYY-MM-DD'), 'YYYY-MM-DD') = TO_CHAR(a.attn_work_date, 'YYYY-MM-DD') "
 				   + "     ) THEN ( "
-				   + "       SELECT TRIM(va.vac_type) FROM vac_history vh "
+				   + "       SELECT TRIM(va.vac_type) FROM vac_history vh " 
 				   + "       JOIN app main_app ON vh.app_id = main_app.app_id "
 				   + "       JOIN vac_app va ON main_app.app_id = va.app_id "
 				   + "       WHERE main_app.app_req_id = a.emp_no "
 				   + "         AND main_app.app_status = '승인' "
-				   + "         AND vh.vac_date = TO_CHAR(a.attn_work_date, 'YYYY-MM-DD') "
+				   + "         AND TO_CHAR(TO_DATE(vh.vac_date, 'YYYY-MM-DD'), 'YYYY-MM-DD') = TO_CHAR(a.attn_work_date, 'YYYY-MM-DD') "
+				   + "         AND ROWNUM = 1 "
+				   + "     ) "
+				   + "     /* 2순위 변경: leave_history를 안 보고 vac_app의 기간(BETWEEN)을 직접 체크 */ "
+				   + "     WHEN EXISTS ( "
+				   + "       SELECT 1 FROM vac_app va "
+				   + "       JOIN app main_app ON va.app_id = main_app.app_id "
+				   + "       WHERE main_app.app_req_id = a.emp_no "
+				   + "         AND main_app.app_status = '승인' "
+				   + "         AND TO_CHAR(a.attn_work_date, 'YYYY-MM-DD') BETWEEN va.vac_start_date AND va.vac_end_date "
+				   + "     ) THEN ( "
+				   + "       SELECT TRIM(va.vac_type) FROM vac_app va " 
+				   + "       JOIN app main_app ON va.app_id = main_app.app_id "
+				   + "       WHERE main_app.app_req_id = a.emp_no "
+				   + "         AND main_app.app_status = '승인' "
+				   + "         AND TO_CHAR(a.attn_work_date, 'YYYY-MM-DD') BETWEEN va.vac_start_date AND va.vac_end_date "
 				   + "         AND ROWNUM = 1 "
 				   + "     ) "
 				   + "     ELSE a.attn_record "
@@ -124,9 +140,11 @@ public class AttnDao {
 				   + "WHERE TRUNC(attn_work_date) = TRUNC(SYSDATE - 1) "
 				   + "  AND (attn_in_time IS NULL OR attn_out_time IS NULL) "
 				   + "  AND emp_no NOT IN ( " 
-				   + "      SELECT main_app.app_req_id FROM vac_history vh "
-				   + "      JOIN app main_app ON vh.app_id = main_app.app_id "
-				   + "      WHERE vh.vac_date = TO_CHAR(SYSDATE - 1, 'YYYY-MM-DD') "
+				   + "      SELECT main_app.app_req_id FROM vac_history vh JOIN app main_app ON vh.app_id = main_app.app_id WHERE TO_CHAR(TO_DATE(vh.vac_date, 'YYYY-MM-DD'), 'YYYY-MM-DD') = TO_CHAR(SYSDATE - 1, 'YYYY-MM-DD') "
+				   + "  ) "
+				   + "  /* 결근 처리 배치도 마찬가지로 leave_history 대신 vac_app 기간 조회 방식으로 통일 */ "
+				   + "  AND emp_no NOT IN ( " 
+				   + "      SELECT main_app.app_req_id FROM vac_app va JOIN app main_app ON va.app_id = main_app.app_id WHERE main_app.app_status = '승인' AND TO_CHAR(SYSDATE - 1, 'YYYY-MM-DD') BETWEEN va.vac_start_date AND va.vac_end_date "
 				   + "  )";
 		jdbcTemplate.update(sql);
 	}
@@ -139,8 +157,12 @@ public class AttnDao {
 	public List<AttnDto> selectAdminListCustom(AttnDto searchDto, PageVO pageVO, String startDate, String endDate) {
 		StringBuilder sql = new StringBuilder("SELECT * FROM (SELECT ROWNUM AS RN, T.* FROM ( ");
 		sql.append(
-				" SELECT A.ATTN_ID, A.EMP_NO, A.ATTN_WORK_DATE, A.ATTN_WORK_TIME, A.ATTN_IN_TIME, A.ATTN_OUT_TIME, E.EMP_NAME, E.EMP_DEPT, E.EMP_POSITION, A.ATTN_RECORD ");
-		sql.append(" FROM ATTN A JOIN EMP E ON A.EMP_NO = E.EMP_NO WHERE 1=1 ");
+				" SELECT A.ATTN_ID, A.EMP_NO, A.ATTN_WORK_DATE, A.ATTN_WORK_TIME, A.ATTN_IN_TIME, A.ATTN_OUT_TIME, E.EMP_NAME, E.EMP_DEPT, E.EMP_POSITION, A.ATTN_RECORD, D.DEPT_NAME ");
+		sql.append(" FROM ATTN A ");
+		sql.append(" JOIN EMP E ON A.EMP_NO = E.EMP_NO ");
+		// 🎯 [수정 완료] 부서 테이블의 PK 명인 DEPT_ID 컬럼 구조에 맞춰 조인 조건을 정상화했습니다.
+		sql.append(" LEFT JOIN DEPT D ON E.EMP_DEPT = D.DEPT_ID "); 
+		sql.append(" WHERE 1=1 ");
 
 		List<Object> params = new ArrayList<>();
 		if (searchDto.getDeptCode() != null && !searchDto.getDeptCode().isEmpty()) {
@@ -180,6 +202,7 @@ public class AttnDao {
 			dto.setEmpName(rs.getString("emp_name"));
 			dto.setDeptCode(rs.getString("emp_dept"));
 			dto.setPositionCode(rs.getString("emp_position"));
+			dto.setDeptName(rs.getString("dept_name")); // 매핑 완료
 			return dto;
 		}, params.toArray());
 	}
@@ -237,21 +260,23 @@ public class AttnDao {
 		String sql = "INSERT INTO attn (attn_id, emp_no, attn_work_date, attn_record) "
 				   + "SELECT attn_seq.nextval, e.emp_no, TRUNC(SYSDATE), "
 				   + "       CASE "
+				   + "           /* 1. 오늘 날짜에 승인된 연차가 있으면 연차 종류 매핑 */ "
 				   + "           WHEN EXISTS ( "
-				   + "               SELECT 1 FROM vac_history vh "
-				   + "               JOIN app main_app ON vh.app_id = main_app.app_id "
-				   + "               JOIN vac_app va ON main_app.app_id = va.app_id "
-				   + "               WHERE main_app.app_req_id = e.emp_no "
-				   + "                 AND main_app.app_status = '승인' "
-				   + "                 AND vh.vac_date = TO_CHAR(SYSDATE, 'YYYY-MM-DD') "
+				   + "               SELECT 1 FROM vac_history vh JOIN app main_app ON vh.app_id = main_app.app_id "
+				   + "               WHERE main_app.app_req_id = e.emp_no AND main_app.app_status = '승인' AND TO_CHAR(TO_DATE(vh.vac_date, 'YYYY-MM-DD'), 'YYYY-MM-DD') = TO_CHAR(SYSDATE, 'YYYY-MM-DD') "
 				   + "           ) THEN ( "
-				   + "               SELECT TRIM(va.vac_type) FROM vac_history vh "
-				   + "               JOIN app main_app ON vh.app_id = main_app.app_id "
-				   + "               JOIN vac_app va ON main_app.app_id = va.app_id "
-				   + "               WHERE main_app.app_req_id = e.emp_no "
-				   + "                 AND main_app.app_status = '승인' "
-				   + "                 AND vh.vac_date = TO_CHAR(SYSDATE, 'YYYY-MM-DD') "
-				   + "                 AND ROWNUM = 1 "
+				   + "               SELECT TRIM(va.vac_type) FROM vac_history vh JOIN app main_app ON vh.app_id = main_app.app_id JOIN vac_app va ON main_app.app_id = va.app_id "
+				   + "               WHERE main_app.app_req_id = e.emp_no AND main_app.app_status = '승인' AND TO_CHAR(TO_DATE(vh.vac_date, 'YYYY-MM-DD'), 'YYYY-MM-DD') = TO_CHAR(SYSDATE, 'YYYY-MM-DD') AND ROWNUM = 1 "
+				   + "           ) "
+				   + "           /* 2. 오늘 날짜 스케줄러 배치도 leave_history 없이 vac_app의 기간(BETWEEN)으로 체크하도록 수정 */ "
+				   + "           WHEN EXISTS ( "
+				   + "               SELECT 1 FROM vac_app va JOIN app main_app ON va.app_id = main_app.app_id "
+				   + "               WHERE main_app.app_req_id = e.emp_no AND main_app.app_status = '승인' "
+				   + "                 AND TO_CHAR(SYSDATE, 'YYYY-MM-DD') BETWEEN va.vac_start_date AND va.vac_end_date "
+				   + "           ) THEN ( "
+				   + "               SELECT TRIM(va.vac_type) FROM vac_app va JOIN app main_app ON va.app_id = main_app.app_id "
+				   + "               WHERE main_app.app_req_id = e.emp_no AND main_app.app_status = '승인' "
+				   + "                 AND TO_CHAR(SYSDATE, 'YYYY-MM-DD') BETWEEN va.vac_start_date AND va.vac_end_date AND ROWNUM = 1 "
 				   + "           ) "
 				   + "           ELSE '미확인' "
 				   + "       END AS attn_record "
@@ -280,16 +305,12 @@ public class AttnDao {
 		String sql = "UPDATE attn SET " 
 				+ "  attn_out_time = SYSDATE, " 
 				+ "  attn_work_time = CASE "
-				// 1. 12시 이전에 퇴근하는 경우: 점심시간 안 거쳤으므로 제외 없이 [퇴근 - 출근]
 				+ "      WHEN SYSDATE < TRUNC(SYSDATE) + 12/24 "
 				+ "      THEN GREATEST(ROUND((SYSDATE - attn_in_time) * 24, 2), 0) "
-				// 2. 13시 이후에 출근하는 경우: 점심시간 끝난 후 왔으므로 제외 없이 [퇴근 - 출근]
 				+ "      WHEN attn_in_time >= TRUNC(SYSDATE) + 13/24 "
 				+ "      THEN GREATEST(ROUND((SYSDATE - attn_in_time) * 24, 2), 0) "
-				// 3. 12시~13시 사이에 출근하는 경우: 점심이 끝난 13시부터 계산 [퇴근 - 13시]
 				+ "      WHEN attn_in_time >= TRUNC(SYSDATE) + 12/24 AND attn_in_time < TRUNC(SYSDATE) + 13/24 "
 				+ "      THEN GREATEST(ROUND((SYSDATE - (TRUNC(SYSDATE) + 13/24)) * 24, 2), 0) "
-				// 4. 일반적인 경우 (12시 이전 출근 & 12시 이후 퇴근): 점심시간 1시간 차감
 				+ "      ELSE GREATEST(ROUND(((SYSDATE - attn_in_time) * 24) - 1, 2), 0) " 
 				+ "  END, "
 				+ "  attn_record = CASE " 
