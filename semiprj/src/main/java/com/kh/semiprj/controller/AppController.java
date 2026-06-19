@@ -51,7 +51,7 @@ public class AppController {
 	@Autowired
 	private NotificationService notificationService;
 
-	@RequestMapping("/bothlist") 
+	@RequestMapping("/bothList") 
 	public String bothList(
 			HttpSession session, 
 			@ModelAttribute("pageVO") PageVO pageVO, 
@@ -87,7 +87,7 @@ public class AppController {
 				+ "&searchAppStatus=" + (searchAppStatus != null ? searchAppStatus.trim() : "");
 		model.addAttribute("searchParams", searchParams);
 
-		return "/app/bothlist"; 
+		return "/app/bothList"; 
 	}
 	
 	
