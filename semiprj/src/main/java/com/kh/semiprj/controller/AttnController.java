@@ -90,8 +90,7 @@ public class AttnController {
         Map<String, Object> vacInfo = attnService.getVacationInfo(empNo);
         model.addAttribute("vacInfo", vacInfo);
 
-        // 2. 🌟 [수정 추가] 휴가 정보 조회 및 바인딩 추가
-        // (※ 서비스에 getLeaveInfo 같은 메서드가 구현되어 있다고 가정할 때)
+        // 2. 🌟 휴가 정보 조회 및 바인딩 추가
         Map<String, Object> leaveInfo = attnService.getLeaveInfo(empNo); 
         model.addAttribute("leaveInfo", leaveInfo);
         
@@ -149,6 +148,10 @@ public class AttnController {
         int totalAdminCount = adminAttnService.countAdminAttendanceCustom(searchDto, startDate, endDate);
         pageVO.setCount(totalAdminCount);
         
+        // 🎯 [핵심 추가] 부서 선택 셀렉트박스를 채우기 위한 부서 목록 데이터 가져오기
+        // ※ 서비스단에 정의된 전체 부서 리스트 조회 메서드를 호출합니다. (메서드명이 다를 경우 프로젝트 환경에 맞춰 변경하세요)
+        model.addAttribute("deptList", adminAttnService.getDepartmentList()); 
+        
         model.addAttribute("startDate", startDate);
         model.addAttribute("endDate", endDate);
         model.addAttribute("pageVO", pageVO);
@@ -191,7 +194,8 @@ public class AttnController {
                 }
             }
             
-            AttnDto dto = new AttnDto();
+            @SuppressWarnings("unused")
+			AttnDto dto = new AttnDto();
             dto.setEmpNo(empNo);
             dto.setInTime(inTime); 
             
