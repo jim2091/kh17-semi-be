@@ -6,6 +6,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/treant-js/1.0/Treant.css">
 
 <style>
+
     .org-panel {
         background: var(--card-bg);
         border: 1px solid var(--card-border);
@@ -109,23 +110,32 @@
 (function () {
     var rawList = [
         <c:forEach var="dept" items="${list}" varStatus="s">
-        { id: ${dept.deptId}, parentId: ${dept.parentDeptId}, name: "${dept.deptName}" }${!s.last ? ',' : ''}
+        { 
+            id: ${dept.deptId}, 
+            parentId: ${dept.parentDeptId}, 
+            name: "${dept.deptName}",
+            // TODO: 백엔드에서 넘어오는 부서장 이름 필드명에 맞게 변경해 주세요. (예: deptHeadName)
+            headName: "${empty dept.deptHeadName ? '미지정' : dept.deptHeadName}" 
+        }${!s.last ? ',' : ''}
         </c:forEach>
     ];
 
     var nodeMap = {};
 
-    /* 1단계: 전체 노드 생성 */
+    /* 1단계: 전체 노드 생성 (text 구조 변경) */
     rawList.forEach(function(d) {
         nodeMap[d.id] = {
-            text:      { name: d.name },
+            text: { 
+                name: d.name,
+                title: d.headName // 부서명 밑에 작게 표시될 텍스트
+            },
             HTMLclass: 'node-box',
-            link:      { href: './detail?deptId=' + d.id, target: '_self' },
-            children:  []
+            link: { href: './detail?deptId=' + d.id, target: '_self' },
+            children: []
         };
     });
 
-    /* 2단계: 부모-자식 연결 */
+    /* 2단계: 부모-자식 연결 (기존과 동일) */
     var childIds = new Set();
     rawList.forEach(function(d) {
         if (nodeMap[d.parentId] !== undefined && d.parentId !== d.id) {
@@ -134,7 +144,7 @@
         }
     });
 
-    /* 3단계: 루트 자동 탐색 */
+    /* 3단계: 루트 자동 탐색 (기존과 동일) */
     var rootNode = null;
     rawList.forEach(function(d) {
         if (!childIds.has(d.id) && !rootNode) {

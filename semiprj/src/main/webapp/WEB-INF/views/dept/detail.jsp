@@ -29,7 +29,7 @@ $(function(){
 			    </div>
 			    <h1>${deptDto.deptName}</h1>
 			</div>
-			<div class="right">
+			<div class="right mb-10">
 				<a href="./listTree" class="gw-btn-outline">
 			        <i class="fa-solid fa-users"></i> 조직도
 			    </a>
@@ -87,7 +87,7 @@ $(function(){
 			        </tbody>
 			    </table>
 			    <c:if test="${not empty deptDto.deptContent}">
-			        <div style="margin-top:14px; padding-top:14px; border-top:1px solid var(--border-color); color:var(--sub-text); font-size:14px;">
+			        <div style="margin-top:14px; padding-top:14px;solid var(--border-color); color:var(--sub-text); font-size:14px;">
 			            <i class="fa-solid fa-memo" style="margin-right:6px;"></i>${deptDto.deptContent}
 			        </div>
 			    </c:if>
