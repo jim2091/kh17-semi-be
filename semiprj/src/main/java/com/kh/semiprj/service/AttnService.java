@@ -18,6 +18,7 @@ public class AttnService {
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
     public Map<String, Object> getVacationInfo(String empNo) { return attnDao.selectVacationInfo(empNo); }
+    public Map<String, Object> getLeaveInfo(String empNo) { return attnDao.selectLeaveInfo(empNo); }
     public List<AttnDto> getAttendanceList(AttnDto attnDto, PageVO pageVO) { return attnDao.getAttendanceList(attnDto, pageVO); }
     public int countAttendance(AttnDto attnDto) { return attnDao.countAttendance(attnDto); }
     public double getWorkTimeSum(String empNo, String startDate, String endDate) { return attnDao.getWorkTimeSum(empNo, startDate, endDate); }

@@ -150,6 +150,10 @@ $(function(){
 			        	<i class="fa-solid fa-calendar-plus"></i>
 			        	<span>연차 지급</span>
 			        </a>
+			        <a href="/admin/leaveList">
+			        	<i class="fa-solid fa-calendar-plus"></i>
+			        	<span>휴가 지급</span>
+			        </a>
 				</div>
 			</div>
 	        

@@ -98,7 +98,7 @@ public class ApprController {
 					String vacType = vacAppDto.getVacType();
 
 					if ("휴가".equals(vacType)) {
-						leaveService.approveVacationSuccess(appId, requesterEmpNo);
+						leaveService.approveLeaveSuccess(appId, requesterEmpNo);
 					} else if ("연차".equals(vacType) || "병가".equals(vacType)) {
 						vacService.approveVacationSuccess(appId, requesterEmpNo);
 					}

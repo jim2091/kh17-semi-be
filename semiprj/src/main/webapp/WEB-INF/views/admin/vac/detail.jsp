@@ -4,10 +4,8 @@
 <jsp:include page="/WEB-INF/views/template/header2.jsp"></jsp:include>
 
 <style>
-/* 근태/연차 페이지 전체 레이아웃 정렬 공통 적용 */
-.attn-width {
-	width: 100%;
-	max-width: 1200px;
+/* 🎯 목록 페이지의 .pds-width 고유 레이아웃과 가로폭을 강제 일치시킵니다. */
+.pds-width {
 	margin: 0 auto;
 }
 
@@ -22,25 +20,25 @@
 	font-weight: 900;
 }
 
-/* 상태별 컬러 칩 완벽 매칭 */
+/* 상태별 컬러 칩 매칭 */
 .status-tot {
 	background: #f0fdf4;
-	color: #16a34a; /* 정상/부여용 초록색 */
+	color: #16a34a;
 }
 
 .status-used {
 	background: #fef2f2;
-	color: #dc2626; /* 경고/차감용 빨간색 */
+	color: #dc2626;
 }
 
 .status-cnt {
 	background: #eff6ff;
-	color: #2563eb; /* 메인 강조용 파란색 */
+	color: #2563eb;
 }
 
 .status-empty {
 	background: #f3f4f6;
-	color: #4b5563; /* 데이터 부재용 회색 */
+	color: #4b5563;
 }
 
 /* 테이블 내부 강조 서식 */
@@ -90,9 +88,7 @@
 	gap: 8px;
 }
 
-/* ==========================================
-   ✨ [신규 추가] 연차 정보 수정 레이어 모달 스타일
-   ========================================== */
+/* 모달 레이어 팝업 스타일 가로폭 정렬 */
 .gw-modal {
     display: none;
     position: fixed;
@@ -110,8 +106,7 @@
     padding: 24px;
     border-radius: 12px;
     width: 100%;
-    max-width: 45px;
-    max-width: 460px;
+    max-width: 480px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
 .gw-modal-header {
@@ -154,101 +149,100 @@
 }
 </style>
 
-<div class="gw-page-head attn-width">
-	<div class="gw-breadcrumb">홈 / 연차관리 / 상세조회</div>
-	<h1>${empDto.empName} 사원 연차 정보</h1>
-	<p>선택하신 직원의 당해 연도 총 연차 생성 일수 및 정산 사용 내역을 확인합니다.</p>
-</div>
-
-<div class="gw-list-panel attn-width">
-	<div class="gw-table-top">
-		<div>
-			<div class="gw-table-title">연차 보유 및 사용 명세</div>
-			<div class="gw-table-sub">
-				<c:choose>
-					<c:when test="${not empty vacInfoDto and vacInfoDto.vacYear > 0}">
-                        ${vacInfoDto.vacYear}년도 기준 실시간 데이터
-                    </c:when>
-					<c:otherwise>
-                        기준 연도 정보 없음
-                    </c:otherwise>
-				</c:choose>
-			</div>
-		</div>
+<div class="pds-width">
+	<div class="gw-page-head">
+		<div class="gw-breadcrumb">홈 / 연차관리 / 상세조회</div>
+		<h1>${empDto.empName} 사원 연차 정보</h1>
+		<p>선택하신 직원의 당해 연도 총 연차 생성 일수 및 정산 사용 내역을 확인합니다.</p>
 	</div>
 
-	<table class="gw-table">
-		<thead>
-			<tr>
-				<th style="width: 25%;">구분 항목</th>
-				<th style="width: 75%;">상세 현황 및 기록 내용</th>
-			</tr>
-		</thead>
-		<tbody>
-			<tr>
-				<td class="gw-muted">사원명</td>
-				<td><span class="emp-highlight">${empDto.empName}</span> <span
-					class="gw-muted">(${empDto.empId})</span></td>
-			</tr>
-			<tr>
-				<td class="gw-muted">적용 연도</td>
-				<td><c:choose>
+	<div class="gw-list-panel">
+		<div class="gw-table-top">
+			<div>
+				<div class="gw-table-title">연차 보유 및 사용 명세</div>
+				<div class="gw-table-sub">
+					<c:choose>
 						<c:when test="${not empty vacInfoDto and vacInfoDto.vacYear > 0}">
-							<strong>${vacInfoDto.vacYear}년도</strong>
-						</c:when>
+	                        ${vacInfoDto.vacYear}년도 기준 실시간 데이터
+	                    </c:when>
 						<c:otherwise>
-							<span class="gw-muted">- (연차 정보 없음)</span>
-						</c:otherwise>
-					</c:choose></td>
-			</tr>
-			<tr>
-				<td class="gw-muted">총 연차</td>
-				<td><span class="vac-head status-tot"> ${not empty vacInfoDto ? vacInfoDto.vacTot : 0} 일 </span></td>
-			</tr>
-			<tr>
-				<td class="gw-muted">잔여 연차</td>
-				<td><span class="vac-head status-cnt"> ${not empty vacInfoDto ? vacInfoDto.vacCnt : 0} 일 </span></td>
-			</tr>
-			<tr>
-				<td class="gw-muted">사용 연차</td>
-				<td><span class="vac-head status-used"> ${not empty vacInfoDto ? vacInfoDto.vacUsed : 0} 일 </span></td>
-			</tr>
-			<tr>
-				<td class="gw-muted">최종 지급/변경 사유</td>
-				<td><c:choose>
-						<c:when
-							test="${not empty vacInfoDto and not empty vacInfoDto.vacReason}">
-							<strong>${vacInfoDto.vacReason}</strong>
-						</c:when>
-						<c:otherwise>
-							<span class="gw-muted">등록된 조정 사유 내역이 존재하지 않습니다.</span>
-						</c:otherwise>
-					</c:choose></td>
-			</tr>
-		</tbody>
-	</table>
-
-	<div class="vac-bottom-wrapper">
-
-		<div class="vac-summary-banner">
-			<i class="fa-solid fa-umbrella-beach"></i> <span>부여 연차: <strong>${not empty vacInfoDto ? vacInfoDto.vacTot : 0}</strong>일
-			</span>
-			<div style="width: 1px; height: 14px; background: var(--card-border);"></div>
-			<span>현재 잔여: <strong style="color: var(--main-color);">${not empty vacInfoDto ? vacInfoDto.vacCnt : 0}</strong>일
-			</span>
+	                        기준 연도 정보 없음
+	                    </c:otherwise>
+					</c:choose>
+				</div>
+			</div>
 		</div>
 
-		<div></div>
+		<table class="gw-table">
+			<thead>
+				<tr>
+					<th style="width: 25%;">구분 항목</th>
+					<th style="width: 75%;">상세 현황 및 기록 내용</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td class="gw-muted">사원명</td>
+					<td><span class="emp-highlight">${empDto.empName}</span> <span class="gw-muted">(${empDto.empId})</span></td>
+				</tr>
+				<tr>
+					<td class="gw-muted">적용 연도</td>
+					<td>
+						<c:choose>
+							<c:when test="${not empty vacInfoDto and vacInfoDto.vacYear > 0}">
+								<strong>${vacInfoDto.vacYear}년도</strong>
+							</c:when>
+							<c:otherwise>
+								<span class="gw-muted">- (연차 정보 없음)</span>
+							</c:otherwise>
+						</c:choose>
+					</td>
+				</tr>
+				<tr>
+					<td class="gw-muted">총 연차</td>
+					<td><span class="vac-head status-tot"> ${not empty vacInfoDto ? vacInfoDto.vacTot : 0} 일 </span></td>
+				</tr>
+				<tr>
+					<td class="gw-muted">잔여 연차</td>
+					<td><span class="vac-head status-cnt"> ${not empty vacInfoDto ? vacInfoDto.vacCnt : 0} 일 </span></td>
+				</tr>
+				<tr>
+					<td class="gw-muted">사용 연차</td>
+					<td><span class="vac-head status-used"> ${not empty vacInfoDto ? vacInfoDto.vacUsed : 0} 일 </span></td>
+				</tr>
+				<tr>
+					<td class="gw-muted">최종 지급/변경 사유</td>
+					<td>
+						<c:choose>
+							<c:when test="${not empty vacInfoDto and not empty vacInfoDto.vacReason}">
+								<strong>${vacInfoDto.vacReason}</strong>
+							</c:when>
+							<c:otherwise>
+								<span class="gw-muted">등록된 조정 사유 내역이 존재하지 않습니다.</span>
+							</c:otherwise>
+						</c:choose>
+					</td>
+				</tr>
+			</tbody>
+		</table>
 
-		<div class="btn-vac-action">
-			<a href="${pageContext.request.contextPath}/admin/vacList" class="gw-btn-outline"> 
-				<i class="fa-solid fa-list"></i> <span>목록으로</span>
-			</a> 
-			<button type="button" class="gw-btn-primary" onclick="openVacModal()">
-				<i class="fa-solid fa-pen-to-square"></i> <span>연차 정보 수정</span>
-			</button>
+		<div class="vac-bottom-wrapper">
+			<div class="vac-summary-banner">
+				<i class="fa-solid fa-umbrella-beach"></i> 
+				<span>부여 연차: <strong>${not empty vacInfoDto ? vacInfoDto.vacTot : 0}</strong>일</span>
+				<div style="width: 1px; height: 14px; background: var(--card-border);"></div>
+				<span>현재 잔여: <strong style="color: var(--main-color);">${not empty vacInfoDto ? vacInfoDto.vacCnt : 0}</strong>일</span>
+			</div>
+
+			<div class="btn-vac-action">
+				<a href="${pageContext.request.contextPath}/admin/vacList" class="gw-btn-outline"> 
+					<i class="fa-solid fa-list"></i> <span>목록으로</span>
+				</a> 
+				<button type="button" class="gw-btn-primary" onclick="openVacModal()">
+					<i class="fa-solid fa-pen-to-square"></i> <span>연차 정보 수정</span>
+				</button>
+			</div>
 		</div>
-
 	</div>
 </div>
 
@@ -307,7 +301,6 @@ function closeVacModal() {
     document.getElementById("vacEditModal").style.display = "none";
 }
 
-// 모달 바깥쪽 어두운 배경 영역 클릭 시 닫히는 기능 추가
 window.onclick = function(event) {
     const modal = document.getElementById("vacEditModal");
     if (event.target == modal) {

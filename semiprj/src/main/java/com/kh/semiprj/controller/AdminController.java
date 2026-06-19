@@ -21,6 +21,7 @@ import com.kh.semiprj.dao.AppLineDao;
 import com.kh.semiprj.dao.DeptDao;
 import com.kh.semiprj.dao.EmpDao;
 import com.kh.semiprj.dao.EmpHistoryDao;
+import com.kh.semiprj.dao.LeaveDao;
 import com.kh.semiprj.dao.VacDao;
 import com.kh.semiprj.dto.AppDto;
 import com.kh.semiprj.dto.AppLineDto;
@@ -30,10 +31,12 @@ import com.kh.semiprj.dto.DftAppDto;
 import com.kh.semiprj.dto.EmpDto;
 import com.kh.semiprj.dto.EmpHistoryDto;
 import com.kh.semiprj.dto.ExpAppDto;
+import com.kh.semiprj.dto.LeaveInfoDto;
 import com.kh.semiprj.dto.VacAppDto;
 import com.kh.semiprj.dto.VacInfoDto;
 import com.kh.semiprj.exception.TargetNotfoundException;
 import com.kh.semiprj.service.AdminAttnService;
+import com.kh.semiprj.service.LeaveService;
 import com.kh.semiprj.service.VacService;
 import com.kh.semiprj.vo.HistoryPageVO;
 import com.kh.semiprj.vo.PageVO;
@@ -45,6 +48,10 @@ import jakarta.servlet.http.HttpSession;
 public class AdminController {
 	@Autowired
 	private VacService vacService;
+	
+	@Autowired
+	private LeaveService leaveService;
+
 
 	@Autowired
 	private EmpDao empDao;
@@ -66,6 +73,10 @@ public class AdminController {
 
 	@Autowired
 	private VacDao vacDao;
+	
+	@Autowired
+	private LeaveDao leaveDao; 
+
 
 	@GetMapping("/register")
 	public String register(Model model) {
@@ -247,15 +258,124 @@ public class AdminController {
 	}
 
 	@GetMapping("/vac/detail")
-	public String vacDetail(@RequestParam String empNo, Model model) {
+	public String vacDetail(@RequestParam String empNo, @RequestParam int vacYear, Model model) {
+		// 1. 사원 기본 정보 조회 및 전송
 		EmpDto empDto = empDao.selectOneByDetail(empNo);
 		model.addAttribute("empDto", empDto);
+		
+		// 2. ✨ [Dao 교체 적용] 사원 번호와 함께 전달받은 연도로 특정 연차 데이터 타겟팅
+		VacInfoDto vacInfoDto = vacDao.selectOneByEmpNoAndYear(empNo, vacYear); 
 
-		VacInfoDto vacInfoDto = vacDao.selectOneByEmpNo(empNo);
 		model.addAttribute("vacInfoDto", vacInfoDto);
 
 		return "admin/vac/detail";
 	}
+	
+	@RequestMapping("/leaveList")
+	public String list2(Model model) {
+		List<LeaveInfoDto> leaveInfoList = leaveDao.selectList(); 
+		List<Map<String, Object>> grantedList = new ArrayList<>();
+		
+		List<DeptDto> deptList = deptDao.selectTreeList();
+		Map<Integer, String> deptMap = new HashMap<>();
+		for(DeptDto d : deptList) {
+			deptMap.put(d.getDeptId(), d.getDeptName());
+		}
+		
+		if (leaveInfoList != null) {
+			for(LeaveInfoDto info : leaveInfoList) {
+				EmpDto emp = empDao.selectOneByDetail(info.getEmpNo());
+				if(emp != null) {
+					Map<String, Object> map = new HashMap<>();
+					map.put("leaveNo", info.getLeaveNo());
+					map.put("empNo", emp.getEmpNo());
+					map.put("empName", emp.getEmpName());
+					map.put("empId", emp.getEmpId());
+					map.put("deptName", deptMap.get(emp.getEmpDept()));
+					map.put("leaveYear", info.getLeaveYear());
+					map.put("leaveTot", info.getLeaveTot());     
+					map.put("leaveCnt", info.getLeaveCnt());     
+					map.put("leaveUsed", info.getLeaveUsed());   
+					map.put("leaveReason", info.getLeaveReason());
+					grantedList.add(map);
+				}
+			}
+		}
+		
+		model.addAttribute("grantedList", grantedList);
+		return "admin/leave/leave_list"; 
+	}
+
+	@GetMapping("/leave/searchEmp")
+	@ResponseBody
+	public List<Map<String, Object>> searchEmpAjax1(@RequestParam String keyword) {
+		List<EmpDto> empList = empDao.selectListByAdmin("emp_name", keyword);
+		List<Map<String, Object>> resultList = new ArrayList<>();
+		
+		List<DeptDto> deptList = deptDao.selectTreeList();
+		Map<Integer, String> deptMap = new HashMap<>();
+		for(DeptDto d : deptList) {
+			deptMap.put(d.getDeptId(), d.getDeptName());
+		}
+		
+		for(EmpDto emp : empList) {
+			Map<String, Object> map = new HashMap<>();
+			map.put("empNo", emp.getEmpNo());
+			map.put("empName", emp.getEmpName());
+			map.put("empId", emp.getEmpId());
+			map.put("deptName", deptMap.get(emp.getEmpDept()));
+			resultList.add(map);
+		}
+		return resultList;
+	}
+
+	@PostMapping("/leave/leaveGrant")
+	public String leaveGrantSubmit(
+			@RequestParam("empNoList") List<String> empNoList, 
+			@RequestParam("leaveYear") String leaveYearStr, 
+			@RequestParam int leaveDays, 
+			@RequestParam String leaveReason) {
+		
+		String cleanedYear = leaveYearStr.replace("'", "").replace("\"", "").trim();
+		int leaveYear = Integer.parseInt(cleanedYear); 
+		
+		leaveService.grantBulkLeave(empNoList, leaveYear, leaveDays, leaveReason);
+		return "redirect:../leaveList";
+	}
+
+	@GetMapping("/leave/removeHistory")
+	public String leaveRemoveHistory(@RequestParam(value = "empNoList", required = false) List<String> empNoList) {
+		if (empNoList != null && !empNoList.isEmpty()) {
+			leaveService.deleteBulkLeaveHistory(empNoList);
+		}
+		return "redirect:../leaveList";
+	}
+
+	@PostMapping("/leave/deleteHistoryBulk")
+	public String leaveDeleteHistoryBulkSubmit(@RequestParam(value = "empNoList", required = false) List<String> empNoList) {
+		if (empNoList != null && !empNoList.isEmpty()) {
+			leaveService.deleteBulkLeaveHistory(empNoList);
+		}
+		return "redirect:../leaveList";
+	}
+
+	@GetMapping("/leave/leaveDetail")
+	public String leaveDetail(@RequestParam String empNo, @RequestParam int leaveYear, Model model) {
+		// 1. 사원 인적 정보 바인딩
+		EmpDto empDto = empDao.selectOneByDetail(empNo);
+		model.addAttribute("empDto", empDto);
+		
+		// 2. ✨ [개선] 연도와 사원번호 두 키값으로 조회해 옴으로써 다건 중복 반환 에러 완벽 해결
+		LeaveInfoDto leaveInfoDto = leaveDao.selectOneByEmpNoAndYear(empNo, leaveYear); 
+		model.addAttribute("leaveInfoDto", leaveInfoDto);
+		
+		return "admin/leave/leave_detail";
+	}
+
+	
+	
+	
+	
 
 	@RequestMapping("/approval")
 	public String approval(@RequestParam String empNo) {
