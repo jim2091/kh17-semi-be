@@ -62,20 +62,32 @@ $(function(){
         }
     };
 
+    // 초기 진입 시 이미 등록된 부서장이 있다면 검증 통과 처리
     setTimeout(function(){
         if ($("input[name=messageReceiver]").length > 0) {
             $("[name=deptHeadIdKeyword]").trigger("check");
         }
     }, 50);
     
-    /* 상위 부서 */
+    /* 픽커 내 다중 선택 원천 차단 (클릭 순간 개입) */
+    $(document).on("click", ".emp-check", function(e) {
+        var pickerMode = $("#pickerMode").val();
+        if (pickerMode === "single" && $(this).is(":checked")) {
+            // 내가 방금 체크한 것 외에 모달 안의 다른 체크박스는 전부 해제
+            $(".emp-check").not(this).prop("checked", false);
+            // 선택 리스트가 모달 내부에 동적으로 쌓이고 있다면 그것도 1개로 유지되도록 초기화
+            $(".selected-list").empty(); 
+        }
+    });
+
+    /* 상위 부서 검사 */
     $("[name=parentDeptId]").on("change input", function(){
         var valid = $(this).val().length > 0;
         $(this).removeClass("success fail").addClass(valid ? "success" : "fail");
         state.parentDeptIdValid = valid;
     });
 
-    /* 부서명 중복 검사 (기존 이름은 통과) */
+    /* 부서명 중복 검사 */
     var originalDeptName = "${deptDto.deptName}";
     $("[name=deptName]").on("input", function(){
         var deptName = $(this).val();
@@ -101,26 +113,26 @@ $(function(){
         });
     });
 
-    /* 부서장 검사 */
+    /* 부서장 검사 검증식 */
     $("[name=deptHeadIdKeyword]").on("input change check", function(){
-	    var valid = $("input[name=messageReceiver]").length > 0;
-	
-	    if(valid) {
-	        $(this).removeClass("success fail"); 
-	        $(".deptHeadId-wrapper .fail-feedback").hide();
-	    }
-	    else{
-	    	$(".deptHeadId-wrapper .fail-feedback").show();
-	    }
-	
-	    state.deptHeadIdValid = valid;
-	});
+        var valid = $("input[name=messageReceiver]").length > 0;
+    
+        if(valid) {
+            $(this).removeClass("success fail"); 
+            $(".deptHeadId-wrapper .fail-feedback").hide();
+        }
+        else{
+            $(".deptHeadId-wrapper .fail-feedback").show();
+        }
+    
+        state.deptHeadIdValid = valid;
+    });
 
-    /* 자동완성 */
+    /* 자동완성 검색 기능 */
     $("[name=deptHeadIdKeyword]").on("keyup", function(){
         var keyword = $(this).val();
         if(keyword.length < 1){ $(".deptHeadId").empty(); return; }
-	
+    
         $.ajax({
             url    : "http://localhost:8080/dept/searchEmp",
             method : "get",
@@ -131,32 +143,31 @@ $(function(){
                     var div = $("<div>");
                     div.addClass("deptHeadId-item");
                     div.text(emp.empName + " (" + (emp.empDeptName || "소속없음") + ")");
-	
+    
                     div.click(function(){
-                        $(".receiver-selected-list").empty();
-	
+                        $(".receiver-selected-list").empty(); // 기존 선택 초기화
+    
                         var html = "";
                         html += "<span class='receiver-tag'>";
                         html += emp.empName + " (" + (emp.empDeptName || "소속없음") + ")";
                         html += "<button type='button' class='delete-tag'>✕</button>";
                         html += "<input type='hidden' name='messageReceiver' value='" + emp.empNo + "'>";
                         html += "</span>";
-	
+    
                         $(".receiver-selected-list").append(html);
                         $("[name=deptHeadIdKeyword]").val("");
                         $(".deptHeadId").empty();
                         
-                        // 검사 트리거 호출로 상태 업데이트 및 피드백 제어
                         $("[name=deptHeadIdKeyword]").trigger("check");
                     });
-	
+    
                     $(".deptHeadId").append(div);
                 });
             }
         });
     });
 
-    /* 모달 확인 */
+    /* 모달 확인 버튼 반영 */
     $(document).on("click", ".confirm-btn", function(){
         var checked = $(".emp-check:checked");
         
@@ -170,8 +181,9 @@ $(function(){
         
         var empNo       = first.data("no");
         var empName     = first.data("name");
-        var empDeptName = tr.find("td").eq(4).text();
+        var empDeptName = tr.find("td").eq(4).text().trim(); 
 
+        // 부서화면 최종 반영 대상 리스트 초기화 (1명만 남기기)
         $(".receiver-selected-list").empty();
         
         var html = "";
@@ -183,13 +195,14 @@ $(function(){
 
         $(".receiver-selected-list").append(html);
         
-        // 모달 선택 후에도 검사 트리거를 확실하게 작동시킴
         $("[name=deptHeadIdKeyword]").trigger("check");
         
+        // 체크박스 상태 초기화 후 닫기
+        $(".emp-check").prop("checked", false);
         $(".modal-overlay").hide();
     });
-	
-    /* 모달 상단 selected-item 삭제 - edit 전용 */
+    
+    /* 모달 상단 selected-item 삭제 */
     $(document).on("click", ".selected-remove", function(){
         var target = $(this).closest(".selected-item");
         var empNo = target.data("no");
@@ -199,42 +212,32 @@ $(function(){
         $(".selected-count").text($(".selected-item").length);
     });
 
-    /* 태그 삭제 */
+    /* 태그 삭제 버튼 */
     $(".receiver-selected-list").on("click", ".delete-tag", function(){
-	    $(this).closest(".receiver-tag").remove();
-	    $("[name=deptHeadIdKeyword]").trigger("check"); // 지우고 나서 다시 체크하도록 유도
-	});
+        $(this).closest(".receiver-tag").remove();
+        $("[name=deptHeadIdKeyword]").trigger("check"); 
+    });
 
-    /* 업무내용 */
+    /* 업무내용 검증 */
     $("[name=deptContent]").on("blur", function(){
         state.deptContentValid = true;
         if ($(this).val().length > 0) $(this).removeClass("success fail").addClass("success");
     });
 
-    /* 제출 */
-    /* 서브밋 제어 (안전한 최종 검증 구조) */
+    /* 서브밋 제어 */
     $(".form-check").on("submit", function(){
-        
-        if (!state.empNameValid)     $("[name=empName]").addClass("fail");
-        if (!state.empDeptValid)     $("[name=empDept]").addClass("fail");
-        if (!state.empPositionValid) $("[name=empPosition]").addClass("fail");
-        if (!state.empEmailValid)    $("[name=empEmail]").addClass("fail");
-        if (!state.empContactValid)  $("[name=empContact]").addClass("fail");
+        if (!state.parentDeptIdValid) $("[name=parentDeptId]").addClass("fail");
+        if (!state.deptNameValid)     $("[name=deptName]").addClass("fail");
+        if (!state.deptHeadIdValid)   $("[name=deptHeadIdKeyword]").addClass("fail");
 
-        // 2️⃣ 최종 폼 전송 가능 여부 판별
         if(!state.ok()) {
             alert("입력하신 항목 중 형식에 맞지 않거나 누락된 필수 항목이 있습니다.");
-            
-            // 실패한 첫 번째 항목으로 화면 포커스를 이동시켜 UX를 개선합니다.
             $(".field.fail").first().trigger("focus"); 
-            
             return false;
         }
-        
         return true;
     });
-});
-});
+}); // <--- 중복 마무리 태그 정리 완료
 </script>
 		<div class="screen">
 			<!-- ── 페이지 헤더 ── -->
