@@ -22,6 +22,6 @@ public class AttnScheduler {
         // 2단계: 금일 출근할 사원 베이스 레코드 생성
         // (내부 수정을 통해 휴가자는 자정에 미리 '휴가' 낙인이 찍힌 채로 인서트됩니다.)
         attnDao.createTodayAttendance();
-        System.out.println("금일 출근 대상 사원 베이스 레코드 선행 생성 완료 (휴가 자동 연동 반영)");
+        System.out.println("금일 출근 대상 사원 베이스 레코드 선행 생성 완료 (연차 자동 연동 반영)");
     }
 }

@@ -96,9 +96,9 @@ public class VacDao {
 		return count != null ? count : 0;
 	}
 
-	public VacInfoDto selectOneByEmpNo(String empNo) {
-		String sql = "SELECT * FROM vac_info WHERE emp_no = ?";
-		Object[] ob = { empNo };
+	public VacInfoDto selectOneByEmpNoAndYear(String empNo, int vacYear) {
+		String sql = "SELECT * FROM vac_info WHERE emp_no = ? AND vac_year = ?";
+		Object[] ob = { empNo, vacYear };
 		
 		try {
 			return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> {
@@ -113,7 +113,7 @@ public class VacDao {
 				return dto;
 			}, ob);
 		} catch (EmptyResultDataAccessException e) {
-			return null; 
+			return null; // 해당 연도의 연차 데이터가 없으면 깔끔하게 null 반환
 		}
 	}
 
