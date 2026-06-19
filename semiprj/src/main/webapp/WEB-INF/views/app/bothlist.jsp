@@ -9,12 +9,12 @@
 /* ========================================================
    전자결재 문서함 전용 커스텀 확장 탭 & 뱃지 스킨 (개정본)
    ======================================================== */
-
 .gw-tabs {
 	display: flex;
 	gap: 6px; /* 💡 탭 사이 간격을 이미지 비율에 맞춰 소폭 조정 */
 	margin-bottom: 24px;
-	border-bottom: 2px solid var(--main-color, #22c55e); /* 💡 하단 선을 이미지의 초록색 테마로 동기화 */
+	border-bottom: 2px solid var(--main-color, #22c55e);
+	/* 💡 하단 선을 이미지의 초록색 테마로 동기화 */
 }
 
 .gw-tab-item {
@@ -36,7 +36,7 @@
 
 /* 💡 [핵심] 선택된 활성화 상태: 이미지와 같이 테두리 없이 꽉 찬 완벽한 초록색 배경 구현 */
 .gw-tab-item.active {
-	background: var(--main-color, #22c55e); 
+	background: var(--main-color, #22c55e);
 	color: #ffffff !important; /* 💡 글자색 흰색 강제 유지 */
 }
 
@@ -80,6 +80,7 @@
 	cursor: pointer;
 	transition: background-color 0.15s ease;
 }
+
 .gw-table tbody tr:hover {
 	background-color: #f8fafc; /* 💡 마우스 올렸을 때 은은한 회색 라인 효과 추가 */
 }
@@ -104,47 +105,54 @@
 	</div>
 
 	<div class="gw-tabs">
-		<a href="/app/list" class="gw-tab-item">기안 문서함</a> 
-		<a href="/appr/list" class="gw-tab-item">결재 문서함</a>
-		<a href="/app/bothlist" class="gw-tab-item active">전체 문서함</a>
+		<a href="/app/list" class="gw-tab-item">기안 문서함</a> <a
+			href="/appr/list" class="gw-tab-item">결재 문서함</a> <a
+			href="/app/bothlist" class="gw-tab-item active">전체 문서함</a>
 	</div>
 
 	<%-- 💡 [교정] action 경로를 /app/bothlist 전사 조회용 컨트롤러 맵으로 일치시킵니다. --%>
 	<div class="gw-search-panel pds-width"
 		style="padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); border: 1px solid #e2e8f0; margin-bottom: 20px;">
-		<form action="/app/bothlist" method="get" class="gw-search-form" autocomplete="off"
+		<form action="/app/bothlist" method="get" class="gw-search-form"
+			autocomplete="off"
 			style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
-			
+
 			<div style="display: flex; align-items: center; gap: 8px;">
-				<label style="font-size: 13px; font-weight: 700; color: #475569; white-space: nowrap;">기안자</label>
-				<input type="text" name="searchEmpName" class="gw-form-input" placeholder="사원명 입력" value="${searchEmpName}"
+				<label
+					style="font-size: 13px; font-weight: 700; color: #475569; white-space: nowrap;">기안자</label>
+				<input type="text" name="searchEmpName" class="gw-form-input"
+					placeholder="사원명 입력" value="${searchEmpName}"
 					style="width: 150px; margin: 0; padding: 6px 12px; border: 1px solid #cbd5e1; border-radius: 6px;">
 			</div>
 
 			<div style="display: flex; align-items: center; gap: 8px;">
-				<label style="font-size: 13px; font-weight: 700; color: #475569; white-space: nowrap;">문서종류</label>
-				<select name="searchAppType" class="gw-form-select" style="margin: 0; min-width: 140px; padding: 6px 12px; border: 1px solid #cbd5e1; border-radius: 6px;">
+				<label
+					style="font-size: 13px; font-weight: 700; color: #475569; white-space: nowrap;">문서종류</label>
+				<select name="searchAppType" class="gw-form-select"
+					style="margin: 0; min-width: 140px; padding: 6px 12px; border: 1px solid #cbd5e1; border-radius: 6px;">
 					<option value="">전체 문서 종류</option>
 					<option value="휴가신청서" ${searchAppType == '휴가신청서' ? 'selected' : ''}>휴가신청서</option>
 					<option value="품의서" ${searchAppType == '품의서' ? 'selected' : ''}>품의서</option>
 					<option value="업무기안서" ${searchAppType == '업무기안서' ? 'selected' : ''}>업무기안서</option>
-				</select> 
+				</select>
 			</div>
-			
+
 			<div style="display: flex; align-items: center; gap: 8px;">
-				<label style="font-size: 13px; font-weight: 700; color: #475569; white-space: nowrap;">진행상황</label>
-				<select name="searchAppStatus" class="gw-form-select" style="margin: 0; min-width: 120px; padding: 6px 12px; border: 1px solid #cbd5e1; border-radius: 6px;">
+				<label
+					style="font-size: 13px; font-weight: 700; color: #475569; white-space: nowrap;">진행상황</label>
+				<select name="searchAppStatus" class="gw-form-select"
+					style="margin: 0; min-width: 120px; padding: 6px 12px; border: 1px solid #cbd5e1; border-radius: 6px;">
 					<option value="">전체 결재 상태</option>
-					<option value="대기" ${searchAppStatus == '대기' ? 'selected' : ''}>대기</option>
-					<option value="진행" ${searchAppStatus == '진행' ? 'selected' : ''}>진행</option>
-					<option value="완료" ${searchAppStatus == '완료' ? 'selected' : ''}>완료</option>
-					<option value="반려" ${searchAppStatus == '반려' ? 'selected' : ''}>반려</option>
+					<option value="처리중" ${searchAppStatus == '처리중' ? 'selected' : ''}>처리중</option>
+					<option value="승인" ${searchAppStatus == '승인'   ? 'selected' : ''}>완료</option>
+					<option value="반려" ${searchAppStatus == '반려'   ? 'selected' : ''}>반려</option>
 				</select>
 			</div>
 
 			<button type="submit" class="gw-btn-primary"
 				style="height: 38px; margin-left: auto; padding: 0 24px; background-color: #22c55e; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">
-				<i class="fa-solid fa-magnifying-glass"></i> <span style="margin-left: 5px;">조회</span>
+				<i class="fa-solid fa-magnifying-glass"></i> <span
+					style="margin-left: 5px;">조회</span>
 			</button>
 		</form>
 	</div>
@@ -152,12 +160,17 @@
 	<div class="gw-list-panel pds-width">
 		<div class="gw-table-top" style="margin-bottom: 15px;">
 			<div>
-				<div class="gw-table-title" style="font-size: 16px; font-weight: 700; color: #1e293b;">결재 문서 목록</div>
-				<div class="gw-table-sub" style="font-size: 13px; color: #64748b; margin-top: 2px;">총 ${list.size()}개의 문서</div>
+				<div class="gw-table-title"
+					style="font-size: 16px; font-weight: 700; color: #1e293b;">결재
+					문서 목록</div>
+				<div class="gw-table-sub"
+					style="font-size: 13px; color: #64748b; margin-top: 2px;">총
+					${list.size()}개의 문서</div>
 			</div>
 		</div>
 
-		<table class="gw-table" style="width: 100%; border-collapse: collapse;">
+		<table class="gw-table"
+			style="width: 100%; border-collapse: collapse;">
 			<thead>
 				<tr style="border-bottom: 2px solid #e2e8f0;">
 					<th style="width: 15%; padding: 12px; text-align: center;">기안자</th>
@@ -171,29 +184,32 @@
 				<c:if test="${not empty list}">
 					<%-- 💡 [교정] var 객체를 결재선(line)이 아닌 전체 목록 데이터 모델(appDto) 양식으로 롤백 가공합니다. --%>
 					<c:forEach var="appDto" items="${list}">
-						<tr onclick="location.href='/app/detail?appId=${appDto.appId}'" style="border-bottom: 1px solid #f1f5f9; text-align: center;">
+						<tr onclick="location.href='/app/detail?appId=${appDto.appId}'"
+							style="border-bottom: 1px solid #f1f5f9; text-align: center;">
 							<td style="padding: 14px;">${appDto.empName}</td>
 							<td style="padding: 14px;"><span class="gw-muted">[${appDto.appType}]</span></td>
-							<td class="gw-title-cell" style="text-align: left; padding: 14px;"><a
-								href="/app/detail?appId=${appDto.appId}" class="gw-table-link" style="text-decoration: none; color: #334155;">
+							<td class="gw-title-cell"
+								style="text-align: left; padding: 14px;"><a
+								href="/app/detail?appId=${appDto.appId}" class="gw-table-link"
+								style="text-decoration: none; color: #334155;">
 									${appDto.appTitle} </a></td>
 							<td style="padding: 14px;">${appDto.appDate}</td>
-							<td style="padding: 14px;">
-								<c:choose>
-									<c:when test="${appDto.appStatus == '완료' || appDto.appStatus == '승인'}">
+							<td style="padding: 14px;"><c:choose>
+									<c:when
+										test="${appDto.appStatus == '완료' || appDto.appStatus == '승인'}">
 										<span class="appr-status-badge appr-status-approve">완료</span>
 									</c:when>
 									<c:when test="${appDto.appStatus == '반려'}">
 										<span class="appr-status-badge appr-status-reject">반려</span>
 									</c:when>
-									<c:when test="${appDto.appStatus == '진행'}">
-										<span class="appr-status-badge appr-status-progress">진행</span>
+									<c:when test="${appDto.appStatus == '처리중'}">
+										<%-- '진행' → '처리중' --%>
+										<span class="appr-status-badge appr-status-progress">처리중</span>
 									</c:when>
 									<c:otherwise>
 										<span class="appr-status-badge appr-status-wait">대기</span>
 									</c:otherwise>
-								</c:choose>
-							</td>
+								</c:choose></td>
 						</tr>
 					</c:forEach>
 				</c:if>
@@ -201,13 +217,15 @@
 				<c:if test="${empty list}">
 					<tr>
 						<td colspan="5" class="gw-table-empty"
-							style="padding: 60px; text-align: center; color: #94a3b8; font-size: 14px;">조회된 결재 문서가 없습니다.</td>
+							style="padding: 60px; text-align: center; color: #94a3b8; font-size: 14px;">조회된
+							결재 문서가 없습니다.</td>
 					</tr>
 				</c:if>
 			</tbody>
 		</table>
 
-		<div class="gw-pagination" style="margin-top: 20px; display: flex; justify-content: center;">
+		<div class="gw-pagination"
+			style="margin-top: 20px; display: flex; justify-content: center;">
 			<jsp:include page="/WEB-INF/views/template/pagination.jsp"></jsp:include>
 		</div>
 	</div>
