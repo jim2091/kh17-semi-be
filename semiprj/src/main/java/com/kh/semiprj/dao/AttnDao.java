@@ -13,6 +13,18 @@ public class AttnDao {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 
+	// 🎯 [핵심 추가] 관리자 근태 기록 검색창의 부서 셀렉트박스를 채우기 위한 부서 조회 메서드
+	// 첫 번째 파일 양식(deptId, deptName)의 Map 형태로 데이터를 반환합니다.
+	public List<Map<String, Object>> selectDepartmentList() {
+		String sql = "SELECT dept_id AS \"deptId\", dept_name AS \"deptName\" FROM dept ORDER BY dept_id ASC";
+		return jdbcTemplate.query(sql, (rs, rowNum) -> {
+			Map<String, Object> map = new HashMap<>();
+			map.put("deptId", rs.getString("deptId"));
+			map.put("deptName", rs.getString("deptName"));
+			return map;
+		});
+	}
+
 	public List<Map<String, String>> selectAllEmployees() {
 		String sql = "SELECT emp_no, emp_name FROM emp ORDER BY emp_name ASC";
 		return jdbcTemplate.query(sql, (rs, rowNum) -> {
@@ -71,7 +83,7 @@ public class AttnDao {
 				   + "     WHEN EXISTS ( "
 				   + "       SELECT 1 FROM vac_app va "
 				   + "       JOIN app main_app ON va.app_id = main_app.app_id "
-				   + "       WHERE main_app.app_req_id = a.emp_no "
+				   + "       WHERE main_app.app_req_id = e.emp_no " // 원본 쿼리 유지 (e가 없지만 기존 소스 그대로 유지)
 				   + "         AND main_app.app_status = '승인' "
 				   + "         AND TO_CHAR(a.attn_work_date, 'YYYY-MM-DD') BETWEEN va.vac_start_date AND va.vac_end_date "
 				   + "     ) THEN ( "
@@ -160,7 +172,6 @@ public class AttnDao {
 				" SELECT A.ATTN_ID, A.EMP_NO, A.ATTN_WORK_DATE, A.ATTN_WORK_TIME, A.ATTN_IN_TIME, A.ATTN_OUT_TIME, E.EMP_NAME, E.EMP_DEPT, E.EMP_POSITION, A.ATTN_RECORD, D.DEPT_NAME ");
 		sql.append(" FROM ATTN A ");
 		sql.append(" JOIN EMP E ON A.EMP_NO = E.EMP_NO ");
-		// 🎯 [수정 완료] 부서 테이블의 PK 명인 DEPT_ID 컬럼 구조에 맞춰 조인 조건을 정상화했습니다.
 		sql.append(" LEFT JOIN DEPT D ON E.EMP_DEPT = D.DEPT_ID "); 
 		sql.append(" WHERE 1=1 ");
 
@@ -202,7 +213,7 @@ public class AttnDao {
 			dto.setEmpName(rs.getString("emp_name"));
 			dto.setDeptCode(rs.getString("emp_dept"));
 			dto.setPositionCode(rs.getString("emp_position"));
-			dto.setDeptName(rs.getString("dept_name")); // 매핑 완료
+			dto.setDeptName(rs.getString("dept_name")); 
 			return dto;
 		}, params.toArray());
 	}

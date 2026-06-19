@@ -14,21 +14,25 @@ import com.kh.semiprj.vo.PageVO;
 public class AdminAttnService {
     @Autowired private AttnDao attnDao;
 
+    // 🎯 [추가] JSP 부서 검색창을 채우기 위해 전체 부서 목록을 가져오는 서비스 메서드
+    public List<Map<String, Object>> getDepartmentList() { 
+        // 💡 만약 AttnDao에 구현된 부서 조회 명칭이 다르다면 해당 메서드명으로 변경해 주세요.
+        // 예: attnDao.selectDeptList() 등
+        return attnDao.selectDepartmentList(); 
+    }
+
     public List<Map<String, String>> getAllEmployees() { 
         return attnDao.selectAllEmployees(); 
     }
 
-    // [추가됨] 오류를 일으키던 메서드 1
     public List<AttnDto> getAdminAttendanceList(AttnDto s, PageVO p) { 
         return attnDao.selectAdminList(s, p); 
     }
 
-    // [추가됨] 오류를 일으키던 메서드 2
     public int countAdminAttendance(AttnDto s) { 
         return attnDao.countAdminAttendance(s); 
     }
     
-    // [기존 유지] 페이징 계산을 위해 count를 서비스에서 자동 주입
     public List<AttnDto> getAdminAttendanceListCustom(AttnDto s, PageVO p, String st, String en) {
         int count = attnDao.countAdminAttendanceCustom(s, st, en);
         p.setCount(count); 
