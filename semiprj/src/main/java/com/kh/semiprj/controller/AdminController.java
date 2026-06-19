@@ -36,8 +36,10 @@ import com.kh.semiprj.dto.VacAppDto;
 import com.kh.semiprj.dto.VacInfoDto;
 import com.kh.semiprj.exception.TargetNotfoundException;
 import com.kh.semiprj.service.AdminAttnService;
+import com.kh.semiprj.service.AdminDashboardService;
 import com.kh.semiprj.service.LeaveService;
 import com.kh.semiprj.service.VacService;
+import com.kh.semiprj.vo.AdminDashboardVO;
 import com.kh.semiprj.vo.HistoryPageVO;
 import com.kh.semiprj.vo.PageVO;
 
@@ -76,7 +78,9 @@ public class AdminController {
 	
 	@Autowired
 	private LeaveDao leaveDao; 
-
+	
+	@Autowired
+	private AdminDashboardService adminDashboardService;
 
 	@GetMapping("/register")
 	public String register(Model model) {
@@ -464,4 +468,17 @@ public class AdminController {
 		model.addAttribute("attnList", adminAttnService.getAdminAttendanceList(searchDto, pageVO));
 		return "admin/attn/manage";
 	}
+	
+	@GetMapping("/dashboard")
+    public String dashboard(
+            @RequestParam(required = false) String month,
+            Model model) {
+
+        AdminDashboardVO dashboard =
+                adminDashboardService.createDashboard(month);
+
+        model.addAttribute("dashboard", dashboard);
+
+        return "admin/dashboard";
+    }
 }
