@@ -122,7 +122,7 @@ $(function(){
 							<td>${empDto.empId}</td>
 							<td>${empDto.empDeptName}</td>
 							<td><span class="position-badge">${empDto.empPosition}</span></td>
-							<td>${empDto.empMentor}</td>
+							<td>${empDto.mentorName}</td>
 							<td><fmt:formatDate value = "${empDto.empHireDate}" pattern="yyyy.MM.dd"/></td>
 					</tr>
 				</c:forEach>

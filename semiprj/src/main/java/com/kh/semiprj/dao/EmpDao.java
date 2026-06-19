@@ -34,11 +34,20 @@ public class EmpDao {
 	}
 	
 	public EmpDto selectOneByDetail(String empNo) {
-		String sql = "select e.*, d.dept_name as emp_dept_name from emp e "
-				   + "left outer join dept d on e.emp_dept = d.dept_id "
-				   + "where e.emp_no = ?";
+		String sql =
+			"select e.*, " +
+			"       d.dept_name as emp_dept_name, " +
+			"       m.emp_name as mentor_name " +
+			"from emp e " +
+			"left outer join dept d on e.emp_dept = d.dept_id " +
+			"left outer join emp m on e.emp_mentor = m.emp_no " +
+			"where e.emp_no = ?";
+
 		Object[] params = { empNo };
-		List<EmpDto> list = jdbcTemplate.query(sql, empMapper, params);
+
+		List<EmpDto> list =
+			jdbcTemplate.query(sql, empMapper, params);
+
 		return list.isEmpty() ? null : list.get(0);
 	}
 	
@@ -293,11 +302,20 @@ public class EmpDao {
 	//전체 페이지
 	public List<EmpDto> selectListByPage(PageVO pageVO) {
 		 String sql =
-	        "select * from (" +
-	        " select rownum rn, TMP.* from (" +
-	        "   select * from emp order by emp_no asc" +
-	        " ) TMP" +
-	        ") where rn between ? and ?";
+			        "select * from (" +
+			        " select rownum rn, TMP.* from (" +
+			        "   select e.*, " +
+			        "          d.dept_name as emp_dept_name, " +
+			        "          m.emp_name as mentor_name " +
+			        "   from emp e " +
+			        "   left outer join dept d " +
+			        "       on e.emp_dept = d.dept_id " +
+			        "   left outer join emp m " +
+			        "       on e.emp_mentor = m.emp_no " +
+			        "   where e.emp_approval_status = 'Y' " +
+			        "   order by e.emp_no asc" +
+			        " ) TMP" +
+			        ") where rn between ? and ?";
 
 	    Object[] params = {
 	        pageVO.getBeginRownum(),
@@ -308,14 +326,22 @@ public class EmpDao {
 	}
 	//검색 페이지
 	public List<EmpDto> selectSearchByPage(PageVO pageVO){
-	    String sql =
-	        "select * from (" +
-	        " select rownum rn, TMP.* from (" +
-	        "   select * from emp " +
-	        "   where instr(#1, ?) > 0 " +
-	        "   order by emp_no asc" +
-	        " ) TMP" +
-	        ") where rn between ? and ?";
+		String sql =
+		        "select * from (" +
+		        " select rownum rn, TMP.* from (" +
+		        "   select e.*, " +
+		        "          d.dept_name as emp_dept_name, " +
+		        "          m.emp_name as mentor_name " +
+		        "   from emp e " +
+		        "   left outer join dept d " +
+		        "       on e.emp_dept = d.dept_id " +
+		        "   left outer join emp m " +
+		        "       on e.emp_mentor = m.emp_no " +
+		        "   where instr(e.#1, ?) > 0 " +
+		        "   and e.emp_approval_status = 'Y' " +
+		        "   order by e.emp_no asc" +
+		        " ) TMP" +
+		        ") where rn between ? and ?";
 
 	    sql = sql.replace("#1", pageVO.getColumn());
 
@@ -328,18 +354,24 @@ public class EmpDao {
 	    return jdbcTemplate.query(sql, empMapper, params);
 	}
 	//부서 전용 검색 페이지
-	public List<EmpDto> selectListByDeptPage(
-	        String deptKeyword,
-	        PageVO pageVO) {
+	public List<EmpDto> selectListByDeptPage(String deptKeyword, PageVO pageVO) {
 
-	    String sql =
-	        "select * from (" +
-	        " select rownum rn, TMP.* from (" +
-	        "   select * from emp " +
-	        "   where emp_dept = ? " +
-	        "   order by emp_no asc" +
-	        " ) TMP" +
-	        ") where rn between ? and ?";
+		String sql =
+		        "select * from (" +
+		        " select rownum rn, TMP.* from (" +
+		        "   select e.*, " +
+		        "          d.dept_name as emp_dept_name, " +
+		        "          m.emp_name as mentor_name " +
+		        "   from emp e " +
+		        "   left outer join dept d " +
+		        "       on e.emp_dept = d.dept_id " +
+		        "   left outer join emp m " +
+		        "       on e.emp_mentor = m.emp_no " +
+		        "   where e.emp_dept = ? " +
+		        "   and e.emp_approval_status = 'Y' " +
+		        "   order by e.emp_no asc" +
+		        " ) TMP" +
+		        ") where rn between ? and ?";
 
 	    Object[] params = {
 	        Integer.parseInt(deptKeyword),
@@ -355,14 +387,16 @@ public class EmpDao {
 	}
 	//전체 개수
 	public int count() {
-	    String sql = "select count(*) from emp";
+		String sql ="select count(*) from emp " +
+			        "where emp_approval_status = 'Y'";
 	    return jdbcTemplate.queryForObject(sql, int.class);
 	}
 	//검색 개수
 	public int count(PageVO pageVO) {
-	    String sql =
-	        "select count(*) from emp " +
-	        "where instr(#1, ?) > 0";
+		 String sql =
+			        "select count(*) from emp " +
+			        "where instr(#1, ?) > 0 " +
+			        "and emp_approval_status = 'Y'";
 
 	    sql = sql.replace("#1", pageVO.getColumn());
 
@@ -378,10 +412,9 @@ public class EmpDao {
 	}
 	//부서 전용 개수
 	public int countByDept(String deptKeyword) {
-	    String sql =
-	        "select count(*) " +
-	        "from emp " +
-	        "where emp_dept = ?";
+	    String sql ="select count(*) from emp " +
+	    		       "where emp_dept = ? " +
+	    		        "and emp_approval_status = 'Y'";
 
 	    return jdbcTemplate.queryForObject(
 	        sql,
@@ -392,19 +425,14 @@ public class EmpDao {
 	
 	//관리자 전체 개수
 	public int countAdmin() {
-	    String sql =
-	        "select count(*) from emp " +
-	        "where emp_approval_status = 'Y'";
-
+		String sql = "select count(*) from emp";
 	    return jdbcTemplate.queryForObject(sql, int.class);
 	}
 	//관리자 검색 개수
 	public int countAdmin(PageVO pageVO) {
-
-	    String sql =
-	        "select count(*) from emp " +
-	        "where instr(#1, ?) > 0 " +
-	        "and emp_approval_status = 'Y'";
+		String sql =
+		        "select count(*) from emp " +
+		        "where instr(#1, ?) > 0";
 
 	    sql = sql.replace("#1", pageVO.getColumn());
 
@@ -412,25 +440,25 @@ public class EmpDao {
 	        pageVO.getKeyword()
 	    };
 
-	    return jdbcTemplate.queryForObject(
-	        sql,
-	        int.class,
-	        params
-	    );
+	    return jdbcTemplate.queryForObject(sql, int.class, params);
 	}
 	//관리자 전체 페이지
 	public List<EmpDto> selectAdminListByPage(PageVO pageVO){
 
-	    String sql =
-	        "select * from (" +
-	        " select rownum rn, TMP.* from (" +
-	        "   select e.*, d.dept_name as emp_dept_name " +
-	        "   from emp e " +
-	        "   left outer join dept d on e.emp_dept = d.dept_id " +
-	        "   where e.emp_approval_status = 'Y' " +
-	        "   order by e.emp_no asc" +
-	        " ) TMP" +
-	        ") where rn between ? and ?";
+		String sql =
+		        "select * from (" +
+		        " select rownum rn, TMP.* from (" +
+		        "   select e.*, " +
+		        "          d.dept_name as emp_dept_name, " +
+		        "          m.emp_name as mentor_name " +
+		        "   from emp e " +
+		        "   left outer join dept d " +
+		        "       on e.emp_dept = d.dept_id " +
+		        "   left outer join emp m " +
+		        "       on e.emp_mentor = m.emp_no " +
+		        "   order by e.emp_no asc" +
+		        " ) TMP" +
+		        ") where rn between ? and ?";
 
 	    Object[] params = {
 	        pageVO.getBeginRownum(),
@@ -442,17 +470,21 @@ public class EmpDao {
 	//관리자 검색 페이지
 	public List<EmpDto> selectAdminSearchByPage(PageVO pageVO){
 
-	    String sql =
-	        "select * from (" +
-	        " select rownum rn, TMP.* from (" +
-	        "   select e.*, d.dept_name as emp_dept_name " +
-	        "   from emp e " +
-	        "   left outer join dept d on e.emp_dept = d.dept_id " +
-	        "   where instr(e.#1, ?) > 0 " +
-	        "   and e.emp_approval_status = 'Y' " +
-	        "   order by e.#1 asc, e.emp_no asc" +
-	        " ) TMP" +
-	        ") where rn between ? and ?";
+		 String sql =
+			        "select * from (" +
+			        " select rownum rn, TMP.* from (" +
+			        "   select e.*, " +
+			        "          d.dept_name as emp_dept_name, " +
+			        "          m.emp_name as mentor_name " +
+			        "   from emp e " +
+			        "   left outer join dept d " +
+			        "       on e.emp_dept = d.dept_id " +
+			        "   left outer join emp m " +
+			        "       on e.emp_mentor = m.emp_no " +
+			        "   where instr(e.#1, ?) > 0 " +
+			        "   order by e.#1 asc, e.emp_no asc" +
+			        " ) TMP" +
+			        ") where rn between ? and ?";
 
 	    sql = sql.replace("#1", pageVO.getColumn());
 
@@ -487,17 +519,21 @@ public class EmpDao {
 	        String deptKeyword,
 	        PageVO pageVO){
 
-	    String sql =
-	        "select * from (" +
-	        " select rownum rn, TMP.* from (" +
-	        "   select e.*, d.dept_name as emp_dept_name " +
-	        "   from emp e " +
-	        "   left outer join dept d on e.emp_dept = d.dept_id " +
-	        "   where e.emp_dept = ? " +
-	        "   and e.emp_approval_status = 'Y' " +
-	        "   order by e.emp_no asc" +
-	        " ) TMP" +
-	        ") where rn between ? and ?";
+		String sql =
+		        "select * from (" +
+		        " select rownum rn, TMP.* from (" +
+		        "   select e.*, " +
+		        "          d.dept_name as emp_dept_name, " +
+		        "          m.emp_name as mentor_name " +
+		        "   from emp e " +
+		        "   left outer join dept d " +
+		        "       on e.emp_dept = d.dept_id " +
+		        "   left outer join emp m " +
+		        "       on e.emp_mentor = m.emp_no " +
+		        "   where e.emp_dept = ? " +
+		        "   order by e.emp_no asc" +
+		        " ) TMP" +
+		        ") where rn between ? and ?";
 
 	    Object[] params = {
 	        Integer.parseInt(deptKeyword),
@@ -510,14 +546,21 @@ public class EmpDao {
 	//대기 사원 목록 페이지
 	public List<EmpDto> selectListForWaitingByPage(PageVO pageVO){
 		String sql =
-			"select * from ( " +
-			"	select rownum rn, TMP.* from ( " +
-			"		select * from emp " +
-			"		where emp_approval_status = 'N' " +
-			"		and emp_email_verified = 'Y' " +
-			"		order by emp_no asc " +
-			"	) TMP " +
-			") where rn between ? and ?";
+		        "select * from ( " +
+		        "   select rownum rn, TMP.* from ( " +
+		        "       select e.*, " +
+		        "              d.dept_name as emp_dept_name, " +
+		        "              m.emp_name as mentor_name " +
+		        "       from emp e " +
+		        "       left outer join dept d " +
+		        "           on e.emp_dept = d.dept_id " +
+		        "       left outer join emp m " +
+		        "           on e.emp_mentor = m.emp_no " +
+		        "       where e.emp_approval_status = 'N' " +
+		        "       and e.emp_email_verified = 'Y' " +
+		        "       order by e.emp_no asc " +
+		        "   ) TMP " +
+		        ") where rn between ? and ?";
 
 		Object[] params = {
 			pageVO.getBeginRownum(),

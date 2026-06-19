@@ -200,10 +200,6 @@
 	            <fmt:formatDate value="${empDto.empPwChange}" pattern="yyyy-MM-dd HH:mm"/>
 	        </div>
 	    </div>
-	
-	    <a href="./password" class="gw-btn-outline">
-	        <i class="fa-solid fa-key"></i>변경하기
-	    </a>
 	</div>
 
 
