@@ -154,6 +154,10 @@
     background-size: 1em;
 }
 	
+/* 날짜 선택 표시 안보이기 */
+.toastui-calendar-grid-selection {
+    display: none !important;
+}
 </style>
 
 <div class="pds-width">

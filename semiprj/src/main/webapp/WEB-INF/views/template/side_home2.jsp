@@ -132,6 +132,11 @@ $(function(){
 	        <div class="gw-menu-title">MANAGEMENT</div>
 	        
 	        <div class="menu-group has-submenu">
+	        	<a href="/admin/dashboard">
+				    <i class="fa-solid fa-gauge-high"></i>
+				    <span>관리자 대시보드</span>
+				</a>
+	        	
 				<a href="#" class="submenu-toggle">
 					<i class="fa-solid fa-users"></i>
 			        <span>직원관리</span>
