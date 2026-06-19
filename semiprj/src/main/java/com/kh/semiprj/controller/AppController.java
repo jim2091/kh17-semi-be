@@ -26,6 +26,7 @@ import com.kh.semiprj.dto.AttachDto;
 import com.kh.semiprj.dto.DftAppDto;
 import com.kh.semiprj.dto.ExpAppDto;
 import com.kh.semiprj.dto.VacAppDto;
+import com.kh.semiprj.service.NotificationService;
 import com.kh.semiprj.service.VacService;
 import com.kh.semiprj.vo.PageVO;
 
@@ -47,6 +48,8 @@ public class AppController {
 	private AppLineDao appLineDao;
 	@Autowired
 	private VacService vacService;
+	@Autowired
+	private NotificationService notificationService;
 
 	@RequestMapping("/bothlist")
 	public String appList(HttpSession session, @ModelAttribute PageVO pageVO,
@@ -258,6 +261,12 @@ public class AppController {
 			e.printStackTrace();
 			return "redirect:./vacInsert";
 		}
+		
+		for (int i = 0; i < approvers.size(); i++) {
+			if (approvers.get(i) != null) {
+				notificationService.notifyAppWaiting(approvers.get(i), nextAppId);
+			}
+		}
 
 		return "redirect:./insertComplete";
 	}
@@ -331,7 +340,13 @@ public class AppController {
 			e.printStackTrace();
 			return "redirect:./expInsert";
 		}
-
+		
+		for (int i = 0; i < approvers.size(); i++) {
+			if (approvers.get(i) != null) {
+				notificationService.notifyAppWaiting(approvers.get(i), nextAppId);
+			}
+		}
+		
 		return "redirect:./insertComplete";
 	}
 
@@ -404,7 +419,13 @@ public class AppController {
 			e.printStackTrace();
 			return "redirect:./dftInsert";
 		}
-
+		
+		for (int i = 0; i < approvers.size(); i++) {
+			if (approvers.get(i) != null) {
+				notificationService.notifyAppWaiting(approvers.get(i), nextAppId);
+			}
+		}
+		
 		return "redirect:./insertComplete";
 	}
 	
