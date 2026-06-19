@@ -95,7 +95,7 @@
 
 .field:focus {
 	outline: none;
-	border-color: #22c55e; 
+	border-color: var(--main-color, #22c55e); 
 	box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15);
 }
 
@@ -129,7 +129,7 @@
 
 .textarea-field:focus {
 	outline: none;
-	border-color: #22c55e; 
+	border-color: var(--main-color, #22c55e); 
 	box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15);
 }
 
@@ -153,6 +153,16 @@
 
 .form-group.has-error .fail-feedback {
 	display: block;
+}
+
+.form-group.has-error .approval-row-flex .appr-box-item .field {
+	border-color: #ef4444 !important;
+	background-color: #fef2f2 !important;
+	color: #ef4444 !important;
+}
+
+.form-group.has-error .approval-row-flex .appr-box-item .appr-badge {
+	background: #ef4444 !important;
 }
 
 .approval-row-flex {
@@ -200,7 +210,7 @@
 }
 
 .appr-badge.gold {
-	background: #22c55e; 
+	background: var(--main-color, #22c55e); 
 }
 
 .btn-search-unified {
@@ -236,7 +246,7 @@
 }
 
 .gw-upload-container:hover {
-	border-color: #22c55e;
+	border-color: var(--main-color, #22c55e);
 }
 
 .gw-upload-label {
@@ -308,12 +318,12 @@
 }
 
 .btn-submit {
-	background: #22c55e; 
+	background: var(--main-color, #22c55e); 
 	color: white;
 }
 
 .btn-submit:hover {
-	background: #16a34a;
+	filter: brightness(90%);
 }
 
 .btn-cancel {
