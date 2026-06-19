@@ -305,14 +305,14 @@ public class BoardDao {
 	public List<BoardDto> selectRecentList(){
 		String sql = "select * from ("
 				+ "select * from board where board_head != '공지' order by board_no desc"
-				+ ") where rownum <= 3";
+				+ ") where rownum <= 5";
 		return jdbcTemplate.query(sql, boardMapper);
 	}
 	//대시보드 띄워줄 최근 공지
 		public List<BoardDto> selectRecentNoticeList(){
 			String sql = "select * from ("
 					+ "select * from board where board_head = '공지' order by board_no desc"
-					+ ") where rownum <= 3";
+					+ ") where rownum <= 5";
 			return jdbcTemplate.query(sql, boardMapper);
 		}
 
