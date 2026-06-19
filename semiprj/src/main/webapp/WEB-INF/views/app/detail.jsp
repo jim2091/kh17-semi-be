@@ -239,7 +239,15 @@
 									<span class="status-pill status-wait">대기</span>
 								</c:otherwise>
 							</c:choose></td>
-						<td class="gw-muted">${not empty line.appLineDate ? line.appLineDate : '-'}</td>
+						<td class="gw-muted"><c:choose>
+								<c:when test="${not empty line.appLineDate}">
+									<fmt:parseDate value="${line.appLineDate}"
+										pattern="yyyy-MM-dd HH:mm:ss.SSS" var="parsedDate" />
+									<fmt:formatDate value="${parsedDate}"
+										pattern="yyyy-MM-dd HH:mm" />
+								</c:when>
+								<c:otherwise>-</c:otherwise>
+							</c:choose></td>
 						<td style="color: #c62828; font-size: 13px;">${not empty line.appLineRej ? line.appLineRej : '-'}</td>
 					</tr>
 				</c:forEach>
