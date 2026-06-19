@@ -47,13 +47,44 @@ public class AppController {
 	@Autowired
 	private VacService vacService;
 
+	@RequestMapping("/bothlist")
+	public String appList(HttpSession session, @ModelAttribute PageVO pageVO,
+			@RequestParam(required = false) String searchEmpName, @RequestParam(required = false) String searchAppType,
+			@RequestParam(required = false) String searchAppStatus, Model model) {
+
+		String loginId = (String) session.getAttribute("loginId");
+		if (loginId == null) {
+			return "redirect:/login";
+		}
+
+		int totalCount = appDao.countAll(searchEmpName, searchAppType, searchAppStatus);
+		pageVO.setCount(totalCount);
+
+		List<AppDto> list = appDao.selectAllList(pageVO, searchEmpName, searchAppType, searchAppStatus);
+
+		model.addAttribute("list", list);
+		model.addAttribute("pageVO", pageVO);
+
+		model.addAttribute("searchEmpName", searchEmpName);
+		model.addAttribute("searchAppType", searchAppType);
+		model.addAttribute("searchAppStatus", searchAppStatus);
+
+		String searchParams = "searchEmpName=" + (searchEmpName != null ? searchEmpName : "") + "&searchAppType="
+				+ (searchAppType != null ? searchAppType : "") + "&searchAppStatus="
+				+ (searchAppStatus != null ? searchAppStatus : "");
+		model.addAttribute("searchParams", searchParams);
+
+		return "/app/bothlist";
+	}
+
 	@RequestMapping("/detail")
 	public String detail(Model model, @RequestParam int appId, HttpSession session) {
 		String loginId = (String) session.getAttribute("loginId");
 		String empNo = appDao.selectEmpNoById(loginId);
 
 		AppDto appDto = appDao.selectOneById(appId);
-		if (appDto == null) return "redirect:./list";
+		if (appDto == null)
+			return "redirect:./list";
 
 		// 1. 기존의 순수 결재선 데이터(부서 코드가 숫자인 상태) 조회
 		List<AppLineDto> lineList = appLineDao.selectByAppId(appId);
@@ -97,10 +128,6 @@ public class AppController {
 		return "redirect:/app/list";
 	}
 
-	@RequestMapping("/insertComplete")
-	public String insertComplete(HttpSession session) {
-		return "/app/insertComplete";
-	}
 
 	@GetMapping("/vacInsert")
 	public String vacInsert(HttpSession session, Model model) {
@@ -114,19 +141,19 @@ public class AppController {
 	}
 
 	@PostMapping("/vacInsert")
-	public String vacInsert(@ModelAttribute VacAppDto vacAppDto, 
-			@RequestParam String approver1,
-			@RequestParam(required = false) String approver2, 
-			@RequestParam(required = false) String approver3,
+	public String vacInsert(@ModelAttribute VacAppDto vacAppDto, @RequestParam String approver1,
+			@RequestParam(required = false) String approver2, @RequestParam(required = false) String approver3,
 			HttpSession session, RedirectAttributes redirectAttributes) {
 
 		System.out.println("====== [1. 진입 완료] vacInsert POST 매핑 시작 ======");
 
 		String loginId = (String) session.getAttribute("loginId");
-		if (loginId == null) return "redirect:/login";
+		if (loginId == null)
+			return "redirect:/login";
 
 		String empNo = appDao.selectEmpNoById(loginId);
-		if (empNo == null) return "redirect:./vacInsert";
+		if (empNo == null)
+			return "redirect:./vacInsert";
 
 		// 중복 결재자 체크 로직 (기존 유지)
 		List<String> approvers = new ArrayList<>();
@@ -153,11 +180,11 @@ public class AppController {
 		int nextAppId = appDao.sequence();
 		vacAppDto.setAppId(nextAppId);
 
-		// [중요 디버깅] 화면에서 데이터가 제대로 넘어왔는지 값 검증 추적
-		System.out.println("-> [발행된 문서번호] appId = " + nextAppId);
-		System.out.println("-> [JSP 수신값 확인] 시작일 = " + vacAppDto.getVacStartDate());
-		System.out.println("-> [JSP 수신값 확인] 종료일 = " + vacAppDto.getVacEndDate());
-		System.out.println("-> [JSP 수신값 확인] 휴가구분 = " + vacAppDto.getVacType());
+//		// [중요 디버깅] 화면에서 데이터가 제대로 넘어왔는지 값 검증 추적
+//		System.out.println("-> [발행된 문서번호] appId = " + nextAppId);
+//		System.out.println("-> [JSP 수신값 확인] 시작일 = " + vacAppDto.getVacStartDate());
+//		System.out.println("-> [JSP 수신값 확인] 종료일 = " + vacAppDto.getVacEndDate());
+//		System.out.println("-> [JSP 수신값 확인] 휴가구분 = " + vacAppDto.getVacType());
 
 		try {
 			// 비즈니스 로직 및 트랜잭션 파이프라인 가동
@@ -330,22 +357,25 @@ public class AppController {
 
 		return "redirect:./insertComplete";
 	}
+	
+	@RequestMapping("/insertComplete")
+	public String insertComplete(HttpSession session) {
+		return "/app/insertComplete";
+	}
 
 	@RequestMapping("/list")
-	public String list(
-			HttpSession session,
-			@ModelAttribute PageVO pageVO,
+	public String list(HttpSession session, @ModelAttribute PageVO pageVO,
 			// 기안자 제외, 나머지 2개 필터만 깔끔하게 접수
 			@RequestParam(required = false) String searchAppType,
-			@RequestParam(required = false) String searchAppStatus,
-			Model model) {
+			@RequestParam(required = false) String searchAppStatus, Model model) {
 
 		String loginId = (String) session.getAttribute("loginId");
-		if (loginId == null) return "redirect:/login";
-		
+		if (loginId == null)
+			return "redirect:/login";
+
 		String empNo = appDao.selectEmpNoById(loginId);
 		String empName = appDao.selectEmpNameById(loginId);
-		
+
 		model.addAttribute("empName", empName);
 		model.addAttribute("currentTab", "app");
 
@@ -355,17 +385,17 @@ public class AppController {
 
 		// 2. 동적 중첩 쿼리 실행
 		List<AppDto> list = appDao.selectMyListByFilter(pageVO, empNo, searchAppType, searchAppStatus);
-		
+
 		model.addAttribute("list", list);
 		model.addAttribute("pageVO", pageVO);
-		
+
 		// 3. JSP 상태 복원용 속성 바인딩
 		model.addAttribute("searchAppType", searchAppType);
 		model.addAttribute("searchAppStatus", searchAppStatus);
-		
+
 		// 페이징 클릭 시 풀림 방지 파라미터 캐싱
-		String searchParams = "searchAppType=" + (searchAppType != null ? searchAppType : "") 
-							+ "&searchAppStatus=" + (searchAppStatus != null ? searchAppStatus : "");
+		String searchParams = "searchAppType=" + (searchAppType != null ? searchAppType : "") + "&searchAppStatus="
+				+ (searchAppStatus != null ? searchAppStatus : "");
 		model.addAttribute("searchParams", searchParams);
 
 		return "/app/list";
@@ -408,42 +438,38 @@ public class AppController {
 //		return "/app/list";
 //	}
 
-//	//picker 용 매핑
-//	@GetMapping("/searchApprover")
-//	@ResponseBody
-//	public List<Map<String, Object>> searchApprover(
-//	        @RequestParam String keyword,
-//	        @RequestParam(required = false) List<String> excludes) {
-//	    return appDao.searchApproverForPicker(keyword, excludes);
-//	}
-
+	// picker 용 매핑
 	@GetMapping("/searchApprover")
 	@ResponseBody
 	public List<Map<String, Object>> searchApprover(@RequestParam String keyword,
-	        @RequestParam(required = false) List<String> excludes, HttpSession session) {
+			@RequestParam(required = false) List<String> excludes, HttpSession session) {
 
-	    // 본인 제외
-	    String loginId = (String) session.getAttribute("loginId");
-	    String empNo = appDao.selectEmpNoById(loginId);
-	    if (excludes == null) excludes = new ArrayList<>();
-	    if (!excludes.contains(empNo)) excludes.add(empNo);
+		// 본인 제외
+		String loginId = (String) session.getAttribute("loginId");
+		String empNo = appDao.selectEmpNoById(loginId);
+		if (excludes == null)
+			excludes = new ArrayList<>();
+		if (!excludes.contains(empNo))
+			excludes.add(empNo);
 
-	    List<Map<String, Object>> approverList = appDao.searchApproverForPicker(keyword, excludes);
-	    if (approverList == null || approverList.isEmpty()) return approverList;
+		List<Map<String, Object>> approverList = appDao.searchApproverForPicker(keyword, excludes);
+		if (approverList == null || approverList.isEmpty())
+			return approverList;
 
-	    for (Map<String, Object> map : approverList) {
-	        String deptId = (String) map.get("empDept");
-	        if (deptId != null && !deptId.isEmpty()) {
-	            try {
-	                String deptName = appDao.selectDeptNameById(Integer.parseInt(deptId));
-	                if (deptName != null) map.put("empDept", deptName);
-	            } catch (NumberFormatException e) {
-	                map.put("empDept", "소속없음");
-	            }
-	        }
-	    }
+		for (Map<String, Object> map : approverList) {
+			String deptId = (String) map.get("empDept");
+			if (deptId != null && !deptId.isEmpty()) {
+				try {
+					String deptName = appDao.selectDeptNameById(Integer.parseInt(deptId));
+					if (deptName != null)
+						map.put("empDept", deptName);
+				} catch (NumberFormatException e) {
+					map.put("empDept", "소속없음");
+				}
+			}
+		}
 
-	    return approverList;
+		return approverList;
 	}
-	
+
 }
