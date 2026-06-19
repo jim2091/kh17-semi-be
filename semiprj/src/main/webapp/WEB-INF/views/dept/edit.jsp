@@ -212,14 +212,28 @@ $(function(){
     });
 
     /* 제출 */
+    /* 서브밋 제어 (안전한 최종 검증 구조) */
     $(".form-check").on("submit", function(){
-    	state.deptHeadIdValid = $("input[name=messageReceiver]").length > 0;
-    	$("[name=deptHeadIdKeyword]").trigger("check");
-        $("[name=parentDeptId]").trigger("change");
-        $("[name=deptName]").trigger("input");
-        $("[name=deptContent]").trigger("blur");
-        return state.ok();
+        
+        if (!state.empNameValid)     $("[name=empName]").addClass("fail");
+        if (!state.empDeptValid)     $("[name=empDept]").addClass("fail");
+        if (!state.empPositionValid) $("[name=empPosition]").addClass("fail");
+        if (!state.empEmailValid)    $("[name=empEmail]").addClass("fail");
+        if (!state.empContactValid)  $("[name=empContact]").addClass("fail");
+
+        // 2️⃣ 최종 폼 전송 가능 여부 판별
+        if(!state.ok()) {
+            alert("입력하신 항목 중 형식에 맞지 않거나 누락된 필수 항목이 있습니다.");
+            
+            // 실패한 첫 번째 항목으로 화면 포커스를 이동시켜 UX를 개선합니다.
+            $(".field.fail").first().trigger("focus"); 
+            
+            return false;
+        }
+        
+        return true;
     });
+});
 });
 </script>
 		<div class="screen">

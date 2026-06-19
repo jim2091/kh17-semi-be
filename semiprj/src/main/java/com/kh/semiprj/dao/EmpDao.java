@@ -155,13 +155,16 @@ public class EmpDao {
 	
 	public boolean updateByMaster(EmpDto empDto) {
 		String sql = "update emp "
-				+ "set emp_level=?, emp_dept=?, emp_position=?, "
-				+ "emp_mentor=?, emp_use_yn=?, emp_hire_date=?, "
-				+ "emp_retired_date=? where emp_no = ?";
-		Object[] params = {empDto.getEmpLevel(), empDto.getEmpDept(), 
-				empDto.getEmpPosition(), empDto.getEmpMentor(), 
-				empDto.getEmpUseYn(), empDto.getEmpHireDate(), 
-				empDto.getEmpRetiredDate(), empDto.getEmpNo()
+				+ "set emp_name=?, emp_dept=?, emp_position=?, emp_mentor=?, "
+				+ "emp_email=?, emp_contact=?, emp_post=?, emp_address1=? , "
+				+ "emp_address2=?, emp_hire_date=?,emp_retired_date=?, emp_level=?"
+				+ " where emp_no = ?";
+		Object[] params = {
+				empDto.getEmpName(),empDto.getEmpDept(),empDto.getEmpPosition(), 
+				empDto.getEmpMentor(),empDto.getEmpEmail(),empDto.getEmpContact(),
+				empDto.getEmpPost(),empDto.getEmpAddress1(),empDto.getEmpAddress2(),
+				empDto.getEmpHireDate(),empDto.getEmpRetiredDate(),empDto.getEmpLevel(),
+				empDto.getEmpNo()
 				};
 		return jdbcTemplate.update(sql, params)>0;
 	}

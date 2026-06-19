@@ -122,32 +122,49 @@ public class AdminController {
 	}
 
 	@PostMapping("/edit")
-	public String edit(@RequestParam(required = false) String hireDateStr,
-			@RequestParam(required = false) String retiredDateStr, @ModelAttribute EmpDto empDto) {
-		if (hireDateStr != null && !hireDateStr.isBlank()) {
-			empDto.setEmpHireDate(Timestamp.valueOf(hireDateStr + " 00:00:00"));
-		} else {
-			empDto.setEmpHireDate(null);
-		}
-		if (retiredDateStr != null && !retiredDateStr.isBlank()) {
-			empDto.setEmpRetiredDate(Timestamp.valueOf(retiredDateStr + " 00:00:00"));
-		} else {
-			empDto.setEmpRetiredDate(null);
-		}
-		empDao.deleteDeptEmp(empDto.getEmpNo());
-		empDao.insertDeptEmp(empDto.getEmpNo(), empDto.getEmpDept());
-		empDao.updateByMaster(empDto);
-		return "redirect:./detail?empNo=" + empDto.getEmpNo();
+	public String edit(
+	        @RequestParam(required = false) String hireDateStr,
+	        @RequestParam(required = false) String retiredDateStr, 
+	        @RequestParam(required = false) String birthDateStr,
+	        @ModelAttribute EmpDto empDto) {
+	    
+	    if (hireDateStr != null && !hireDateStr.trim().isEmpty()) {
+	        empDto.setEmpHireDate(Timestamp.valueOf(hireDateStr.trim() + " 00:00:00"));
+	    } else {
+	        empDto.setEmpHireDate(null);
+	    }
+	    
+	    if (retiredDateStr != null && !retiredDateStr.trim().isEmpty()) {
+	        empDto.setEmpRetiredDate(Timestamp.valueOf(retiredDateStr.trim() + " 00:00:00"));
+	    } else {
+	        empDto.setEmpRetiredDate(null);
+	    }
+
+	    if (birthDateStr != null && !birthDateStr.trim().isEmpty()) {
+	        empDto.setEmpBirth(birthDateStr.trim());
+	    }
+
+	    empDao.deleteDeptEmp(empDto.getEmpNo());
+	    empDao.insertDeptEmp(empDto.getEmpNo(), empDto.getEmpDept());
+	    empDao.updateByMaster(empDto);
+	    
+	    return "redirect:./detail?empNo=" + empDto.getEmpNo();
 	}
 
 	@RequestMapping("/useYn")
 	public String useYn(@RequestParam String empNo) {
 		EmpDto empDto = empDao.selectOneByDetail(empNo);
-		if (empDto.getEmpUseYn().equals("N")) {
-			empDao.useY(empNo);
-		} else {
-			empDao.useN(empNo);
-		}
+		if (empDto != null) {
+	        String currentStatus = empDto.getEmpUseYn(); // 'Y' 또는 'N'
+	        
+	        if ("Y".equals(currentStatus)) {
+	            // 현재 활성(Y) 상태라면 비활성화(N) 메서드 호출
+	            empDao.useN(empNo);
+	        } else {
+	            // 현재 비활성(N) 상태라면 활성화(Y) 메서드 호출
+	            empDao.useY(empNo);
+	        }
+	    }
 		return "redirect:./edit?empNo=" + empNo;
 	}
 
