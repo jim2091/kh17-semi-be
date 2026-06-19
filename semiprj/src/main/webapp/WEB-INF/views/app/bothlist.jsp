@@ -85,42 +85,55 @@
 }
 </style>
 
+<script>
+	$(function() {
+		var savedTheme = localStorage.getItem("gwTheme");
+		if (savedTheme) {
+			$("body").addClass(savedTheme);
+		} else {
+			$("body").addClass("theme-blue");
+		}
+	});
+</script>
 
 <div class="pds-width">
 	<div class="gw-page-head">
-		<div class="gw-breadcrumb">홈 > 전자결재 > 목록</div>
+		<div class="gw-breadcrumb">홈 > 전자결재 > 전체문서함</div>
 		<h1>전자결재 문서함</h1>
-		<p>내가 상신한 기안 문서와 결재가 필요한 문서들을 한눈에 확인합니다.</p>
+		<p>기안된 전사의 전체 결재 문서의 진행 상황을 모니터링하고 검색할 수 있습니다.</p>
 	</div>
 
 	<div class="gw-tabs">
-		<a href="/app/list" class="gw-tab-item active">기안 문서함</a> <%-- 💡 현재 페이지 활성화 --%>
+		<a href="/app/list" class="gw-tab-item">기안 문서함</a> 
 		<a href="/appr/list" class="gw-tab-item">결재 문서함</a>
-		<%-- 💡 [교정] gw-tap-item 오타 수정하여 탭 레이아웃 규격 일치 --%>
-		<a href="/app/bothlist" class="gw-tab-item">전체 문서함</a>
+		<a href="/app/bothlist" class="gw-tab-item active">전체 문서함</a>
 	</div>
 
+	<%-- 💡 [교정] action 경로를 /app/bothlist 전사 조회용 컨트롤러 맵으로 일치시킵니다. --%>
 	<div class="gw-search-panel pds-width"
-		style="padding: 16px 20px; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); border: 1px solid #e2e8f0; margin-bottom: 20px;">
-		<form action="./list" method="get" class="gw-search-form"
-			style="display: flex; gap: 20px; align-items: center;">
+		style="padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); border: 1px solid #e2e8f0; margin-bottom: 20px;">
+		<form action="/app/bothlist" method="get" class="gw-search-form" autocomplete="off"
+			style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+			
+			<div style="display: flex; align-items: center; gap: 8px;">
+				<label style="font-size: 13px; font-weight: 700; color: #475569; white-space: nowrap;">기안자</label>
+				<input type="text" name="searchEmpName" class="gw-form-input" placeholder="사원명 입력" value="${searchEmpName}"
+					style="width: 150px; margin: 0; padding: 6px 12px; border: 1px solid #cbd5e1; border-radius: 6px;">
+			</div>
 
 			<div style="display: flex; align-items: center; gap: 8px;">
 				<label style="font-size: 13px; font-weight: 700; color: #475569; white-space: nowrap;">문서종류</label>
-				<select name="searchAppType" class="gw-form-select"
-					style="margin: 0; min-width: 150px; padding: 6px 12px; border: 1px solid #cbd5e1; border-radius: 6px;" onchange="this.form.submit();">
+				<select name="searchAppType" class="gw-form-select" style="margin: 0; min-width: 140px; padding: 6px 12px; border: 1px solid #cbd5e1; border-radius: 6px;">
 					<option value="">전체 문서 종류</option>
 					<option value="휴가신청서" ${searchAppType == '휴가신청서' ? 'selected' : ''}>휴가신청서</option>
 					<option value="품의서" ${searchAppType == '품의서' ? 'selected' : ''}>품의서</option>
 					<option value="업무기안서" ${searchAppType == '업무기안서' ? 'selected' : ''}>업무기안서</option>
-				</select>
+				</select> 
 			</div>
-
+			
 			<div style="display: flex; align-items: center; gap: 8px;">
 				<label style="font-size: 13px; font-weight: 700; color: #475569; white-space: nowrap;">진행상황</label>
-				<select name="searchAppStatus" class="gw-form-select"
-					style="margin: 0; min-width: 130px; padding: 6px 12px; border: 1px solid #cbd5e1; border-radius: 6px;" onchange="this.form.submit();">
-					<%-- 💡 [교정] 전사 상태 데이터 규칙(대기/진행/완료/반려)에 맞춰 value 바인딩 구조 일치 --%>
+				<select name="searchAppStatus" class="gw-form-select" style="margin: 0; min-width: 120px; padding: 6px 12px; border: 1px solid #cbd5e1; border-radius: 6px;">
 					<option value="">전체 결재 상태</option>
 					<option value="대기" ${searchAppStatus == '대기' ? 'selected' : ''}>대기</option>
 					<option value="진행" ${searchAppStatus == '진행' ? 'selected' : ''}>진행</option>
@@ -129,26 +142,18 @@
 				</select>
 			</div>
 
+			<button type="submit" class="gw-btn-primary"
+				style="height: 38px; margin-left: auto; padding: 0 24px; background-color: #22c55e; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">
+				<i class="fa-solid fa-magnifying-glass"></i> <span style="margin-left: 5px;">조회</span>
+			</button>
 		</form>
 	</div>
 
 	<div class="gw-list-panel pds-width">
-		<div class="gw-table-top" style="margin-bottom: 15px; display: flex; justify-content: flex-start; align-items: center; gap: 20px;">
+		<div class="gw-table-top" style="margin-bottom: 15px;">
 			<div>
-				<div class="gw-table-title" style="font-size: 16px; font-weight: 700; color: #1e293b;">기안 완료 목록</div>
+				<div class="gw-table-title" style="font-size: 16px; font-weight: 700; color: #1e293b;">결재 문서 목록</div>
 				<div class="gw-table-sub" style="font-size: 13px; color: #64748b; margin-top: 2px;">총 ${list.size()}개의 문서</div>
-			</div>
-			<div class="gw-table-actions" style="margin-left: auto; display: flex; gap: 8px;">
-				<a href="./vacInsert" class="gw-btn-outline"
-					style="font-size: 13px; padding: 8px 14px; text-decoration: none; border: 1px solid #22c55e; color: #22c55e; border-radius: 6px; font-weight: 600; transition: all 0.2s;"> 
-					<i class="fa-solid fa-umbrella-beach"></i> 휴가신청서
-				</a> <a href="./expInsert" class="gw-btn-outline"
-					style="font-size: 13px; padding: 8px 14px; text-decoration: none; border: 1px solid #22c55e; color: #22c55e; border-radius: 6px; font-weight: 600; transition: all 0.2s;"> 
-					<i class="fa-solid fa-coins"></i> 품의서
-				</a> <a href="./dftInsert" class="gw-btn-outline"
-					style="font-size: 13px; padding: 8px 14px; text-decoration: none; border: 1px solid #22c55e; color: #22c55e; border-radius: 6px; font-weight: 600; transition: all 0.2s;"> 
-					<i class="fa-solid fa-file-signature"></i> 업무기안서
-				</a>
 			</div>
 		</div>
 
@@ -164,12 +169,13 @@
 			</thead>
 			<tbody>
 				<c:if test="${not empty list}">
+					<%-- 💡 [교정] var 객체를 결재선(line)이 아닌 전체 목록 데이터 모델(appDto) 양식으로 롤백 가공합니다. --%>
 					<c:forEach var="appDto" items="${list}">
-						<tr onclick="location.href='./detail?appId=${appDto.appId}'" style="border-bottom: 1px solid #f1f5f9; text-align: center;">
+						<tr onclick="location.href='/app/detail?appId=${appDto.appId}'" style="border-bottom: 1px solid #f1f5f9; text-align: center;">
 							<td style="padding: 14px;">${appDto.empName}</td>
 							<td style="padding: 14px;"><span class="gw-muted">[${appDto.appType}]</span></td>
 							<td class="gw-title-cell" style="text-align: left; padding: 14px;"><a
-								href="./detail?appId=${appDto.appId}" class="gw-table-link" style="text-decoration: none; color: #334155;">
+								href="/app/detail?appId=${appDto.appId}" class="gw-table-link" style="text-decoration: none; color: #334155;">
 									${appDto.appTitle} </a></td>
 							<td style="padding: 14px;">${appDto.appDate}</td>
 							<td style="padding: 14px;">
@@ -195,7 +201,7 @@
 				<c:if test="${empty list}">
 					<tr>
 						<td colspan="5" class="gw-table-empty"
-							style="padding: 60px; text-align: center; color: #94a3b8; font-size: 14px;">기안한 문서가 존재하지 않습니다.</td>
+							style="padding: 60px; text-align: center; color: #94a3b8; font-size: 14px;">조회된 결재 문서가 없습니다.</td>
 					</tr>
 				</c:if>
 			</tbody>

@@ -9,14 +9,21 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.kh.semiprj.dto.AppDto;
+import com.kh.semiprj.dto.AppLineDto;
 import com.kh.semiprj.dto.DftAppDto;
 import com.kh.semiprj.dto.ExpAppDto;
 import com.kh.semiprj.dto.VacAppDto;
 import com.kh.semiprj.mapper.AppMapper;
 import com.kh.semiprj.mapper.EmpMapper;
 import com.kh.semiprj.vo.PageVO;
+
+import jakarta.servlet.http.HttpSession;
 
 @Repository
 public class AppDao {
@@ -36,8 +43,19 @@ public class AppDao {
 		Integer seq = jdbcTemplate.queryForObject(sql, Integer.class);
 		return seq != null ? seq : 0;
 	}
-
-	// 1. [관리자] 다중 중첩 필터링(기안자+문서종류+진행상황) 통합 페이징 조회
+	
+	
+	//첨부파일 추가
+	public void insertAppFile(int appId, int attachNo) {
+	    String sql = "INSERT INTO app_files (app_id, attach_no) VALUES (?, ?)";
+	        jdbcTemplate.update(sql, appId, attachNo);
+	}
+	
+	
+	
+	
+	
+	//전체 조회 메소드
 	public List<AppDto> selectAllList(PageVO pageVO, String searchEmpName, String searchAppType,
 			String searchAppStatus) {
 		// 기본 뼈대 쿼리 작성 (동적 쿼리 구성을 위해 where 1=1 전략 사용)
@@ -60,26 +78,20 @@ public class AppDao {
 			baseSql += "and a.app_status = ? ";
 			paramList.add(searchAppStatus.trim());
 		}
-
 		// 정렬 기준 결합
 		baseSql += "order by a.app_id desc";
-
 		// 오라클 페이징 3중 서브쿼리 래핑 마감
 		String finalSql = "select * from (" + "  select rownum RN, TMP.* FROM (" + baseSql + "  ) TMP"
 				+ ") where RN between ? and ?";
-
 		// 페이징 파라미터 하단 유입 순서대로 적재
 		paramList.add(pageVO.getBeginRownum());
 		paramList.add(pageVO.getEndRownum());
-
 		// 방어 코드: 잘못된 페이징 범위 차단
 		if (pageVO.getBeginRownum() <= 0 || pageVO.getEndRownum() <= 0) {
 			return new ArrayList<>();
 		}
-
 		return jdbcTemplate.query(finalSql, appMapper, paramList.toArray());
 	}
-
 	// 2. [관리자] 다중 중첩 필터링 대응 전체 카운트 메서드
 	public int countAll(String searchEmpName, String searchAppType, String searchAppStatus) {
 		String sql = "select count(*) from app a " + "join emp e on a.app_req_id = e.emp_no " + "where 1=1 ";
@@ -542,7 +554,7 @@ public class AppDao {
 		}
 	}
 
-	// ⭕ [메서드 추가] 문서 번호로 결재 유형(app_type) 단건 조회 (Null 방어 포함)
+	// 문서 번호로 결재 유형(app_type) 단건 조회
 	public String selectAppTypeById(int appId) {
 		String sql = "select app_type from app where app_id = ?";
 
@@ -556,5 +568,18 @@ public class AppDao {
 			return "";
 		}
 	}
+
+	// 부서코드를 부서명으로 받기
+	public String selectDeptNameByCode(String deptNo) {
+		if (deptNo == null || deptNo.isEmpty())
+			return "-";
+
+		String sql = "select dept_name from dept where dept_id = ?";
+		return jdbcTemplate.queryForObject(sql, String.class, deptNo);
+	}
+	
+	
+	
+
 
 }

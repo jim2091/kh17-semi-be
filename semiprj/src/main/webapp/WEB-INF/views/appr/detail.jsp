@@ -5,10 +5,6 @@
 
 <jsp:include page="/WEB-INF/views/template/header2.jsp"></jsp:include>
 
-<div class="gw-page-head pds-width">
-	<div class="gw-breadcrumb">홈 / 전자결재 / 상세</div>
-</div>
-
 
 <div style="padding: 30px;">
 	<div class="gw-page-head pds-width">
