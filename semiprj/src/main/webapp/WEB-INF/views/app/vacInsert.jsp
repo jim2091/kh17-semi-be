@@ -551,7 +551,6 @@ $(function(){
 			</div>
 		</div>
 
-		<jsp:include page="/WEB-INF/views/template/appr_picker.jsp" />
 
 		<div class="form-group">
 			<label>결재내용<span class="required">*</span></label> <input type="text"
@@ -614,5 +613,5 @@ $(function(){
 		</div>
 	</form>
 </div>
-
+<jsp:include page="/WEB-INF/views/template/appr_picker.jsp" />
 <jsp:include page="/WEB-INF/views/template/footer2.jsp"></jsp:include>
