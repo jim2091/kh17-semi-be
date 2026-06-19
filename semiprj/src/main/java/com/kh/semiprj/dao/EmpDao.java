@@ -560,7 +560,6 @@ public class EmpDao {
 		        "       left outer join emp m " +
 		        "           on e.emp_mentor = m.emp_no " +
 		        "       where e.emp_approval_status = 'N' " +
-		        "       and e.emp_email_verified = 'Y' " +
 		        "       order by e.emp_no asc " +
 		        "   ) TMP " +
 		        ") where rn between ? and ?";
@@ -576,8 +575,7 @@ public class EmpDao {
 	public int countWaiting() {
 		String sql =
 			"select count(*) from emp " +
-			"where emp_approval_status = 'N' " +
-			"and emp_email_verified = 'Y'";
+			"where emp_approval_status = 'N'";
 
 		return jdbcTemplate.queryForObject(sql, int.class);
 	}
