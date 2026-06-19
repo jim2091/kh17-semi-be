@@ -52,6 +52,9 @@ public class AppDao {
 	}
 	
 	
+	
+	
+	
 	//전체 조회 메소드
 	public List<AppDto> selectAllList(PageVO pageVO, String searchEmpName, String searchAppType,
 			String searchAppStatus) {
