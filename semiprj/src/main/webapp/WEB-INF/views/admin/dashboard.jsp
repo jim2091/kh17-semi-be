@@ -366,22 +366,59 @@
 .dept-rank-list {
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 16px;
+    margin-top: 14px;
 }
 
 .dept-rank-row {
-    display: grid;
-    grid-template-columns: 110px 1fr 50px;
-    align-items: center;
-    gap: 12px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border-color);
+}
 
-    color: var(--list-text-color);
+.dept-rank-row:last-child {
+    border-bottom: none;
+}
+
+.dept-rank-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.dept-rank-name {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    color: var(--card-title-color);
     font-size: 14px;
-    font-weight: 800;
+    font-weight: 900;
+}
+
+.dept-rank-badge {
+    width: 22px;
+    height: 22px;
+    border-radius: 8px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(37, 99, 235, 0.1);
+    color: var(--main-color);
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.dept-rank-count {
+    color: var(--card-title-color);
+    font-size: 14px;
+    font-weight: 900;
 }
 
 .dept-rank-track {
-    height: 10px;
+    height: 12px;
     border-radius: 999px;
     background: var(--input-bg);
     border: 1px solid var(--border-color);
@@ -391,7 +428,7 @@
 .dept-rank-fill {
     height: 100%;
     border-radius: 999px;
-    background: var(--main-color);
+    background: linear-gradient(90deg, #2563eb, #60a5fa);
 }
 
 /* =========================
@@ -535,12 +572,40 @@
    Login Chart
 ========================= */
 
+.login-stat-summary {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.login-stat-box {
+    flex: 1;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: var(--input-bg);
+    border: 1px solid var(--border-color);
+}
+
+.login-stat-box-title {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--sub-text);
+}
+
+.login-stat-box-value {
+    margin-top: 4px;
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--card-title-color);
+}
+
 .login-stat-list {
     display: flex;
     align-items: flex-end;
-    gap: 10px;
-    height: 150px;
-    padding: 28px 0 28px;
+    gap: 12px;
+    height: 145px;
+    padding: 24px 0 28px;
     border-bottom: 1px solid var(--border-color);
 }
 
@@ -554,10 +619,10 @@
 }
 
 .login-stat-bar {
-    width: 18px;
+    width: 22px;
     min-height: 6px;
-    border-radius: 999px 999px 4px 4px;
-    background: var(--main-color);
+    border-radius: 999px 999px 6px 6px;
+    background: linear-gradient(180deg, #60a5fa, #2563eb);
 }
 
 .login-stat-label {
@@ -574,6 +639,60 @@
     color: var(--card-title-color);
     font-size: 11px;
     font-weight: 900;
+}
+
+.recent-emp-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.recent-emp-item {
+    display: grid;
+    grid-template-columns: 34px 1fr auto;
+    gap: 12px;
+    align-items: center;
+
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.recent-emp-item:last-child {
+    border-bottom: none;
+}
+
+.recent-emp-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: var(--input-bg);
+    color: var(--sub-text);
+    font-size: 15px;
+}
+
+.recent-emp-name {
+    font-size: 14px;
+    font-weight: 900;
+    color: var(--card-title-color);
+}
+
+.recent-emp-sub {
+    margin-top: 3px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--sub-text);
+}
+
+.recent-emp-date {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--sub-text);
 }
 
 /* =========================
@@ -614,7 +733,7 @@
             <div class="summary-title">전체 직원</div>
             <div class="summary-value">${dashboard.totalEmpCount}명</div>
             <div class="summary-desc">
-                관리자 계정을 제외한 활성 직원 기준
+                활성화된 직원 수
             </div>
         </div>
 
@@ -809,19 +928,26 @@
 		    </div>
 		
 		    <div class="dept-rank-list">
-		        <c:forEach var="dept" items="${dashboard.deptEmpCountList}">
-		            <div class="dept-rank-row">
-		                <div>${dept.deptName}</div>
-		
-		                <div class="dept-rank-track">
-		                    <div class="dept-rank-fill"
-		                         style="width:${dashboard.maxDeptEmpCount == 0 ? 0 : dept.empCount * 100 / dashboard.maxDeptEmpCount}%;"></div>
-		                </div>
-		
-		                <div>${dept.empCount}명</div>
-		            </div>
-		        </c:forEach>
-		    </div>
+			    <c:forEach var="dept" items="${dashboard.deptEmpCountList}" varStatus="status">
+			        <div class="dept-rank-row">
+			
+			            <div class="dept-rank-top">
+			                <div class="dept-rank-name">
+			                    <span class="dept-rank-badge">${status.index + 1}</span>
+			                    ${dept.deptName}
+			                </div>
+			
+			                <div class="dept-rank-count">${dept.empCount}명</div>
+			            </div>
+			
+			            <div class="dept-rank-track">
+			                <div class="dept-rank-fill"
+			                     style="width:${dashboard.maxDeptEmpCount == 0 ? 0 : dept.empCount * 100 / dashboard.maxDeptEmpCount}%;"></div>
+			            </div>
+			
+			        </div>
+			    </c:forEach>
+			</div>
 		</div>
 
         <div class="gw-list-panel" style="margin-bottom:0;">
@@ -829,33 +955,39 @@
 		        <div>
 		            <div class="gw-table-title">최근 가입 직원</div>
 		            <div class="gw-table-sub">
-		                최근 생성된 직원 계정 5건을 표시합니다.
+		                최근 생성된 직원 계정 3건을 표시합니다.
 		            </div>
 		        </div>
 		
 		        <a href="/admin/list" class="gw-link">더보기</a>
 		    </div>
 		
-		    <table class="gw-table admin-compact-table">
-		        <tbody>
-		            <c:forEach var="emp" items="${dashboard.recentEmpList}">
-		                <tr>
-		                    <td>${emp.empNo}</td>
-		                    <td>${emp.empName}</td>
-		                    <td>${emp.deptName}</td>
-		                    <td>${emp.empCreateAt}</td>
-		                </tr>
-		            </c:forEach>
-		
-		            <c:if test="${empty dashboard.recentEmpList}">
-		                <tr>
-		                    <td colspan="4" class="gw-muted">
-		                        최근 가입 직원이 없습니다.
-		                    </td>
-		                </tr>
-		            </c:if>
-		        </tbody>
-		    </table>
+		    <div class="recent-emp-list">
+			    <c:forEach var="emp" items="${dashboard.recentEmpList}">
+			        <div class="recent-emp-item">
+			            <div class="recent-emp-avatar">
+			                <i class="fa-solid fa-user"></i>
+			            </div>
+			
+			            <div>
+			                <div class="recent-emp-name">${emp.empName}</div>
+			                <div class="recent-emp-sub">
+			                    ${emp.empNo} · ${emp.deptName}
+			                </div>
+			            </div>
+			
+			            <div class="recent-emp-date">
+			                ${emp.empCreateAt}
+			            </div>
+			        </div>
+			    </c:forEach>
+			
+			    <c:if test="${empty dashboard.recentEmpList}">
+			        <div class="gw-muted" style="padding:18px 0;">
+			            최근 가입 직원이 없습니다.
+			        </div>
+			    </c:if>
+			</div>
 		</div>
 		
         <div class="dashboard-card admin-card">
@@ -937,21 +1069,44 @@
 	    </div>
 	
 	    <div class="dashboard-card admin-card">
-	        <div class="card-header">
-	            <div class="card-title">최근 로그인 현황</div>
-	        </div>
-	
-	        <div class="login-stat-list">
-	            <c:forEach var="stat" items="${dashboard.loginStatList}">
-	                <div class="login-stat-item">
-	                    <div class="login-stat-bar"
-	                         style="height:${stat.count * 100 / dashboard.loginChartMax}%;"></div>
-	                    <div class="login-stat-count">${stat.count}</div>
-	                    <div class="login-stat-label">${stat.label}</div>
-	                </div>
-	            </c:forEach>
-	        </div>
-	    </div>
+		    <div class="card-header">
+		        <div class="card-title">최근 로그인 현황</div>
+		    </div>
+		
+		    <c:set var="loginTotal" value="0" />
+		    <c:set var="loginMax" value="0" />
+		
+		    <c:forEach var="stat" items="${dashboard.loginStatList}">
+		        <c:set var="loginTotal" value="${loginTotal + stat.count}" />
+		
+		        <c:if test="${stat.count > loginMax}">
+		            <c:set var="loginMax" value="${stat.count}" />
+		        </c:if>
+		    </c:forEach>
+		
+		    <div class="login-stat-summary">
+		        <div class="login-stat-box">
+		            <div class="login-stat-box-title">7일 합계</div>
+		            <div class="login-stat-box-value">${loginTotal}회</div>
+		        </div>
+		
+		        <div class="login-stat-box">
+		            <div class="login-stat-box-title">최고 접속</div>
+		            <div class="login-stat-box-value">${loginMax}회</div>
+		        </div>
+		    </div>
+		
+		    <div class="login-stat-list">
+		        <c:forEach var="stat" items="${dashboard.loginStatList}">
+		            <div class="login-stat-item">
+		                <div class="login-stat-bar"
+		                     style="height:${stat.count * 100 / dashboard.loginChartMax}%;"></div>
+		                <div class="login-stat-count">${stat.count}</div>
+		                <div class="login-stat-label">${stat.label}</div>
+		            </div>
+		        </c:forEach>
+		    </div>
+		</div>
 	
 	</div>
 

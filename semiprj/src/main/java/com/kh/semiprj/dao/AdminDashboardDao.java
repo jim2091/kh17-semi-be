@@ -96,6 +96,7 @@ public class AdminDashboardDao {
                 from attn a
                 join emp e on a.emp_no = e.emp_no
                 where e.emp_level != '관리자'
+                and e.emp_use_yn = 'Y' 
                 and a.attn_work_date >= to_date(? || '-01', 'YYYY-MM-DD')
                 and a.attn_work_date < add_months(to_date(? || '-01', 'YYYY-MM-DD'), 1)
                 group by to_char(a.attn_work_date, 'W')
@@ -148,6 +149,7 @@ public class AdminDashboardDao {
                 left join emp e
                     on e.emp_dept = child.dept_id
                     and e.emp_level != '관리자'
+                    and e.emp_use_yn = 'Y' 
                 where parent.parent_dept_id = 10
                 group by parent.dept_id, parent.dept_name
                 order by parent.dept_id
@@ -172,7 +174,7 @@ public class AdminDashboardDao {
                     where e.emp_level != '관리자'
                     order by e.emp_create_at desc
                 )
-                where rownum <= 4
+                where rownum <= 3
                 """;
 
         return jdbcTemplate.query(sql, recentEmpMapper);

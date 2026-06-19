@@ -67,7 +67,7 @@ public class DeptDashboardDao {
 				left join attn a 
 					on e.emp_no = a.emp_no 
 					and a.attn_work_date = trunc(sysdate)
-				where e.emp_dept in (
+				where e.emp_use_yn = 'Y' and e.emp_dept in (
 					select dept_id 
 					from dept 
 					start with dept_id = ? 
@@ -94,7 +94,7 @@ public class DeptDashboardDao {
 	                
 	            from attn a 
 	            join emp e on a.emp_no = e.emp_no 
-	            where e.emp_dept in (
+	            where e.emp_use_yn = 'Y' and e.emp_dept in (
 	                select dept_id 
 	                from dept 
 	                start with dept_id = ? 
@@ -125,7 +125,7 @@ public class DeptDashboardDao {
 	                
 	            from attn a 
 	            join emp e on a.emp_no = e.emp_no 
-	            where e.emp_dept in (
+	            where e.emp_use_yn = 'Y' and e.emp_dept in (
 	                select dept_id 
 	                from dept 
 	                start with dept_id = ? 
@@ -186,7 +186,7 @@ public class DeptDashboardDao {
 				join app a on v.app_id = a.app_id 
 				join emp e on a.app_req_id = e.emp_no 
 				join dept d on e.emp_dept = d.dept_id 
-				where e.emp_dept in (
+				where e.emp_use_yn = 'Y' and e.emp_dept in (
 					select dept_id from dept 
 					start with dept_id = ? 
 					connect by prior dept_id = parent_dept_id
@@ -215,7 +215,7 @@ public class DeptDashboardDao {
 	            left join attn a
 	                on e.emp_no = a.emp_no
 	               and a.attn_work_date = trunc(sysdate)
-	            where e.emp_dept = ?
+	            where e.emp_use_yn = 'Y' and e.emp_dept = ?
 	            order by p.position_level desc, e.emp_name asc
 	            """;
 
