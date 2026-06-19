@@ -86,7 +86,7 @@
                     <td>
                         <c:choose>
                             <c:when test="${empDto.empUseYn == 'Y'}">
-                                <span class="gw-status-active">활성</span>
+                                <span class="gw-status-active">활성화</span>
                             </c:when>
                             <c:otherwise>
                                 <span class="gw-muted">비활성</span>
@@ -98,7 +98,7 @@
                             <c:when test="${empty empDto.empMentor}">
                                 <span class="gw-muted">-</span>
                             </c:when>
-                            <c:otherwise>${empDto.empMentor}</c:otherwise>
+                            <c:otherwise>${empDto.mentorName}</c:otherwise>
                         </c:choose>
                     </td>
                     <td><fmt:formatDate value="${empDto.empHireDate}" pattern="yyyy-MM-dd"/></td>

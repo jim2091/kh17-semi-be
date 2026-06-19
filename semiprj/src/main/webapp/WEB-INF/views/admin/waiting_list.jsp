@@ -10,8 +10,8 @@
     <div class="gw-breadcrumb">
         관리자 > 직원관리
     </div>
-    <h1>대기 사원 목록</h1>
-    <p>현재 대기 사원의 목록을 볼 수 있습니다.</p>
+    <h1>대기 직원 목록</h1>
+    <p>현재 대기 직원의 목록을 볼 수 있습니다.</p>
 </div>
 
 <div class="gw-list-panel">	
@@ -32,8 +32,8 @@
 						<tr align="center">
 								
 								
-								<th>사원실명</th>
-								<th>사원아이디</th>
+								<th>사원명</th>
+								<th>아이디</th>
 								<th>부서</th>
 								<th>직위</th>
 								<th>활성화여부</th>
@@ -47,10 +47,10 @@
 						<tr align="center" onclick="location.href='./detail?empNo=${empDto.empNo}'" style="cursor:pointer;">
 								<td>${empDto.empName}</td>
 								<td>${empDto.empId}</td>
-								<td>${deptDto.deptName}</td>
+								<td>${empDto.empDeptName}</td>
 								<td>${empDto.empPosition}</td>
 								<td>${empDto.empApprovalStatus}</td>
-								<td>${empDto.empMentor}</td>								
+								<td>${empDto.mentorName}</td>								
 								<td><fmt:formatDate value = "${empDto.empHireDate}" pattern="yyyy-MM-dd"/></td>								
 								<td onclick="event.stopPropagation();">
 								    <form action="./approval" method="post" style="display:inline;">

@@ -12,6 +12,10 @@
     align-items: start;
     margin-top: 20px;
 }
+.info-content-card,
+.profile-card{
+    height:100%;
+}
 
 /* 좌측 사이드바 프로필 카드 */
 .profile-card {
@@ -224,13 +228,14 @@
                         </c:otherwise>
                     </c:choose>
                 </div>
-            </div>
-            
-            <p class="profile-notice">
-                관리자 승인 후<br>
-                모든 서비스를 이용할 수 있습니다.
-            </p>
-        </div>
+            	</div>
+	            	<c:if test="${empDto.empApprovalStatus != 'Y'}">
+					    <p class="profile-notice">
+					        관리자 승인 후 <br>
+					        모든 서비스를 이용할 수 있습니다.
+					    </p>
+					</c:if>
+        		</div>
 
         <!-- [우측 영역] 상세 정보 라인 테이블 -->
         <div class="info-content-card">
@@ -258,8 +263,8 @@
                         <th>담당사수</th>
                         <td>
                             <c:choose>
-                                <c:when test="${not empty empDto.empMentor}">
-                                    ${empDto.empMentor}
+                                <c:when test="${not empty empDto.mentorName}">
+                                    ${empDto.mentorName}
                                 </c:when>
                                 <c:otherwise>
                                     <span style="color: #cbd5e1;">-</span>
