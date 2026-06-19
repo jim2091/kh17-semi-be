@@ -51,34 +51,43 @@ public class AppController {
 	@Autowired
 	private NotificationService notificationService;
 
-	@RequestMapping("/bothlist")
-	public String appList(HttpSession session, @ModelAttribute PageVO pageVO,
-			@RequestParam(required = false) String searchEmpName, @RequestParam(required = false) String searchAppType,
-			@RequestParam(required = false) String searchAppStatus, Model model) {
+	@RequestMapping("/bothlist") 
+	public String bothList(
+			HttpSession session, 
+			@ModelAttribute("pageVO") PageVO pageVO, 
+			@RequestParam(value = "page", required = false, defaultValue = "1") int page,
+			@RequestParam(required = false) String searchEmpName, 
+			@RequestParam(required = false) String searchAppType,
+			@RequestParam(required = false) String searchAppStatus, 
+			Model model) {
 
 		String loginId = (String) session.getAttribute("loginId");
 		if (loginId == null) {
-			return "redirect:/login";
+			return "redirect:/login"; 
 		}
 
-		int totalCount = appDao.countAll(searchEmpName, searchAppType, searchAppStatus);
-		pageVO.setCount(totalCount);
+		if (page <= 0) page = 1;
+		pageVO.setPage(page);
+		pageVO.setSize(10); 
 
+		int totalCount = appDao.countAll(searchEmpName, searchAppType, searchAppStatus);
+		pageVO.setCount(totalCount); 
 		List<AppDto> list = appDao.selectAllList(pageVO, searchEmpName, searchAppType, searchAppStatus);
 
 		model.addAttribute("list", list);
-		model.addAttribute("pageVO", pageVO);
+		model.addAttribute("pageVO", pageVO); 
 
+		// 뷰 레이어 검색 폼 상태 유지를 위한 바인딩
 		model.addAttribute("searchEmpName", searchEmpName);
 		model.addAttribute("searchAppType", searchAppType);
 		model.addAttribute("searchAppStatus", searchAppStatus);
 
-		String searchParams = "searchEmpName=" + (searchEmpName != null ? searchEmpName : "") + "&searchAppType="
-				+ (searchAppType != null ? searchAppType : "") + "&searchAppStatus="
-				+ (searchAppStatus != null ? searchAppStatus : "");
+		String searchParams = "searchEmpName=" + (searchEmpName != null ? searchEmpName.trim() : "") 
+				+ "&searchAppType=" + (searchAppType != null ? searchAppType.trim() : "") 
+				+ "&searchAppStatus=" + (searchAppStatus != null ? searchAppStatus.trim() : "");
 		model.addAttribute("searchParams", searchParams);
 
-		return "/app/bothlist";
+		return "/app/bothlist"; 
 	}
 	
 	
