@@ -21,7 +21,7 @@
     text-align: center;
     box-shadow: 0 4px 18px rgba(0, 0, 0, 0.02);
     
-    /* 🌟 높이를 100%로 설정하여 우측 영역 크기에 맞춤과 동시에 레이아웃 유연성 확보 */
+    /* 높이를 100%로 설정하여 우측 영역 크기에 맞춤과 동시에 레이아웃 유연성 확보 */
     height: 100%; 
     box-sizing: border-box;
     display: flex;
