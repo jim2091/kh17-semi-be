@@ -15,6 +15,7 @@ import com.kh.semiprj.dao.AppLineDao;
 import com.kh.semiprj.dao.VacAppDao;
 import com.kh.semiprj.dto.AppDto;
 import com.kh.semiprj.dto.AppLineDto;
+import com.kh.semiprj.dto.AttachDto;
 import com.kh.semiprj.dto.DftAppDto;
 import com.kh.semiprj.dto.ExpAppDto;
 import com.kh.semiprj.dto.VacAppDto;
@@ -130,21 +131,45 @@ public class ApprController {
 	@RequestMapping("/detail")
 	public String detail(Model model, @RequestParam int appId, HttpSession session) {
 		String loginId = (String) session.getAttribute("loginId");
+		if (loginId == null) {
+			return "redirect:/login";
+		}
+		
 		String empNo = appDao.selectEmpNoById(loginId);
+		if (empNo == null) {
+			return "redirect:/login";
+		}
 
 		AppDto appDto = appDao.selectOneById(appId);
-		if (appDto == null)
-			return "redirect:./list";
+		if (appDto == null) {
+			return "redirect:/app/list";
+		}
 
 		List<AppLineDto> lineList = appLineDao.selectByAppId(appId);
 
-		AppLineDto myTurn = null;
-		for (AppLineDto line : lineList) {
-			if (line.getAppAppId().equals(empNo) && line.getAppLineStatus().equals("진행중")) {
-				myTurn = line;
-				break;
+		if (lineList != null) {
+			for (AppLineDto line : lineList) {
+				String deptCode = line.getEmpDept(); 
+				if (deptCode != null) {
+					String deptName = appDao.selectDeptNameByCode(deptCode); 
+					line.setEmpDept(deptName); 
+				}
 			}
 		}
+
+		AppLineDto myTurn = null;
+		if (lineList != null) {
+			for (AppLineDto line : lineList) {
+				if (line.getAppAppId() != null && line.getAppAppId().equals(empNo) 
+						&& "진행중".equals(line.getAppLineStatus())) {
+					myTurn = line;
+					break;
+				}
+			}
+		}
+
+		List<AttachDto> attachList = appDao.searchFiles(appId);
+		model.addAttribute("attachList", attachList);
 
 		if ("휴가신청서".equals(appDto.getAppType())) {
 			VacAppDto vacAppDto = appDao.selectVacByAppId(appId);
@@ -158,7 +183,7 @@ public class ApprController {
 		}
 
 		model.addAttribute("appDto", appDto);
-		model.addAttribute("lineList", lineList);
+		model.addAttribute("lineList", lineList); 
 		model.addAttribute("myTurn", myTurn);
 		return "appr/detail";
 	}

@@ -22,6 +22,7 @@ import com.kh.semiprj.dao.ExpAppDao;
 import com.kh.semiprj.dao.VacAppDao;
 import com.kh.semiprj.dto.AppDto;
 import com.kh.semiprj.dto.AppLineDto;
+import com.kh.semiprj.dto.AttachDto;
 import com.kh.semiprj.dto.DftAppDto;
 import com.kh.semiprj.dto.ExpAppDto;
 import com.kh.semiprj.dto.VacAppDto;
@@ -47,22 +48,83 @@ public class AppController {
 	@Autowired
 	private VacService vacService;
 
-	// 상세
-	@RequestMapping("/detail")
-	public String detail(Model model, @RequestParam int appId, HttpSession session) {
+	@RequestMapping("/bothlist")
+	public String appList(HttpSession session, @ModelAttribute PageVO pageVO,
+			@RequestParam(required = false) String searchEmpName, @RequestParam(required = false) String searchAppType,
+			@RequestParam(required = false) String searchAppStatus, Model model) {
+
 		String loginId = (String) session.getAttribute("loginId");
+		if (loginId == null) {
+			return "redirect:/login";
+		}
+
+		int totalCount = appDao.countAll(searchEmpName, searchAppType, searchAppStatus);
+		pageVO.setCount(totalCount);
+
+		List<AppDto> list = appDao.selectAllList(pageVO, searchEmpName, searchAppType, searchAppStatus);
+
+		model.addAttribute("list", list);
+		model.addAttribute("pageVO", pageVO);
+
+		model.addAttribute("searchEmpName", searchEmpName);
+		model.addAttribute("searchAppType", searchAppType);
+		model.addAttribute("searchAppStatus", searchAppStatus);
+
+		String searchParams = "searchEmpName=" + (searchEmpName != null ? searchEmpName : "") + "&searchAppType="
+				+ (searchAppType != null ? searchAppType : "") + "&searchAppStatus="
+				+ (searchAppStatus != null ? searchAppStatus : "");
+		model.addAttribute("searchParams", searchParams);
+
+		return "/app/bothlist";
+	}
+	
+	
+	
+
+	@RequestMapping("/detail")
+	public String detail(Model model, @RequestParam(value = "appId", required = false, defaultValue = "0") int appId,
+			HttpSession session) {
+		String loginId = (String) session.getAttribute("loginId");
+		if (loginId == null) {
+			return "redirect:/login";
+		}
+
 		String empNo = appDao.selectEmpNoById(loginId);
+		if (empNo == null) {
+			return "redirect:/login";
+		}
 
 		AppDto appDto = appDao.selectOneById(appId);
-		if (appDto == null)
-			return "redirect:./list";
+		if (appDto == null) {
+			return "redirect:/app/list";
+		}
 
 		List<AppLineDto> lineList = appLineDao.selectByAppId(appId);
-		model.addAttribute("appDto", appDto);
-		model.addAttribute("lineList", lineList);
-		model.addAttribute("loginEmpNo", empNo);
 
-		// 문서 종류에 따라 추가 정보 조회
+		if (lineList != null) {
+			for (AppLineDto line : lineList) {
+				String deptCode = line.getEmpDept();
+				if (deptCode != null) {
+					String deptName = appDao.selectDeptNameByCode(deptCode);
+					line.setEmpDept(deptName);
+				}
+			}
+		}
+
+		AppLineDto myTurn = null;
+		if (lineList != null) {
+			for (AppLineDto line : lineList) {
+				if (line.getAppAppId() != null && line.getAppAppId().equals(empNo)
+						&& "진행중".equals(line.getAppLineStatus())) {
+					myTurn = line;
+					break;
+				}
+			}
+		}
+
+		List<AttachDto> attachList = appDao.searchFiles(appId);
+		model.addAttribute("attachList", attachList);
+
 		if ("휴가신청서".equals(appDto.getAppType())) {
 			VacAppDto vacAppDto = appDao.selectVacByAppId(appId);
 			model.addAttribute("vacAppDto", vacAppDto);
@@ -74,19 +136,22 @@ public class AppController {
 			model.addAttribute("dftAppDto", dftAppDto);
 		}
 
+		model.addAttribute("appDto", appDto);
+		model.addAttribute("lineList", lineList);
+		model.addAttribute("myTurn", myTurn);
+
 		return "app/detail";
 	}
+	
+	
+	
+	
 
 	// 수정(결재 or 반려)
 	@PostMapping("/edit")
 	public String edit(@RequestParam int appId, @RequestParam String appStatus, HttpSession session,
 			RedirectAttributes attr) {
 		return "redirect:/app/list";
-	}
-
-	@RequestMapping("/insertComplete")
-	public String insertComplete(HttpSession session) {
-		return "/app/insertComplete";
 	}
 
 	@GetMapping("/vacInsert")
@@ -100,20 +165,46 @@ public class AppController {
 		return "/app/vacInsert";
 	}
 
+
+	@GetMapping("/expInsert")
+	public String expInsert(HttpSession session, Model model) {
+		String loginId = (String) session.getAttribute("loginId");
+		if (loginId == null)
+			return "redirect:/login";
+		String empName = appDao.selectEmpNameById(loginId);
+		model.addAttribute("empName", empName);
+		model.addAttribute("empList", appDao.selectAllEmp());
+		return "/app/expInsert";
+	}
+
+
+	@GetMapping("/dftInsert")
+	public String dftInsert(HttpSession session, Model model) {
+		String loginId = (String) session.getAttribute("loginId");
+		if (loginId == null)
+			return "redirect:/login";
+		String empName = appDao.selectEmpNameById(loginId);
+		model.addAttribute("empName", empName);
+		model.addAttribute("empList", appDao.selectAllEmp());
+		return "/app/dftInsert";
+	}
+
+
 	@PostMapping("/vacInsert")
-	public String vacInsert(@ModelAttribute VacAppDto vacAppDto, 
-			@RequestParam String approver1,
-			@RequestParam(required = false) String approver2, 
-			@RequestParam(required = false) String approver3,
-			HttpSession session, RedirectAttributes redirectAttributes) {
+	public String vacInsert(@ModelAttribute VacAppDto vacAppDto, @RequestParam String approver1,
+			@RequestParam(required = false) String approver2, @RequestParam(required = false) String approver3,
+			@RequestParam(value = "attachNo", required = false) List<Integer> attachNoList, HttpSession session,
+			RedirectAttributes redirectAttributes) {
 
 		System.out.println("====== [1. 진입 완료] vacInsert POST 매핑 시작 ======");
 
 		String loginId = (String) session.getAttribute("loginId");
-		if (loginId == null) return "redirect:/login";
+		if (loginId == null)
+			return "redirect:/login";
 
 		String empNo = appDao.selectEmpNoById(loginId);
-		if (empNo == null) return "redirect:./vacInsert";
+		if (empNo == null)
+			return "redirect:./vacInsert";
 
 		// 중복 결재자 체크 로직 (기존 유지)
 		List<String> approvers = new ArrayList<>();
@@ -140,15 +231,17 @@ public class AppController {
 		int nextAppId = appDao.sequence();
 		vacAppDto.setAppId(nextAppId);
 
-		// [중요 디버깅] 화면에서 데이터가 제대로 넘어왔는지 값 검증 추적
-		System.out.println("-> [발행된 문서번호] appId = " + nextAppId);
-		System.out.println("-> [JSP 수신값 확인] 시작일 = " + vacAppDto.getVacStartDate());
-		System.out.println("-> [JSP 수신값 확인] 종료일 = " + vacAppDto.getVacEndDate());
-		System.out.println("-> [JSP 수신값 확인] 휴가구분 = " + vacAppDto.getVacType());
-
 		try {
-			// 비즈니스 로직 및 트랜잭션 파이프라인 가동
 			vacService.registerVacation(vacAppDto);
+
+			if (attachNoList != null && !attachNoList.isEmpty()) {
+				for (Integer attachNo : attachNoList) {
+					if (attachNo != null && attachNo > 0) {
+						appDao.insertAppFile(nextAppId, attachNo);
+					}
+				}
+			}
+
 			// 결재선 등록 (기존 유지)
 			for (int i = 0; i < approvers.size(); i++) {
 				AppLineDto line = new AppLineDto();
@@ -162,29 +255,19 @@ public class AppController {
 			appLineDao.activateFirst(nextAppId);
 
 		} catch (Exception e) {
-			// 어디서 에러가 터졌는지 추적 장치 세분화
-			e.printStackTrace(); // 전체 스택 트레이스 출력
+			e.printStackTrace();
 			return "redirect:./vacInsert";
 		}
 
 		return "redirect:./insertComplete";
 	}
 
-	@GetMapping("/expInsert")
-	public String expInsert(HttpSession session, Model model) {
-		String loginId = (String) session.getAttribute("loginId");
-		if (loginId == null)
-			return "redirect:/login";
-		String empName = appDao.selectEmpNameById(loginId);
-		model.addAttribute("empName", empName);
-		model.addAttribute("empList", appDao.selectAllEmp());
-		return "/app/expInsert";
-	}
-
 	@PostMapping("/expInsert")
 	public String expInsert(@ModelAttribute ExpAppDto expAppDto, @RequestParam String approver1,
 			@RequestParam(required = false) String approver2, @RequestParam(required = false) String approver3,
-			HttpSession session, RedirectAttributes redirectAttributes) {
+			// 💡 [추가] 비동기로 수집된 attachNo 리스트 파라미터 수신
+			@RequestParam(value = "attachNo", required = false) List<Integer> attachNoList, HttpSession session,
+			RedirectAttributes redirectAttributes) {
 
 		String loginId = (String) session.getAttribute("loginId");
 		if (loginId == null)
@@ -214,13 +297,22 @@ public class AppController {
 
 		expAppDto.setAppReqId(empNo);
 		expAppDto.setAppType("품의서");
-		expAppDto.setAppStatus("처리중"); // 대기 → 처리중으로 수정
+		expAppDto.setAppStatus("처리중");
 		int nextAppId = appDao.sequence();
 		expAppDto.setAppId(nextAppId);
 
 		try {
 			appDao.insert(expAppDto);
 			expAppDao.insertExpApp(expAppDto);
+
+			// 💡 [추가] 품의서 첨부파일 매핑 테이블 등록
+			if (attachNoList != null && !attachNoList.isEmpty()) {
+				for (Integer attachNo : attachNoList) {
+					if (attachNo != null && attachNo > 0) {
+						appDao.insertAppFile(nextAppId, attachNo);
+					}
+				}
+			}
 
 			// 결재선 등록
 			for (int i = 0; i < approvers.size(); i++) {
@@ -232,7 +324,6 @@ public class AppController {
 				appLineDao.insert(line);
 			}
 
-			// 첫 번째 결재자 진행중으로 활성화
 			appLineDao.activateFirst(nextAppId);
 
 		} catch (Exception e) {
@@ -244,21 +335,12 @@ public class AppController {
 		return "redirect:./insertComplete";
 	}
 
-	@GetMapping("/dftInsert")
-	public String dftInsert(HttpSession session, Model model) {
-		String loginId = (String) session.getAttribute("loginId");
-		if (loginId == null)
-			return "redirect:/login";
-		String empName = appDao.selectEmpNameById(loginId);
-		model.addAttribute("empName", empName);
-		model.addAttribute("empList", appDao.selectAllEmp());
-		return "/app/dftInsert";
-	}
-
 	@PostMapping("/dftInsert")
 	public String dftInsert(@ModelAttribute DftAppDto dftAppDto, @RequestParam String approver1,
 			@RequestParam(required = false) String approver2, @RequestParam(required = false) String approver3,
-			HttpSession session, RedirectAttributes redirectAttributes) {
+			// 💡 [추가] 비동기로 수집된 attachNo 리스트 파라미터 수신
+			@RequestParam(value = "attachNo", required = false) List<Integer> attachNoList, HttpSession session,
+			RedirectAttributes redirectAttributes) {
 
 		String loginId = (String) session.getAttribute("loginId");
 		if (loginId == null)
@@ -288,13 +370,22 @@ public class AppController {
 
 		dftAppDto.setAppReqId(empNo);
 		dftAppDto.setAppType("업무기안서");
-		dftAppDto.setAppStatus("처리중"); // 대기 → 처리중으로 수정
+		dftAppDto.setAppStatus("처리중");
 		int nextAppId = appDao.sequence();
 		dftAppDto.setAppId(nextAppId);
 
 		try {
 			appDao.insert(dftAppDto);
 			dftAppDao.insertDftApp(dftAppDto);
+
+			// 💡 [추가] 업무기안서 첨부파일 매핑 테이블 등록
+			if (attachNoList != null && !attachNoList.isEmpty()) {
+				for (Integer attachNo : attachNoList) {
+					if (attachNo != null && attachNo > 0) {
+						appDao.insertAppFile(nextAppId, attachNo);
+					}
+				}
+			}
 
 			// 결재선 등록
 			for (int i = 0; i < approvers.size(); i++) {
@@ -306,7 +397,6 @@ public class AppController {
 				appLineDao.insert(line);
 			}
 
-			// 첫 번째 결재자 진행중으로 활성화
 			appLineDao.activateFirst(nextAppId);
 
 		} catch (Exception e) {
@@ -317,22 +407,29 @@ public class AppController {
 
 		return "redirect:./insertComplete";
 	}
+	
+	
+	
+	
+
+	@RequestMapping("/insertComplete")
+	public String insertComplete(HttpSession session) {
+		return "/app/insertComplete";
+	}
 
 	@RequestMapping("/list")
-	public String list(
-			HttpSession session,
-			@ModelAttribute PageVO pageVO,
+	public String list(HttpSession session, @ModelAttribute PageVO pageVO,
 			// 기안자 제외, 나머지 2개 필터만 깔끔하게 접수
 			@RequestParam(required = false) String searchAppType,
-			@RequestParam(required = false) String searchAppStatus,
-			Model model) {
+			@RequestParam(required = false) String searchAppStatus, Model model) {
 
 		String loginId = (String) session.getAttribute("loginId");
-		if (loginId == null) return "redirect:/login";
-		
+		if (loginId == null)
+			return "redirect:/login";
+
 		String empNo = appDao.selectEmpNoById(loginId);
 		String empName = appDao.selectEmpNameById(loginId);
-		
+
 		model.addAttribute("empName", empName);
 		model.addAttribute("currentTab", "app");
 
@@ -342,17 +439,17 @@ public class AppController {
 
 		// 2. 동적 중첩 쿼리 실행
 		List<AppDto> list = appDao.selectMyListByFilter(pageVO, empNo, searchAppType, searchAppStatus);
-		
+
 		model.addAttribute("list", list);
 		model.addAttribute("pageVO", pageVO);
-		
+
 		// 3. JSP 상태 복원용 속성 바인딩
 		model.addAttribute("searchAppType", searchAppType);
 		model.addAttribute("searchAppStatus", searchAppStatus);
-		
+
 		// 페이징 클릭 시 풀림 방지 파라미터 캐싱
-		String searchParams = "searchAppType=" + (searchAppType != null ? searchAppType : "") 
-							+ "&searchAppStatus=" + (searchAppStatus != null ? searchAppStatus : "");
+		String searchParams = "searchAppType=" + (searchAppType != null ? searchAppType : "") + "&searchAppStatus="
+				+ (searchAppStatus != null ? searchAppStatus : "");
 		model.addAttribute("searchParams", searchParams);
 
 		return "/app/list";
@@ -395,42 +492,38 @@ public class AppController {
 //		return "/app/list";
 //	}
 
-//	//picker 용 매핑
-//	@GetMapping("/searchApprover")
-//	@ResponseBody
-//	public List<Map<String, Object>> searchApprover(
-//	        @RequestParam String keyword,
-//	        @RequestParam(required = false) List<String> excludes) {
-//	    return appDao.searchApproverForPicker(keyword, excludes);
-//	}
-
+	// picker 용 매핑
 	@GetMapping("/searchApprover")
 	@ResponseBody
 	public List<Map<String, Object>> searchApprover(@RequestParam String keyword,
-	        @RequestParam(required = false) List<String> excludes, HttpSession session) {
+			@RequestParam(required = false) List<String> excludes, HttpSession session) {
 
-	    // 본인 제외
-	    String loginId = (String) session.getAttribute("loginId");
-	    String empNo = appDao.selectEmpNoById(loginId);
-	    if (excludes == null) excludes = new ArrayList<>();
-	    if (!excludes.contains(empNo)) excludes.add(empNo);
+		// 본인 제외
+		String loginId = (String) session.getAttribute("loginId");
+		String empNo = appDao.selectEmpNoById(loginId);
+		if (excludes == null)
+			excludes = new ArrayList<>();
+		if (!excludes.contains(empNo))
+			excludes.add(empNo);
 
-	    List<Map<String, Object>> approverList = appDao.searchApproverForPicker(keyword, excludes);
-	    if (approverList == null || approverList.isEmpty()) return approverList;
+		List<Map<String, Object>> approverList = appDao.searchApproverForPicker(keyword, excludes);
+		if (approverList == null || approverList.isEmpty())
+			return approverList;
 
-	    for (Map<String, Object> map : approverList) {
-	        String deptId = (String) map.get("empDept");
-	        if (deptId != null && !deptId.isEmpty()) {
-	            try {
-	                String deptName = appDao.selectDeptNameById(Integer.parseInt(deptId));
-	                if (deptName != null) map.put("empDept", deptName);
-	            } catch (NumberFormatException e) {
-	                map.put("empDept", "소속없음");
-	            }
-	        }
-	    }
+		for (Map<String, Object> map : approverList) {
+			String deptId = (String) map.get("empDept");
+			if (deptId != null && !deptId.isEmpty()) {
+				try {
+					String deptName = appDao.selectDeptNameById(Integer.parseInt(deptId));
+					if (deptName != null)
+						map.put("empDept", deptName);
+				} catch (NumberFormatException e) {
+					map.put("empDept", "소속없음");
+				}
+			}
+		}
 
-	    return approverList;
+		return approverList;
 	}
-	
+
 }

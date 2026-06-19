@@ -42,7 +42,7 @@
 	color: #fff;
 	font-weight: bold;
 }
-/* 테마 색상 반영 지점 */
+
 .vac-type-item:has(input[type="radio"]:checked) {
 	background-color: var(--main-color, #3b82f6);
 	border-color: var(--main-color, #3b82f6);
@@ -102,7 +102,7 @@
 	transition: all 0.2s ease-in-out;
 	box-sizing: border-box;
 }
-/* 테마 색상 반영 지점 */
+
 .input-field:focus {
 	outline: none;
 	border-color: var(--main-color, #3b82f6);
@@ -171,7 +171,6 @@
 	z-index: 2;
 }
 
-/* 테마 색상 반영 지점 */
 .appr-badge.gold {
 	background: var(--main-color, #3b82f6);
 }
@@ -202,7 +201,7 @@
 	background-color: #f8fafc;
 	border-color: #94a3b8;
 }
-/* 테마 색상 반영 지점 */
+
 .vac-type-item:has(input:checked) {
 	border-color: var(--main-color, #3b82f6);
 	background-color: #f8fafc;
@@ -230,7 +229,7 @@
 	min-width: 120px;
 	border: none;
 }
-/* 테마 색상 반영 지점 */
+
 .btn-submit {
 	background-color: var(--main-color, #3b82f6);
 	color: #ffffff;
@@ -269,128 +268,221 @@
 .btn-search-unified:hover {
 	background-color: #0f172a;
 }
+
+.gw-upload-container {
+	margin-top: 24px;
+	padding: 24px;
+	background: #f8fafc;
+	border: 2px dashed #cbd5e1;
+	border-radius: 12px;
+	transition: all 0.2s ease;
+}
+
+.gw-upload-container:hover {
+	border-color: var(--main-color, #3b82f6);
+}
+
+.gw-upload-label {
+	display: block;
+	font-size: 14px;
+	font-weight: 700;
+	color: #334155;
+	margin-bottom: 12px;
+}
+
+.gw-file-input-wrapper {
+	margin-bottom: 16px;
+}
+
+.gw-file-list {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.gw-file-item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 10px 16px;
+	background: #ffffff;
+	border: 1px solid #e2e8f0;
+	border-radius: 8px;
+	font-size: 13.5px;
+	color: #475569;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+.gw-file-delete-btn {
+	background: none;
+	border: none;
+	color: #ef4444;
+	cursor: pointer;
+	font-weight: 600;
+	padding: 2px 6px;
+	border-radius: 4px;
+}
+
+.gw-file-delete-btn:hover {
+	background: #fef2f2;
+}
 </style>
+
 <script>
-	$(function() {
-
-		$(".check-all").change(function() {
-			$("input[name=pdsNoList]").prop("checked", this.checked);
-		});
-
-		$("input[name=pdsNoList]")
-				.change(
-						function() {
-							$(".check-all")
-									.prop(
-											"checked",
-											$("input[name=pdsNoList]").length == $("input[name=pdsNoList]:checked").length);
-						});
+$(function() {
+	$(".check-all").change(function() {
+		$("input[name=pdsNoList]").prop("checked", this.checked);
 	});
-</script>
 
+	$("input[name=pdsNoList]").change(function() {
+		$(".check-all").prop("checked",
+			$("input[name=pdsNoList]").length == $("input[name=pdsNoList]:checked").length);
+	});
+});
+</script>
 
 <script>
 $(function(){
+	var state = {
+		vacStartDateValid : false,
+		vacEndDateValid   : false,
+		ok : function() {
+			return Object.values(this).filter(v => typeof v === "boolean").every(v => v === true);
+		}
+	};
 
-    var state = {
-        vacStartDateValid : false,
-        vacEndDateValid   : false,
-        ok : function() {
-            return Object.values(this).filter(v => typeof v === "boolean").every(v => v === true);
-        }
-    };
+	var today = moment().format("YYYY-MM-DD");
+	$("[name=appDate]").val(today);
 
-    var today = moment().format("YYYY-MM-DD");
-    $("[name=appDate]").val(today);
+	var startEl = $("[name=vacStartDate]")[0];
+	var endEl   = $("[name=vacEndDate]")[0];
+	var startPicker = null, endPicker = null;
 
-    var startEl = $("[name=vacStartDate]")[0];
-    var endEl   = $("[name=vacEndDate]")[0];
-    var startPicker = null, endPicker = null;
+	function initPickers(isSickLeave) {
+		if (startPicker) { startPicker.destroy(); startPicker = null; }
+		if (endPicker) { endPicker.destroy(); endPicker = null; }
 
-    // 💡 [실무형 리팩토링] 달력을 생성하는 공통 빌더 함수 정의
-    function initPickers(isSickLeave) {
-        // 기존에 돌고 있던 캘린더 객체가 있다면 완벽하게 박살내서 잔여 락 메모리 제거
-        if (startPicker) { startPicker.destroy(); startPicker = null; }
-        if (endPicker) { endPicker.destroy(); endPicker = null; }
+		if (startEl && endEl) {
+			startPicker = new Lightpick({
+				field: startEl, format: "YYYY-MM-DD", firstDay: 7, 
+				minDate: isSickLeave ? null : moment(),
+				onSelect: function(){ $("[name=vacStartDate]").trigger("change"); }
+			});
+			endPicker = new Lightpick({
+				field: endEl, format: "YYYY-MM-DD", firstDay: 7, 
+				minDate: isSickLeave ? null : moment(),
+				onSelect: function(){ $("[name=vacEndDate]").trigger("change"); }
+			});
+		}
+	}
 
-        if (startEl && endEl) {
-            // 병가(isSickLeave == true)면 minDate를 주지 않고, 일반 휴가면 오늘로 잠금
-            startPicker = new Lightpick({
-                field: startEl, format: "YYYY-MM-DD", firstDay: 7, 
-                minDate: isSickLeave ? null : moment(),
-                onSelect: function(){ $("[name=vacStartDate]").trigger("change"); }
-            });
-            endPicker = new Lightpick({
-                field: endEl, format: "YYYY-MM-DD", firstDay: 7, 
-                minDate: isSickLeave ? null : moment(),
-                onSelect: function(){ $("[name=vacEndDate]").trigger("change"); }
-            });
-        }
-    }
+	initPickers(false);
 
-    // 초기 실행 시점에는 기본이 '연차'이므로 과거 차단 모드(false)로 빌드
-    initPickers(false);
+	$("input[name=vacType]").on("change", function() {
+		var currentType = $(this).val();
+		var isSick = (currentType === "병가");
 
-    // 💡 라디오 버튼 체인지 이벤트 발생 시 캘린더 아키텍처 재조립 가동
-    $("input[name=vacType]").on("change", function() {
-        var currentType = $(this).val();
-        var isSick = (currentType === "병가");
+		initPickers(isSick);
+		
+		$("[name=vacStartDate]").val("").removeClass("success fail");
+		$("[name=vacEndDate]").val("").removeClass("success fail");
+		state.vacStartDateValid = false;
+		state.vacEndDateValid = false;
+	});
 
-        // 병가 여부에 맞게 달력을 폭파 후 새로 빌드합니다. (과거 달력 활성화의 핵심)
-        initPickers(isSick);
-        
-        // 날짜 인풋창 초기화 처리로 싱크 꼬임 방어
-        $("[name=vacStartDate]").val("").removeClass("success fail");
-        $("[name=vacEndDate]").val("").removeClass("success fail");
-        state.vacStartDateValid = false;
-        state.vacEndDateValid = false;
-    });
+	$("[name=vacStartDate]").on("change", function(){
+		var appDate   = $("[name=appDate]").val() || today;
+		var startDate = $(this).val();
+		var endDate   = $("[name=vacEndDate]").val();
+		var vacType   = $("input[name=vacType]:checked").val();
+		
+		if(!startDate){ $(this).removeClass("success fail"); state.vacStartDateValid = false; return; }
+		
+		if(vacType !== "병가" && startDate < appDate){ 
+			$(this).removeClass("success").addClass("fail"); 
+			state.vacStartDateValid = false; 
+		}
+		else { 
+			$(this).removeClass("fail").addClass("success"); 
+			state.vacStartDateValid = true; 
+			if(endPicker && vacType !== "병가") endPicker.setMinDate(moment(startDate)); 
+		}
+		if(endDate) $("[name=vacEndDate]").trigger("change");
+	});
 
-    $("[name=vacStartDate]").on("change", function(){
-        var appDate   = $("[name=appDate]").val() || today;
-        var startDate = $(this).val();
-        var endDate   = $("[name=vacEndDate]").val();
-        var vacType   = $("input[name=vacType]:checked").val();
-        
-        if(!startDate){ $(this).removeClass("success fail"); state.vacStartDateValid = false; return; }
-        
-        // 병가가 아니면서 기안일보다 과거일 때만 차단
-        if(vacType !== "병가" && startDate < appDate){ 
-            $(this).removeClass("success").addClass("fail"); 
-            state.vacStartDateValid = false; 
-        }
-        else { 
-            $(this).removeClass("fail").addClass("success"); 
-            state.vacStartDateValid = true; 
-            // 병가가 아닐 때만 시작일에 맞춰 종료일 하한선 조율
-            if(endPicker && vacType !== "병가") endPicker.setMinDate(moment(startDate)); 
-        }
-        if(endDate) $("[name=vacEndDate]").trigger("change");
-    });
+	$("[name=vacEndDate]").on("change", function(){
+		var startDate = $("[name=vacStartDate]").val();
+		var endDate   = $(this).val();
+		if(!endDate || !startDate){ $(this).removeClass("success fail"); state.vacEndDateValid = false; return; }
+		if(endDate < startDate){ $(this).removeClass("success").addClass("fail"); state.vacEndDateValid = false; }
+		else { $(this).removeClass("fail").addClass("success"); state.vacEndDateValid = true; }
+	});
 
-    $("[name=vacEndDate]").on("change", function(){
-        var startDate = $("[name=vacStartDate]").val();
-        var endDate   = $(this).val();
-        if(!endDate || !startDate){ $(this).removeClass("success fail"); state.vacEndDateValid = false; return; }
-        if(endDate < startDate){ $(this).removeClass("success").addClass("fail"); state.vacEndDateValid = false; }
-        else { $(this).removeClass("fail").addClass("success"); state.vacEndDateValid = true; }
-    });
+	$("#vacationForm").on("submit", function(e){
+		if(!state.ok()){
+			e.preventDefault();
+			$("[name=vacStartDate]").trigger("change");
+			$("[name=vacEndDate]").trigger("change");
+			$(".input-field.fail").first().focus();
+			return false;
+		}
+		
+		var approver1 = document.getElementById('approverNo_1').value;
+		if (!approver1) {
+			e.preventDefault();
+			return false;
+		}
+	});
 
-    $("#vacationForm").on("submit", function(e){
-        if(!state.ok()){
-            e.preventDefault();
-            $("[name=vacStartDate]").trigger("change");
-            $("[name=vacEndDate]").trigger("change");
-            $(".input-field.fail").first().focus();
-            return false;
-        }
-        
-        var approver1 = document.getElementById('approverNo_1').value;
-        if (!approver1) {
-            e.preventDefault();
-            return false;
-        }
-    });
+	$("#gw-file-chooser").on("change", function() {
+		var files = this.files;
+		if(files.length === 0) return;
+		
+		for(var i = 0; i < files.length; i++) {
+			uploadFile(files[i]);
+		}
+		$(this).val(""); 
+	});
+	
+	function uploadFile(file) {
+		var formData = new FormData();
+		formData.append("attach", file);
+		
+		$.ajax({
+			url: "/rest/attach/upload",
+			type: "POST",
+			data: formData,
+			processData: false,
+			contentType: false,
+			success: function(attachNo) {
+				if(!attachNo || attachNo <= 0) {
+					alert("파일 변환에 실패했습니다.");
+					return;
+				}
+				
+				var $li = $("<li class='gw-file-item'></li>");
+				var $nameSpan = $("<span></span>").html("<i class='fa-regular fa-file-lines'></i> " + file.name + " (" + (file.size / 1024).toFixed(1) + " KB)");
+				var $deleteBtn = $("<button type='button' class='gw-file-delete-btn'>삭제</button>");
+				
+				$li.append($nameSpan).append($deleteBtn);
+				$("#gw-file-queue").append($li);
+				
+				var $hiddenInput = $("<input type='hidden' name='attachNo'>").val(attachNo);
+				$("#gw-hidden-attach-fields").append($hiddenInput);
+				
+				$deleteBtn.on("click", function() {
+					$li.remove();
+					$hiddenInput.remove();
+				});
+			},
+			error: function() {
+				alert("파일 업로드 중 연동 서버 에러가 발생했습니다.");
+			}
+		});
+	}
 });
 </script>
 
@@ -500,6 +592,21 @@ $(function(){
 			</div>
 		</div>
 
+		<div class="gw-upload-container">
+			<span class="gw-upload-label"> 
+				<i class="fa-solid fa-paperclip"></i> 첨부파일 증빙자료 (PDF / Word 문서만 허용)
+			</span>
+			<div class="gw-file-input-wrapper">
+				<input type="file" id="gw-file-chooser" multiple accept=".pdf, .doc, .docx" style="display: none;">
+				<button type="button" class="btn-search-unified" style="background-color: #475569;" 
+						onclick="document.getElementById('gw-file-chooser').click();">
+					<i class="fa-solid fa-file-arrow-up"></i> 파일 선택
+				</button>
+			</div>
+			<ul id="gw-file-queue" class="gw-file-list"></ul>
+			<div id="gw-hidden-attach-fields"></div>
+		</div>
+
 		<div class="btn-group">
 			<button class="btn-submit" type="submit">기안하기</button>
 			<button class="btn-cancel" type="button"
@@ -507,3 +614,5 @@ $(function(){
 		</div>
 	</form>
 </div>
+
+<jsp:include page="/WEB-INF/views/template/footer2.jsp"></jsp:include>
