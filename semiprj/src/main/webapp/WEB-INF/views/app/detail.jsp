@@ -211,7 +211,6 @@
 		<table class="gw-table">
 			<thead>
 				<tr>
-					<th style="width: 10%;">순서</th>
 					<th style="width: 15%;">결재자</th>
 					<th style="width: 15%;">부서</th>
 					<th style="width: 15%;">직급</th>
@@ -223,7 +222,6 @@
 			<tbody>
 				<c:forEach var="line" items="${lineList}">
 					<tr>
-						<td><span class="gw-badge" style="background: #64748b;">${line.appLineOrder}순위</span></td>
 						<td style="font-weight: 600;">${line.empName}</td>
 						<td>${line.empDept}</td>
 						<td>${line.empPosition}</td>

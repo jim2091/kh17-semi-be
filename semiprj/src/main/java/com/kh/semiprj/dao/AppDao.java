@@ -542,7 +542,7 @@ public class AppDao {
 		}
 	}
 
-	// ⭕ [메서드 추가] 문서 번호로 결재 유형(app_type) 단건 조회 (Null 방어 포함)
+	// 문서 번호로 결재 유형(app_type) 단건 조회
 	public String selectAppTypeById(int appId) {
 		String sql = "select app_type from app where app_id = ?";
 
@@ -555,6 +555,15 @@ public class AppDao {
 			// 데이터가 유실되었거나 없을 경우 안전하게 빈 문자열 반환하여 에러 방어
 			return "";
 		}
+	}
+
+	// 부서코드를 부서명으로 받기
+	public String selectDeptNameByCode(String deptNo) {
+		if (deptNo == null || deptNo.isEmpty())
+			return "-";
+
+		String sql = "select dept_name from dept where dept_id = ?";
+		return jdbcTemplate.queryForObject(sql, String.class, deptNo);
 	}
 
 }

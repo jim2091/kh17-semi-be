@@ -47,22 +47,32 @@ public class AppController {
 	@Autowired
 	private VacService vacService;
 
-	// 상세
 	@RequestMapping("/detail")
 	public String detail(Model model, @RequestParam int appId, HttpSession session) {
 		String loginId = (String) session.getAttribute("loginId");
 		String empNo = appDao.selectEmpNoById(loginId);
 
 		AppDto appDto = appDao.selectOneById(appId);
-		if (appDto == null)
-			return "redirect:./list";
+		if (appDto == null) return "redirect:./list";
 
+		// 1. 기존의 순수 결재선 데이터(부서 코드가 숫자인 상태) 조회
 		List<AppLineDto> lineList = appLineDao.selectByAppId(appId);
-		model.addAttribute("appDto", appDto);
-		model.addAttribute("lineList", lineList);
-		model.addAttribute("loginEmpNo", empNo);
 
-		// 문서 종류에 따라 추가 정보 조회
+		// 💡 [컨트롤러 조립부] 루프를 돌며 코드를 한글 부서명으로 치환
+		for (AppLineDto line : lineList) {
+			String deptCode = line.getEmpDept(); // 기존 테이블에 저장된 숫자 코드 추출
+			String deptName = appDao.selectDeptNameByCode(deptCode); // 새로 만든 메서드로 이름 조회
+			line.setEmpDept(deptName); // 한글 부서명으로 데이터 덮어쓰기
+		}
+
+		AppLineDto myTurn = null;
+		for (AppLineDto line : lineList) {
+			if (line.getAppAppId().equals(empNo) && line.getAppLineStatus().equals("진행중")) {
+				myTurn = line;
+				break;
+			}
+		}
+
 		if ("휴가신청서".equals(appDto.getAppType())) {
 			VacAppDto vacAppDto = appDao.selectVacByAppId(appId);
 			model.addAttribute("vacAppDto", vacAppDto);
@@ -74,7 +84,10 @@ public class AppController {
 			model.addAttribute("dftAppDto", dftAppDto);
 		}
 
-		return "app/detail";
+		model.addAttribute("appDto", appDto);
+		model.addAttribute("lineList", lineList); // 가공 완료된 리스트 전송
+		model.addAttribute("myTurn", myTurn);
+		return "appr/detail";
 	}
 
 	// 수정(결재 or 반려)
