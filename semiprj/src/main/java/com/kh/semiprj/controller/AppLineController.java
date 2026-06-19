@@ -3,6 +3,8 @@ package com.kh.semiprj.controller;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,8 +13,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.kh.semiprj.dao.AppDao;
 import com.kh.semiprj.dto.AppLineDto;
 import com.kh.semiprj.service.AppLineService;
+
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
@@ -20,8 +25,11 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/approval")
 @RequiredArgsConstructor
 public class AppLineController {
-
-    private final AppLineService appLineService;
+	
+	@Autowired
+	private AppLineService appLineService;
+    @Autowired
+    private AppDao appDao;
 
     // 내 결재 목록 화면
     @GetMapping("/list")
@@ -32,13 +40,20 @@ public class AppLineController {
         return "approval/list";
     }
 
-    // 결재 상세 화면
+ // 결재 상세 화면
     @GetMapping("/detail/{appId}")
     public String detail(@PathVariable int appId,
                          Model model, HttpSession session) {
 
         String loginId = (String) session.getAttribute("loginId");
         List<AppLineDto> lineList = appLineService.getAppLineList(appId);
+
+        // 💡 [추가] 결재선 루프를 돌며 부서 코드를 부서명으로 치환
+        for (AppLineDto line : lineList) {
+            String deptCode = line.getEmpDept(); // 기존 숫자 코드 추출
+            String deptName = appDao.selectDeptNameByCode(deptCode); // DAO로 한글 부서명 조회
+            line.setEmpDept(deptName); // 한글 부서명으로 덮어쓰기
+        }
 
         // 현재 본인 차례인 appLineId 찾기
         AppLineDto myTurn = lineList.stream()

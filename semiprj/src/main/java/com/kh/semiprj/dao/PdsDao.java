@@ -57,7 +57,7 @@ public class PdsDao {
 		};
 		return jdbcTemplate.update(sql, params) > 0;
 	}
-	//조쇠수 증가
+	//조회수 증가
 	public boolean updatePdsReadcount(int pdsNo) {
 		String sql = "update pds set "
 						+ "pds_readcount = pds_readcount + 1 "

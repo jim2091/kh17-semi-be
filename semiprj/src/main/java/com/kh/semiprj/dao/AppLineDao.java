@@ -96,11 +96,12 @@ public class AppLineDao {
         return list.isEmpty() ? null : list.get(0);
     }
 
-    // 승인 처리
     public void approve(int appLineId) {
-        String sql = "update app_line set app_line_status = '완료', "
-                   + "app_line_date = to_char(sysdate, 'YYYY-MM-DD') " // ← 10자리로 변환
-                   + "where app_line_id = ?";
+        String sql = "UPDATE app_line " +
+                     "SET app_line_status = '완료', " +
+                     "    app_line_date = SYSTIMESTAMP " +
+                     "WHERE app_line_id = ?";
+                     
         jdbcTemplate.update(sql, appLineId);
     }
 

@@ -59,10 +59,10 @@
 
 .field:focus {
 	outline: none;
-	border-color: var(--main-color, #3b82f6);
-	box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+	border-color: #22c55e; /* 💡 테마 매칭 초록선 변경 */
+	box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15);
 }
-/* [피드백 반영] vacInsert와 동일한 기안자/기안일 readonly 전용 시각 락 스킨 */
+
 .field[readonly] {
 	background-color: #f8fafc;
 	color: #64748b;
@@ -78,7 +78,7 @@
 	border-color: #ef4444;
 	background-color: #fef2f2;
 }
-/* 결재선 지정 디자인 통일 */
+
 .approval-row-flex {
 	display: flex;
 	align-items: stretch;
@@ -114,7 +114,7 @@
 }
 
 .appr-badge.gold {
-	background: var(--main-color, #3b82f6);
+	background: #22c55e; /* 💡 테마 매칭 초록색 바인딩 */
 }
 
 .btn-search-unified {
@@ -135,6 +135,68 @@
 
 .btn-search-unified:hover {
 	background-color: #0f172a;
+}
+
+/* 💡 [추가] 비동기 첨부파일 업로드 컴포넌트 커스텀 스킨 */
+.gw-upload-container {
+	margin-top: 24px;
+	padding: 24px;
+	background: #f8fafc;
+	border: 2px dashed #cbd5e1;
+	border-radius: 12px;
+	transition: all 0.2s ease;
+}
+
+.gw-upload-container:hover {
+	border-color: #22c55e;
+}
+
+.gw-upload-label {
+	display: block;
+	font-size: 14px;
+	font-weight: 700;
+	color: #334155;
+	margin-bottom: 12px;
+}
+
+.gw-file-input-wrapper {
+	margin-bottom: 16px;
+}
+
+.gw-file-list {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.gw-file-item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 10px 16px;
+	background: #ffffff;
+	border: 1px solid #e2e8f0;
+	border-radius: 8px;
+	font-size: 13.5px;
+	color: #475569;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+.gw-file-delete-btn {
+	background: none;
+	border: none;
+	color: #ef4444;
+	cursor: pointer;
+	font-weight: 600;
+	padding: 2px 6px;
+	border-radius: 4px;
+}
+
+.gw-file-delete-btn:hover {
+	background: #fef2f2;
 }
 
 .btn-group {
@@ -158,12 +220,12 @@
 }
 
 .btn-submit {
-	background: var(--main-color, #3b82f6);
+	background: #22c55e; /* 💡 메인 테마 컬러 동기화 */
 	color: white;
 }
 
 .btn-submit:hover {
-	filter: brightness(90%);
+	background: #16a34a;
 }
 
 .btn-cancel {
@@ -207,7 +269,6 @@ $(function(){
 
         $input.removeClass("success fail").addClass("success").removeAttr("data-error"); 
         state.expPriceValid = true;
-
     });
 
     $("#approvalForm").on("submit", function(e){
@@ -217,6 +278,52 @@ $(function(){
             return false;
         }
     });
+    $("#gw-file-chooser").on("change", function() {
+        var files = this.files;
+        if(files.length === 0) return;
+        
+        for(var i = 0; i < files.length; i++) {
+            uploadFile(files[i]);
+        }
+        $(this).val(""); // 파일 투입창 리셋
+    });
+    
+    function uploadFile(file) {
+        var formData = new FormData();
+        formData.append("attach", file);
+        
+        $.ajax({
+            url: "/rest/attach/upload",
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(attachNo) {
+                if(!attachNo || attachNo <= 0) {
+                    alert("파일 변환에 실패했습니다.");
+                    return;
+                }
+                
+                var $li = $("<li class='gw-file-item'></li>");
+                var $nameSpan = $("<span></span>").html("<i class='fa-regular fa-file-lines'></i> " + file.name + " (" + (file.size / 1024).toFixed(1) + " KB)");
+                var $deleteBtn = $("<button type='button' class='gw-file-delete-btn'>삭제</button>");
+                
+                $li.append($nameSpan).append($deleteBtn);
+                $("#gw-file-queue").append($li);
+                
+                var $hiddenInput = $("<input type='hidden' name='attachNo'>").val(attachNo);
+                $("#gw-hidden-attach-fields").append($hiddenInput);
+                
+                $deleteBtn.on("click", function() {
+                    $li.remove();
+                    $hiddenInput.remove();
+                });
+            },
+            error: function() {
+                alert("파일 업로드 중 연동 서버 에러가 발생했습니다.");
+            }
+        });
+    }
 });
 </script>
 <div class="gw-page-head pds-width">
@@ -309,6 +416,24 @@ $(function(){
 				class="field" placeholder="지출 원인 및 구체적 목적">
 		</div>
 
+		<div class="gw-upload-container">
+			<span class="gw-upload-label"> <i
+				class="fa-solid fa-paperclip"></i> 첨부파일 증빙자료 (PDF / Word 문서만 허용)
+			</span>
+			<div class="gw-file-input-wrapper">
+				<input type="file" id="gw-file-chooser" multiple
+					accept=".pdf, .doc, .docx"
+					style="display: none;">
+				<button type="button" class="btn-search-unified"
+					style="background-color: #475569;"
+					onclick="document.getElementById('gw-file-chooser').click();">
+					<i class="fa-solid fa-file-arrow-up"></i> 파일 선택
+				</button>
+			</div>
+			<ul id="gw-file-queue" class="gw-file-list"></ul>
+			<div id="gw-hidden-attach-fields"></div>
+		</div>
+
 		<div class="btn-group">
 			<button class="btn-submit" type="submit">기안하기</button>
 			<button class="btn-cancel" type="button"
@@ -318,3 +443,5 @@ $(function(){
 
 	<jsp:include page="/WEB-INF/views/template/appr_picker.jsp" />
 </div>
+
+<jsp:include page="/WEB-INF/views/template/footer2.jsp"></jsp:include>

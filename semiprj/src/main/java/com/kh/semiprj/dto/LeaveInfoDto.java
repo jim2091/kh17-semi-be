@@ -10,4 +10,5 @@ public class LeaveInfoDto {
 	private int leaveTot;
 	private int leaveCnt;
 	private int leaveUsed;
+	private String leaveReason;
 }

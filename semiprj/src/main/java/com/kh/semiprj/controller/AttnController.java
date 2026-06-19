@@ -89,6 +89,11 @@ public class AttnController {
 
         Map<String, Object> vacInfo = attnService.getVacationInfo(empNo);
         model.addAttribute("vacInfo", vacInfo);
+
+        // 2. 🌟 [수정 추가] 휴가 정보 조회 및 바인딩 추가
+        // (※ 서비스에 getLeaveInfo 같은 메서드가 구현되어 있다고 가정할 때)
+        Map<String, Object> leaveInfo = attnService.getLeaveInfo(empNo); 
+        model.addAttribute("leaveInfo", leaveInfo);
         
         int totalCount = attnService.countAttendance(attnDto);
         pageVO.setCount(totalCount);
