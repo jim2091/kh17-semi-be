@@ -66,6 +66,16 @@ public class NotificationService {
 				);
 	}
 	
+	public void notifyAppWaiting(String EmpNo, long targetNo) {
+		createNotification(
+				EmpNo, 
+				"app_waiting", 
+				targetNo, 
+				"결재해야하는 문서가 있습니다", 
+				"/appr/detail?appId=" + targetNo
+				);
+	}
+	
 	public void notifyApproval(String EmpNo, long targetNo) {
 		createNotification(
 				EmpNo, 
