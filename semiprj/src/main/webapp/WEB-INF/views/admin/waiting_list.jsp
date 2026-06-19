@@ -22,7 +22,7 @@
             </div>
 
             <div class="gw-table-sub">
-                총 ${list.size()}명의 직원
+                총 ${pageVO.count}명의 직원
             </div>
         </div>
     </div>
@@ -65,11 +65,12 @@
 					</c:forEach>
 				</tbody>
 		</table>
-</div>
-</div>
-	<div class="gw-pagination">
-   		<jsp:include page="/WEB-INF/views/template/pagination_waitinglist.jsp"></jsp:include>
+		<div class="gw-pagination">
+			<c:set var="pageUrl" value="./waitingList"/>
+		  	<jsp:include page="/WEB-INF/views/template/pagination_board.jsp"></jsp:include>
+		</div>
 	</div>
+</div>
 
 <jsp:include page="/WEB-INF/views/template/footer2.jsp"></jsp:include>
 

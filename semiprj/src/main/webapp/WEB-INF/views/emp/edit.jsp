@@ -6,10 +6,56 @@
 <jsp:include page="/WEB-INF/views/template/header2.jsp"></jsp:include>
 
 <style>
+/* ===== 상단 영역: 그리드 안정성 확보 및 높이 대칭화 ===== */
+.mypage-layout {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 30px;
+    margin-top: 20px;
+    align-items:stretch;
+}
+.gw-list-panel,
+.profile-card{
+    height:100%;
+}
+.profile-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 35px 24px 32px 24px;
+    text-align: center;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.02);
+    
+    /* 🌟 높이를 100%로 설정하여 우측 영역 크기에 맞춤과 동시에 레이아웃 유연성 확보 */
+    height: 100%; 
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-avatar-wrap {
+    position: relative;
+    width: 130px;
+    height: 130px;
+    margin: 0 auto 20px auto;
+    flex-shrink: 0;
+}
+
+.profile-avatar-wrap img {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+}
+
 .profile-name{
-    font-size:28px;
-    font-weight:700;
-    color:#0f172a;
+    font-size: 22px;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 8px;
+    flex-shrink: 0;
 }
 
 .profile-position{
@@ -17,35 +63,53 @@
     color:#64748b;
     font-size:14px;
 }
+
 .profile-no{
-    display:inline-block;
-    padding:4px 10px;
-    border-radius:999px;
-    background:#eff6ff;
-    color:var(--main-color);
-    font-size:13px;
-    font-weight:600;
+    display: inline-block;
+    padding: 3px 12px;
+    border-radius: 999px;
+    background: #eff6ff;
+    color: #2563eb;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    align-self: center;
+    flex-shrink: 0;
 }
 .profile-divider{
-    width:100%;
-    margin:28px 0;
-
-    border:none;
-    border-top:1px solid #e5e7eb;
+    width: 100%;
+    border: none;
+    border-top: 1px solid #f1f5f9;
+    margin: 24px 0;
+    flex-shrink: 0;
 }
-.profile-status-list{
-    width:100%;
+/* 좌측 상태 리스트 & 배지 스타일 (하단 배치 안착) */
+.profile-status-list {
+    margin-top: auto; /* 우측 높이로 인해 늘어난 빈 공간을 밀어내어 하단 고정 */
+    width: 100%;
+    flex-shrink: 0;
 }
 
-.profile-status-item{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-
-    margin-bottom:18px;
-
-    font-size:15px;
+.profile-status-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    font-size: 14px;
+    color: #334155;
+    font-weight: 500;
 }
+
+.profile-status-item:last-child {
+    margin-bottom: 0;
+}
+
+.profile-status-item i {
+    margin-right: 8px;
+    color: #475569;
+    font-size: 15px;
+}
+
 .status-badge{
     padding:6px 14px;
     border-radius:999px;
@@ -61,30 +125,14 @@
     background:#fef3c7;
     color:#d97706;
 }
-.mypage-layout{
-    display:grid;
-    grid-template-columns:320px 1fr;
-    gap:30px;
-    align-items:start;
-}
-.section-title-text{
-    display:flex;
-    align-items:center;
-    gap:12px;
-
-    margin:10px 0 20px;
-
-    font-size:28px;
-    font-weight:800;
-    color:#2563eb;
-}
-.section-title-text::before{
-    content:"";
-    width:6px;
-    height:28px;
-
-    border-radius:999px;
-    background:#2563eb;
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 20px;
+    font-weight: 700;
+    color: #2563eb;
+    margin-bottom: 24px;
 }
 .status-badge.danger{
     background:#fee2e2;
@@ -92,6 +140,20 @@
 }
 .email-edit-box{
     width:100%;
+}
+.profile-upload{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+}
+.profile-upload .gw-btn-outline{
+    width:180px;
+    height:46px;
+    border-radius:12px;
+    font-weight:600;
+}
+.profile-avatar-wrap{
+    position:relative;
 }
 
 .email-control-row{
@@ -176,7 +238,20 @@ $(function(){
     var originEmailVerified = $("#originEmailVerified").val();
     var certifiedEmail = null;
     
+    $(".attach").on("change", function(){
 
+        const file = this.files[0];
+
+        if(!file) return;
+
+        const reader = new FileReader();
+
+        reader.onload = function(e){
+            $(".preview").attr("src", e.target.result);
+        };
+
+        reader.readAsDataURL(file);
+    });
 
     //생년월일 검사
     function checkBirth(){
@@ -541,24 +616,32 @@ $(function(){
 	</div>
 	
     <form action="./edit" method="post" autocomplete="off" enctype="multipart/form-data" class="form-check">
-		<input type="hidden" name="empNo" value="${empDto.empNo}">
-		<input type="hidden" id="originEmail" value="${empDto.empEmail}">
-		<input type="hidden" id="originEmailVerified" value="${empDto.empEmailVerified}">
-		<div class="mypage-layout">
+	<input type="hidden" name="empNo" value="${empDto.empNo}">
+	<input type="hidden" id="originEmail" value="${empDto.empEmail}">
+	<input type="hidden" id="originEmailVerified" value="${empDto.empEmailVerified}">
 		
-		<div class="gw-list-panel center">
-		    <img src="./profile?empNo=${empDto.empNo}"
-		         class="preview"
-		         width="160"
-		         height="160"
-		         style="
-		            border-radius:50%;
-		            object-fit:cover;
-		            border:4px solid var(--main-light);">
+	<div class="mypage-layout">
+		<div class="profile-card">
+            <div class="profile-avatar-wrap">
+			    <img src="./profile?empNo=${empDto.empNo}" class="preview">
+		    </div>
 		    <div class="profile-name">${empDto.empName} 님</div>
 		    <div class="profile-no mt-10"># ${empDto.empNo}</div>
 			<div class="profile-position">${empDto.empPosition} · ${deptDto.deptName}</div>
-			
+			<div class="profile-upload mt-30">
+		        <input type="file"
+		        		id="attach"
+		               name="attach"
+		               class="gw-form-input field w-100 attach" style="display:none;">
+		        <label for="attach" class="gw-btn-outline">
+		    		<i class="fa-solid fa-image"></i>
+		    		프로필 사진 변경
+				</label>
+		
+				<span class="file-name"></span>
+		        <div class="success-feedback"></div>
+		        <div class="fail-feedback"></div>       
+		    </div>
 			<hr class="profile-divider">
 			
 			<div class="profile-status-list">
@@ -600,34 +683,18 @@ $(function(){
 				        </c:otherwise>
 				    </c:choose>
 			    </div>
-    
-				<p class="profile-position">
-				    관리자 승인 후 <br>
-				    모든 서비스를 이용할 수 있습니다.
-				</p>
+			    <c:if test="${empDto.empApprovalStatus != 'Y'}">
+				    <p class="profile-position">
+				        관리자 승인 후 <br>
+				        모든 서비스를 이용할 수 있습니다.
+				    </p>
+				</c:if>
 			</div>
-			
-
-		    <div class="field mt-30 center">
-		        <input type="file"
-		        		id="attach"
-		               name="attach"
-		               class="gw-form-input field w-100 attach" style="display:none;">
-		               
-		        <label for="attach" class="gw-btn-outline">
-		    	<i class="fa-solid fa-image"></i>
-		    		프로필 사진
-				</label>
-		
-				<span class="file-name"></span>
-		        <div class="success-feedback"></div>
-		        <div class="fail-feedback"></div>       
-		    </div>
 		</div>
 
 	<div class="gw-list-panel">
-		<div class="section-title-text mb-10">
-		    기본 정보
+		<div class="section-title">
+		    <i class="fa-regular fa-id-card"></i> 기본 정보
 		</div>
 		
     	<table class="gw-table">
@@ -749,8 +816,8 @@ $(function(){
 			</table>
 			
 			
-			<div class="section-title-text mt-30">
-			    계정 보안
+			<div class="section-title mt-20">
+			    <i class="fa-solid fa-key"></i> 계정 보안
 			</div>
 			
 			<table class="gw-table mb-10">

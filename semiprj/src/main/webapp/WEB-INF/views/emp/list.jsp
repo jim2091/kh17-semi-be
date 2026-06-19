@@ -95,7 +95,7 @@ $(function(){
 	    <div class="gw-table-top">
 	        <div>
 	            <div class="gw-table-title">직원 목록</div>
-	            <div class="gw-table-sub">총 ${list.size()}명의 직원</div>
+	            <div class="gw-table-sub">총 ${pageVO.count}명의 직원</div>
 	        </div>
 	    </div>
 
@@ -137,11 +137,11 @@ $(function(){
 			</c:if>
 			</tbody>
 		</table>
+		
+		<div class="gw-pagination">
+		  	<jsp:include page="/WEB-INF/views/template/pagination.jsp"></jsp:include>
+		</div>
 	</div> 
-	
-    <div class="gw-pagination">
-   		<jsp:include page="/WEB-INF/views/template/pagination.jsp"></jsp:include>
-	</div>
 </div>
 		
 <jsp:include page="/WEB-INF/views/template/footer2.jsp"></jsp:include>
