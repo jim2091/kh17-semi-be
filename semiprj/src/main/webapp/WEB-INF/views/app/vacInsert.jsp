@@ -5,9 +5,9 @@
 
 <jsp:include page="/WEB-INF/views/template/header2.jsp"></jsp:include>
 
-<link rel="stylesheet"
+<link class="stylesheet"
 	href="https://cdnjs.cloudflare.com/ajax/libs/lightpick/1.6.2/css/lightpick.min.css">
-<link rel="stylesheet"
+<link class="stylesheet"
 	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script
@@ -70,6 +70,7 @@
 
 .form-group {
 	margin-bottom: 24px;
+	position: relative;
 }
 
 .form-group label {
@@ -117,6 +118,29 @@
 .input-field.fail {
 	border-color: #ef4444;
 	background-color: #fef2f2;
+}
+
+.fail-feedback {
+	display: none;
+	color: #ef4444;
+	font-size: 13px;
+	margin-top: 6px;
+	font-weight: 500;
+}
+
+.form-group.has-error .fail-feedback {
+	display: block;
+}
+
+/* 💡 [수정] 결재자 설정 미지정 시 1, 2, 3순위 박스 전체 경고등 및 배지 색상 강제 전환 */
+.form-group.has-error .approval-row-flex .appr-box-item .input-field {
+	border-color: #ef4444 !important;
+	background-color: #fef2f2 !important;
+	color: #ef4444 !important;
+}
+
+.form-group.has-error .approval-row-flex .appr-box-item .appr-badge {
+	background: #ef4444 !important;
 }
 
 .approval-row-flex {
@@ -334,15 +358,60 @@ $(function() {
 <script>
 $(function(){
 	var state = {
+		appTitleValid     : false,
+		approverValid     : false,
+		appContentValid   : false,
 		vacStartDateValid : false,
 		vacEndDateValid   : false,
 		ok : function() {
-			return this.vacStartDateValid && this.vacEndDateValid;
+			return this.appTitleValid && this.approverValid && this.appContentValid && this.vacStartDateValid && this.vacEndDateValid;
 		}
 	};
 
 	var today = moment().format("YYYY-MM-DD");
 	$("[name=appDate]").val(today);
+
+	$("[name=appTitle]").on("input blur", function() {
+		var value = $(this).val().trim();
+		var $group = $(this).closest(".form-group");
+		if(value.length === 0) {
+			$(this).removeClass("success").addClass("fail");
+			$group.addClass("has-error");
+			state.appTitleValid = false;
+		} else {
+			$(this).removeClass("fail").addClass("success");
+			$group.removeClass("has-error");
+			state.appTitleValid = true;
+		}
+	});
+
+	$("[name=appContent]").on("input blur", function() {
+		var value = $(this).val().trim();
+		var $group = $(this).closest(".form-group");
+		if(value.length === 0) {
+			$(this).removeClass("success").addClass("fail");
+			$group.addClass("has-error");
+			state.appContentValid = false;
+		} else {
+			$(this).removeClass("fail").addClass("success");
+			$group.removeClass("has-error");
+			state.appContentValid = true;
+		}
+	});
+
+	window.checkApproverState = function() {
+		var approver1 = $("#approverNo_1").val();
+		var $group = $("#approverNo_1").closest(".form-group");
+		if(!approver1) {
+			$group.addClass("has-error");
+			$group.find(".appr-box-item .input-field").removeClass("success").addClass("fail");
+			state.approverValid = false;
+		} else {
+			$group.removeClass("has-error");
+			$group.find(".appr-box-item .input-field").removeClass("fail").addClass("success");
+			state.approverValid = true;
+		}
+	};
 
 	var startEl = $("[name=vacStartDate]")[0];
 	var endEl   = $("[name=vacEndDate]")[0];
@@ -374,8 +443,8 @@ $(function(){
 
 		initPickers(isSick);
 		
-		$("[name=vacStartDate]").val("").removeClass("success fail");
-		$("[name=vacEndDate]").val("").removeClass("success fail");
+		$("[name=vacStartDate]").val("").removeClass("success fail").closest(".form-group").removeClass("has-error");
+		$("[name=vacEndDate]").val("").removeClass("success fail").closest(".form-group").removeClass("has-error");
 		state.vacStartDateValid = false;
 		state.vacEndDateValid = false;
 	});
@@ -385,15 +454,25 @@ $(function(){
 		var startDate = $(this).val();
 		var endDate   = $("[name=vacEndDate]").val();
 		var vacType   = $("input[name=vacType]:checked").val();
+		var $group = $(this).closest(".form-group");
 		
-		if(!startDate){ $(this).removeClass("success fail"); state.vacStartDateValid = false; return; }
+		if(!startDate){ 
+			$(this).removeClass("success").addClass("fail"); 
+			$group.addClass("has-error");
+			$group.find(".fail-feedback").text("휴가 시작일을 선택해 주세요.");
+			state.vacStartDateValid = false; 
+			return; 
+		}
 		
 		if(vacType !== "병가" && startDate < appDate){ 
 			$(this).removeClass("success").addClass("fail"); 
+			$group.addClass("has-error");
+			$group.find(".fail-feedback").text("과거 날짜로는 휴가를 기안할 수 없습니다. (병가 제외)");
 			state.vacStartDateValid = false; 
 		}
 		else { 
 			$(this).removeClass("fail").addClass("success"); 
+			$group.removeClass("has-error");
 			state.vacStartDateValid = true; 
 			if(endPicker && vacType !== "병가") endPicker.setMinDate(moment(startDate)); 
 		}
@@ -403,24 +482,45 @@ $(function(){
 	$("[name=vacEndDate]").on("change", function(){
 		var startDate = $("[name=vacStartDate]").val();
 		var endDate   = $(this).val();
-		if(!endDate || !startDate){ $(this).removeClass("success fail"); state.vacEndDateValid = false; return; }
-		if(endDate < startDate){ $(this).removeClass("success").addClass("fail"); state.vacEndDateValid = false; }
-		else { $(this).removeClass("fail").addClass("success"); state.vacEndDateValid = true; }
+		var $group = $(this).closest(".form-group");
+		
+		if(!endDate){ 
+			$(this).removeClass("success").addClass("fail"); 
+			$group.addClass("has-error");
+			$group.find(".fail-feedback").text("휴가 종료일을 선택해 주세요.");
+			state.vacEndDateValid = false; 
+			return; 
+		}
+		
+		if(endDate < startDate){ 
+			$(this).removeClass("success").addClass("fail"); 
+			$group.addClass("has-error");
+			$group.find(".fail-feedback").text("휴가 종료일은 시작일보다 빠를 수 없습니다.");
+			state.vacEndDateValid = false; 
+		}
+		else { 
+			$(this).removeClass("fail").addClass("success"); 
+			$group.removeClass("has-error");
+			state.vacEndDateValid = true; 
+		}
 	});
 
 	$("#vacationForm").on("submit", function(e){
-		var approver1 = document.getElementById('approverNo_1').value;
-		if (!approver1) {
-			alert("최소 1명 이상의 결재자를 반드시 지정해야 합니다.");
-			e.preventDefault();
-			return false;
-		}
+		$("[name=appTitle]").trigger("input");
+		$("[name=appContent]").trigger("input");
+		window.checkApproverState();
+		$("[name=vacStartDate]").trigger("change");
+		$("[name=vacEndDate]").trigger("change");
 
 		if(!state.ok()){
-			alert("휴가 시작일과 종료일 항목의 정합성을 다시 검증하십시오.");
 			e.preventDefault();
-			$("[name=vacStartDate]").trigger("change");
-			$("[name=vacEndDate]").trigger("change");
+			var $firstFail = $(".form-group.has-error").first();
+			if($firstFail.length > 0) {
+				$('html, body').animate({
+					scrollTop: $firstFail.offset().top - 100
+				}, 200);
+				$firstFail.find(".input-field").first().focus();
+			}
 			return false;
 		}
 	});
@@ -476,16 +576,19 @@ $(function(){
 
 <div class="pds-width">
 	<div class="gw-page-head">
-		<div class="gw-breadcrumb">홈 > 전자결재 > 휴가신청서</div>
-		<h1>휴가신청서</h1>
+		<div class="gw-breadcrumb">홈 > 전자결재 > 목록</div>
+		<h1>전자결재 문서함</h1>
+		<p>내가 상신한 기안 문서와 결재가 필요한 문서들을 한눈에 확인합니다.</p>
 	</div>
 
 	<div class="vacation-container">
+		<h2 class="form-title">휴가 신청서 작성</h2>
 
 		<form action="./vacInsert" method="post" autocomplete="off" id="vacationForm">
 			<div class="form-group">
 				<label>결재명<span class="required">*</span></label> 
-				<input type="text" name="appTitle" class="input-field" required maxlength="100" placeholder="예) [연차] 홍길동 연차 신청서">
+				<input type="text" name="appTitle" class="input-field" maxlength="100" placeholder="예) [연차] 홍길동 연차 신청서">
+				<div class="fail-feedback">결재명을 기입해야 상신이 가능합니다.</div>
 			</div>
 
 			<div class="form-group">
@@ -531,11 +634,14 @@ $(function(){
 						<i class="fa-solid fa-user-gear"></i> 결재자 지정
 					</button>
 				</div>
+				<input type="hidden" id="approverNo_1_trigger">
+				<div class="fail-feedback" style="margin-top: 8px;">최소 1순위 결재자는 필수 지정되어야 상신이 가능합니다.</div>
 			</div>
 
 			<div class="form-group">
 				<label>결재내용<span class="required">*</span></label> 
-				<input type="text" name="appContent" class="input-field" required maxlength="1000" placeholder="상세 사유를 기입해 주세요.">
+				<input type="text" name="appContent" class="input-field" maxlength="1000" placeholder="상세 사유를 기입해 주세요.">
+				<div class="fail-feedback">결재 상세 사유를 명시해 주십시오.</div>
 			</div>
 
 			<div class="form-group">
@@ -545,12 +651,14 @@ $(function(){
 
 			<div class="form-group">
 				<label>휴가 시작일<span class="required">*</span></label> 
-				<input type="text" name="vacStartDate" class="input-field" required placeholder="YYYY-MM-DD">
+				<input type="text" name="vacStartDate" class="input-field" placeholder="YYYY-MM-DD">
+				<div class="fail-feedback">휴가 시작일을 선택해 주세요.</div>
 			</div>
 
 			<div class="form-group">
 				<label>휴가 종료일<span class="required">*</span></label> 
-				<input type="text" name="vacEndDate" class="input-field" required placeholder="YYYY-MM-DD">
+				<input type="text" name="vacEndDate" class="input-field" placeholder="YYYY-MM-DD">
+				<div class="fail-feedback">휴가 종료일을 선택해 주세요.</div>
 			</div>
 
 			<div class="form-group">

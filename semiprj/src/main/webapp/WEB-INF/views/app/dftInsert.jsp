@@ -4,7 +4,7 @@
 
 <jsp:include page="/WEB-INF/views/template/header2.jsp"></jsp:include>
 
-<link rel="stylesheet"
+<link class="stylesheet"
 	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script
@@ -65,6 +65,7 @@
 
 .form-group {
 	margin-bottom: 24px;
+	position: relative;
 }
 
 .form-group label {
@@ -104,6 +105,16 @@
 	cursor: not-allowed;
 }
 
+.field.success {
+	border-color: #10b981;
+	background-color: #f0fdf4;
+}
+
+.field.fail {
+	border-color: #ef4444;
+	background-color: #fef2f2;
+}
+
 .textarea-field {
 	width: 100%;
 	min-height: 220px;
@@ -120,6 +131,28 @@
 	outline: none;
 	border-color: #22c55e; 
 	box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15);
+}
+
+.textarea-field.success {
+	border-color: #10b981;
+	background-color: #f0fdf4;
+}
+
+.textarea-field.fail {
+	border-color: #ef4444;
+	background-color: #fef2f2;
+}
+
+.fail-feedback {
+	display: none;
+	color: #ef4444;
+	font-size: 13px;
+	margin-top: 6px;
+	font-weight: 500;
+}
+
+.form-group.has-error .fail-feedback {
+	display: block;
 }
 
 .approval-row-flex {
@@ -141,6 +174,16 @@
 	font-size: 13px;
 	text-align: center;
 	background-color: #f8fafc;
+}
+
+.appr-box-item .field.fail {
+	border-color: #ef4444;
+	background-color: #fef2f2;
+}
+
+.appr-box-item .field.success {
+	border-color: #10b981;
+	background-color: #f0fdf4;
 }
 
 .appr-badge {
@@ -285,6 +328,16 @@
 
 <script>
 $(function(){
+	var state = {
+		appTitleValid   : false,
+		approverValid   : false,
+		dftDateValid    : false,
+		appContentValid : false,
+		ok : function() {
+			return this.appTitleValid && this.approverValid && this.dftDateValid && this.appContentValid;
+		}
+	};
+
 	var savedTheme = localStorage.getItem("gwTheme");
 	if (savedTheme) {
 		$("body").removeClass("theme-blue theme-green theme-purple theme-dark").addClass(savedTheme);
@@ -294,11 +347,79 @@ $(function(){
 
 	$("[name=appDate]").val(moment().format("YYYY-MM-DD"));
 
+	$("[name=appTitle]").on("input blur", function() {
+		var value = $(this).val().trim();
+		var $group = $(this).closest(".form-group");
+		if(value.length === 0) {
+			$(this).removeClass("success").addClass("fail");
+			$group.addClass("has-error");
+			state.appTitleValid = false;
+		} else {
+			$(this).removeClass("fail").addClass("success");
+			$group.removeClass("has-error");
+			state.appTitleValid = true;
+		}
+	});
+
+	$("[name=dftDate]").on("change blur", function() {
+		var value = $(this).val();
+		var $group = $(this).closest(".form-group");
+		if(!value) {
+			$(this).removeClass("success").addClass("fail");
+			$group.addClass("has-error");
+			state.dftDateValid = false;
+		} else {
+			$(this).removeClass("fail").addClass("success");
+			$group.removeClass("has-error");
+			state.dftDateValid = true;
+		}
+	});
+
+	$("[name=appContent]").on("input blur", function() {
+		var value = $(this).val().trim();
+		var $group = $(this).closest(".form-group");
+		if(value.length === 0) {
+			$(this).removeClass("success").addClass("fail");
+			$group.addClass("has-error");
+			state.appContentValid = false;
+		} else {
+			$(this).removeClass("fail").addClass("success");
+			$group.removeClass("has-error");
+			state.appContentValid = true;
+		}
+	});
+
+	window.checkApproverState = function() {
+		var approver1 = $("#approverNo_1").val();
+		var $group = $("#approverNo_1").closest(".form-group");
+		if(!approver1) {
+			$group.addClass("has-error");
+			$group.find(".appr-box-item .field").removeClass("success").addClass("fail");
+			state.approverValid = false;
+		} else {
+			$group.removeClass("has-error");
+			$group.find(".appr-box-item .field").removeClass("fail").addClass("success");
+			state.approverValid = true;
+		}
+	};
+
 	$("#dftForm").on("submit", function(e) {
-		var approver1 = document.getElementById('approverNo_1').value;
-		if (!approver1) {
-			alert("최소 1명 이상의 결재자를 반드시 지정해야 합니다.");
+		$("[name=appTitle]").trigger("input");
+		$("[name=dftDate]").trigger("change");
+		$("[name=appContent]").trigger("input");
+		window.checkApproverState();
+
+		if(!state.ok()){
 			e.preventDefault();
+			var $firstFail = $(".form-group.has-error").first();
+			if($firstFail.length > 0) {
+				$('html, body').animate({
+					scrollTop: $firstFail.offset().top - 100
+				}, 200);
+				if($firstFail.find(".field, .textarea-field").length > 0) {
+					$firstFail.find(".field, .textarea-field").first().focus();
+				}
+			}
 			return false;
 		}
 	});
@@ -354,16 +475,19 @@ $(function(){
 
 <div class="pds-width">
 	<div class="gw-page-head">
-		<div class="gw-breadcrumb">홈 > 전자결재 > 업무기안서</div>
-		<h1>업무기안서</h1>
+		<div class="gw-breadcrumb">홈 > 전자결재 > 목록</div>
+		<h1>전자결재 문서함</h1>
+		<p>내가 상신한 기안 문서와 결재가 필요한 문서들을 한눈에 확인합니다.</p>
 	</div>
 
 	<div class="dft-container">
+		<h2 class="form-title">업무 기안서 작성</h2>
 
 		<form action="./dftInsert" method="post" id="dftForm" autocomplete="off">
 			<div class="form-group">
 				<label>결재명 <span class="required">*</span></label> 
-				<input type="text" name="appTitle" class="field" required placeholder="기안 결재 제목을 입력하세요.">
+				<input type="text" name="appTitle" class="field" placeholder="기안 결재 제목을 입력하세요.">
+				<div class="fail-feedback">결재명을 기입해야 상신이 가능합니다.</div>
 			</div>
 
 			<div class="form-group">
@@ -397,12 +521,14 @@ $(function(){
 				<input type="hidden" id="approverDept_1" value=""> 
 				<input type="hidden" id="approverDept_2" value=""> 
 				<input type="hidden" id="approverDept_3" value="">
+				<div class="fail-feedback" style="margin-top: 8px;">최소 1순위 결재자는 필수 지정되어야 상신이 가능합니다.</div>
 			</div>
 
 			<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
 				<div class="form-group">
 					<label>업무일 <span class="required">*</span></label> 
-					<input type="date" name="dftDate" class="field" required>
+					<input type="date" name="dftDate" class="field">
+					<div class="fail-feedback">업무 기안일자를 지정해 주세요.</div>
 				</div>
 				<div class="form-group">
 					<label>기안일</label> 
@@ -412,7 +538,8 @@ $(function(){
 
 			<div class="form-group">
 				<label>기안 내용 <span class="required">*</span></label>
-				<textarea name="appContent" class="textarea-field" required placeholder="기안할 업무 내용을 상세히 작성해 주세요."></textarea>
+				<textarea name="appContent" class="textarea-field" placeholder="기안할 업무 내용을 상세히 작성해 주세요."></textarea>
+				<div class="fail-feedback">업무 기안 상세 내용을 명시해 주십시오.</div>
 			</div>
 
 			<div class="gw-upload-container">
