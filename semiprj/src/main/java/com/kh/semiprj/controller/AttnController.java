@@ -43,7 +43,6 @@ public class AttnController {
             map.put("startTime", "-");
             map.put("endTime", "-");
         } else {
-            // 🛠️ ATTN_STATUS 가 아닌 개편된 ATTN_RECORD 데이터를 기반으로 정밀 필터링을 진행합니다.
             String dbRecord = (String) todayData.get("ATTN_RECORD");
             String inTime = (String) todayData.get("IN_TIME");
             String outTime = (String) todayData.get("OUT_TIME");
@@ -55,7 +54,6 @@ public class AttnController {
             } else if (outTime != null && !"-".equals(outTime)) {
                 map.put("status", "퇴근");
             } else if (inTime != null && !"-".equals(inTime)) {
-                // 💡 [핵심 교정] "출근상태"라는 모호한 고정값 대신, DB에 정직하게 기록된 '지각' 또는 '정상근무'를 그대로 내려줍니다.
                 map.put("status", dbRecord); 
             } else {
                 map.put("status", "미출근");
@@ -90,7 +88,6 @@ public class AttnController {
         Map<String, Object> vacInfo = attnService.getVacationInfo(empNo);
         model.addAttribute("vacInfo", vacInfo);
 
-        // 2. 🌟 휴가 정보 조회 및 바인딩 추가
         Map<String, Object> leaveInfo = attnService.getLeaveInfo(empNo); 
         model.addAttribute("leaveInfo", leaveInfo);
         
@@ -145,12 +142,24 @@ public class AttnController {
         if (pageVO.getPage() <= 0) pageVO.setPage(1);
         if (pageVO.getSize() <= 0) pageVO.setSize(10);
         
+        // 🎯 [수정] 어떤 검색 조건이 유지되고 있는지 뷰(JSP)단 스크립트에 명확하게 넘겨주기 위한 변수 설정
+        String searchColumn = "all";
+        if (searchDto.getDeptCode() != null && !searchDto.getDeptCode().isEmpty()) {
+            searchColumn = "dept";
+        } else if (searchDto.getPositionCode() != null && !searchDto.getPositionCode().isEmpty()) {
+            searchColumn = "position";
+        } else if (searchDto.getEmpName() != null && !searchDto.getEmpName().isEmpty()) {
+            searchColumn = "name";
+        }
+        model.addAttribute("searchColumn", searchColumn);
+
         int totalAdminCount = adminAttnService.countAdminAttendanceCustom(searchDto, startDate, endDate);
         pageVO.setCount(totalAdminCount);
         
-        // 🎯 [핵심 추가] 부서 선택 셀렉트박스를 채우기 위한 부서 목록 데이터 가져오기
-        // ※ 서비스단에 정의된 전체 부서 리스트 조회 메서드를 호출합니다. (메서드명이 다를 경우 프로젝트 환경에 맞춰 변경하세요)
         model.addAttribute("deptList", adminAttnService.getDepartmentList()); 
+        
+        List<String> positionList = List.of("사원","선임","주임","대리","과장","차장","부장","이사","상무","전무","부사장","사장","부회장","회장");
+        model.addAttribute("positionList", positionList);
         
         model.addAttribute("startDate", startDate);
         model.addAttribute("endDate", endDate);
@@ -174,7 +183,6 @@ public class AttnController {
         return "redirect:/attn/admin/manage";
     }
 
-    // 🛠️ 중복 생성 및 휴가자 출근 오염 차단 조건 완벽 반영
     @PostMapping("/checkIn")
     @ResponseBody
     public String checkIn(@RequestParam(value="inTime", required=false) String inTime, HttpSession session) {
@@ -188,14 +196,12 @@ public class AttnController {
                 String currentRecord = (String) todayData.get("ATTN_RECORD");
                 String existInTime = (String) todayData.get("IN_TIME");
                 
-                // 🛡️ [방어선 강화] 이미 자정에 '휴가' 또는 '결근'이 기입되어 있거나, 출근한 이력이 있다면 클릭 전면 차단
                 if ("휴가".equals(currentRecord) || "결근".equals(currentRecord) || "정상근무".equals(currentRecord) || "지각".equals(currentRecord) || (existInTime != null && !"-".equals(existInTime))) {
                     return "already"; 
                 }
             }
             
-            @SuppressWarnings("unused")
-			AttnDto dto = new AttnDto();
+            AttnDto dto = new AttnDto();
             dto.setEmpNo(empNo);
             dto.setInTime(inTime); 
             

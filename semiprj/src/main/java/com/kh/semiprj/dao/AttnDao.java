@@ -13,8 +13,6 @@ public class AttnDao {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 
-	// 🎯 [핵심 추가] 관리자 근태 기록 검색창의 부서 셀렉트박스를 채우기 위한 부서 조회 메서드
-	// 첫 번째 파일 양식(deptId, deptName)의 Map 형태로 데이터를 반환합니다.
 	public List<Map<String, Object>> selectDepartmentList() {
 		String sql = "SELECT dept_id AS \"deptId\", dept_name AS \"deptName\" FROM dept ORDER BY dept_id ASC";
 		return jdbcTemplate.query(sql, (rs, rowNum) -> {
@@ -83,7 +81,7 @@ public class AttnDao {
 				   + "     WHEN EXISTS ( "
 				   + "       SELECT 1 FROM vac_app va "
 				   + "       JOIN app main_app ON va.app_id = main_app.app_id "
-				   + "       WHERE main_app.app_req_id = e.emp_no " // 원본 쿼리 유지 (e가 없지만 기존 소스 그대로 유지)
+				   + "       WHERE main_app.app_req_id = a.emp_no "
 				   + "         AND main_app.app_status = '승인' "
 				   + "         AND TO_CHAR(a.attn_work_date, 'YYYY-MM-DD') BETWEEN va.vac_start_date AND va.vac_end_date "
 				   + "     ) THEN ( "
@@ -180,9 +178,10 @@ public class AttnDao {
 			sql.append(" AND E.EMP_DEPT = ? ");
 			params.add(searchDto.getDeptCode());
 		}
+		// 🎯 [핵심 교정] DB 내 데이터의 여백 때문에 검색 매핑이 실패하지 않도록 TRIM 처리 적용
 		if (searchDto.getPositionCode() != null && !searchDto.getPositionCode().isEmpty()) {
-			sql.append(" AND E.EMP_POSITION = ? ");
-			params.add(searchDto.getPositionCode());
+			sql.append(" AND TRIM(E.EMP_POSITION) = ? ");
+			params.add(searchDto.getPositionCode().trim());
 		}
 		if (searchDto.getEmpName() != null && !searchDto.getEmpName().isEmpty()) {
 			sql.append(" AND E.EMP_NAME = ? ");
@@ -226,9 +225,10 @@ public class AttnDao {
 			sql.append(" AND E.EMP_DEPT = ? ");
 			params.add(searchDto.getDeptCode());
 		}
+		// 🎯 [핵심 교정] 카운트 쿼리도 마찬가지로 TRIM 처리 적용
 		if (searchDto.getPositionCode() != null && !searchDto.getPositionCode().isEmpty()) {
-			sql.append(" AND E.EMP_POSITION = ? ");
-			params.add(searchDto.getPositionCode());
+			sql.append(" AND TRIM(E.EMP_POSITION) = ? ");
+			params.add(searchDto.getPositionCode().trim());
 		}
 		if (searchDto.getEmpName() != null && !searchDto.getEmpName().isEmpty()) {
 			sql.append(" AND E.EMP_NAME = ? ");
