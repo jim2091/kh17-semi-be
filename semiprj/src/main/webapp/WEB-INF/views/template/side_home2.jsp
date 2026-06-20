@@ -64,7 +64,7 @@ $(function(){
 		
         <a href="/emp/list">
             <i class="fa-solid fa-users"></i>
-            <span>직원목록</span>
+            <span>사원목록</span>
         </a>
         
         <a href="/app/list">
@@ -139,17 +139,17 @@ $(function(){
 	        	
 				<a href="#" class="submenu-toggle">
 					<i class="fa-solid fa-users"></i>
-			        <span>직원관리</span>
+			        <span>사원관리</span>
 				</a>
 				
 				<div class="submenu">
 					<a href="/admin/list">
 				        <i class="fa-solid fa-list"></i>
-				        <span>전체 직원</span>
+				        <span>전체 사원</span>
 				    </a>
 				    <a href="/admin/waitingList">
 			        	<i class="fa-solid fa-user-clock"></i>
-			        	<span>대기 직원 목록</span>
+			        	<span>대기 사원 목록</span>
 			        </a>
 			        <a href="/admin/vacList">
 			        	<i class="fa-solid fa-calendar-plus"></i>

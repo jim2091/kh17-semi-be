@@ -79,7 +79,7 @@
 <div class="gw-page-head attn-width">
 	<div class="gw-breadcrumb">홈 / 근태관리 / 전사근태기록</div>
 	<h1>전사 근태 기록 관리</h1>
-	<p>부서별, 직위별 임직원들의 상세 근태 현황 및 근무 시간을 모니터링할 수 있습니다.</p>
+	<p>부서별, 직위별 임사원들의 상세 근태 현황 및 근무 시간을 모니터링할 수 있습니다.</p>
 </div>
 
 <div class="gw-search-panel attn-width">
@@ -89,10 +89,10 @@
             <option value="all">전체 검색</option>
             <option value="dept" ${(not empty param.deptCode || not empty search.deptCode) ? 'selected' : ''}>부서별</option>
             <option value="position" ${(not empty param.positionCode || not empty search.positionCode) ? 'selected' : ''}>직위별</option>
-            <option value="name" ${(not empty param.empName || not empty search.empName) ? 'selected' : ''}>직원명별</option>
+            <option value="name" ${(not empty param.empName || not empty search.empName) ? 'selected' : ''}>사원명별</option>
         </select>
 
-        <input type="text" name="empName" id="keyword-empName" placeholder="직원명을 입력하세요." 
+        <input type="text" name="empName" id="keyword-empName" placeholder="사원명을 입력하세요." 
                class="gw-form-input" value="${not empty param.empName ? param.empName : search.empName}" style="display:none;">
 
         <select name="deptCode" id="keyword-dept" class="gw-form-select" style="display:none;">

@@ -64,9 +64,9 @@ $(function(){
 
 <div class="pds-width">
 	<div class="gw-page-head">
-	    <div class="gw-breadcrumb">홈 > 직원목록</div>
-	    <h1>직원 목록</h1>
-	    <p>직원 정보를 조회하고 검색할 수 있습니다.</p>
+	    <div class="gw-breadcrumb">홈 > 사원목록</div>
+	    <h1>사원 목록</h1>
+	    <p>사원 정보를 조회하고 검색할 수 있습니다.</p>
 	</div>
 	
     <div class="gw-search-panel">
@@ -95,8 +95,8 @@ $(function(){
 	<div class="gw-list-panel">
 	    <div class="gw-table-top">
 	        <div>
-	            <div class="gw-table-title">직원 목록</div>
-	            <div class="gw-table-sub">총 ${pageVO.count}명의 직원</div>
+	            <div class="gw-table-title">사원 목록</div>
+	            <div class="gw-table-sub">총 ${pageVO.count}명의 사원</div>
 	        </div>
 	    </div>
 

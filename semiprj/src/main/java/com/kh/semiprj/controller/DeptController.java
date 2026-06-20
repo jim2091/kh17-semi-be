@@ -122,7 +122,7 @@ public class DeptController {
 		EmpDto empDto = empDao.selectOneDeptHeadId(deptDto.getDeptHeadId());//부서장 이름 출력
 		model.addAttribute("empDto",empDto);
 
-		List<EmpDto> memberList = deptDao.selectListByDeptRecursive(deptId);//직원 목록 출력
+		List<EmpDto> memberList = deptDao.selectListByDeptRecursive(deptId);//사원 목록 출력
 		model.addAttribute("memberList", memberList);
 
 		List<DeptDto> childDeptList = deptDao.selectChildDept(deptId);//하위부서 출력

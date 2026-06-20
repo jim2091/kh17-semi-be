@@ -714,7 +714,7 @@
     <div class="gw-hero">
         <div>
             <h1>관리자 대시보드</h1>
-            <p>전사 직원, 근태, 결재, 부서 현황을 한눈에 확인하세요.</p>
+            <p>전사 사원, 근태, 결재, 부서 현황을 한눈에 확인하세요.</p>
         </div>
 
         <form action="/admin/dashboard" method="get" class="admin-filter">
@@ -730,10 +730,10 @@
             <div class="summary-icon">
                 <i class="fa-solid fa-users"></i>
             </div>
-            <div class="summary-title">전체 직원</div>
+            <div class="summary-title">전체 사원</div>
             <div class="summary-value">${dashboard.totalEmpCount}명</div>
             <div class="summary-desc">
-                활성화된 직원 수
+                활성화된 사원 수
             </div>
         </div>
 
@@ -744,7 +744,7 @@
             <div class="summary-title">오늘 출근</div>
             <div class="summary-value">${dashboard.todayCheckedInCount}명</div>
             <div class="summary-desc">
-                오늘 출근 시간이 기록된 직원 수
+                오늘 출근 시간이 기록된 사원 수
             </div>
         </div>
 
@@ -752,10 +752,10 @@
             <div class="summary-icon">
                 <i class="fa-solid fa-user-clock"></i>
             </div>
-            <div class="summary-title">승인 대기 직원</div>
+            <div class="summary-title">승인 대기 사원</div>
             <div class="summary-value">${dashboard.waitingEmpCount}명</div>
             <div class="summary-desc">
-                가입 승인 대기 직원
+                가입 승인 대기 사원
             </div>
         </div>
 
@@ -953,9 +953,9 @@
         <div class="gw-list-panel" style="margin-bottom:0;">
 		    <div class="gw-table-top" style="margin-bottom: 5px;">
 		        <div>
-		            <div class="gw-table-title">최근 가입 직원</div>
+		            <div class="gw-table-title">최근 가입 사원</div>
 		            <div class="gw-table-sub">
-		                최근 생성된 직원 계정 3건을 표시합니다.
+		                최근 생성된 사원 계정 3건을 표시합니다.
 		            </div>
 		        </div>
 		
@@ -984,7 +984,7 @@
 			
 			    <c:if test="${empty dashboard.recentEmpList}">
 			        <div class="gw-muted" style="padding:18px 0;">
-			            최근 가입 직원이 없습니다.
+			            최근 가입 사원이 없습니다.
 			        </div>
 			    </c:if>
 			</div>
@@ -1003,7 +1003,7 @@
 		                    <i class="fa-solid fa-cake-candles"></i>
 		                </div>
 		                <div class="admin-empty-title">오늘 생일자는 없습니다</div>
-		                <div class="admin-empty-desc">직원 생일 정보가 있으면 이곳에 표시됩니다.</div>
+		                <div class="admin-empty-desc">사원 생일 정보가 있으면 이곳에 표시됩니다.</div>
 		            </div>
 		        </c:when>
 		

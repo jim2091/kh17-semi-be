@@ -135,10 +135,10 @@ $(function(){
 			    </div>
 			</c:if>
 
-			<!-- ── 직원 목록 ── -->
+			<!-- ── 사원 목록 ── -->
 			<div class="gw-list-panel">
 			    <div class="card-header">
-			        <span class="card-title">직원 목록</span>
+			        <span class="card-title">사원 목록</span>
 			        <span class="gw-muted" style="font-size:13px;">${memberList.size()}명</span>
 			    </div>
 			    <table class="gw-table">
@@ -152,7 +152,7 @@ $(function(){
 			        <tbody>
 			            <c:choose>
 			                <c:when test="${empty memberList}">
-			                    <tr><td colspan="3" class="gw-table-empty">소속 직원이 없습니다.</td></tr>
+			                    <tr><td colspan="3" class="gw-table-empty">소속 사원이 없습니다.</td></tr>
 			                </c:when>
 			                <c:otherwise>
 			                    <c:forEach var="emp" items="${memberList}">

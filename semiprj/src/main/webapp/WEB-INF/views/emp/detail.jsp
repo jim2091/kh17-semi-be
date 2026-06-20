@@ -182,9 +182,9 @@
 
     <!-- 페이지 헤더 -->
     <div class="gw-page-head">
-        <div class="gw-breadcrumb">홈 &gt; 직원목록 &gt; 직원정보</div>
-        <h1>직원 상세정보</h1>
-        <p>직원의 상세 프로필을 볼 수 있습니다.</p>
+        <div class="gw-breadcrumb">홈 &gt; 사원목록 &gt; 사원정보</div>
+        <h1>사원 상세정보</h1>
+        <p>사원의 상세 프로필을 볼 수 있습니다.</p>
     </div>
 
     <!-- 2열 그리드 레이아웃 구조 시작 -->

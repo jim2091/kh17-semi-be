@@ -22,7 +22,7 @@ $(function(){
 </script>
 <div class="pds-width">
 	<div class="gw-page-head">
-	    <div class="gw-breadcrumb">홈 / 직원관리 / 상세조회 / 로그인 이력</div>
+	    <div class="gw-breadcrumb">홈 / 사원관리 / 상세조회 / 로그인 이력</div>
 	    <h1>로그인 이력</h1>
 	    <p>해당 사원의 전체 로그인 이력을 볼 수 있습니다.</p>
 	</div>

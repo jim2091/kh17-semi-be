@@ -401,7 +401,7 @@
                 // [수정 핵심] '<=' 에서 '<' 로 변경! 
                 // 내 직급 레벨이 마지막 사람의 직급 레벨보다 '엄격히 낮을 때'만 차단합니다. (동급은 패스)
                 if (positionLevel < lastApprover.positionLevel) {
-                    alert("⚠️ 결재자 직급 지정 요건 위반\n\n현재 최종 결재선 대기자 [" + lastApprover.empName + " " + lastApprover.empPosition + "] 보다\n높은 직위의 직원만 다음 결재자로 추가할 수 있습니다.\n(동일 직급은 지정 가능)");
+                    alert("⚠️ 결재자 직급 지정 요건 위반\n\n현재 최종 결재선 대기자 [" + lastApprover.empName + " " + lastApprover.empPosition + "] 보다\n높은 직위의 사원만 다음 결재자로 추가할 수 있습니다.\n(동일 직급은 지정 가능)");
                     chk.checked = false;
                     row.style.background = '';
                     return; // 담지 않고 엔진 이탈
