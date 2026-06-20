@@ -390,7 +390,7 @@ window.onclick = function(event) {
 <div class="pds-width">
 	<div class="gw-page-head">
 	    <div class="gw-breadcrumb">홈 > 연차관리</div>
-	    <h1>연차 보유 직원 현황</h1>
+	    <h1>연차 보유 사원 현황</h1>
 	    <p>데이터베이스(DB)에 저장된 실시간 연차 부여 명단입니다. 신규 연차 등록 시 리스트에 실시간 집계됩니다.</p>
 	</div>
 

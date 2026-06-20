@@ -8,21 +8,21 @@
 <div class="pds-width">
 <div class="gw-page-head">
     <div class="gw-breadcrumb">
-        관리자 > 직원관리
+        관리자 > 사원관리
     </div>
-    <h1>대기 직원 목록</h1>
-    <p>현재 대기 직원의 목록을 볼 수 있습니다.</p>
+    <h1>대기 사원 목록</h1>
+    <p>현재 대기 사원의 목록을 볼 수 있습니다.</p>
 </div>
 
 <div class="gw-list-panel">	
 	<div class="gw-table-top">
         <div>
             <div class="gw-table-title">
-                직원 목록
+                사원 목록
             </div>
 
             <div class="gw-table-sub">
-                총 ${pageVO.count}명의 직원
+                총 ${pageVO.count}명의 사원
             </div>
         </div>
     </div>

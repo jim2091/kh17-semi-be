@@ -35,7 +35,7 @@ public class AdminDashboardDao {
     private final RecentNoticeMapper recentNoticeMapper;
     private final LoginStatMapper loginStatMapper;
 
-    // 전체 직원 수
+    // 전체 사원 수
     public int selectTotalEmpCount() {
         String sql = """
                 select count(*)
@@ -45,7 +45,7 @@ public class AdminDashboardDao {
         return jdbcTemplate.queryForObject(sql, int.class);
     }
 
-    // 오늘 출근한 직원 수
+    // 오늘 출근한 사원 수
     public int selectTodayCheckedInCount() {
         String sql = """
                 select count(*)
@@ -56,7 +56,7 @@ public class AdminDashboardDao {
         return jdbcTemplate.queryForObject(sql, int.class);
     }
 
-    // 가입 승인 대기 직원 수
+    // 가입 승인 대기 사원 수
     public int selectWaitingEmpCount() {
         String sql = """
                 select count(*)
@@ -131,7 +131,7 @@ public class AdminDashboardDao {
         return jdbcTemplate.query(sql, approvalStatMapper, params);
     }
 
-    // 부서별 직원 수
+    // 부서별 사원 수
     public List<DeptEmpCountVO> selectDeptEmpCountList() {
         String sql = """
                 select
@@ -158,7 +158,7 @@ public class AdminDashboardDao {
         return jdbcTemplate.query(sql, deptEmpCountMapper);
     }
 
-    // 최근 가입 직원
+    // 최근 가입 사원
     public List<RecentEmpVO> selectRecentEmpList() {
         String sql = """
                 select *

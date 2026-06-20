@@ -34,7 +34,7 @@ public class AdminDashboardVO {
     // 부서 현황
     private List<DeptEmpCountVO> deptEmpCountList;
 
-    // 최근 가입 직원
+    // 최근 가입 사원
     private List<RecentEmpVO> recentEmpList;
 
     // 선택 월

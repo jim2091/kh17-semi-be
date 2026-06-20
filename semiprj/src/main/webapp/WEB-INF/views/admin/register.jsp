@@ -451,7 +451,7 @@
 
 <div class="pds-width">
 	<div class="gw-page-head">
-	    <div class="gw-breadcrumb">홈 / 직원관리 / 사원등록</div>
+	    <div class="gw-breadcrumb">홈 / 사원관리 / 사원등록</div>
 	    <h1>사원 등록</h1>
 	    <p>신규 사원을 등록합니다.</p>
 	</div>

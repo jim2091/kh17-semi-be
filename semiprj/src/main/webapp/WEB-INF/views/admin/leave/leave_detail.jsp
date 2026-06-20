@@ -147,7 +147,7 @@
 <div class="gw-page-head pds-width">
 	<div class="gw-breadcrumb">홈 > 휴가관리 > 상세조회</div>
 	<h1>${empDto.empName} 사원 휴가 정보</h1>
-	<p>선택하신 직원의 당해 연도 총 휴가 생성 일수 및 정산 사용 내역을 확인합니다.</p>
+	<p>선택하신 사원의 당해 연도 총 휴가 생성 일수 및 정산 사용 내역을 확인합니다.</p>
 </div>
 
 <div class="gw-list-panel pds-width">

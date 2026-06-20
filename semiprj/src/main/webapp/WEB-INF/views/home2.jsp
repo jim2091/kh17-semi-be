@@ -105,7 +105,7 @@
                             관리자 모드
                         </c:when>
                         <c:otherwise>
-                            직원 모드
+                            사원 모드
                         </c:otherwise>
                     </c:choose>
                 </span>
@@ -316,7 +316,7 @@
 					    <div class="quick-setting-list">
 					        <label><input type="checkbox" class="quick-check" value="deptTree">조직도</label>
 					        <label><input type="checkbox" class="quick-check" value="dept">부서목록</label>
-					        <label><input type="checkbox" class="quick-check" value="emp">직원목록</label>
+					        <label><input type="checkbox" class="quick-check" value="emp">사원목록</label>
 					        <label><input type="checkbox" class="quick-check" value="app">전자결재</label>
 					        <label><input type="checkbox" class="quick-check" value="attn" checked>근태기록</label>
 					        <label><input type="checkbox" class="quick-check" value="calendar" checked>일정</label>
@@ -324,7 +324,7 @@
 					        <label><input type="checkbox" class="quick-check" value="pds" checked>자료실</label>
 					        <label><input type="checkbox" class="quick-check" value="message" checked>쪽지함</label>
 					        <c:if test="${sessionScope.loginRole == '관리자'}">
-				        	<label><input type="checkbox" class="quick-check" value="admin-emp" checked>직원관리</label>
+				        	<label><input type="checkbox" class="quick-check" value="admin-emp" checked>사원관리</label>
 					        <label><input type="checkbox" class="quick-check" value="admin-dept" checked>부서관리</label>
 					        <label><input type="checkbox" class="quick-check" value="admin-app" checked>결재관리</label>
 					        <label><input type="checkbox" class="quick-check" value="admin-attn" checked>근태관리</label>
@@ -337,7 +337,7 @@
 	            <div class="quick-grid">
 	            	<a href="/dept/listTree" data-quick-id="deptTree"><i class="fa-solid fa-sitemap"></i>조직도</a>
 				    <a href="/dept/list" data-quick-id="dept"><i class="fa-solid fa-building"></i>부서목록</a>
-				    <a href="/emp/list" data-quick-id="emp"><i class="fa-solid fa-users"></i>직원목록</a>
+				    <a href="/emp/list" data-quick-id="emp"><i class="fa-solid fa-users"></i>사원목록</a>
 				    <a href="/app/list" data-quick-id="app"><i class="fa-solid fa-file-signature"></i>전자결재</a>
 				    <a href="/attn/list" data-quick-id="attn"><i class="fa-solid fa-clock"></i>근태기록</a>
 				    <a href="/event/calendar" data-quick-id="calendar"><i class="fa-solid fa-calendar-day"></i>일정</a>
@@ -345,7 +345,7 @@
 				    <a href="/pds/list" data-quick-id="pds"><i class="fa-solid fa-folder-open"></i>자료실</a>
 				    <a href="/message/receiveList" data-quick-id="message"><i class="fa-solid fa-paper-plane"></i>쪽지함</a>
 				    <c:if test="${sessionScope.loginRole == '관리자'}">
-		        	<a href="/admin/list" data-quick-id="admin-emp"><i class="fa-solid fa-users"></i>직원관리</a>
+		        	<a href="/admin/list" data-quick-id="admin-emp"><i class="fa-solid fa-users"></i>사원관리</a>
 			        <a href="/dept/list" data-quick-id="admin-dept"><i class="fa-solid fa-sitemap"></i>부서관리</a>
 			        <a href="/attn/list" data-quick-id="admin-attn"><i class="fa-solid fa-clock"></i>근태관리</a>
 			        <a href="/admin/app/list" data-quick-id="admin-app"><i class="fa-solid fa-file-shield"></i>결재관리</a>

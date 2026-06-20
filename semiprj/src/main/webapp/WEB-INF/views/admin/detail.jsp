@@ -251,9 +251,9 @@
 
     <!-- 페이지 헤더 -->
     <div class="gw-page-head">
-        <div class="gw-breadcrumb">관리자 &gt; 직원관리</div>
-        <h1>직원 상세정보</h1>
-        <p>[ ${empDto.empName} ] 직원의 상세 프로필 정보입니다.</p>
+        <div class="gw-breadcrumb">관리자 &gt; 사원관리</div>
+        <h1>사원 상세정보</h1>
+        <p>[ ${empDto.empName} ] 사원의 상세 프로필 정보입니다.</p>
     </div>
 
     <!-- [상단] 2열 그리드 레이아웃 구조 -->

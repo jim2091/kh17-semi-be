@@ -16,9 +16,9 @@
 </style>
 
 <div class="gw-page-head pds-width">
-    <div class="gw-breadcrumb">관리자 > 직원관리</div>
+    <div class="gw-breadcrumb">관리자 > 사원관리</div>
     <h1>사원 목록</h1>
-    <p>직원 정보를 조회하고 검색할 수 있습니다.</p>
+    <p>사원 정보를 조회하고 검색할 수 있습니다.</p>
 </div>
 
 <div class="gw-search-panel pds-width">
@@ -51,9 +51,9 @@
 <div class="gw-list-panel pds-width"> 
     <div class="gw-table-top">
         <div>
-            <div class="gw-table-title">직원 목록</div>
+            <div class="gw-table-title">사원 목록</div>
             <div class="gw-table-sub">
-                총 ${pageVO.count}명의 직원
+                총 ${pageVO.count}명의 사원
             </div>
         </div>
         <div class="gw-table-actions">
