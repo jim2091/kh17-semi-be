@@ -491,36 +491,18 @@ public class AppDao {
     }
 
  
- // 💡 [결함 진압 1] DB에 숫자로 들어있는 position_id 값에 1대1 대응하는 한글 직급명 매퍼 Map 정의
-    private static final Map<String, String> POSITION_NAME_MAP = Map.ofEntries(
-        Map.entry("1", "선임"),
-        Map.entry("2", "주임"),
-        Map.entry("3", "대리"),
-        Map.entry("4", "과장"), 
-        Map.entry("5", "차장"),
-        Map.entry("6", "부장"),
-        Map.entry("7", "이사"),
-        Map.entry("8", "상무"), 
-        Map.entry("9", "전무"),
-        Map.entry("10", "부사장"),
-        Map.entry("11", "사장"),
-        Map.entry("12", "부회장"),
-        Map.entry("13", "회장")
-    );
-
-    // 💡 13단계 정렬용 표준 리스트 (랭크 추론용 구조 유지)
+ // 💡 [결함 진압] DB의 IN 조건절 명세와 100% 일치하도록 맨 앞에 '사원' 직급을 추가하여 서열 축을 완전 재조정합니다.
     private static final List<String> POSITION_ORDER = List.of(
-        "선임", "주임", "대리", "과장", "차장", "부장", 
+        "사원", "선임", "주임", "대리", "과장", "차장", "부장", 
         "이사", "상무", "전무", "부사장", "사장", "부회장", "회장"
     );
 
     // ===== ① picker용 결재자 검색 =====
     public List<Map<String, Object>> searchApproverForPicker(String keyword, List<String> excludes) {
-        // 컨트롤러가 selectDeptNameByCode() 후처리를 온전히 할 수 있도록 순수 e.emp_dept (부서코드) 자체를 원본 그대로 셀렉트
-        String sql = "select e.emp_no, e.emp_name, e.position_id, e.emp_dept "
+        String sql = "select e.emp_no, e.emp_name, e.emp_position, e.emp_dept "
                    + "from emp e "
                    + "where e.emp_use_yn = 'Y' "
-                   + "and (e.emp_name like ? or e.position_id like ?) ";
+                   + "and (e.emp_name like ? or e.emp_position like ?) ";
 
         List<Object> params = new ArrayList<>();
         params.add("%" + keyword + "%");
@@ -541,33 +523,29 @@ public class AppDao {
             map.put("empNo",       rs.getString("emp_no"));
             map.put("empName",     rs.getString("emp_name"));
             
-            // DB에서 나온 숫자형 ID(4, 8 등)를 상단 맵을 거쳐 한글 직급명으로 변환
-            String rawPos = rs.getString("position_id");
-            String trimmedRaw = (rawPos != null) ? rawPos.trim() : "1";
-            String hangulPos = POSITION_NAME_MAP.getOrDefault(trimmedRaw, "선임"); 
-            map.put("empPosition", hangulPos);
+            String pos = rs.getString("emp_position");
+            String trimmedPos = (pos != null) ? pos.trim() : "사원";
+            map.put("empPosition", trimmedPos);
             
-            // 컨트롤러 후처리 루프가 정상 연동되도록 가공되지 않은 순수 부서코드를 주입
             String deptCode = rs.getString("emp_dept");
             map.put("empDept",     deptCode != null ? deptCode.trim() : "");
             
-            // 한글 직급명을 기준으로 정밀 랭크 점수 추출
-            int level = POSITION_ORDER.indexOf(hangulPos);
+            // 💡 이제 '사원'이 들어와도 -1이 되지 않고 0번 인덱스 점수를 정상 수신합니다.
+            int level = POSITION_ORDER.indexOf(trimmedPos);
             map.put("positionLevel", level); 
             
             return map;
         }, params.toArray());
 
-        // 직급 서열 높은 순(회장 선두) 내림차순 정렬
+        // 높은 직급이 뒤로 가게 내림차순 정렬 (JSP의 data.reverse()와 맞물려 사원~회장 순서 완성)
         list.sort((m1, m2) -> Integer.compare((int)m2.get("positionLevel"), (int)m1.get("positionLevel")));
 
         return list;
     }
 
-    // ===== ② [복구 완료] picker용 최초 전체 사원 조회용 메서드 =====
+    // ===== ② picker용 최초 전체 사원 조회용 메서드 =====
     public List<AppDto> selectAllEmp() {
-        // 기존 app_line 성공 관로에 맞게 부서 테이블을 내부 조인하여 들고 나오는 초기 데이터 인프라 
-        String sql = "select e.emp_no, e.emp_name, d.dept_name, e.position_id "
+        String sql = "select e.emp_no, e.emp_name, d.dept_name, e.emp_position "
                    + "from emp e "
                    + "left join dept d on trim(e.emp_dept) = to_char(d.dept_id) "
                    + "where e.emp_use_yn = 'Y'";
@@ -580,12 +558,8 @@ public class AppDao {
             String deptName = rs.getString("dept_name");
             dto.setAppContent(deptName != null ? deptName : "소속없음");
             
-            // DB 내에 숫자로 박혀있는 position_id 코드를 한글 직급명으로 변환하여 DTO에 최종 바인딩
-            String rawPos = rs.getString("position_id");
-            String trimmedRaw = (rawPos != null) ? rawPos.trim() : "1";
-            String hangulPos = POSITION_NAME_MAP.getOrDefault(trimmedRaw, "선임");
-            
-            dto.setAppType(hangulPos); // "4" 대신 "과장"이 들어가도록 교정
+            String pos = rs.getString("emp_position");
+            dto.setAppType(pos != null ? pos.trim() : "사원"); 
             return dto;
         });
     }
