@@ -491,13 +491,12 @@ public class AppDao {
     }
 
  
- // 💡 [결함 진압] DB의 IN 조건절 명세와 100% 일치하도록 맨 앞에 '사원' 직급을 추가하여 서열 축을 완전 재조정합니다.
     private static final List<String> POSITION_ORDER = List.of(
         "사원", "선임", "주임", "대리", "과장", "차장", "부장", 
         "이사", "상무", "전무", "부사장", "사장", "부회장", "회장"
     );
 
-    // ===== ① picker용 결재자 검색 =====
+    //picker용 결재자 검색 =====
     public List<Map<String, Object>> searchApproverForPicker(String keyword, List<String> excludes) {
         String sql = "select e.emp_no, e.emp_name, e.emp_position, e.emp_dept "
                    + "from emp e "
@@ -530,20 +529,17 @@ public class AppDao {
             String deptCode = rs.getString("emp_dept");
             map.put("empDept",     deptCode != null ? deptCode.trim() : "");
             
-            // 💡 이제 '사원'이 들어와도 -1이 되지 않고 0번 인덱스 점수를 정상 수신합니다.
             int level = POSITION_ORDER.indexOf(trimmedPos);
             map.put("positionLevel", level); 
             
             return map;
         }, params.toArray());
 
-        // 높은 직급이 뒤로 가게 내림차순 정렬 (JSP의 data.reverse()와 맞물려 사원~회장 순서 완성)
         list.sort((m1, m2) -> Integer.compare((int)m2.get("positionLevel"), (int)m1.get("positionLevel")));
 
         return list;
     }
 
-    // ===== ② picker용 최초 전체 사원 조회용 메서드 =====
     public List<AppDto> selectAllEmp() {
         String sql = "select e.emp_no, e.emp_name, d.dept_name, e.emp_position "
                    + "from emp e "
@@ -588,7 +584,6 @@ public class AppDao {
         }
     }
 
-    // ===== 유틸 =====
     public String selectEmpNameById(String loginId) {
         String sql = "select emp_name from emp where emp_id = ?";
         try {
