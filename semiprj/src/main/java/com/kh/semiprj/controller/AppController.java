@@ -77,7 +77,6 @@ public class AppController {
 		model.addAttribute("list", list);
 		model.addAttribute("pageVO", pageVO); 
 
-		// 뷰 레이어 검색 폼 상태 유지를 위한 바인딩
 		model.addAttribute("searchEmpName", searchEmpName);
 		model.addAttribute("searchAppType", searchAppType);
 		model.addAttribute("searchAppStatus", searchAppStatus);
