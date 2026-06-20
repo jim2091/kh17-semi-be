@@ -551,7 +551,7 @@ $(function(){
     applyQuickMenu();
 
     $(".quick-check").change(function(){
-        if($(".quick-check:checked").length > 9){
+        if($(".quick-check:checked").length > 8){
             $(this).prop("checked", false);
             return;
         }
