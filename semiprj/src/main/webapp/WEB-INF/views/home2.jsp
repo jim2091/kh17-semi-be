@@ -238,7 +238,7 @@
 		            <c:forEach var="app" items="${myAppList}">
 		                <div class="list-row" onclick="location.href='/app/detail?appId=${app.appId}'" style="cursor:pointer;">
 		                    <div>
-		                        <div>${app.appTitle}</div>
+		                        <div style="font-size: 12px;">${app.appTitle}</div>
 		                        <div class="list-sub">${app.appType}</div>
 		                    </div>
 		
