@@ -522,38 +522,49 @@ public class AppController {
 //		return "/app/list";
 //	}
 
-	// picker 용 매핑
-	@GetMapping("/searchApprover")
-	@ResponseBody
-	public List<Map<String, Object>> searchApprover(@RequestParam String keyword,
-			@RequestParam(required = false) List<String> excludes, HttpSession session) {
+	// 💡 picker 용 매핑 (성공하신 app_line 후처리 알고리즘 100% 이식)
+		@GetMapping("/searchApprover")
+		@ResponseBody
+		public List<Map<String, Object>> searchApprover(
+				@RequestParam(value="keyword", required=false, defaultValue="") String keyword,
+				@RequestParam(required = false) List<String> excludes, 
+				HttpSession session) {
 
-		// 본인 제외
-		String loginId = (String) session.getAttribute("loginId");
-		String empNo = appDao.selectEmpNoById(loginId);
-		if (excludes == null)
-			excludes = new ArrayList<>();
-		if (!excludes.contains(empNo))
-			excludes.add(empNo);
+			// 1. 본인 제외 방어선 유지
+			String loginId = (String) session.getAttribute("loginId");
+			String empNo = appDao.selectEmpNoById(loginId);
+			if (excludes == null) {
+				excludes = new ArrayList<>();
+			}
+			if (empNo != null && !excludes.contains(empNo)) {
+				excludes.add(empNo);
+			}
 
-		List<Map<String, Object>> approverList = appDao.searchApproverForPicker(keyword, excludes);
-		if (approverList == null || approverList.isEmpty())
-			return approverList;
+			// 2. 기본 픽커 사원 리스트 조회
+			List<Map<String, Object>> approverList = appDao.searchApproverForPicker(keyword, excludes);
+			if (approverList == null || approverList.isEmpty()) {
+				return approverList;
+			}
 
-		for (Map<String, Object> map : approverList) {
-			String deptId = (String) map.get("empDept");
-			if (deptId != null && !deptId.isEmpty()) {
-				try {
-					String deptName = appDao.selectDeptNameById(Integer.parseInt(deptId));
-					if (deptName != null)
-						map.put("empDept", deptName);
-				} catch (NumberFormatException e) {
+			// 3. 💡 [성공 공식 이식] 루프를 돌며 부서 코드를 한글 부서명으로 변환하여 치환
+			for (Map<String, Object> map : approverList) {
+				String deptCode = (String) map.get("empDept"); // Map에서 기존 부서 코드(또는 ID) 추출
+				
+				if (deptCode != null && !deptCode.trim().isEmpty()) {
+					// 성공하셨던 app_line의 DAO 메서드를 그대로 활용하여 한글명 조회
+					String deptName = appDao.selectDeptNameByCode(deptCode.trim()); 
+					
+					if (deptName != null && !deptName.trim().isEmpty()) {
+						map.put("empDept", deptName.trim()); // 한글 부서명으로 덮어쓰기
+					} else {
+						map.put("empDept", "소속없음");
+					}
+				} else {
 					map.put("empDept", "소속없음");
 				}
 			}
-		}
 
-		return approverList;
-	}
+			return approverList;
+		}
 
 }
