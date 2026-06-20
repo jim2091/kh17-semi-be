@@ -98,17 +98,14 @@
 	<div class="gw-tabs">
 		<a href="/app/list" class="gw-tab-item">기안 문서함</a> 
 		<a href="/appr/list" class="gw-tab-item">결재 문서함</a> 
-		<%-- 💡 [교정 1] 활성화 탭 링크의 대소문자를 /app/bothList 가상 매핑 주소와 완전히 일치 --%>
 		<a href="/app/bothList" class="gw-tab-item active">전체 문서함</a>
 	</div>
 
 	<div class="gw-search-panel pds-width"
 		style="padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); border: 1px solid #e2e8f0; margin-bottom: 20px;">
-		<%-- 💡 [교정 2] 폼 전송 액션 주소 역시 독자 매핑인 /app/bothList 로 완벽 맵 스위칭 --%>
 		<form action="/app/bothList" method="get" class="gw-search-form" autocomplete="off"
 			style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
 
-			<%-- 💡 [방어 코드] 신규 필터 조건 검색 시 무조건 1페이지 인덱스부터 스캔하도록 초기화 필드 가동 --%>
 			<input type="hidden" name="page" value="1">
 
 			<div style="display: flex; align-items: center; gap: 8px;">
@@ -209,7 +206,6 @@
 		</table>
 
 		<div class="gw-pagination" style="margin-top: 20px; display: flex; justify-content: center;">
-			<%-- 💡 새로 구축하신 독립형 페이징 파일 명세 매핑 동기화 확인 --%>
 			<jsp:include page="/WEB-INF/views/template/pagination_bothList.jsp"></jsp:include>
 		</div>
 	</div>

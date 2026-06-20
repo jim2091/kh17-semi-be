@@ -290,7 +290,6 @@
 			<c:choose>
 				<c:when test="${not empty attachList}">
 					<c:forEach var="file" items="${attachList}">
-						<%-- 💡 전용 파일 컨트롤러 주소 및 강제 다운로드 속성 전면 동기화 --%>
 						<a href="/download/modern?attachNo=${file.attachNo}" download="${file.attachName}" class="gw-download-item">
 							<i class="fa-solid fa-file-arrow-down" style="margin-right: 10px;"></i>
 							<strong>${file.attachName}</strong>
@@ -367,11 +366,22 @@
 				</c:if>
 			</tbody>
 		</table>
+		
 		<div class="appr-btn-wrap">
-			<button onclick="location.href='/app/list'" class="gw-btn-outline appr-btn-back">
+			<button type="button" onclick="goBackToHistoryList();" class="gw-btn-outline appr-btn-back">
 				<i class="fa-solid fa-arrow-left"></i> 목록으로
 			</button>
 		</div>
 	</div>
 
 	<jsp:include page="/WEB-INF/views/template/footer2.jsp"></jsp:include>
+
+<script>
+function goBackToHistoryList() {
+    if (document.referrer && document.referrer.indexOf(window.location.host) !== -1) {
+        location.href = document.referrer;
+    } else {
+        location.href = '${pageContext.request.contextPath}/app/list';
+    }
+}
+</script>

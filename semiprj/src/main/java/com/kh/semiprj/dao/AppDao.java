@@ -389,20 +389,17 @@ public class AppDao {
 
  // ===== 전사 전체 조회 (관리자용 페이징/검색 목록) =====
     public List<AppDto> selectAllList(PageVO pageVO, String searchEmpName, String searchAppType, String searchAppStatus) {
-        // [예외 처리] PageVO 내부 연산 오류로 인한 0 이하의 값 유입 시 오라클 1-index 표준에 맞게 강제 보정
         int begin = pageVO.getBeginRownum();
         int end = pageVO.getEndRownum();
         if (begin <= 0) begin = 1;
         if (end <= 0) end = 10;
 
-        // 기본 베이스 SQL 및 테이블 조인 정의
         String baseSql = "select a.*, e.emp_name from app a "
                        + "join emp e on a.app_req_id = e.emp_no "
                        + "where 1=1 ";
 
         List<Object> paramList = new ArrayList<>();
 
-        // 컨트롤러가 수신한 3대 가변 필드 동적 쿼리 바인딩 파이프라인
         if (searchEmpName != null && !searchEmpName.trim().isEmpty()) {
             baseSql += "and e.emp_name like ? ";
             paramList.add("%" + searchEmpName.trim() + "%");
@@ -416,22 +413,18 @@ public class AppDao {
             paramList.add(searchAppStatus.trim());
         }
 
-        // 최신 글 정렬 기준 부여
         baseSql += "order by a.app_id desc";
 
-        // 오라클 표준 3중 서브쿼리 페이징 래퍼 빌드
         String finalSql = "select * from ("
                         + "  select rownum RN, TMP.* FROM (" + baseSql + ") TMP"
                         + ") where RN between ? and ?";
 
-        // 가공된 시작/종료 ROWNUM 인덱스를 바인딩 가변 배열 끝에 순차 결합
         paramList.add(begin);
         paramList.add(end);
 
         return jdbcTemplate.query(finalSql, appMapper, paramList.toArray());
     }
 
-    // ===== 전사 전체 조회 개수 (관리자용 페이징 카운트) =====
     public int countAll(String searchEmpName, String searchAppType, String searchAppStatus) {
         String sql = "select count(*) from app a "
                    + "join emp e on a.app_req_id = e.emp_no "
@@ -439,7 +432,6 @@ public class AppDao {
 
         List<Object> paramList = new ArrayList<>();
 
-        // selectAllList 메서드와 100% 정합성을 맞춘 카운팅 동적 조건절
         if (searchEmpName != null && !searchEmpName.trim().isEmpty()) {
             sql += "and e.emp_name like ? ";
             paramList.add("%" + searchEmpName.trim() + "%");
@@ -490,14 +482,18 @@ public class AppDao {
         }, "%" + keyword + "%", "%" + keyword + "%");
     }
 
-    // picker용 결재자 검색
+ 
+    private static final List<String> POSITION_ORDER = List.of(
+        "사원", "선임", "주임", "대리", "과장", "차장", "부장", 
+        "이사", "상무", "전무", "부사장", "사장", "부회장", "회장"
+    );
+
+    //picker용 결재자 검색 =====
     public List<Map<String, Object>> searchApproverForPicker(String keyword, List<String> excludes) {
-        String sql = "select e.emp_no, e.emp_name, e.emp_position, d.dept_name as emp_dept, p.position_level "
+        String sql = "select e.emp_no, e.emp_name, e.emp_position, e.emp_dept "
                    + "from emp e "
-                   + "left join dept d on to_number(e.emp_dept) = d.dept_id "
-                   + "left join position_item p on e.position_id = p.position_id "
                    + "where e.emp_use_yn = 'Y' "
-                   + "and (e.emp_name like ? or d.dept_name like ?) ";
+                   + "and (e.emp_name like ? or e.emp_position like ?) ";
 
         List<Object> params = new ArrayList<>();
         params.add("%" + keyword + "%");
@@ -511,29 +507,47 @@ public class AppDao {
             params.addAll(excludes);
         }
 
-        sql += "order by p.position_level asc nulls last, e.emp_name asc";
+        sql += "order by e.emp_name asc";
 
-        return jdbcTemplate.query(sql, (rs, rn) -> {
+        List<Map<String, Object>> list = jdbcTemplate.query(sql, (rs, rn) -> {
             Map<String, Object> map = new HashMap<>();
             map.put("empNo",       rs.getString("emp_no"));
             map.put("empName",     rs.getString("emp_name"));
-            map.put("empPosition", rs.getString("emp_position"));
-            map.put("empDept",     rs.getString("emp_dept"));
-            int level = rs.getInt("position_level");
-            map.put("positionLevel", rs.wasNull() ? 99 : level);
+            
+            String pos = rs.getString("emp_position");
+            String trimmedPos = (pos != null) ? pos.trim() : "사원";
+            map.put("empPosition", trimmedPos);
+            
+            String deptCode = rs.getString("emp_dept");
+            map.put("empDept",     deptCode != null ? deptCode.trim() : "");
+            
+            int level = POSITION_ORDER.indexOf(trimmedPos);
+            map.put("positionLevel", level); 
+            
             return map;
         }, params.toArray());
+
+        list.sort((m1, m2) -> Integer.compare((int)m2.get("positionLevel"), (int)m1.get("positionLevel")));
+
+        return list;
     }
 
     public List<AppDto> selectAllEmp() {
-        String sql = "select emp_no, emp_name, emp_dept, emp_position "
-                   + "from emp where emp_use_yn = 'Y'";
+        String sql = "select e.emp_no, e.emp_name, d.dept_name, e.emp_position "
+                   + "from emp e "
+                   + "left join dept d on trim(e.emp_dept) = to_char(d.dept_id) "
+                   + "where e.emp_use_yn = 'Y'";
+                   
         return jdbcTemplate.query(sql, (rs, rn) -> {
             AppDto dto = new AppDto();
             dto.setAppReqId(rs.getString("emp_no"));
             dto.setAppTitle(rs.getString("emp_name"));
-            dto.setAppContent(rs.getString("emp_dept"));
-            dto.setAppType(rs.getString("emp_position"));
+            
+            String deptName = rs.getString("dept_name");
+            dto.setAppContent(deptName != null ? deptName : "소속없음");
+            
+            String pos = rs.getString("emp_position");
+            dto.setAppType(pos != null ? pos.trim() : "사원"); 
             return dto;
         });
     }
@@ -562,7 +576,6 @@ public class AppDao {
         }
     }
 
-    // ===== 유틸 =====
     public String selectEmpNameById(String loginId) {
         String sql = "select emp_name from emp where emp_id = ?";
         try {
