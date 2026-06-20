@@ -115,16 +115,21 @@ $(function(){
 
     /* 부서장 검사 검증식 */
     $("[name=deptHeadIdKeyword]").on("input change check", function(){
+        // 화면에 messageReceiver(사원번호 hidden input)가 존재하는지 체크
         var valid = $("input[name=messageReceiver]").length > 0;
     
         if(valid) {
-            $(this).removeClass("success fail"); 
+            // 다른 입력 필드와 동일하게 테두리 스타일을 success로 변경하고 fail 메시지 숨김
+            $(this).removeClass("fail").addClass("success"); 
             $(".deptHeadId-wrapper .fail-feedback").hide();
         }
         else{
+            // 값이 없으면 테두리를 fail로 변경하고 fail 메시지 표시
+            $(this).removeClass("success").addClass("fail"); 
             $(".deptHeadId-wrapper .fail-feedback").show();
         }
     
+        // 가장 중요한 state 변수 갱신 (초기 진입 시 false -> true로 전환됨)
         state.deptHeadIdValid = valid;
     });
 
@@ -305,15 +310,15 @@ $(function(){
 	    <div class="fail-feedback" style="display:none;">부서장을 선택해 주세요.</div>
 	
 	    <div class="receiver-list receiver-selected-list mt-10">
-	        <c:if test="${deptHeadEmp != null}">
-	            <span class="receiver-tag">
-	                ${deptHeadEmp.empName}
-	                (${deptHeadEmp.empDeptName != null ? deptHeadEmp.empDeptName : '소속없음'})
-	                <button type="button" class="delete-tag">✕</button>
-	                <input type="hidden" name="messageReceiver" value="${deptHeadEmp.empNo}">
-	            </span>
-	        </c:if>
-	    </div>
+    <c:if test="${deptDto.deptHeadId != null && deptDto.deptHeadId != 0}">
+        <span class="receiver-tag">
+            ${deptDto.deptHeadName != null ? deptDto.deptHeadName : '기존 부서장'} 
+            
+            <button type="button" class="delete-tag">✕</button>
+            <input type="hidden" name="messageReceiver" value="${deptDto.deptHeadId}">
+        </span>
+    </c:if>
+</div>
 	    <div class="deptHeadId"></div>
 	
 	    <jsp:include page="/WEB-INF/views/template/employee-picker.jsp"/>
