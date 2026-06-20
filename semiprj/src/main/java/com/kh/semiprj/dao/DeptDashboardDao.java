@@ -176,27 +176,60 @@ public class DeptDashboardDao {
 	}
 	
 	public List<LeaveCalendarVO> selectLeaveList(String deptId, String month){
-		String sql = """
-				select
-					e.emp_no,
-					e.emp_name,
-					d.dept_name,
-					v.vac_date as leave_date
-				from vac_history v 
-				join app a on v.app_id = a.app_id 
-				join emp e on a.app_req_id = e.emp_no 
-				join dept d on e.emp_dept = d.dept_id 
-				where e.emp_use_yn = 'Y' and e.emp_dept in (
-					select dept_id from dept 
-					start with dept_id = ? 
-					connect by prior dept_id = parent_dept_id
-				)
-				and v.vac_date >= ? || '-01'
-				and v.vac_date < to_char(add_months(to_date(? || '-01', 'YYYY-MM-DD'), 1), 'YYYY-MM-DD')
-				order by v.vac_date asc, d.dept_name asc, e.emp_name asc
-				""";
-		Object[] params = { deptId, month, month };
-		return jdbcTemplate.query(sql, leaveCalendarMapper, params);
+	    String sql = """
+	            select
+	                x.emp_no,
+	                x.emp_name,
+	                x.dept_name,
+	                x.leave_date
+	            from (
+	                select
+	                    e.emp_no,
+	                    e.emp_name,
+	                    d.dept_name,
+	                    v.vac_date as leave_date
+	                from vac_history v
+	                join app a on v.app_id = a.app_id
+	                join emp e on a.app_req_id = e.emp_no
+	                join dept d on e.emp_dept = d.dept_id
+	                where e.emp_use_yn = 'Y'
+	                and e.emp_dept in (
+	                    select dept_id from dept
+	                    start with dept_id = ?
+	                    connect by prior dept_id = parent_dept_id
+	                )
+	                and v.vac_date >= ? || '-01'
+	                and v.vac_date < to_char(add_months(to_date(? || '-01', 'YYYY-MM-DD'), 1), 'YYYY-MM-DD')
+
+	                union all
+
+	                select
+	                    e.emp_no,
+	                    e.emp_name,
+	                    d.dept_name,
+	                    l.leave_date as leave_date
+	                from leave_history l
+	                join app a on l.app_id = a.app_id
+	                join emp e on a.app_req_id = e.emp_no
+	                join dept d on e.emp_dept = d.dept_id
+	                where e.emp_use_yn = 'Y'
+	                and e.emp_dept in (
+	                    select dept_id from dept
+	                    start with dept_id = ?
+	                    connect by prior dept_id = parent_dept_id
+	                )
+	                and l.leave_date >= ? || '-01'
+	                and l.leave_date < to_char(add_months(to_date(? || '-01', 'YYYY-MM-DD'), 1), 'YYYY-MM-DD')
+	            ) x
+	            order by x.leave_date asc, x.dept_name asc, x.emp_name asc
+	            """;
+
+	    Object[] params = {
+	        deptId, month, month,
+	        deptId, month, month
+	    };
+
+	    return jdbcTemplate.query(sql, leaveCalendarMapper, params);
 	}
 	
 	public List<DeptMemberStatusVO> selectDirectMemberStatusList(String deptId){

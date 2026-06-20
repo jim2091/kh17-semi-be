@@ -57,6 +57,20 @@ public class DeptDashboardService {
         List<ApprovalStatVO> approvalStats = deptDashboardDao.selectApprovalStats(selectedDeptId, selectedMonth);
         List<LeaveCalendarVO> leaveList = deptDashboardDao.selectLeaveList(selectedDeptId, selectedMonth);
         
+        System.out.println("===== 휴가 조회 결과 =====");
+        System.out.println("selectedDeptId = " + selectedDeptId);
+        System.out.println("selectedMonth = " + selectedMonth);
+        System.out.println("leaveList.size() = " + leaveList.size());
+
+        for (LeaveCalendarVO leave : leaveList) {
+            System.out.println(
+                leave.getEmpNo() + " / " +
+                leave.getEmpName() + " / " +
+                leave.getDeptName() + " / " +
+                leave.getLeaveDate()
+            );
+        }
+        
         // 6. 대시보드 VO 조립
         ManagerDashboardVO dashboard = new ManagerDashboardVO();
         

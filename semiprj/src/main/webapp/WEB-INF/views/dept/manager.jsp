@@ -54,7 +54,7 @@
 }
 
 .change-up {
-    color: var(#3b82f6);
+    color: #3b82f6;
     font-weight: 900;
 }
 
@@ -269,7 +269,7 @@
     font-weight: 900;
 }
 
-.leave-annual { background: var(#3b82f6); }
+.leave-annual { background: #3b82f6; }
 .leave-half { background: var(--main-color); }
 .leave-out { background: var(--warning-color); }
 
@@ -285,7 +285,7 @@
     border-radius: 50%;
 }
 
-.state-work { background: var(#3b82f6); }
+.state-work { background: #3b82f6; }
 .state-leave { background: var(--main-color); }
 .state-out { background: var(--warning-color); }
 .state-late { background: var(--danger-color); }
