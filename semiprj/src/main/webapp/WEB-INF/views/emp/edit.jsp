@@ -352,10 +352,10 @@ $(function(){
         var regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9\.\-]+\.[a-zA-Z]{2,}$/;
         var valid = regex.test(email);
 
-        $("[name=empEmail]").removeClass("success fail")
+       /*  $("[name=empEmail]").removeClass("success fail")
                 .addClass(valid ? "success" : "fail");
 
-        state.emailValid =valid;
+        state.emailValid =valid; */
         
         return valid;
     }
@@ -424,7 +424,24 @@ $(function(){
     function checkEmail(){
         var formatValid = checkEmailFormatOnly();
 
+       /*  if(!formatValid){
+            state.emailValid = false;
+            state.emailCertValid = false;
+
+            $(".btn-cert-send").show();
+            $(".btn-cert-retry").hide();
+            $(".cert-area").empty();
+
+            return;
+        } */
+        
+        // 형식 오류
         if(!formatValid){
+            $("[name=empEmail]")
+                .removeClass("success fail")
+                .addClass("fail")
+                .attr("data-error", "1");
+
             state.emailValid = false;
             state.emailCertValid = false;
 
@@ -435,19 +452,44 @@ $(function(){
             return;
         }
 
+
         var duplicateValid = checkEmailDuplicate();
 
-        if(!duplicateValid){
+       /*  if(!duplicateValid){
             $("[name=empEmail]").removeClass("success fail")
                     .addClass("fail");
             state.emailCertValid = false;
 
-            $(".btn-cenr-send").show();
+            $(".btn-cert-send").show();
+            $(".btn-cert-retry").hide();
+            $(".cert-area").empty();
+
+            return;
+        } */
+        
+     // 중복 오류
+        if(!duplicateValid){
+            $("[name=empEmail]")
+                .removeClass("success fail")
+                .addClass("fail")
+                .attr("data-error", "2");
+
+            state.emailValid = false;
+            state.emailCertValid = false;
+
+            $(".btn-cert-send").show();
             $(".btn-cert-retry").hide();
             $(".cert-area").empty();
 
             return;
         }
+        
+        // 정상
+        $("[name=empEmail]")
+            .removeClass("fail")
+            .addClass("success")
+            .removeAttr("data-error");
+
 
         checkEmailChanged();
     }
@@ -731,6 +773,10 @@ $(function(){
 					                   name="empEmail"
 					                   value="${empDto.empEmail}"
 					                   class="gw-form-input field email-input">
+					            <div class="fail-feedback email-feedback">
+						            <div>형식에 맞지 않는 이메일입니다</div>
+						            <div>이미 사용중인 이메일입니다</div>
+					        	</div>       
 					
 					            <button type="button"
 					                    class="gw-btn-outline btn-cert-send email-btn">

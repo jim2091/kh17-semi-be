@@ -655,7 +655,6 @@
 			</tbody>
 		</table>
 	</div>
-</div>
 
 <!-- [최하단] 제어 버튼 -->
 <div class="center mt-50 mb-50">
@@ -672,6 +671,8 @@
     </a>
 </div>
 </form>
+</div>
+
 
 <div class="container modal">
     <div class="modal-content">
