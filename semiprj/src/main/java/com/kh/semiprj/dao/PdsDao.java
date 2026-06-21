@@ -89,31 +89,41 @@ public class PdsDao {
 	
 	//검색+페이징 조회
 	public List<PdsDto> selectList(PageVO pageVO){
-		if(pageVO.isList()) return selectList(pageVO.getPage(), pageVO.getSize());
-		if(!allowList.contains(pageVO.getColumn())) 
-			return selectList(pageVO.getPage(), pageVO.getSize());
-		
-		
-		//귀찮아서 이렇게 했어요 근데 저는 검색할때 이방식으로 되면 오히려 좋을때가 많을 거 같아요
-		//근데 바꾸다 보니 안나눴기때문에 컨텐츠 검색 안해도 되는 view 안쓰게 되서 고민해봐야할거같아요
-		String column = pageVO.getColumn();
-		if(column.equals("title_content")) {
-		    column = "pds_title || ' ' || pds_content";
-		}
-		if(column.equals("pds_writer")) {
-		    column = "emp_name";
-		}
-		
-		String sql = "select * from ("
-				+ "select rownum rn, TMP.* from ("
-					+ "select * from pds_list "
-					+ "where instr("+column+", ?) > 0 "
-					+ "order by pds_no desc"
-				+ ") TMP"
-			+ ") where rn between ? and ?";
+	    if(pageVO.isList()) return selectList(pageVO.getPage(), pageVO.getSize());
+	    if(!allowList.contains(pageVO.getColumn())) 
+	        return selectList(pageVO.getPage(), pageVO.getSize());
 
-		Object[] params = {pageVO.getKeyword(), pageVO.getBeginRownum(), pageVO.getEndRownum()};
-		return jdbcTemplate.query(sql, pdsMapper, params);
+	    String column = pageVO.getColumn();
+
+	    String from = "pds p ";
+	    String whereColumn = column;
+
+	    if(column.equals("title_content")) {
+	        whereColumn = "p.pds_title || ' ' || p.pds_content";
+	    }
+	    else if(column.equals("pds_title")) {
+	        whereColumn = "p.pds_title";
+	    }
+	    else if(column.equals("pds_writer")) {
+	        from = "pds p left join emp e on p.pds_writer = e.emp_no ";
+	        whereColumn = "e.emp_name";
+	    }
+
+	    String sql = "select * from ("
+	            + "select rownum rn, TMP.* from ("
+	                + "select p.* from " + from
+	                + "where instr(" + whereColumn + ", ?) > 0 "
+	                + "order by p.pds_no desc"
+	            + ") TMP"
+	        + ") where rn between ? and ?";
+
+	    Object[] params = {
+	        pageVO.getKeyword(),
+	        pageVO.getBeginRownum(),
+	        pageVO.getEndRownum()
+	    };
+
+	    return jdbcTemplate.query(sql, pdsMapper, params);
 	}
 	
 	//카운트

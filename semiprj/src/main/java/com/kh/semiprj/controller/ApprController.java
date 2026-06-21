@@ -20,6 +20,7 @@ import com.kh.semiprj.dto.DftAppDto;
 import com.kh.semiprj.dto.ExpAppDto;
 import com.kh.semiprj.dto.VacAppDto;
 import com.kh.semiprj.service.LeaveService;
+import com.kh.semiprj.service.NotificationService;
 import com.kh.semiprj.service.VacService;
 
 import jakarta.servlet.http.HttpSession;
@@ -42,6 +43,9 @@ public class ApprController {
 
 	@Autowired
 	private LeaveService leaveService;
+	
+	@Autowired
+	private NotificationService notificationService;
 
 	@RequestMapping("/list")
 	public String list(HttpSession session, Model model) {
@@ -89,9 +93,9 @@ public class ApprController {
 			appDao.updateAppStatus(appId, "승인");
 
 			String appType = appDao.selectAppTypeById(appId);
-
+			String requesterEmpNo = appDao.selectEmpNoByAppId(appId);
+			
 			if ("휴가신청서".equals(appType)) {
-				String requesterEmpNo = appDao.selectEmpNoByAppId(appId);
 				VacAppDto vacAppDto = vacAppDao.selectVacOne(appId);
 
 				if (vacAppDto != null) {
@@ -104,6 +108,7 @@ public class ApprController {
 					}
 				}
 			}
+			notificationService.notifyApproval(requesterEmpNo, appId);
 		}
 		return "redirect:./detail?appId=" + appId;
 	}
@@ -125,6 +130,8 @@ public class ApprController {
 
 		appLineDao.reject(appLineId, appLineRej);
 		appDao.updateAppStatus(appId, "반려");
+		String requesterEmpNo = appDao.selectEmpNoByAppId(appId);
+		notificationService.notifyReject(requesterEmpNo, appId);
 		return "redirect:./detail?appId=" + appId;
 	}
 

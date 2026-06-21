@@ -81,7 +81,7 @@ public class NotificationDao {
 		}
 		else if (type.equals("app")) {
 			sql = "select * from notification where notification_receiver = ? "
-					+ "and (notification_type = 'approval' or notification_type = 'reject')"
+					+ "and (notification_type = 'approval' or notification_type = 'reject' or notification_type = 'app_waiting')"
 					+ "order by notification_time desc";
 		}
 		

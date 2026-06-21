@@ -125,6 +125,9 @@ public class InterceptorConfiguration implements WebMvcConfigurer{
                         ,"/js/**"
                         ,"/images/**"
                         ,"/error"
+                        ,"/emp/find**"
+                        ,"/emp/cert**"
+                        ,"/emp/change**"
 						);
 		registry.addInterceptor(deptDashboardInterceptor)
 				.addPathPatterns("/dept/manager");

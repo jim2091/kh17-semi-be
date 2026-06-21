@@ -17,6 +17,7 @@ import com.kh.semiprj.dao.AttachDao;
 import com.kh.semiprj.dao.EmpDao;
 import com.kh.semiprj.dao.PdsDao;
 import com.kh.semiprj.dto.AttachDto;
+import com.kh.semiprj.dto.BoardDto;
 import com.kh.semiprj.dto.EmpDto;
 import com.kh.semiprj.dto.PdsDto;
 import com.kh.semiprj.exception.GetOutException;
@@ -98,6 +99,15 @@ public class PdsController {
 	@RequestMapping("/list")
 	public String list(Model model, @ModelAttribute PageVO pageVO) {
 		List<PdsDto> list = pdsDao.selectList(pageVO);
+		for(PdsDto pdsDto : list) {
+			EmpDto empDto = empDao.selectOneByDetail(pdsDto.getPdsWriter());
+			if(empDto != null) {
+				pdsDto.setEmpName(empDto.getEmpName());
+			}
+			else {
+				pdsDto.setEmpName("(퇴사한 사용자)");
+			}
+		}
 		int count = pdsDao.count(pageVO);
 		pageVO.setCount(count);
 		model.addAttribute("list", list);
