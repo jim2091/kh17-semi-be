@@ -102,7 +102,7 @@
     });
 </script>
 
-<div class="gw-page-head attn-width">
+<div class="gw-page-head attn-width"  style="max-width: 700px; margin: 0 auto; margin-bottom: 18px;">
     <div class="gw-breadcrumb">홈 / 근태관리 / 근무제도 관리</div>
     <h1>근무제도 관리</h1>
     <p>회사 전사에 적용할 핵심 근무제도를 선택하고 활성화 상태를 변경할 수 있습니다.</p>

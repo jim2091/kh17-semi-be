@@ -188,8 +188,7 @@
 		            <c:forEach var="board" items="${noticeList}">
 		                <div class="list-row" onclick="location.href='/board/detail?boardNo=${board.boardNo}'" style="cursor:pointer;">
 		                    <div>
-		                        <div style="font-size: 12px;">${board.boardTitle}</div>
-		                        <div class="list-sub">${board.boardType}</div>
+		                        <div style="font-size: 18px;">${board.boardTitle}</div>
 		                    </div>
 		                </div>
 		            </c:forEach>
@@ -278,7 +277,7 @@
 		                <div class="list-row" onclick="location.href='/board/detail?boardNo=${board.boardNo}'" style="cursor:pointer;">
 		                    <div>
 		                        <div style="font-size: 12px;">${board.boardTitle}</div>
-		                        <div class="list-sub">${board.boardType}</div>
+		                        <div class="list-sub">${board.boardHead}</div>
 		                    </div>
 		                </div>
 		            </c:forEach>

@@ -906,8 +906,8 @@
                 </div>
             </div>
 
-            <a href="/admin/app/list" class="admin-link-btn">
-                결재 관리 바로가기
+            <a href="/app/bothList" class="admin-link-btn">
+                결재 목록 바로가기
             </a>
         </div>
 
@@ -993,7 +993,7 @@
         <div class="dashboard-card admin-card">
 		    <div class="card-header">
 		        <div class="card-title">오늘 생일자</div>
-		        <a href="/admin/list" class="gw-link">더보기</a>
+
 		    </div>
 		
 		    <c:choose>
