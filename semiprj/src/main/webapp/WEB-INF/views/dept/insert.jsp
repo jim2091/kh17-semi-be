@@ -43,6 +43,7 @@
 	}
 
 </style>
+	
 <script>
 
 $(function(){
@@ -95,16 +96,19 @@ $(function(){
     $("[name=deptHeadIdKeyword]").on("input change check", function(){
         var valid = $("input[name=messageReceiver]").length > 0;
         
-	    if(valid) {
-	        $(this).removeClass("success fail"); 
-	        $(".deptHeadId-wrapper .fail-feedback").hide();
-	    }
-	    else{
-	    	$(".deptHeadId-wrapper .fail-feedback").show();
-	    }
-	
-	    state.deptHeadIdValid = valid;
-	});
+        // 상위 분류, 부서명과 동일하게 success / fail 클래스 부여 방식으로 통일
+        if(valid) {
+            $(this).removeClass("fail").addClass("success"); 
+            $(".deptHeadId-wrapper .fail-feedback").hide();
+            // 필요 시 성공 메시지 노출 원하면 .show() 처리
+        }
+        else {
+            $(this).removeClass("success").addClass("fail"); 
+            $(".deptHeadId-wrapper .fail-feedback").show();
+        }
+    
+        state.deptHeadIdValid = valid;
+    });
 
     /* 자동완성 */
     $("[name=deptHeadIdKeyword]").on("keyup", function(){
@@ -161,7 +165,16 @@ $(function(){
         // 부서장은 1명만
         $(".receiver-selected-list").html(html);
     }
-
+    //피커 안에서 다중 선택 차단
+    $(document).on("click", ".emp-check", function(e) {
+        var pickerMode = $("#pickerMode").val();
+        if (pickerMode === "single" && $(this).is(":checked")) {
+            // 내가 방금 체크한 것 외에 모달 안의 다른 체크박스는 전부 해제
+            $(".emp-check").not(this).prop("checked", false);
+            // 선택 리스트가 모달 내부에 동적으로 쌓이고 있다면 그것도 초기화
+            $(".selected-list").empty(); 
+        }
+    });
     /* 모달 확인 */
     $(document).on("click", ".confirm-btn", function(){
         // 바깥 선택 리스트 비우기
@@ -219,13 +232,34 @@ $(function(){
     });
 
     /* 제출 */
-    $(".form-check").on("submit", function(){
+    $(".form-check").on("submit", function(e){
+        // 1. 부서장 체크 및 일반 필드 유효성 다시 갱신
         state.deptHeadIdValid = $("input[name=messageReceiver]").length > 0;
         $("[name=deptHeadIdKeyword]").trigger("check");
-        $("[name=parentDeptId]").trigger("change");
-        $("[name=deptName]").trigger("input");
-        $("[name=deptContent]").trigger("blur");
-        return state.ok();
+        
+        var parentValid = $("[name=parentDeptId]").val().length > 0;
+        $("[name=parentDeptId]").removeClass("success fail").addClass(parentValid ? "success" : "fail");
+        state.parentDeptIdValid = parentValid;
+
+        // 만약 비어있다면 대처
+        if($("[name=deptName]").val().length === 0) {
+            state.deptNameValid = false;
+            $("[name=deptName]").removeClass("success fail").addClass("fail");
+        }
+
+        // 2. 최종 검사
+        if (!state.ok()) {
+            alert("입력 항목을 다시 확인해 주세요.");
+            
+            // 유효하지 않은 첫 번째 항목으로 포커스 이동
+            if(!state.parentDeptIdValid) $("[name=parentDeptId]").focus();
+            else if(!state.deptNameValid) $("[name=deptName]").focus();
+            else if(!state.deptHeadIdValid) $("[name=deptHeadIdKeyword]").focus();
+            
+            return false; // 서버 전송 막기
+        }
+        
+        return true; // 전송 허용
     });
 });
 </script>
@@ -241,6 +275,7 @@ $(function(){
 
 			<!-- ── 등록 폼 ── -->
 			<form action="./insert" method="post" autocomplete="off" class="form-check" style="max-width:1100px">
+			<input type="hidden" id="pickerMode" value="single">
 			    <div class="gw-form-panel">
 			
 			        <!-- 상위 부서 -->
@@ -266,16 +301,17 @@ $(function(){
 			            <input type="text" name="deptName"
 			                   class="field gw-form-input full"
 			                   placeholder="생성할 부서 이름을 입력하세요">
-			            <div class="success-feedback">사용 가능한 부서명입니다.</div>
+			            <div class="success-feedback"></div>
 			            <div class="fail-feedback">이미 등록되었거나 올바르지 않은 이름입니다.</div>
 			        </div>
 			
 			        <!-- 부서장 -->
-		           <label class="gw-form-label">
-					    부서장 <span class="required">*</span>
-					</label>
-					<div class="gw-form-row deptHeadId-wrapper">
-					    <div style="display:flex; gap:10px; align-items:center;">
+			        <div class="gw-form-row deptHeadId-wrapper">
+					    <label class="gw-form-label">
+					        부서장 <span class="required">*</span>
+					    </label>
+					    
+					    <div style="display:flex; gap:10px; align-items:center; width:100%;">
 					        <input type="text" name="deptHeadIdKeyword"
 					               class="field gw-form-input"
 					               style="flex:1;"
@@ -284,7 +320,9 @@ $(function(){
 					            <i class="fa-solid fa-user-tie"></i> 찾기
 					        </button>
 					    </div>
-					    <div class="fail-feedback" style="display:none;">부서장을 선택해 주세요.</div>
+					
+					    <div class="success-feedback"></div>
+					    <div class="fail-feedback">부서장을 선택해 주세요.</div>
 					    
 					    <div class="receiver-list receiver-selected-list mt-10">
 					        <c:if test="${deptHeadEmp != null}">
@@ -296,6 +334,7 @@ $(function(){
 					            </span>
 					        </c:if>
 					    </div>
+					    
 					    <div class="deptHeadId"></div>
 					
 					    <jsp:include page="/WEB-INF/views/template/employee-picker.jsp"/>
@@ -309,7 +348,7 @@ $(function(){
 			                   placeholder="해당 부서의 주 업무 및 담당 역할을 기재하세요">
 			            <div class="gw-form-help">선택 항목입니다. 부서의 역할을 간략히 설명해 주세요.</div>
 			        </div>
-			
+				</div>
 			        <!-- 액션 버튼 -->
 			        <div class="gw-form-actions">
 			            <a href="./list" class="gw-btn-outline">
