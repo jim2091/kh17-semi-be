@@ -40,11 +40,24 @@ public class EmpHistoryDao {
 		Object[] params = { empHistoryOrigin, beginRow, endRow };
 		return jdbcTemplate.query(sql, empHistoryMapper, params);
 	}
+	public List<EmpHistoryDto> selectiList(String empHistoryOrigin, HistoryPageVO historyPageVO){
+		String sql ="select * from ("
+					+ "select rownum RN, TMP.* from ("
+							+ "select * from emp_history "
+								+ "where emp_history_origin = ? "
+								+ "order by emp_history_time desc, emp_history_no desc"
+							+ ")TMP"
+					+ ") where RN between ? and ? ";
+		Object[] params = {empHistoryOrigin, historyPageVO.getBeginRownum(), historyPageVO.getEndRownum()};
+		
+		return jdbcTemplate.query(sql, empHistoryMapper, params);
+	}
+	
 	public List<EmpHistoryDto> selectList(String empHistoryOrigin, HistoryPageVO historyPageVO){
 
 		
-		if(historyPageVO.getBeginDate() == null || historyPageVO.getEndDate() == null) return List.of();
-		if(historyPageVO.getBeginDate().isEmpty() || historyPageVO.getEndDate().isEmpty()) return List.of();
+		if(historyPageVO.getBeginDate() == null || historyPageVO.getEndDate() == null) return selectiList(empHistoryOrigin, historyPageVO);
+		if(historyPageVO.getBeginDate().isEmpty() || historyPageVO.getEndDate().isEmpty()) return selectiList(empHistoryOrigin, historyPageVO);
 		
 		String sql = "select * from ("
 						+ "select rownum RN, TMP.* from ("
@@ -59,15 +72,15 @@ public class EmpHistoryDao {
 									historyPageVO.getBeginRownum(), historyPageVO.getEndRownum()};
 		return jdbcTemplate.query(sql, empHistoryMapper, params);
 	}
-//	public int count(String empHistoryOrigin) {
-//		String sql= "select count(*) from emp_history "
-//					+ "where emp_history_origin = ? ";
-//		Object[] params = {empHistoryOrigin};
-//		return jdbcTemplate.queryForObject(sql, int.class, params);
-//	}
+	public int count(String empHistoryOrigin) {
+		String sql= "select count(*) from emp_history "
+					+ "where emp_history_origin = ? ";
+		Object[] params = {empHistoryOrigin};
+		return jdbcTemplate.queryForObject(sql, int.class, params);
+	}
 	public int count(String empHistoryOrigin, HistoryPageVO historyPageVO) {
-		if(historyPageVO.getBeginDate() == null || historyPageVO.getEndDate() == null) return 0;
-		if(historyPageVO.getBeginDate().isEmpty() || historyPageVO.getEndDate().isEmpty()) return 0;
+		if(historyPageVO.getBeginDate() == null || historyPageVO.getEndDate() == null) return count(empHistoryOrigin);
+		if(historyPageVO.getBeginDate().isEmpty() || historyPageVO.getEndDate().isEmpty()) return count(empHistoryOrigin);
 		
 		String sql = "select count(*) from emp_history "
 						+ "where emp_history_origin = ? "
@@ -78,4 +91,28 @@ public class EmpHistoryDao {
 		return jdbcTemplate.queryForObject(sql, int.class, params);
 	}
 
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 }

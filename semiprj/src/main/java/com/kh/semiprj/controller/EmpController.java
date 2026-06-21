@@ -414,6 +414,8 @@ public class EmpController {
 		model.addAttribute("loginhistory", loginhistory);
 		int count = empHistoryDao.count(loginNo, historyPageVO);
 		historyPageVO.setCount(count);
+		
+		
 		model.addAttribute("historyPageVO", historyPageVO);
 		return "emp/history";
 	}
@@ -423,6 +425,32 @@ public class EmpController {
 		return "emp/wait";
 	}
 
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	

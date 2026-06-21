@@ -81,7 +81,7 @@ $(function(){
 		</table>
 		
 		<div class="gw-pagination">
-            <jsp:include page="/WEB-INF/views/template/pagination.jsp"></jsp:include>
+            <jsp:include page="/WEB-INF/views/template/pagination_loginhistory.jsp"></jsp:include>
        </div>
 	</div>
 </div>
