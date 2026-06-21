@@ -41,6 +41,7 @@ public class MessageController {
 	public String write(Model model) {
 		List<EmpDto> empList = empDao.selectListByAdmin();
 		model.addAttribute("empList", empList);
+		model.addAttribute("replyMode", false);
 		return "message/write";
 	}
 	@PostMapping("/write")
@@ -77,6 +78,8 @@ public class MessageController {
 		}
 		model.addAttribute("replyTitle", title);
 		model.addAttribute("messageDto", messageDto);
+	    model.addAttribute("replyMode", true);
+	    
 		return "message/write";
 	}
 

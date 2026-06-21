@@ -65,6 +65,11 @@ public class BoardController {
 				throw new GetOutException();
 			}
 		}
+		//(2-1) 공지글은 일반글만 허용
+		if("공지".equals(boardDto.getBoardHead())
+		        && !"일반".equals(boardDto.getBoardType())) {
+		    throw new GetOutException("공지글은 일반글만 작성할 수 있습니다.");
+		}
 		//(3) 게시글 번호 생성
 		long boardNo = boardDao.sequence();
 		//(4) 새글/답글 계산하고 글 등록

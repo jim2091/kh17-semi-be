@@ -18,6 +18,25 @@
 .text-length.danger {
     color: var(--danger-color);
 }
+.notice-only-info{
+    margin-top:10px;
+    padding:10px 14px;
+
+    background:#eef6ff;
+    border:1px solid #bcdcff;
+    border-radius:8px;
+
+    color:#1d4f91;
+    font-size:14px;
+}
+
+.notice-only-info i{
+    margin-right:6px;
+}
+label.disabled{
+    opacity:0.5;
+    cursor:not-allowed;
+}
 </style>
 
 <script type="text/javascript">
@@ -136,6 +155,7 @@ $(function(){
     	var valid = regex.test($(this).val()) && $(this).val() !== "";
         $(this).removeClass("success fail").addClass(valid ? "success" : "fail");
         state.boardHeadValid = valid;
+		updateBoardTypeByHead();
     });
     
     //(3) 유형
@@ -184,6 +204,44 @@ $(function(){
 	    state.boardContentValid = valid;
 	    return valid;
 	}
+	
+	function updateBoardTypeByHead(){
+	    var head = $("[name=boardHead]").val();
+		
+	    if(head === "공지"){
+	        // 일반 자동 선택
+	        $("input[name=boardType][value='일반']")
+	            .prop("checked", true);
+
+			// 비밀 비활성화 + 회색 처리
+	        $("input[name=boardType][value='비밀']")
+	            .prop("disabled", true)
+	            .closest("label")
+	            .addClass("disabled");
+
+	        // 익명 비활성화 + 회색 처리
+	        $("input[name=boardType][value='익명']")
+	            .prop("disabled", true)
+	            .closest("label")
+	            .addClass("disabled");
+
+	        $(".notice-only-info").show();
+	    }
+	    else{
+			// 전체 활성화
+	        $("input[name=boardType]")
+	            .prop("disabled", false);
+
+	        // 회색 처리 제거
+	        $("input[name=boardType]")
+	            .closest("label")
+	            .removeClass("disabled");
+
+	        $(".notice-only-info").hide();
+	    }
+	}
+	// 페이지 진입 시 1회 실행
+	updateBoardTypeByHead();
 });
 </script>
 
@@ -237,7 +295,7 @@ $(function(){
                 <label class="gw-form-label">
                     유형 <span class="required">*</span>
                 </label>
-	                <div class="field radio-wrapper">
+	            <div class="field radio-wrapper">
 		            <label>
 		                <input type="radio" name="boardType" value="비밀"> <span>비밀</span>
 					</label>
@@ -248,6 +306,10 @@ $(function(){
 		                <input type="radio" name="boardType" value="일반" checked> <span>일반</span>
 		            </label>
 	            </div>
+				<div class="notice-only-info" style="display:none;">
+				    <i class="fa-solid fa-circle-info"></i>
+				    공지글은 일반글만 작성 가능합니다.
+				</div>
 			</div>
 			
 			<div class="gw-form-row">

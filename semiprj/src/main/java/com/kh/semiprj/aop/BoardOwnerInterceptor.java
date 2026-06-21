@@ -64,6 +64,5 @@ public class BoardOwnerInterceptor implements HandlerInterceptor{
         //(6) 위를 다 통과했다면 본인 소유의 글에 접근하는 것으로 간주
 		return true;//통과
 	}
-	
 
 }
