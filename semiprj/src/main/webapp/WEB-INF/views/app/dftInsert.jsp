@@ -399,16 +399,26 @@ $(function(){
 		}
 	});
 
+	// 💡 [결함 진압] appr_picker.jsp 연동 최적화용 실시간 검증 엔진 훅(Hook) 마감
 	window.checkApproverState = function() {
 		var approver1 = $("#approverNo_1").val();
 		var $group = $("#approverNo_1").closest(".form-group");
+		
 		if(!approver1) {
 			$group.addClass("has-error");
 			$group.find(".appr-box-item .field").removeClass("success").addClass("fail");
 			state.approverValid = false;
 		} else {
+			// 모달에서 결재자를 정상 세팅하여 복귀한 즉시 붉은색 경고 박스 디레조네이팅 해제
 			$group.removeClass("has-error");
 			$group.find(".appr-box-item .field").removeClass("fail").addClass("success");
+			
+			// has-error 하위 상속으로 강제 잠금되었던 인라인 스타일 데코레이션 일괄 초기화
+			$group.find(".appr-box-item .field").css({
+				"border-color": "",
+				"background-color": "",
+				"color": ""
+			});
 			state.approverValid = true;
 		}
 	};

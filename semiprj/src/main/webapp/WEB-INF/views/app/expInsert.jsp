@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
 <jsp:include page="/WEB-INF/views/template/header2.jsp"></jsp:include>
@@ -429,16 +430,26 @@ $(function(){
 		}
 	});
 
+	// 💡 [결함 진압] appr_picker.jsp에서 '선택 완료' 타격 시 실시간 동적 정제되는 독립형 검증 밸브
 	window.checkApproverState = function() {
 		var approver1 = $("#approverNo_1").val();
 		var $group = $("#approverNo_1").closest(".form-group");
+		
 		if(!approver1) {
 			$group.addClass("has-error");
 			$group.find(".appr-box-item .field").removeClass("success").addClass("fail");
 			state.approverValid = false;
 		} else {
+			// 결재자 유입 즉시 빨간색 경고등 스킨 강제 오프(Off) 및 원상복구
 			$group.removeClass("has-error");
 			$group.find(".appr-box-item .field").removeClass("fail").addClass("success");
+			
+			// has-error 강제 전파에 의해 일그러졌던 인라인 에러 데코레이션 스타일 일괄 세척
+			$group.find(".appr-box-item .field").css({
+				"border-color": "",
+				"background-color": "",
+				"color": ""
+			});
 			state.approverValid = true;
 		}
 	};
