@@ -362,30 +362,43 @@ $(function(){
 		}
 	});
 
-	$("[name=expPrice]").on("input blur", function() {
-		var $input = $(this); 
-		var rawValue = $input.val(); 
-		var cleanValue = rawValue.replace(/[^0-9]/g, '');
-		var $group = $input.closest(".form-group");
+	$("[name=expPrice]").on("input blur paste", function(e) {
+		var $input = $(this);
+		var cleanValue = "";
 
-		if (cleanValue === '') {
-			$input.val('');
-			$("#realPrice").val(''); 
-			$input.removeClass("success").addClass("fail"); 
-			$group.addClass("has-error");
-			state.expPriceValid = false; 
-			return;
+		if (e.type === "paste") {
+			e.preventDefault();
+			var clipboardData = e.originalEvent.clipboardData || window.clipboardData;
+			var pastedData = clipboardData.getData('text');
+			cleanValue = pastedData.replace(/[^0-9]/g, '');
+		} else {
+			var rawValue = $input.val();
+			cleanValue = rawValue.replace(/[^0-9]/g, '');
 		}
 
 		if (cleanValue.length > 12) {
 			cleanValue = cleanValue.substring(0, 12);
 		}
 
-		$input.val(cleanValue);
-		$("#realPrice").val(cleanValue);
-		$input.removeClass("fail").addClass("success"); 
-		$group.removeClass("has-error");
-		state.expPriceValid = true;
+		var numericValue = cleanValue !== "" ? parseInt(cleanValue, 10) : 0;
+
+		var $group = $input.closest(".form-group");
+		if (cleanValue === '' || numericValue === 0) {
+			$input.val(cleanValue === '' ? '' : '0');
+			$("#realPrice").val(''); 
+			
+			$input.removeClass("success").addClass("fail");
+			$group.addClass("has-error");
+			state.expPriceValid = false;
+		} else {
+			// 0원도 아니고 정상적인 금액인 경우에만 통과 승인
+			$input.val(cleanValue);
+			$("#realPrice").val(cleanValue);
+			
+			$input.removeClass("fail").addClass("success");
+			$group.removeClass("has-error");
+			state.expPriceValid = true;
+		}
 	});
 
 	$("[name=expDate]").on("change blur", function() {
@@ -430,7 +443,6 @@ $(function(){
 		}
 	});
 
-	// 💡 [결함 진압] appr_picker.jsp에서 '선택 완료' 타격 시 실시간 동적 정제되는 독립형 검증 밸브
 	window.checkApproverState = function() {
 		var approver1 = $("#approverNo_1").val();
 		var $group = $("#approverNo_1").closest(".form-group");
