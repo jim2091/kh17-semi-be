@@ -71,7 +71,7 @@ public class EventController {
 
 	    String loginRole =
 	        (String)session.getAttribute("loginRole");
-
+//	    System.out.println(eventDto.getEventNo());
 	    if(
 	        origin.getEventCategory().equals("사내일정")
 	        && !"관리자".equals(loginRole)
@@ -120,7 +120,6 @@ public class EventController {
 
     	    list =
     	        eventDao.selectSearchByPage(
-    	            loginNo,
     	            pageVO.getColumn(),
     	            pageVO.getKeyword(),
     	            pageVO

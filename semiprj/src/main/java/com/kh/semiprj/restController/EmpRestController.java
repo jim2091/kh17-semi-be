@@ -10,11 +10,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.kh.semiprj.dao.EmpDao;
 import com.kh.semiprj.dao.MessageDao;
 import com.kh.semiprj.dto.EmpDto;
+
+import jakarta.servlet.http.HttpSession;
 
 @RestController
 @RequestMapping("/rest/emp")
@@ -71,5 +74,7 @@ public class EmpRestController {
 		
 		return resultList;
 	}
+	
+	
 
 }
