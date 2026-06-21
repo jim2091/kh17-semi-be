@@ -376,8 +376,22 @@
 	$(".detail-close-btn").click(function(){
 	    $(".detail-modal").hide();
 	});
+	function resetModal(){
+
+	    $("[name=eventTitle]").val("");
+	    $("[name=eventContent]").val("");
+
+	    $("[name=eventCategory]").val("개인일정");
+
+	    $("[name=eventColor][value='#3B82F6']")
+	        .prop("checked", true);
+
+	    $(".field")
+	        .removeClass("success fail");
+	}
 	
     $(".close-btn").click(function(){
+    	resetModal();
         $(".modal").hide();
         calendar.unselect();
     });
@@ -458,7 +472,8 @@
             contentType : "application/json",
             data : JSON.stringify(data),
             success : function(response){
-                alert("등록 완료");
+                 alert("등록 완료"); 
+                /* console.log(response); */
                 calendar.createEvents([
                     {
                         id : response.eventNo,
@@ -481,7 +496,67 @@
         });
     });
     
+    
     $(".edit-btn").click(function(){
+    	
+    	let valid = true;
+    	
+    	// 제목 검사
+        const title = $(".detail-title").val().trim();
+	        if(title === "") {
+	            $(".detail-title").removeClass("success").addClass("fail");
+	            valid = false;
+	        } 
+	        else {
+	            $(".detail-title").removeClass("fail").addClass("success");
+	        }
+		// 내용 검사
+		const content = $(".detail-content").val().trim();
+			if(content === "") {
+				$(".detail-content").removeClass("success").addClass("fail");
+				valid = false;
+			}
+			else{
+				$(".detail-content").removeClass("fail").addClass("success");
+			}
+		// 카테고리 검사
+		const category = $(".detail-category").val().trim();
+			if(category === "") {
+				$(".detail-category").removeClass("success").addClass("fail");
+				valid = false;
+			}
+			else{
+				$(".detail-category").removeClass("fail").addClass("success");
+			}
+        // 시작일시 검사
+        const start = $(".detail-start").val();
+	        if(start === "") {
+	            $(".detail-start").removeClass("success").addClass("fail");
+	            valid = false;
+	        } 
+	        else {
+	            $(".detail-start").removeClass("fail").addClass("success");
+	        }
+
+        // 종료일시 검사
+        const end = $(".detail-end").val();
+	        if(end === "") {
+	            $(".detail-end").removeClass("success").addClass("fail");
+	            valid = false;
+	        } 
+	        else {
+	            $(".detail-end").removeClass("fail").addClass("success");
+	        }
+
+        // 시작 > 종료 검사
+        if(start !== "" && end !== "" && start > end) {
+            $(".detail-end").removeClass("success").addClass("fail");
+            valid = false;
+        }
+
+        if(!valid) return; // 하나라도 실패면 Ajax 전송 안함
+
+    	
         const data = {
             eventNo : currentEventNo,
             eventTitle : $(".detail-title").val(),
@@ -658,7 +733,7 @@
 		</div>
     </div>
 </div>
-
+<!-- 일정 수정 모달창 -->
 <div class="detail-modal">
 	<div class="gw-list-panel modal-content">
 		<div class="modal-icon">
@@ -675,30 +750,40 @@
         <div class="detail-item">
 			<label>일정 제목</label>
             <input type="text" class="gw-form-input field detail-title">
+            <div class="success-feedback"></div>
+            <div class="fail-feedback">필수 입력사항입니다.</div>
         </div>
 
         <div class="detail-item">
 			<label>일정 내용</label>
             <textarea class="gw-form-input field detail-content" rows="4"></textarea>
+            <div class="success-feedback"></div>
+            <div class="fail-feedback">필수 입력사항입니다.</div>
         </div>
 		
 		<div class="detail-row">
 	        <div class="detail-item">
 	            <label>시작 일시</label>
 	            <input type="datetime-local" class="gw-form-input field detail-start">
+	            <div class="success-feedback"></div>
+	            <div class="fail-feedback">날짜 선택해주세요</div>
 	        </div>
 	
 	        <div class="detail-item">
 	            <label>종료 일시</label>
 	            <input type="datetime-local" class="gw-form-input field detail-end">
+	            <div class="success-feedback"></div>
+	            <div class="fail-feedback">날짜 선택해주세요</div>
 	        </div>
 	    </div>
 
         <div class="detail-item">
         	<label>일정 분류</label>
 			    <input type="text"
-			           class="gw-form-input detail-category"
+			           class="gw-form-input field detail-category"
 			           readonly>
+			    <div class="success-feedback"></div>
+            	<div class="fail-feedback">일정 선택해주세요</div>
         </div>
         
         <div class="detail-item">

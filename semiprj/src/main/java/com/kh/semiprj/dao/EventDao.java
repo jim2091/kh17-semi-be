@@ -45,12 +45,16 @@ public class EventDao {
 	
 	//일정 등록
 	public void insertEvent(EventDto eventDto) {
+		
+		int eventNo = sequence();
+	    eventDto.setEventNo(eventNo);
+		
 		String sql = "insert into event("
 					+ "event_no, event_origin, event_title, event_category, "
 					+ "event_content, event_start, event_end, event_option, event_color) "
 					+ "values("
-					+ "event_seq.nextval, ?, ?, ?, ?, ?, ?, ?, ?)";
-		Object[] params = {eventDto.getEventOrigin(), 
+					+ "?, ?, ?, ?, ?, ?, ?, ?, ?)";
+		Object[] params = {eventDto.getEventNo(), eventDto.getEventOrigin(), 
 							eventDto.getEventTitle(), eventDto.getEventCategory(), 
 							eventDto.getEventContent(), eventDto.getEventStart(), 
 							eventDto.getEventEnd(), eventDto.getEventOption(),
@@ -205,7 +209,6 @@ public class EventDao {
 	}
 	
 	public List<EventDto> selectSearchByPage(
-	        String eventOrigin,
 	        String column,
 	        String keyword,
 	        PageVO pageVO){
@@ -218,14 +221,12 @@ public class EventDao {
 	        + " select rownum rn, TMP.* from ("
 	        + "   select * from event "
 	        + "   where instr(" + column + ", ?) > 0 "
-	        + "   and event_origin = ? "
 	        + "   order by event_no desc"
 	        + " ) TMP"
 	        + ") where rn between ? and ?";
 
 	    Object[] params = {
 	        keyword,
-	        eventOrigin,
 	        pageVO.getBeginRownum(),
 	        pageVO.getEndRownum()
 	    };
