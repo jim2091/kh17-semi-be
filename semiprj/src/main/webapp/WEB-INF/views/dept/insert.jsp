@@ -285,7 +285,7 @@ $(function(){
 			            </label>
 			            <select name="parentDeptId" class="field gw-form-select w-100">
 			                <option value="">부서를 선택하세요</option>
-			                <option value="0">최상위 부서 추가 (독립 조직)</option>
+			                <option value="10">최상위 부서 추가 (독립 조직)</option>
 			                <c:forEach var="deptDto" items="${deptList}">
 			                    <option value="${deptDto.deptId}">${deptDto.deptName}</option>
 			                </c:forEach>
