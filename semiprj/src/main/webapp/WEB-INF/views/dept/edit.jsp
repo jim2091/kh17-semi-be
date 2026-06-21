@@ -65,7 +65,7 @@ $(function(){
     // 초기 진입 시 이미 등록된 부서장이 있다면 검증 통과 처리
     setTimeout(function(){
         if ($("input[name=messageReceiver]").length > 0) {
-            $("[name=deptHeadIdKeyword]").trigger("check");
+            state.deptHeadIdValid = true; // 강제 트리거 대신 상태만 true로 설정
         }
     }, 50);
     
@@ -289,7 +289,7 @@ $(function(){
             <input type="text" name="deptName"
                    class="field gw-form-input full"
                    value="${deptDto.deptName}">
-            <div class="success-feedback">사용 가능한 부서명입니다.</div>
+            <div class="success-feedback"></div>
             <div class="fail-feedback">이미 존재하는 부서명입니다.</div>
         </div>
 

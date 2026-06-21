@@ -87,17 +87,26 @@ public class DeptController {
 		
 	@PostMapping("/insert")
 	public String insert(@ModelAttribute DeptDto deptDto,
-						@RequestParam(value="messageReceiver", required=false) String deptHeadId)
-	                     throws IllegalStateException, IOException {
-		// 부서 번호 시퀀스 생성 및 인서트 작업 진행
-	    int deptId = deptDao.sequence();
-	    if (deptHeadId != null) {
-	        deptDto.setDeptHeadId(deptHeadId);
+	                    @RequestParam(value="messageReceiver", required=false) String deptHeadId) {
+	    try {
+	        // 부서 번호 시퀀스 생성 및 인서트 작업 진행
+	        int deptId = deptDao.sequence();
+	        if (deptHeadId != null) {
+	            deptDto.setDeptHeadId(deptHeadId);
+	        }
+	        deptDto.setDeptId(deptId);
+	        deptDao.insert(deptDto);
+	        
+	        return "redirect:./insertComplete";
+	        
+	    } catch (Exception e) {
+	        // ⭐여기에 브레이크 포인트를 걸거나 콘솔에 에러를 강제로 출력합니다.
+	        System.out.println("====== 부서 등록 중 에러 발생!! ======");
+	        e.printStackTrace(); 
+	        System.out.println("==================================");
+	        
+	        return "dept/insert"; // 혹은 기존에 지정된 에러페이지 경로
 	    }
-	    deptDto.setDeptId(deptId);
-	    deptDao.insert(deptDto);
-		
-		return "redirect:./insertComplete";
 	}
 	
 	@RequestMapping("/insertComplete")
