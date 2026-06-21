@@ -11,6 +11,77 @@
 <jsp:include page="/WEB-INF/views/template/header2.jsp"></jsp:include>
 
 <style>
+.modal {
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background-color:rgba(0,0,0,0.4);
+    z-index:9999;
+}
+
+.modal-content{
+    width:650px;
+    background:white;
+    margin:100px auto;
+    padding:20px;
+}
+.mentor-item{
+    display:flex;
+    align-items:center;
+    gap:20px;
+
+    padding:14px 18px;
+    margin-bottom:10px;
+
+    border:1px solid #e4e8f0;
+    border-radius:12px;
+
+    background:white;
+    cursor:pointer;
+
+    transition:all 0.15s ease;
+}
+
+.mentor-item:hover{
+    background:#f8f9ff;
+    border-color:var(--main-light);
+    transform:translateY(-1px);
+}
+
+.mentor-name{
+    width:90px;
+    font-size:15px;
+    font-weight:700;
+    color:#222;
+}
+
+.mentor-position{
+    width:70px;
+    color:#666;
+}
+
+.mentor-dept{
+    display:inline-flex;
+    align-items:center;
+
+    padding:4px 10px;
+    border-radius:999px;
+
+    background:#f1f3ff;
+    color:var(--main-color);
+
+    font-size:12px;
+    font-weight:600;
+}
+
+.mentor-no{
+    color:#999;
+    font-size:14px;
+}
+
 .mypage-layout {
     display: grid;
     grid-template-columns: 300px 1fr;
@@ -304,6 +375,77 @@ $(function(){
 
         return true;
     });
+    
+    $("[name=empMentor], .mentor-search").on("click", function(){
+        $(".modal").show();
+    });
+    $(".modal").click(function(e){
+        if($(e.target).hasClass("modal")){
+            $(".modal").hide();
+        }
+    });
+	$(".search-btn").click(function() {
+
+    const keyword = $("[name=keyword]").val();
+
+    $.ajax({
+        url : "/rest/emp/search",
+        method : "get",
+        data : {
+            keyword : keyword
+        },
+        success : function(response) {
+        	 console.log(response[0]);
+
+            $(".result").empty();
+
+            for(let i=0; i < response.length; i++) {
+            	const row = $(
+            			'<div class="mentor-item">'
+            	        + '<div class="mentor-name">' + response[i].empName + '</div>'
+            	        + '<div class="mentor-position">' + response[i].empPosition + '</div>'
+            	        + '<div class="mentor-dept">' + response[i].empDeptName + '</div>'
+            	        + '<div class="mentor-no">' + response[i].empNo + '</div>'
+            	    + '</div>'
+            	);
+            			
+            			
+            			/*
+            			`
+            		    <div class="gw-list-panel"
+            		         style="cursor:pointer; margin-bottom:10px;">
+            		        <strong>${response[i].empName}</strong>
+            		        <div class="gw-muted">
+            		            ${response[i].empNo}
+            		        </div>
+            		        <div class="gw-muted">
+            		            ${response[i].empPosition}
+            		        </div>
+            		    </div>
+            		`); */
+            	
+                row.css("cursor", "pointer");
+                
+                row.click(function(){
+
+                	 // 화면 표시용
+                    $("[name=empMentorName]").val(
+                        response[i].empName
+                    );
+
+                    // 실제 저장용
+                    $("[name=empMentor]").val(
+                        response[i].empNo
+                    );
+
+                    $(".modal").hide();
+                });
+
+                $(".result").append(row);
+            }
+        }
+    });
+});
 });
 </script>
 
@@ -413,12 +555,30 @@ $(function(){
                             </td>
                         </tr>
 
+                        
+                        
                         <tr>
-                            <th>담당사수</th>
-                            <td>
-                                <input type="text" name="empMentor" value="${empDto.empMentor}" class="gw-form-input field">
-                            </td>
-                        </tr>
+						    <th>담당사수</th>
+						    <td>
+						        <div style="display:flex; gap:10px;">
+						            <!-- 화면 표시용 -->
+						            <input type="text"
+						                   name="empMentorName"
+						                   class="gw-form-input"
+						                   readonly>
+						
+						            <!-- 실제 저장용 -->
+						            <input type="hidden"
+						                   name="empMentor" value="${empDto.empMentor}">
+						
+						            <button type="button"
+						                    class="gw-btn-outline mentor-search" 
+						                    style="width:80px; flex-shrink:0;">
+						                검색
+						            </button>
+						        </div>
+						    </td>
+						</tr>
 
                         <tr>
                             <th>이메일 주소</th>
@@ -493,6 +653,30 @@ $(function(){
 
         </div>
     </form>
+    
+</div>
+
+<div class="container modal">
+    <div class="modal-content">
+    	<div class="gw-page-head"
+             style="padding:0; margin-bottom:20px;">
+            <h2>담당사수 검색</h2>
+            <p>사원을 검색하여 담당사수로 지정하세요.</p>
+        </div>
+
+        <div style="
+            display:flex;
+            gap:10px;
+            margin-bottom:20px;
+        ">
+       <input type="text"
+               name="keyword"
+               class="gw-form-input"
+               placeholder="사원 검색">
+        <button type="button" class="gw-btn-primary search-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
+    </div>
+    <div class="result"></div>
+</div>
 </div>
 
 <jsp:include page="/WEB-INF/views/template/footer2.jsp"></jsp:include>
