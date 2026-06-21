@@ -312,7 +312,7 @@
             <table class="info-table">
                 <tbody>
                     <tr>
-                        <th>사원실명 / 번호</th>
+                        <th>사원명 / 번호</th>
                         <td>${empDto.empName} (${empDto.empNo})</td>
                     </tr>
                     <tr>
