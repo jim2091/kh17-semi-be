@@ -68,9 +68,12 @@
 	        <a href="./write" class="gw-btn-primary">
 	            <span>추가로 보내기</span>
 	        </a>
+			<a href="./receiveList" class="gw-btn-outline">
+				<span>받은 쪽지함</span>
+			</a>
 	    </div>
 	</div>
-	
+
 <script>
 setTimeout(function(){
     location.href="./receiveList";

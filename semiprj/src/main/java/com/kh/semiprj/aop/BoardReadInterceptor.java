@@ -1,6 +1,7 @@
 package com.kh.semiprj.aop;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -46,16 +47,18 @@ public class BoardReadInterceptor implements HandlerInterceptor{
 		}
 		
 		//(4) DB에 조회이력이 있으면 제거
-		int count = boardReadDao.count(empNo, boardNo);
-		if(count > 0) {//기록이 1개 이상이라면
-			return true;
+		//int count = boardReadDao.count(empNo, boardNo);
+		//if(count == 0) {//기록이 1개 이상이라면
+		//	return true;
+		//}
+		
+		try {
+		    boardReadDao.insert(empNo, boardNo);//(5) DB에 조회이력을 생성
+		    boardDao.updateBoardReadcount(boardNo);//(6) 조회수 증가 처리
 		}
-		
-		//(5) DB에 조회이력을 생성
-		boardReadDao.insert(empNo, boardNo);
-		
-		//(6) 조회수 증가 처리
-		boardDao.updateBoardReadcount(boardNo);
+		catch (DuplicateKeyException e) {
+		    // 이미 읽음 → 무시
+		}
 		
 		//조회수가 올라가든 안 올라가든 무조건 통과
 		return true;

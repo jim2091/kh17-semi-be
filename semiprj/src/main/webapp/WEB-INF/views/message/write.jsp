@@ -74,7 +74,27 @@
 .text-length.danger {
     color: var(--danger-color);
 }
+.reply-notice{
+    margin-top: 12px;
+    padding: 12px 16px;
+
+    background: #eef6ff;
+    border: 1px solid #bcdcff;
+    border-radius: 8px;
+
+    color: #1d4f91;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.reply-notice i{
+    margin-right: 6px;
+}
 </style>
+
+<script>
+const replyMode = ${replyMode == true};
+</script>
 
 <script type="text/javascript">
 $(function(){
@@ -148,6 +168,8 @@ $(function(){
 	                    html += "</span>";
 
 	                    $(".receiver-selected-list").append(html);
+						$(".emp-check[data-no='"+emp.empNo+"']")
+						    .prop("checked", true);
 	                    $("[name=receiverKeyword]").val("");
 	                    $(".receiver-list").empty();
 
@@ -205,7 +227,7 @@ $(function(){
 	
 	//태그 삭제
     $(".receiver-selected-list").on("click", ".delete-tag", function(){
-    	
+		if(replyMode) return;
     	var empNo = $(this)
         .closest(".receiver-tag")
         .find("input[name=messageReceiver]")
@@ -247,34 +269,51 @@ $(function(){
 			<label class="gw-form-label">
 				받는이 <span class="required">*</span>
 			</label>
-			<div>
-				<input type="text" name="receiverKeyword" class="gw-form-input fail">
-				<button type="button" class="gw-btn-primary ms-10 open-search">
-	                <i class="fa-solid fa-user-tie"></i>
-	                <span>찾기</span>
-	            </button>
-            </div>
-            <div class="fail-feedback receiver-feedback"><i class="fa-solid fa-circle-exclamation"></i> 받는이를 입력하세요.</div>
+			
+			<!-- 일반 쪽지 작성 -->
+			<c:if test="${!replyMode}">
+			    <div>
+			        <input type="text" name="receiverKeyword" class="gw-form-input fail">
+			        <button type="button" class="gw-btn-primary ms-10 open-search">
+			            <i class="fa-solid fa-user-tie"></i>
+			            <span>찾기</span>
+			        </button>
+			    </div>
+			</c:if>
+            <div class="fail-feedback receiver-feedback">
+				<i class="fa-solid fa-circle-exclamation"></i> 받는이를 입력하세요.
+			</div>
 			<div class="receiver-selected-list">
+				<!-- 답장 모드 -->
 			    <c:if test="${messageDto != null}">
 			        <span class="receiver-tag">
 			            ${messageDto.senderName}
-			
-			            <button type="button" class="delete-tag">
-			                ✕
-			            </button>
-			
+						<c:if test="${!replyMode}">
+						    <button type="button" class="delete-tag">
+						        ✕
+						    </button>
+						</c:if>
 			            <input type="hidden"
 			                   name="messageReceiver"
 			                   value="${messageDto.messageSender}">
 			        </span>
 			    </c:if>
 			</div>
-            <!-- 사원 검색 모달 -->
-            <jsp:include page="/WEB-INF/views/template/employee-picker.jsp"/>
-            <!-- 해당 모달 JS -->
-            <script src="/js/employee-picker.js"></script>
+			
+			<!-- 일반 작성일 때만 모달 사용 -->
+			<c:if test="${!replyMode}">
+	            <!-- 사원 검색 모달 -->
+	            <jsp:include page="/WEB-INF/views/template/employee-picker.jsp"/>
+	            <!-- 해당 모달 JS -->
+	            <script src="/js/employee-picker.js"></script>
+			</c:if>
 			<div class="receiver-list"></div>
+			<c:if test="${replyMode}">
+			    <div class="reply-notice">
+					<i class="fa-solid fa-circle-info"></i> 
+					현재 답장 작성 중입니다. 받는 사람은 원본 쪽지의 발신자로 자동 지정되며 변경할 수 없습니다.
+			    </div>
+			</c:if>
 		</div>
 	
 		<div class="gw-form-row">
