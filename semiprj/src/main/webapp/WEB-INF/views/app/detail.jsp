@@ -347,11 +347,31 @@
 								</c:otherwise>
 							</c:choose>
 						</td>
+						
+						<%-- 💡 [핵심 교정 영역] 밀리초 포맷 에러 예외 필터 가동선 --%>
 						<td class="gw-muted">
 							<c:choose>
 								<c:when test="${not empty line.appLineDate}">
-									<fmt:parseDate value="${line.appLineDate}" pattern="yyyy-MM-dd HH:mm:ss.SSS" var="parsedDate" />
-									<fmt:formatDate value="${parsedDate}" pattern="yyyy-MM-dd HH:mm" />
+									<c:catch var="parseError">
+										<%-- 1차 표준 파싱 기동 (.SSS 포함 형태) --%>
+										<fmt:parseDate value="${line.appLineDate}" pattern="yyyy-MM-dd HH:mm:ss.SSS" var="parsedDate" />
+									</c:catch>
+									
+									<%-- 에러 유입 시 밀리초 없는 형태로 Fallback 재파싱 --%>
+									<c:if test="${not empty parseError}">
+										<c:catch var="finalError">
+											<fmt:parseDate value="${line.appLineDate}" pattern="yyyy-MM-dd HH:mm:ss" var="parsedDate" />
+										</c:catch>
+									</c:if>
+									
+									<c:choose>
+										<c:when test="${not empty parsedDate}">
+											<fmt:formatDate value="${parsedDate}" pattern="yyyy-MM-dd HH:mm" />
+										</c:when>
+										<c:otherwise>
+											${line.appLineDate} <%-- 둘 다 파싱 실패 시 예외를 던지지 않고 원본 출력 --%>
+										</c:otherwise>
+									</c:choose>
 								</c:when>
 								<c:otherwise>-</c:otherwise>
 							</c:choose>
@@ -378,10 +398,20 @@
 
 <script>
 function goBackToHistoryList() {
-    if (document.referrer && document.referrer.indexOf(window.location.host) !== -1) {
-        location.href = document.referrer;
+    var ref = document.referrer;
+    var host = window.location.host;
+    var currentPath = window.location.pathname;
+
+    if (ref && ref.indexOf(host) !== -1) {
+        // 자기 참조 무한루프 필터링
+        if (ref.indexOf(currentPath) !== -1) {
+            location.href = '${pageContext.request.contextPath}/app/bothList';
+            return;
+        }
+        location.href = ref;
     } else {
-        location.href = '${pageContext.request.contextPath}/app/list';
+        // 백업 Fallback 경로 최적화
+        location.href = '${pageContext.request.contextPath}/app/bothList';
     }
 }
 </script>
