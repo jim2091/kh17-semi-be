@@ -552,16 +552,12 @@ public class AppDao {
         });
     }
 
-    // ===== 수정/삭제 =====
+    // 상태수
     public void updateAppStatus(int appId, String status) {
         String sql = "update app set app_status = ? where app_id = ?";
         jdbcTemplate.update(sql, status, appId);
     }
 
-    public boolean delete(int appId) {
-        String sql = "delete app where app_id = ?";
-        return jdbcTemplate.update(sql, appId) > 0;
-    }
 
     // ===== 카운트 =====
     public int countMyPenddingApp(String empNo) {
@@ -626,4 +622,43 @@ public class AppDao {
         return jdbcTemplate.query(sql, appMapper,
                 pageVO.getKeyword(), pageVO.getBeginRownum(), pageVO.getEndRownum());
     }
+    
+ // ===== 💡 [오류 수정] 부적절한 식별자 va.emp_no를 a.app_req_id로 변경 =====
+    public int countOverlappedVacation(int empNo, String vacStartDate, String vacEndDate) {
+        // 사번 조건(empNo) 대조 축을 상위 결재 테이블(app)의 기안자 ID 컬럼으로 전환
+        String sql = "select count(*) from app a "
+                   + "join vac_app va on a.app_id = va.app_id "
+                   + "where a.app_req_id = ? " // 💡 va.emp_no 대신 실제 존재하는 app_req_id로 변경
+                   + "and a.app_status in ('승인', '처리중') "
+                   + "and va.vac_start_date <= ? "
+                   + "and va.vac_end_date >= ? ";
+                   
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, 
+                empNo, vacEndDate, vacStartDate);
+                
+        return count != null ? count : 0;
+    }
+
+    // ===== 💡 [방어선 2-1] vac_info 테이블에서 vac_cnt(연차 잔여 개수) 실시간 조회 =====
+    public int getLeftAnnualLeaveCount(int empNo) {
+        String sql = "select vac_cnt from vac_info where emp_no = ? ";
+        try {
+            Integer count = jdbcTemplate.queryForObject(sql, Integer.class, empNo);
+            return count != null ? count : 0;
+        } catch (Exception e) {
+            return 0; // 예외 발생 또는 데이터 누락 시 0개 반환 처리 (방어 코드)
+        }
+    }
+
+    // ===== 💡 [방어선 2-2] leave_info 테이블에서 leave_cnt(휴가 잔여 개수) 실시간 조회 =====
+    public int getLeftSpecialLeaveCount(int empNo) {
+        String sql = "select leave_cnt from leave_info where emp_no = ? ";
+        try {
+            Integer count = jdbcTemplate.queryForObject(sql, Integer.class, empNo);
+            return count != null ? count : 0;
+        } catch (Exception e) {
+            return 0; 
+        }
+    }
+    
 }

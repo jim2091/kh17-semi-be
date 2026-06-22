@@ -1,12 +1,16 @@
 package com.kh.semiprj.dao;
 
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+
 import com.kh.semiprj.dto.AppLineDto;
 import com.kh.semiprj.mapper.AppLineMapper;
+import com.kh.semiprj.vo.PageVO;
+
 import lombok.RequiredArgsConstructor;
 
 @Repository
@@ -66,17 +70,54 @@ public class AppLineDao {
     }
     
     
-    // 내가 결재해야 할 목록 (진행중인 것만)
+ // ===== 💡 [기존 보존] 서비스 레이어의 에러를 방지하기 위해 원본 메서드는 그대로 유지 =====
     public List<AppLineDto> selectMyApprList(String empNo) {
-        String sql = "select l.*, a.app_title, a.app_type, a.app_date, "
-                   + "e.emp_name "
+        String sql = "select l.*, a.app_title, a.app_type, a.app_date, e.emp_name "
                    + "from app_line l "
                    + "join app a on l.app_id = a.app_id "
                    + "join emp e on a.app_req_id = e.emp_no "
                    + "where l.app_app_id = ? "
-                   + "and l.app_line_status = '진행중' "
                    + "order by l.app_line_id desc";
         Object[] params = { empNo };
+        return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(AppLineDto.class), params);
+    }
+
+    // ===== 💡 [신설 1] PageVO 규격 연동 결재 문서함 필터링 적용 총 개수 카운트 =====
+    public int countMyApprListByFilter(String empNo, String searchAppType, String searchAppStatus) {
+        String sql = "select count(*) from app_line l "
+                   + "join app a on l.app_id = a.app_id "
+                   + "where l.app_app_id = ? "
+                   + "and (? is null or a.app_type = ?) "
+                   + "and (? is null or l.app_line_status = ?) ";
+                   
+        Object[] params = { empNo, searchAppType, searchAppType, searchAppStatus, searchAppStatus };
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, params);
+        
+        return count != null ? count : 0;
+    }
+
+    public List<AppLineDto> selectMyApprListByFilter(PageVO pageVO, String empNo, String searchAppType, String searchAppStatus) {
+        String sql = "select * from ("
+                   + "    select rownum rn, TMP.* from ("
+                   + "        select l.*, a.app_title, a.app_type, a.app_date, e.emp_name as req_emp_name "
+                   + "        from app_line l "
+                   + "        join app a on l.app_id = a.app_id "
+                   + "        join emp e on a.app_req_id = e.emp_no "
+                   + "        where l.app_app_id = ? "
+                   + "        and (? is null or a.app_type = ?) "
+                   + "        and (? is null or l.app_line_status = ?) "
+                   + "        order by l.app_line_id desc"
+                   + "    ) TMP"
+                   + ") where rn between ? and ? ";
+                   
+        Object[] params = { 
+            empNo, 
+            searchAppType, searchAppType, 
+            searchAppStatus, searchAppStatus, 
+            pageVO.getBeginRownum(), 
+            pageVO.getEndRownum()
+        };
+        
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(AppLineDto.class), params);
     }
 
