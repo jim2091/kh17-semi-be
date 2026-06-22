@@ -528,28 +528,36 @@ public class AppController {
 		String empName = appDao.selectEmpNameById(loginId);
 
 		model.addAttribute("empName", empName);
-		model.addAttribute("currentTab", "app");
+		model.addAttribute("currentTab", "app"); // 기안 문서함 탭 유지
 
-		// 1. 내 문서함 필터 기준 카운트 및 페이징 바인딩
-		int totalCount = appDao.countMyListByFilter(empNo, searchAppType, searchAppStatus);
+		// 💡 [결함 진압] JSP 드롭다운 값(완료/진행중)을 오라클 DB 실물 적재 값(승인/처리중)으로 치환
+		String dbSearchStatus = searchAppStatus;
+		if ("완료".equals(searchAppStatus)) {
+			dbSearchStatus = "승인";
+		} else if ("진행중".equals(searchAppStatus)) {
+			dbSearchStatus = "처리중";
+		}
+
+		// 1. 💡 보정된 dbSearchStatus 변수를 던져서 필터 기준 카운트 연산 및 페이징 바인딩
+		int totalCount = appDao.countMyListByFilter(empNo, searchAppType, dbSearchStatus);
 		pageVO.setCount(totalCount);
 
-		// 2. 동적 중첩 쿼리 실행
-		List<AppDto> list = appDao.selectMyListByFilter(pageVO, empNo, searchAppType, searchAppStatus);
+		// 2. 💡 보정된 dbSearchStatus 변수로 오라클 동적 중첩 쿼리 실행
+		List<AppDto> list = appDao.selectMyListByFilter(pageVO, empNo, searchAppType, dbSearchStatus);
 
 		model.addAttribute("list", list);
 		model.addAttribute("pageVO", pageVO);
 
-		// 3. JSP 상태 복원용 속성 바인딩
+		// 3. JSP 상태 복원용 속성 바인딩 (화면 select 박스 인덱스는 유지해야 하므로 기존 파라미터 그대로 바인딩)
 		model.addAttribute("searchAppType", searchAppType);
 		model.addAttribute("searchAppStatus", searchAppStatus);
 
-		// 페이징 클릭 시 풀림 방지 파라미터 캐싱
+		// 페이징 클릭 시 풀림 방지 파라미터 캐싱선 유지
 		String searchParams = "searchAppType=" + (searchAppType != null ? searchAppType : "") + "&searchAppStatus="
 				+ (searchAppStatus != null ? searchAppStatus : "");
 		model.addAttribute("searchParams", searchParams);
 
-		return "/app/list";
+		return "/app/list"; // 원본 기안 문서함 경로 정상 리턴
 	}
 
 	// 사이드바 용 필터링(걸러내기)

@@ -67,10 +67,31 @@ $(function(){
             <span>사원목록</span>
         </a>
         
-        <a href="/app/list">
-            <i class="fa-solid fa-file-signature"></i>
-            <span>전자결재</span>
-        </a>
+        <%-- 💡 [요청 반영] 전자결재 단건 링크를 토글형 서브메뉴 그룹으로 전환하고 다이렉트 기안 항목 3선 추가 --%>
+        <div class="menu-group has-submenu">
+            <a href="#" class="submenu-toggle">
+                <i class="fa-solid fa-file-signature"></i>
+                <span>전자결재</span>
+            </a>
+            <div class="submenu">
+                <a href="/app/list">
+                    <i class="fa-solid fa-list-check"></i>
+                    <span>결재 문서함</span>
+                </a>
+                <a href="/app/vacInsert">
+                    <i class="fa-solid fa-calendar-minus"></i>
+                    <span>휴가신청서 작성</span>
+                </a>
+                <a href="/app/expInsert">
+                    <i class="fa-solid fa-file-invoice-dollar"></i>
+                    <span>품의서 작성</span>
+                </a>
+                <a href="/app/dftInsert">
+                    <i class="fa-solid fa-file-lines"></i>
+                    <span>업무기안서 작성</span>
+                </a>
+            </div>
+        </div>
         
         <div class="menu-group has-submenu">
 			<a href="#" class="submenu-toggle">
