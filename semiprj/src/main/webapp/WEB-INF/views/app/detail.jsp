@@ -170,6 +170,12 @@
 	font-weight: 600; 
 	cursor: pointer;
 }
+
+/* 💡 [UX 교정 스타일 추가] 결재선 테이블 바디 안의 모든 칸을 세로 중앙 정렬 지정 */
+.appr-line-panel .gw-table tbody tr td {
+	vertical-align: middle !important;
+	padding: 14px 10px;
+}
 </style>
 
 <div class="pds-width appr-detail-container">
@@ -327,11 +333,12 @@
 			</thead>
 			<tbody>
 				<c:forEach var="line" items="${lineList}">
-					<tr>
-						<td class="appr-line-name">${line.empName}</td>
-						<td>${line.empDept}</td>
-						<td>${line.empPosition}</td>
-						<td>
+					<%-- 💡 인라인 vertical-align 방어막 추가 --%>
+					<tr style="border-bottom: 1px solid #f1f5f9;">
+						<td class="appr-line-name" style="vertical-align: middle;">${line.empName}</td>
+						<td style="vertical-align: middle;">${line.empDept}</td>
+						<td style="vertical-align: middle;">${line.empPosition}</td>
+						<td style="vertical-align: middle;">
 							<c:choose>
 								<c:when test="${line.appLineStatus == '완료'}">
 									<span class="status-pill status-approve">완료</span>
@@ -348,16 +355,14 @@
 							</c:choose>
 						</td>
 						
-						<%-- 💡 [핵심 교정 영역] 밀리초 포맷 에러 예외 필터 가동선 --%>
-						<td class="gw-muted">
+						<%-- 💡 결재일 노출 칸 중앙 강제 정렬 --%>
+						<td class="gw-muted" style="vertical-align: middle; line-height: 1.4;">
 							<c:choose>
 								<c:when test="${not empty line.appLineDate}">
 									<c:catch var="parseError">
-										<%-- 1차 표준 파싱 기동 (.SSS 포함 형태) --%>
 										<fmt:parseDate value="${line.appLineDate}" pattern="yyyy-MM-dd HH:mm:ss.SSS" var="parsedDate" />
 									</c:catch>
 									
-									<%-- 에러 유입 시 밀리초 없는 형태로 Fallback 재파싱 --%>
 									<c:if test="${not empty parseError}">
 										<c:catch var="finalError">
 											<fmt:parseDate value="${line.appLineDate}" pattern="yyyy-MM-dd HH:mm:ss" var="parsedDate" />
@@ -369,14 +374,14 @@
 											<fmt:formatDate value="${parsedDate}" pattern="yyyy-MM-dd HH:mm" />
 										</c:when>
 										<c:otherwise>
-											${line.appLineDate} <%-- 둘 다 파싱 실패 시 예외를 던지지 않고 원본 출력 --%>
+											${line.appLineDate}
 										</c:otherwise>
 									</c:choose>
 								</c:when>
 								<c:otherwise>-</c:otherwise>
 							</c:choose>
 						</td>
-						<td style="color: #c62828; font-size: 13px;">${not empty line.appLineRej ? line.appLineRej : '-'}</td>
+						<td style="color: #c62828; font-size: 13px; vertical-align: middle;">${not empty line.appLineRej ? line.appLineRej : '-'}</td>
 					</tr>
 				</c:forEach>
 				<c:if test="${empty lineList}">
@@ -403,14 +408,12 @@ function goBackToHistoryList() {
     var currentPath = window.location.pathname;
 
     if (ref && ref.indexOf(host) !== -1) {
-        // 자기 참조 무한루프 필터링
         if (ref.indexOf(currentPath) !== -1) {
             location.href = '${pageContext.request.contextPath}/app/bothList';
             return;
         }
         location.href = ref;
     } else {
-        // 백업 Fallback 경로 최적화
         location.href = '${pageContext.request.contextPath}/app/bothList';
     }
 }

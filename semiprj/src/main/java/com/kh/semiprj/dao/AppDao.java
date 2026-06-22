@@ -488,7 +488,7 @@ public class AppDao {
         "이사", "상무", "전무", "부사장", "사장", "부회장", "회장"
     );
 
-    //picker용 결재자 검색 =====
+    //picker용 결재자 검색
     public List<Map<String, Object>> searchApproverForPicker(String keyword, List<String> excludes) {
         String sql = "select e.emp_no, e.emp_name, e.emp_position, e.emp_dept "
                    + "from emp e "
@@ -552,7 +552,7 @@ public class AppDao {
         });
     }
 
-    // 상태수
+    // 상태수정
     public void updateAppStatus(int appId, String status) {
         String sql = "update app set app_status = ? where app_id = ?";
         jdbcTemplate.update(sql, status, appId);
@@ -623,12 +623,10 @@ public class AppDao {
                 pageVO.getKeyword(), pageVO.getBeginRownum(), pageVO.getEndRownum());
     }
     
- // ===== 💡 [오류 수정] 부적절한 식별자 va.emp_no를 a.app_req_id로 변경 =====
     public int countOverlappedVacation(int empNo, String vacStartDate, String vacEndDate) {
-        // 사번 조건(empNo) 대조 축을 상위 결재 테이블(app)의 기안자 ID 컬럼으로 전환
         String sql = "select count(*) from app a "
                    + "join vac_app va on a.app_id = va.app_id "
-                   + "where a.app_req_id = ? " // 💡 va.emp_no 대신 실제 존재하는 app_req_id로 변경
+                   + "where a.app_req_id = ? " 
                    + "and a.app_status in ('승인', '처리중') "
                    + "and va.vac_start_date <= ? "
                    + "and va.vac_end_date >= ? ";
@@ -639,7 +637,6 @@ public class AppDao {
         return count != null ? count : 0;
     }
 
-    // ===== 💡 [방어선 2-1] vac_info 테이블에서 vac_cnt(연차 잔여 개수) 실시간 조회 =====
     public int getLeftAnnualLeaveCount(int empNo) {
         String sql = "select vac_cnt from vac_info where emp_no = ? ";
         try {
@@ -650,7 +647,6 @@ public class AppDao {
         }
     }
 
-    // ===== 💡 [방어선 2-2] leave_info 테이블에서 leave_cnt(휴가 잔여 개수) 실시간 조회 =====
     public int getLeftSpecialLeaveCount(int empNo) {
         String sql = "select leave_cnt from leave_info where emp_no = ? ";
         try {

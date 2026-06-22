@@ -137,14 +137,6 @@ public class AppLineDao {
         return list.isEmpty() ? null : list.get(0);
     }
 
-    public void approve(int appLineId) {
-        String sql = "UPDATE app_line " +
-                     "SET app_line_status = '완료', " +
-                     "    app_line_date = SYSTIMESTAMP " +
-                     "WHERE app_line_id = ?";
-                     
-        jdbcTemplate.update(sql, appLineId);
-    }
 
     // 다음 결재자 진행중으로 변경 (변경된 행 수 반환)
     public int updateNextApprover(int appId, int currentOrder) {
@@ -153,11 +145,20 @@ public class AppLineDao {
         return jdbcTemplate.update(sql, appId, currentOrder + 1);
     }
 
+    public void approve(int appLineId) {
+    	String sql = "UPDATE app_line " +
+    			"SET app_line_status = '완료', " +
+    			"    app_line_date = SYSTIMESTAMP " +
+    			"WHERE app_line_id = ?";
+    	
+    	jdbcTemplate.update(sql, appLineId);
+    }
     public void reject(int appLineId, String reason) {
         String sql = "update app_line set app_line_status = '반려', "
-                   + "app_line_date = to_char(sysdate, 'YYYY-MM-DD'), " // ← 동일하게 수정
+                   + "app_line_date = SYSTIMESTAMP, " 
                    + "app_line_rej = ? "
                    + "where app_line_id = ?";
+                   
         jdbcTemplate.update(sql, reason, appLineId);
     }
     
