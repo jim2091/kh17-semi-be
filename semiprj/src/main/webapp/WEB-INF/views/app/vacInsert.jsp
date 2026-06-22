@@ -621,6 +621,19 @@
 						}
 					});
 		}
+
+		// 💡 [결함 진압] 컨트롤러에서 리다이렉트Attributes로 반환한 중복/한도 초과 메세지 실시간 수신 리스너
+		var serverErrorMsg = "${errorMsg}";
+		if (serverErrorMsg && serverErrorMsg.trim() !== "") {
+			alert(serverErrorMsg);
+			
+			// 에러 발생 근원 컴포넌트인 시작일/종료일 폼 그룹에 강제 경고 스킨 래핑
+			$("[name=vacStartDate], [name=vacEndDate]")
+				.removeClass("success")
+				.addClass("fail")
+				.closest(".form-group")
+				.addClass("has-error");
+		}
 	});
 </script>
 

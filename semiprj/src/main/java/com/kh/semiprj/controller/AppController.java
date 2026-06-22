@@ -207,15 +207,22 @@ public class AppController {
 			@RequestParam(value = "attachNo", required = false) List<Integer> attachNoList, HttpSession session,
 			RedirectAttributes redirectAttributes) {
 
-		System.out.println("====== [1. 진입 완료] vacInsert POST 매핑 시작 ======");
+		System.out.println("\n========================================================");
+		System.out.println("🚀 [디버깅] vacInsert POST 트랜잭션 검증 시퀀스 기동");
+		System.out.println("========================================================");
 
 		String loginId = (String) session.getAttribute("loginId");
-		if (loginId == null)
+		if (loginId == null) {
+			System.out.println("❌ [탈락 예외] 세션 무효화 (loginId가 존재하지 않음)");
 			return "redirect:/login";
+		}
 
 		String empNo = appDao.selectEmpNoById(loginId);
-		if (empNo == null)
+		if (empNo == null) {
+			System.out.println("❌ [탈락 예외] 사번 맵핑 실패 (loginId에 매칭되는 emp_no 없음)");
 			return "redirect:./vacInsert";
+		}
+		System.out.println("▶ [스캔 완료] 현재 기안 사번(empNo): " + empNo);
 
 		// 중복 결재자 체크 로직 (기존 유지)
 		List<String> approvers = new ArrayList<>();
@@ -223,6 +230,7 @@ public class AppController {
 		if (approver2 != null && !approver2.isEmpty()) {
 			if (approvers.contains(approver2)) {
 				redirectAttributes.addFlashAttribute("errorMsg", "중복된 결재자가 있습니다.");
+				System.out.println("❌ [탈락 0선] 결재선 내부 중복 사원 식별됨");
 				return "redirect:./vacInsert";
 			}
 			approvers.add(approver2);
@@ -230,10 +238,69 @@ public class AppController {
 		if (approver3 != null && !approver3.isEmpty()) {
 			if (approvers.contains(approver3)) {
 				redirectAttributes.addFlashAttribute("errorMsg", "중복된 결재자가 있습니다.");
+				System.out.println("❌ [탈락 0선] 결재선 내부 중복 사원 식별됨");
 				return "redirect:./vacInsert";
 			}
 			approvers.add(approver3);
 		}
+
+		int intEmpNo = Integer.parseInt(empNo); 
+		String startStr = vacAppDto.getVacStartDate();
+		String endStr = vacAppDto.getVacEndDate();
+		String vacType = vacAppDto.getVacType(); 
+
+		System.out.println("▶ [신청 정보] 기간: " + startStr + " ~ " + endStr + " | 분류: " + vacType);
+
+		// 🔒 [1선 바리케이드] 동일 날짜 기간 중복 겹침 정밀 검사
+		int duplicateCount = appDao.countOverlappedVacation(intEmpNo, startStr, endStr);
+		System.out.println("▶ [검증 1선] 오라클 DB 내 중복 기간 문서 검출 건수: " + duplicateCount + "건");
+		
+		if (duplicateCount > 0) {
+			redirectAttributes.addFlashAttribute("errorMsg", "중복 기안 차단: 선택하신 기간에 이미 승인되었거나 처리 중인 휴가 신청서가 존재합니다.");
+			System.out.println("❌ [최종 차단] 1선 가두리 탈락 ➔ 기간 겹침 무결성 위반");
+			return "redirect:./vacInsert";
+		}
+
+		// 🔒 [2선 바리케이드] vacType별 실시간 잔여 수량 한도 검사
+		try {
+			java.time.LocalDate startDate = java.time.LocalDate.parse(startStr);
+			java.time.LocalDate endDate = java.time.LocalDate.parse(endStr);
+			int reqVacDays = (int) java.time.temporal.ChronoUnit.DAYS.between(startDate, endDate) + 1;
+
+			int availableDays = 0;
+			String assetName = "";
+
+			if ("연차".equals(vacType)) {
+				availableDays = appDao.getLeftAnnualLeaveCount(intEmpNo); 
+				assetName = "잔여 연차(vac_cnt)";
+			} 
+			else if ("휴가".equals(vacType)) {
+				availableDays = appDao.getLeftSpecialLeaveCount(intEmpNo); 
+				assetName = "잔여 특별휴가(leave_cnt)";
+			} 
+			else if ("병가".equals(vacType)) {
+				availableDays = 999; 
+				assetName = "병가 무제한 권한";
+			}
+
+			System.out.println("▶ [검증 2선] 신청 일수: " + reqVacDays + "일 | DB 보유 자산[" + assetName + "]: " + availableDays + "일");
+
+			if (reqVacDays > availableDays) {
+				redirectAttributes.addFlashAttribute("errorMsg", 
+					"수량 한도 초과: 신청하신 " + vacType + " 일수(" + reqVacDays + "일)가 "
+					+ "잔여 한도(" + availableDays + "일)를 초과했습니다.");
+				System.out.println("❌ [최종 차단] 2선 가두리 탈락 ➔ 실시간 수량 한도 바닥남");
+				return "redirect:./vacInsert";
+			}
+			
+		} catch (Exception e) {
+			System.out.println("❌ [시스템 예외 터짐] 날짜 파싱 혹은 DB 컬럼 Null 예외 발생");
+			e.printStackTrace();
+			redirectAttributes.addFlashAttribute("errorMsg", "시스템 오류: 날짜 정밀 연산 및 자산 대조 과정에서 파싱 결함이 발생했습니다.");
+			return "redirect:./vacInsert";
+		}
+
+		System.out.println("⭕ [통과 완료] 모든 무결성 방어벽 통과 ➔ 오라클 데이터 최종 영구 적재 프로세스 진입");
 
 		// 기본값 및 기발행 시퀀스 바인딩
 		vacAppDto.setAppReqId(empNo);
@@ -253,7 +320,7 @@ public class AppController {
 				}
 			}
 
-			// 결재선 등록 (기존 유지)
+			// 결재선 등록
 			for (int i = 0; i < approvers.size(); i++) {
 				AppLineDto line = new AppLineDto();
 				line.setAppId(nextAppId);
@@ -266,6 +333,7 @@ public class AppController {
 			appLineDao.activateFirst(nextAppId);
 
 		} catch (Exception e) {
+			System.out.println("❌ [트랜잭션 롤백] 서비스 적재 중 인프라 SQL 예외 발생");
 			e.printStackTrace();
 			return "redirect:./vacInsert";
 		}
@@ -276,6 +344,7 @@ public class AppController {
 			}
 		}
 
+		System.out.println("==== ✨ [성공 마감] vacInsert 시퀀스 최종 종결 완료 ====\n");
 		return "redirect:./insertComplete";
 	}
 
@@ -448,7 +517,6 @@ public class AppController {
 
 	@RequestMapping("/list")
 	public String list(HttpSession session, @ModelAttribute PageVO pageVO,
-			// 기안자 제외, 나머지 2개 필터만 깔끔하게 접수
 			@RequestParam(required = false) String searchAppType,
 			@RequestParam(required = false) String searchAppStatus, Model model) {
 

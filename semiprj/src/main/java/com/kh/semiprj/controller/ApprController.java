@@ -1,11 +1,11 @@
 package com.kh.semiprj.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,6 +22,7 @@ import com.kh.semiprj.dto.VacAppDto;
 import com.kh.semiprj.service.LeaveService;
 import com.kh.semiprj.service.NotificationService;
 import com.kh.semiprj.service.VacService;
+import com.kh.semiprj.vo.PageVO;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -48,23 +49,38 @@ public class ApprController {
 	private NotificationService notificationService;
 
 	@RequestMapping("/list")
-	public String list(HttpSession session, Model model) {
+	public String list(HttpSession session, @ModelAttribute PageVO pageVO,
+			@RequestParam(required = false) String searchAppType,
+			@RequestParam(required = false) String searchAppStatus, Model model) {
+
 		String loginId = (String) session.getAttribute("loginId");
 		if (loginId == null)
 			return "redirect:/login";
 
 		String empNo = appDao.selectEmpNoById(loginId);
-		List<AppLineDto> list = appLineDao.selectMyApprList(empNo);
+		String empName = appDao.selectEmpNameById(loginId);
 
-		List<AppDto> appList = new ArrayList<>();
-		for (AppLineDto line : list) {
-			AppDto appDto = appDao.selectOneById(line.getAppId());
-			appList.add(appDto);
-		}
+		model.addAttribute("empName", empName);
+		model.addAttribute("currentTab", "appr"); // 결재 문서함 탭 활성화 마킹
+
+		// 1. 내 결재 문서함 필터 기준 카운트 가동 후 선배님의 PageVO에 수량 세팅 (setCount 호출 시 내부 블록 연산 자동 구동)
+		int totalCount = appLineDao.countMyApprListByFilter(empNo, searchAppType, searchAppStatus);
+		pageVO.setCount(totalCount);
+
+		// 2. 사양에 맞춰 오차 없이 리팩토링된 신설 DAO 페이징 메서드 타격
+		List<AppLineDto> list = appLineDao.selectMyApprListByFilter(pageVO, empNo, searchAppType, searchAppStatus);
 
 		model.addAttribute("list", list);
-		model.addAttribute("appList", appList);
-		model.addAttribute("currentTab", "appr");
+		model.addAttribute("pageVO", pageVO);
+
+		// 3. JSP 상태 복원용 속성 바인딩 및 파라미터 캐싱
+		model.addAttribute("searchAppType", searchAppType);
+		model.addAttribute("searchAppStatus", searchAppStatus);
+
+		String searchParams = "searchAppType=" + (searchAppType != null ? searchAppType : "") + "&searchAppStatus="
+				+ (searchAppStatus != null ? searchAppStatus : "");
+		model.addAttribute("searchParams", searchParams);
+
 		return "/appr/list";
 	}
 
