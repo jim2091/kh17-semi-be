@@ -74,21 +74,13 @@ $(function(){
                 <span>전자결재</span>
             </a>
             <div class="submenu">
+                <a href="/app/selectType">
+                    <i class="fa-solid fa-calendar-minus"></i>
+                    <span>결재 작성</span>
+                </a>
                 <a href="/app/list">
                     <i class="fa-solid fa-list-check"></i>
                     <span>결재 문서함</span>
-                </a>
-                <a href="/app/vacInsert">
-                    <i class="fa-solid fa-calendar-minus"></i>
-                    <span>휴가신청서 작성</span>
-                </a>
-                <a href="/app/expInsert">
-                    <i class="fa-solid fa-file-invoice-dollar"></i>
-                    <span>품의서 작성</span>
-                </a>
-                <a href="/app/dftInsert">
-                    <i class="fa-solid fa-file-lines"></i>
-                    <span>업무기안서 작성</span>
                 </a>
             </div>
         </div>
