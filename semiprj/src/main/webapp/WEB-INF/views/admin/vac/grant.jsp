@@ -35,7 +35,7 @@ $(function(){
     <div class="gw-list-panel" style="padding: 40px; max-width: 600px; margin: 0 auto;">
         <form action="${pageContext.request.contextPath}/admin/vac/grant" method="post" id="grant-form">
             
-            <input type="hidden" name="empNo" value="${targetEmp.empNo}">
+            <input type="hidden" name="empNoList" value="${targetEmp.empNo}">
             
             <div class="gw-form-group">
                 <label class="gw-form-label">지급 대상자</label>

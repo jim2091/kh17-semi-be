@@ -54,7 +54,6 @@ public class AdminController {
 	@Autowired
 	private LeaveService leaveService;
 
-
 	@Autowired
 	private EmpDao empDao;
 
@@ -91,7 +90,7 @@ public class AdminController {
 	@PostMapping("/register")
 	public String register(@ModelAttribute EmpDto empDto) {
 		System.out.println(empDto);
-	    System.out.println("hireDate = " + empDto.getEmpHireDate());
+		System.out.println("hireDate = " + empDto.getEmpHireDate());
 		empDao.insertFromAdmin(empDto);	
 		empDao.insertDeptEmp(empDto.getEmpNo(), empDto.getEmpDept());
 		return "redirect:./list";
@@ -99,51 +98,26 @@ public class AdminController {
 
 	@RequestMapping("/list")
 	public String list(@ModelAttribute("pageVO") PageVO pageVO,
-	        @RequestParam(required = false) String deptKeyword,
-	        Model model) {
+			@RequestParam(required = false) String deptKeyword,
+			Model model) {
 
-	    if("emp_dept".equals(pageVO.getColumn())) {
+		if("emp_dept".equals(pageVO.getColumn())) {
+			pageVO.setCount(empDao.countAdminByDept(deptKeyword));
+			model.addAttribute("list", empDao.selectAdminDeptByPage(deptKeyword, pageVO));
+		}
+		else if(pageVO.isSearch()) {
+			pageVO.setCount(empDao.countAdmin(pageVO));
+			model.addAttribute("list", empDao.selectAdminSearchByPage(pageVO));
+		}
+		else {
+			pageVO.setCount(empDao.countAdmin());
+			model.addAttribute("list", empDao.selectAdminListByPage(pageVO));
+		}
 
-	        pageVO.setCount(
-	            empDao.countAdminByDept(deptKeyword)
-	        );
+		model.addAttribute("pageUrl", "./list");
+		model.addAttribute("deptList", deptDao.selectTreeList());
 
-	        model.addAttribute(
-	            "list",
-	            empDao.selectAdminDeptByPage(
-	                deptKeyword,
-	                pageVO
-	            )
-	        );
-	    }
-	    else if(pageVO.isSearch()) {
-
-	        pageVO.setCount(
-	            empDao.countAdmin(pageVO)
-	        );
-
-	        model.addAttribute(
-	            "list",
-	            empDao.selectAdminSearchByPage(pageVO)
-	        );
-	    }
-	    else {
-
-	        pageVO.setCount(
-	            empDao.countAdmin()
-	        );
-
-	        model.addAttribute(
-	            "list",
-	            empDao.selectAdminListByPage(pageVO)
-	        );
-	    }
-
-	    model.addAttribute("pageUrl", "./list");
-	    model.addAttribute("deptList",
-	        deptDao.selectTreeList());
-
-	    return "admin/list";
+		return "admin/list";
 	}
 
 	@RequestMapping("/detail")
@@ -168,65 +142,59 @@ public class AdminController {
 
 	@PostMapping("/edit")
 	public String edit(
-	        @RequestParam(required = false) String hireDateStr,
-	        @RequestParam(required = false) String retiredDateStr, 
-	        @RequestParam(required = false) String birthDateStr,
-	        @ModelAttribute EmpDto empDto) {
-	    
-	    if (hireDateStr != null && !hireDateStr.trim().isEmpty()) {
-	        empDto.setEmpHireDate(Timestamp.valueOf(hireDateStr.trim() + " 00:00:00"));
-	    } else {
-	        empDto.setEmpHireDate(null);
-	    }
-	    
-	    if (retiredDateStr != null && !retiredDateStr.trim().isEmpty()) {
-	        empDto.setEmpRetiredDate(Timestamp.valueOf(retiredDateStr.trim() + " 00:00:00"));
-	    } else {
-	        empDto.setEmpRetiredDate(null);
-	    }
+			@RequestParam(required = false) String hireDateStr,
+			@RequestParam(required = false) String retiredDateStr, 
+			@RequestParam(required = false) String birthDateStr,
+			@ModelAttribute EmpDto empDto) {
+		
+		if (hireDateStr != null && !hireDateStr.trim().isEmpty()) {
+			empDto.setEmpHireDate(Timestamp.valueOf(hireDateStr.trim() + " 00:00:00"));
+		} else {
+			empDto.setEmpHireDate(null);
+		}
+		
+		if (retiredDateStr != null && !retiredDateStr.trim().isEmpty()) {
+			empDto.setEmpRetiredDate(Timestamp.valueOf(retiredDateStr.trim() + " 00:00:00"));
+		} else {
+			empDto.setEmpRetiredDate(null);
+		}
 
-	    if (birthDateStr != null && !birthDateStr.trim().isEmpty()) {
-	        empDto.setEmpBirth(birthDateStr.trim());
-	    }
+		if (birthDateStr != null && !birthDateStr.trim().isEmpty()) {
+			empDto.setEmpBirth(birthDateStr.trim());
+		}
 
-	    empDao.deleteDeptEmp(empDto.getEmpNo());
-	    empDao.insertDeptEmp(empDto.getEmpNo(), empDto.getEmpDept());
-	    empDao.updateByMaster(empDto);
-	    
-	    return "redirect:./detail?empNo=" + empDto.getEmpNo();
+		empDao.deleteDeptEmp(empDto.getEmpNo());
+		empDao.insertDeptEmp(empDto.getEmpNo(), empDto.getEmpDept());
+		empDao.updateByMaster(empDto);
+		
+		return "redirect:./detail?empNo=" + empDto.getEmpNo();
 	}
 
 	@RequestMapping("/useYn")
 	public String useYn(@RequestParam String empNo) {
 		EmpDto empDto = empDao.selectOneByDetail(empNo);
 		if (empDto != null) {
-	        String currentStatus = empDto.getEmpUseYn(); // 'Y' 또는 'N'
-	        
-	        if ("Y".equals(currentStatus)) {
-	            // 현재 활성(Y) 상태라면 비활성화(N) 메서드 호출
-	            empDao.useN(empNo);
-	        } else {
-	            // 현재 비활성(N) 상태라면 활성화(Y) 메서드 호출
-	            empDao.useY(empNo);
-	        }
-	    }
+			String currentStatus = empDto.getEmpUseYn();
+			
+			if ("Y".equals(currentStatus)) {
+				empDao.useN(empNo);
+			} else {
+				empDao.useY(empNo);
+			}
+		}
 		return "redirect:./edit?empNo=" + empNo;
 	}
 
 	@RequestMapping("/waitingList")
 	public String waitingList(@ModelAttribute("pageVO") PageVO pageVO, Model model) {
-		pageVO.setCount(
-				empDao.countWaiting()
-			);
-	
-			List<EmpDto> list =
-				empDao.selectListForWaitingByPage(pageVO);
-	
-			model.addAttribute("list", list);
-			model.addAttribute("isEmpty", list.isEmpty());
-			model.addAttribute("pageUrl", "./waitingList");
-			
-			return "admin/waiting_list";
+		pageVO.setCount(empDao.countWaiting());
+		List<EmpDto> list = empDao.selectListForWaitingByPage(pageVO);
+
+		model.addAttribute("list", list);
+		model.addAttribute("isEmpty", list.isEmpty());
+		model.addAttribute("pageUrl", "./waitingList");
+		
+		return "admin/waiting_list";
 	}
 
 	@RequestMapping("/vacList")
@@ -287,14 +255,29 @@ public class AdminController {
 		return resultList;
 	}
 
+	// ✨ [수정] 단일(empNo) 및 벌크(empNoList) 둘 다 유연하게 받도록 개선
 	@PostMapping("/vac/grant")
-	public String vacGrantSubmit(@RequestParam("empNoList") List<String> empNoList,
-			@RequestParam("vacYear") String vacYearStr, @RequestParam int vacDays, @RequestParam String vacReason) {
+	public String vacGrantSubmit(
+			@RequestParam(value = "empNoList", required = false) List<String> empNoList,
+			@RequestParam(value = "empNo", required = false) String empNo,
+			@RequestParam("vacYear") String vacYearStr, 
+			@RequestParam int vacDays, 
+			@RequestParam String vacReason) {
 
 		String cleanedYear = vacYearStr.replace("'", "").replace("\"", "").trim();
 		int vacYear = Integer.parseInt(cleanedYear);
 
-		vacService.grantBulkVacation(empNoList, vacYear, vacDays, vacReason);
+		// 단일 사원(empNo)으로 들어왔을 경우 리스트에 담아줌
+		if (empNoList == null || empNoList.isEmpty()) {
+			empNoList = new ArrayList<>();
+			if (empNo != null && !empNo.trim().isEmpty()) {
+				empNoList.add(empNo);
+			}
+		}
+
+		if (!empNoList.isEmpty()) {
+			vacService.grantBulkVacation(empNoList, vacYear, vacDays, vacReason);
+		}
 		return "redirect:../vacList";
 	}
 
@@ -317,13 +300,10 @@ public class AdminController {
 
 	@GetMapping("/vac/detail")
 	public String vacDetail(@RequestParam String empNo, @RequestParam int vacYear, Model model) {
-		// 1. 사원 기본 정보 조회 및 전송
 		EmpDto empDto = empDao.selectOneByDetail(empNo);
 		model.addAttribute("empDto", empDto);
 		
-		// 2. ✨ [Dao 교체 적용] 사원 번호와 함께 전달받은 연도로 특정 연차 데이터 타겟팅
 		VacInfoDto vacInfoDto = vacDao.selectOneByEmpNoAndYear(empNo, vacYear); 
-
 		model.addAttribute("vacInfoDto", vacInfoDto);
 
 		return "admin/vac/detail";
@@ -387,9 +367,11 @@ public class AdminController {
 		return resultList;
 	}
 
+	// ✨ [수정] 단일(empNo) 및 벌크(empNoList) 둘 다 유연하게 받도록 개선
 	@PostMapping("/leave/leaveGrant")
 	public String leaveGrantSubmit(
-			@RequestParam("empNoList") List<String> empNoList, 
+			@RequestParam(value = "empNoList", required = false) List<String> empNoList, 
+			@RequestParam(value = "empNo", required = false) String empNo,
 			@RequestParam("leaveYear") String leaveYearStr, 
 			@RequestParam int leaveDays, 
 			@RequestParam String leaveReason) {
@@ -397,7 +379,17 @@ public class AdminController {
 		String cleanedYear = leaveYearStr.replace("'", "").replace("\"", "").trim();
 		int leaveYear = Integer.parseInt(cleanedYear); 
 		
-		leaveService.grantBulkLeave(empNoList, leaveYear, leaveDays, leaveReason);
+		// 단일 사원(empNo)으로 들어왔을 경우 리스트에 담아줌
+		if (empNoList == null || empNoList.isEmpty()) {
+			empNoList = new ArrayList<>();
+			if (empNo != null && !empNo.trim().isEmpty()) {
+				empNoList.add(empNo);
+			}
+		}
+		
+		if (!empNoList.isEmpty()) {
+			leaveService.grantBulkLeave(empNoList, leaveYear, leaveDays, leaveReason);
+		}
 		return "redirect:../leaveList";
 	}
 
@@ -419,21 +411,14 @@ public class AdminController {
 
 	@GetMapping("/leave/leaveDetail")
 	public String leaveDetail(@RequestParam String empNo, @RequestParam int leaveYear, Model model) {
-		// 1. 사원 인적 정보 바인딩
 		EmpDto empDto = empDao.selectOneByDetail(empNo);
 		model.addAttribute("empDto", empDto);
 		
-		// 2. ✨ [개선] 연도와 사원번호 두 키값으로 조회해 옴으로써 다건 중복 반환 에러 완벽 해결
 		LeaveInfoDto leaveInfoDto = leaveDao.selectOneByEmpNoAndYear(empNo, leaveYear); 
 		model.addAttribute("leaveInfoDto", leaveInfoDto);
 		
 		return "admin/leave/leave_detail";
 	}
-
-	
-	
-	
-	
 
 	@RequestMapping("/approval")
 	public String approval(@RequestParam String empNo) {
@@ -460,7 +445,6 @@ public class AdminController {
 		return "admin/history";
 	}
 
-
 	@GetMapping("/attn/manage")
 	public String manage(@ModelAttribute("search") AttnDto searchDto, @ModelAttribute("pageVO") PageVO pageVO,
 			Model model) {
@@ -470,15 +454,13 @@ public class AdminController {
 	}
 	
 	@GetMapping("/dashboard")
-    public String dashboard(
-            @RequestParam(required = false) String month,
-            Model model) {
+	public String dashboard(
+			@RequestParam(required = false) String month,
+			Model model) {
 
-        AdminDashboardVO dashboard =
-                adminDashboardService.createDashboard(month);
+		AdminDashboardVO dashboard = adminDashboardService.createDashboard(month);
+		model.addAttribute("dashboard", dashboard);
 
-        model.addAttribute("dashboard", dashboard);
-
-        return "admin/dashboard";
-    }
+		return "admin/dashboard";
+	}
 }
