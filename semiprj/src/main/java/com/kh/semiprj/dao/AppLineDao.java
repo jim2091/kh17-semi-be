@@ -96,11 +96,10 @@ public class AppLineDao {
         return count != null ? count : 0;
     }
 
-    // ===== 💡 [신설 2] 선배님의 PageVO 변수(getBeginRownum, getEndRownum) 규격 맞춤형 쿼리 =====
     public List<AppLineDto> selectMyApprListByFilter(PageVO pageVO, String empNo, String searchAppType, String searchAppStatus) {
         String sql = "select * from ("
                    + "    select rownum rn, TMP.* from ("
-                   + "        select l.*, a.app_title, a.app_type, a.app_date, e.emp_name "
+                   + "        select l.*, a.app_title, a.app_type, a.app_date, e.emp_name as req_emp_name "
                    + "        from app_line l "
                    + "        join app a on l.app_id = a.app_id "
                    + "        join emp e on a.app_req_id = e.emp_no "
@@ -115,8 +114,8 @@ public class AppLineDao {
             empNo, 
             searchAppType, searchAppType, 
             searchAppStatus, searchAppStatus, 
-            pageVO.getBeginRownum(), // 💡 선배님의 VO 내부 메서드명으로 정밀 일치
-            pageVO.getEndRownum()    // 💡 선배님의 VO 내부 메서드명으로 정밀 일치
+            pageVO.getBeginRownum(), 
+            pageVO.getEndRownum()
         };
         
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(AppLineDto.class), params);

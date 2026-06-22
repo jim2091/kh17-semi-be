@@ -103,42 +103,41 @@
 		<a href="/app/bothList" class="gw-tab-item">전체 문서함</a> 
 	</div>
 
-	<div class="gw-filter-panel pds-width"
-		style="padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); border: 1px solid #e2e8f0; margin-bottom: 20px;">
-		<div style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
-			
-			<div style="display: flex; align-items: center; gap: 8px;">
-				<label style="font-size: 13px; font-weight: 700; color: #475569; white-space: nowrap;">문서종류</label>
-				<select id="filterAppType" class="gw-form-select" style="margin: 0; min-width: 150px; padding: 6px 12px; border: 1px solid #cbd5e1; border-radius: 6px; cursor: pointer;">
-					<option value="">전체 문서 종류</option>
-					<option value="휴가신청서">휴가신청서</option>
-					<option value="품의서">품의서</option>
-					<option value="업무기안서">업무기안서</option>
-				</select> 
-			</div>
-			
-			<div style="display: flex; align-items: center; gap: 8px;">
-				<label style="font-size: 13px; font-weight: 700; color: #475569; white-space: nowrap;">진행상황</label>
-				<select id="filterAppStatus" class="gw-form-select" style="margin: 0; min-width: 150px; padding: 6px 12px; border: 1px solid #cbd5e1; border-radius: 6px; cursor: pointer;">
-					<option value="">전체 결재 상태</option>
-					<option value="진행중">진행중</option>
-					<option value="완료">완료</option>
-					<option value="반려">반려</option>
-				</select> 
-			</div>
-			
-			<div style="margin-left: auto; font-size: 12px; color: #94a3b8; font-weight: 500;">
+	<%-- 💡 [수정] 서버 전송용 FORM 가두리 배치 및 컨트롤러 파라미터명과 name 속성 일치 --%>
+	<form action="/appr/list" method="get" id="searchForm">
+		<div class="gw-filter-panel pds-width"
+			style="padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); border: 1px solid #e2e8f0; margin-bottom: 20px;">
+			<div style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
+				
+				<div style="display: flex; align-items: center; gap: 8px;">
+					<label style="font-size: 13px; font-weight: 700; color: #475569; white-space: nowrap;">문서종류</label>
+					<select id="filterAppType" name="searchAppType" class="gw-form-select" style="margin: 0; min-width: 150px; padding: 6px 12px; border: 1px solid #cbd5e1; border-radius: 6px; cursor: pointer;">
+						<option value="">전체 문서 종류</option>
+						<option value="휴가신청서" ${searchAppType == '휴가신청서' ? 'selected' : ''}>휴가신청서</option>
+						<option value="품의서" ${searchAppType == '품의서' ? 'selected' : ''}>품의서</option>
+						<option value="업무기안서" ${searchAppType == '업무기안서' ? 'selected' : ''}>업무기안서</option>
+					</select> 
+				</div>
+				
+				<div style="display: flex; align-items: center; gap: 8px;">
+					<label style="font-size: 13px; font-weight: 700; color: #475569; white-space: nowrap;">진행상황</label>
+					<select id="filterAppStatus" name="searchAppStatus" class="gw-form-select" style="margin: 0; min-width: 150px; padding: 6px 12px; border: 1px solid #cbd5e1; border-radius: 6px; cursor: pointer;">
+						<option value="">전체 결재 상태</option>
+						<option value="진행중" ${searchAppStatus == '진행중' ? 'selected' : ''}>진행중</option>
+						<option value="완료" ${searchAppStatus == '완료' ? 'selected' : ''}>완료</option>
+						<option value="반려" ${searchAppStatus == '반려' ? 'selected' : ''}>반려</option>
+					</select> 
+				</div>
 			</div>
 		</div>
-	</div>
+	</form>
 
 	<div class="gw-list-panel pds-width">
 		<div class="gw-table-top" style="margin-bottom: 15px;">
 			<div>
 				<div class="gw-table-title" style="font-size: 16px; font-weight: 700; color: #1e293b;">결재 대기 및 완료 목록</div>
-				<%-- 💡 [UX 교정] 가변 개수는 현재 list 크기로 조준하고, 우측 총 건수는 백엔드가 연산해온 totalCount 자산으로 정밀 대치 --%>
 				<div class="gw-table-sub" style="font-size: 13px; color: #64748b; margin-top: 2px;">
-					현재 페이지 내 노출: <span id="filteredCount" style="font-weight: 700; color: var(--main-color, #22c55e);">${list.size()}</span> / 시스템 총 결재 건수: ${totalCount}건
+					현재 페이지 내 노출: <span style="font-weight: 700; color: var(--main-color, #22c55e);">${list.size()}</span> / 시스템 총 결재 건수: <c:out value="${pageVO.count}" default="0"/>건
 				</div>
 			</div>
 		</div>
@@ -157,8 +156,8 @@
 				<c:if test="${not empty list}">
 					<c:forEach var="line" items="${list}">
 						<tr class="appr-data-row" onclick="location.href='/appr/detail?appId=${line.appId}'" 
-							data-type="${line.appLineType}" data-status="${line.appLineStatus}"
 							style="border-bottom: 1px solid #f1f5f9; text-align: center;">
+							<%-- 💡 [수정] 데이터 유실 버그 수정 처리된 기안자 이름 변수 마킹 --%>
 							<td style="padding: 14px;">${line.reqEmpName}</td>
 							<td style="padding: 14px;"><span class="gw-muted">[${line.appLineType}]</span></td>
 							<td class="gw-title-cell" style="text-align: left; padding: 14px;">
@@ -187,10 +186,6 @@
 					</c:forEach>
 				</c:if>
 
-				<tr id="jsEmptyRow" style="display: none;">
-					<td colspan="5" style="padding: 60px; text-align: center; color: #94a3b8; font-size: 14px;">현재 페이지 내에 조건과 매칭되는 결재 대상 문서가 존재하지 않습니다.</td>
-				</tr>
-
 				<c:if test="${empty list}">
 					<tr>
 						<td colspan="5" class="gw-table-empty"
@@ -210,51 +205,8 @@
 
 <script>
 $(function() {
-    // 💡 [실시간 고속 클라이언트 사이드 필터링 엔진 가동]
-    const $rows = $('.appr-data-row');
-    const $emptyRow = $('#jsEmptyRow');
-    const $countText = $('#filteredCount');
-    const $pagination = $('#paginationWrap');
-
-    function executeLiveFilter() {
-        const targetType = $('#filterAppType').val(); 
-        const targetStatus = $('#filterAppStatus').val(); 
-        
-        let visibleCount = 0;
-
-        $rows.each(function() {
-            const rowType = $(this).data('type');
-            const rowStatus = $(this).data('status');
-
-            const matchType = (targetType === "" || rowType === targetType);
-            const matchStatus = (targetStatus === "" || rowStatus === targetStatus);
-
-            if (matchType && matchStatus) {
-                $(this).show();
-                visibleCount++;
-            } else {
-                $(this).hide();
-            }
-        });
-
-        $countText.text(visibleCount);
-
-        if (visibleCount === 0 && $rows.length > 0) {
-            $emptyRow.show();
-        } else {
-            $emptyRow.hide();
-        }
-
-        // 💡 [UX 보정] 특정 조건 필터링 중에는 하단 페이징 컴포넌트의 가시성을 조절하여 페이징 꼬임 현상 인지 방어
-        if (targetType !== "" || targetStatus !== "") {
-            $pagination.css('opacity', '0.2').css('pointer-events', 'none'); 
-        } else {
-            $pagination.css('opacity', '1').css('pointer-events', 'auto');
-        }
-    }
-
     $('#filterAppType, #filterAppStatus').on('change', function() {
-        executeLiveFilter();
+        $('#searchForm').submit();
     });
 });
 </script>
