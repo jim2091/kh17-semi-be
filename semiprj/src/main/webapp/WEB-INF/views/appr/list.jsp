@@ -103,43 +103,41 @@
 		<a href="/app/bothList" class="gw-tab-item">전체 문서함</a> 
 	</div>
 
-	<%-- 💡 [리팩토링] 검색창 및 버튼 라인을 전면 파괴하고, 직관적인 고속 동적 필터 패널로 전면 스위칭 --%>
-	<div class="gw-filter-panel pds-width"
-		style="padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); border: 1px solid #e2e8f0; margin-bottom: 20px;">
-		<div style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
-			
-			<div style="display: flex; align-items: center; gap: 8px;">
-				<label style="font-size: 13px; font-weight: 700; color: #475569; white-space: nowrap;">문서종류</label>
-				<select id="filterAppType" class="gw-form-select" style="margin: 0; min-width: 150px; padding: 6px 12px; border: 1px solid #cbd5e1; border-radius: 6px; cursor: pointer;">
-					<option value="">전체 문서 종류</option>
-					<option value="휴가신청서">휴가신청서</option>
-					<option value="품의서">품의서</option>
-					<option value="업무기안서">업무기안서</option>
-				</select> 
-			</div>
-			
-			<div style="display: flex; align-items: center; gap: 8px;">
-				<label style="font-size: 13px; font-weight: 700; color: #475569; white-space: nowrap;">진행상황</label>
-				<select id="filterAppStatus" class="gw-form-select" style="margin: 0; min-width: 150px; padding: 6px 12px; border: 1px solid #cbd5e1; border-radius: 6px; cursor: pointer;">
-					<option value="">전체 결재 상태</option>
-					<option value="진행중">진행중</option>
-					<option value="완료">완료</option>
-					<option value="반려">반려</option>
-				</select> 
-			</div>
-			
-			<div style="margin-left: auto; font-size: 12px; color: #94a3b8; font-weight: 500;">
+	<%-- 💡 [수정] 서버 전송용 FORM 가두리 배치 및 컨트롤러 파라미터명과 name 속성 일치 --%>
+	<form action="/appr/list" method="get" id="searchForm">
+		<div class="gw-filter-panel pds-width"
+			style="padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); border: 1px solid #e2e8f0; margin-bottom: 20px;">
+			<div style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
+				
+				<div style="display: flex; align-items: center; gap: 8px;">
+					<label style="font-size: 13px; font-weight: 700; color: #475569; white-space: nowrap;">문서종류</label>
+					<select id="filterAppType" name="searchAppType" class="gw-form-select" style="margin: 0; min-width: 150px; padding: 6px 12px; border: 1px solid #cbd5e1; border-radius: 6px; cursor: pointer;">
+						<option value="">전체 문서 종류</option>
+						<option value="휴가신청서" ${searchAppType == '휴가신청서' ? 'selected' : ''}>휴가신청서</option>
+						<option value="품의서" ${searchAppType == '품의서' ? 'selected' : ''}>품의서</option>
+						<option value="업무기안서" ${searchAppType == '업무기안서' ? 'selected' : ''}>업무기안서</option>
+					</select> 
+				</div>
+				
+				<div style="display: flex; align-items: center; gap: 8px;">
+					<label style="font-size: 13px; font-weight: 700; color: #475569; white-space: nowrap;">진행상황</label>
+					<select id="filterAppStatus" name="searchAppStatus" class="gw-form-select" style="margin: 0; min-width: 150px; padding: 6px 12px; border: 1px solid #cbd5e1; border-radius: 6px; cursor: pointer;">
+						<option value="">전체 결재 상태</option>
+						<option value="진행중" ${searchAppStatus == '진행중' ? 'selected' : ''}>진행중</option>
+						<option value="완료" ${searchAppStatus == '완료' ? 'selected' : ''}>완료</option>
+						<option value="반려" ${searchAppStatus == '반려' ? 'selected' : ''}>반려</option>
+					</select> 
+				</div>
 			</div>
 		</div>
-	</div>
+	</form>
 
 	<div class="gw-list-panel pds-width">
 		<div class="gw-table-top" style="margin-bottom: 15px;">
 			<div>
 				<div class="gw-table-title" style="font-size: 16px; font-weight: 700; color: #1e293b;">결재 대기 및 완료 목록</div>
-				<%-- 💡 [UX 교정] 총 개수가 필터링 결과에 맞추어 실시간 가변 반영되도록 전용 ID 바인딩 --%>
 				<div class="gw-table-sub" style="font-size: 13px; color: #64748b; margin-top: 2px;">
-					조회결과: <span id="filteredCount" style="font-weight: 700; color: var(--main-color, #22c55e);">${list.size()}</span> / 총 ${list.size()}건
+					현재 페이지 내 노출: <span style="font-weight: 700; color: var(--main-color, #22c55e);">${list.size()}</span> / 시스템 총 결재 건수: <c:out value="${pageVO.count}" default="0"/>건
 				</div>
 			</div>
 		</div>
@@ -157,10 +155,9 @@
 			<tbody class="appr-list-body">
 				<c:if test="${not empty list}">
 					<c:forEach var="line" items="${list}">
-						<%-- 💡 [핵심 버그 프리] 동적 스캔 속도 최적화를 위해 data-* 속성축에 원본 메타 명세를 바인딩합니다. --%>
 						<tr class="appr-data-row" onclick="location.href='/appr/detail?appId=${line.appId}'" 
-							data-type="${line.appLineType}" data-status="${line.appLineStatus}"
 							style="border-bottom: 1px solid #f1f5f9; text-align: center;">
+							<%-- 💡 [수정] 데이터 유실 버그 수정 처리된 기안자 이름 변수 마킹 --%>
 							<td style="padding: 14px;">${line.reqEmpName}</td>
 							<td style="padding: 14px;"><span class="gw-muted">[${line.appLineType}]</span></td>
 							<td class="gw-title-cell" style="text-align: left; padding: 14px;">
@@ -189,11 +186,6 @@
 					</c:forEach>
 				</c:if>
 
-				<%-- 💡 [예외 차단] 실시간 필터링 후 결과가 0건일 때 동적으로 개설될 자바스크립트 가상 로우 공간 --%>
-				<tr id="jsEmptyRow" style="display: none;">
-					<td colspan="5" style="padding: 60px; text-align: center; color: #94a3b8; font-size: 14px;">필터링된 결재 대상 문서가 존재하지 않습니다.</td>
-				</tr>
-
 				<c:if test="${empty list}">
 					<tr>
 						<td colspan="5" class="gw-table-empty"
@@ -213,55 +205,8 @@
 
 <script>
 $(function() {
-    // 💡 [실시간 고속 클라이언트 사이드 필터링 엔진 가동]
-    const $rows = $('.appr-data-row');
-    const $emptyRow = $('#jsEmptyRow');
-    const $countText = $('#filteredCount');
-    const $pagination = $('#paginationWrap');
-
-    function executeLiveFilter() {
-        const targetType = $('#filterAppType').val(); // 선택된 문서종류 (ex: 휴가신청서)
-        const targetStatus = $('#filterAppStatus').val(); // 선택된 결재상황 (ex: 완료)
-        
-        let visibleCount = 0;
-
-        $rows.each(function() {
-            const rowType = $(this).data('type');
-            const rowStatus = $(this).data('status');
-
-            // 조건 비교 검증선 구축
-            const matchType = (targetType === "" || rowType === targetType);
-            const matchStatus = (targetStatus === "" || rowStatus === targetStatus);
-
-            if (matchType && matchStatus) {
-                $(this).show();
-                visibleCount++;
-            } else {
-                $(this).hide();
-            }
-        });
-
-        // 💡 실시간 매칭 카운트 뷰 레이어 갱신
-        $countText.text(visibleCount);
-
-        // 💡 모든 행이 필터링되어 가려졌을 때 데이터 없음(Empty) 가상 행 토글 제어
-        if (visibleCount === 0 && $rows.length > 0) {
-            $emptyRow.show();
-        } else {
-            $emptyRow.hide();
-        }
-
-        // 💡 클라이언트 사이드 임시 필터 작동 시 정적 페이징 블록과의 충돌을 방지하기 위한 UI 보정선
-        if (targetType !== "" || targetStatus !== "") {
-            $pagination.css('opacity', '0.3').css('pointer-events', 'none'); // 필터링 시 페이징 일시 비활성화 유도
-        } else {
-            $pagination.css('opacity', '1').css('pointer-events', 'auto');
-        }
-    }
-
-    // 문서종류 및 진행상황 select가 변환되는 물리 시점 즉시 훅 연동
     $('#filterAppType, #filterAppStatus').on('change', function() {
-        executeLiveFilter();
+        $('#searchForm').submit();
     });
 });
 </script>
