@@ -81,7 +81,7 @@ $(function(){
 			<div class="submenu">
 				<a href="/attn/list">
 			        <i class="fa-solid fa-business-time"></i>
-			        <span>근태관리</span>
+			        <span>근태기록</span>
 			    </a>
 			    <a href="/attn/calculator">
 		        	<i class="fa-solid fa-calculator"></i>
@@ -151,14 +151,7 @@ $(function(){
 			        	<i class="fa-solid fa-user-clock"></i>
 			        	<span>대기 사원 목록</span>
 			        </a>
-			        <a href="/admin/vacList">
-			        	<i class="fa-solid fa-calendar-plus"></i>
-			        	<span>연차 지급</span>
-			        </a>
-			        <a href="/admin/leaveList">
-			        	<i class="fa-solid fa-calendar-plus"></i>
-			        	<span>휴가 지급</span>
-			        </a>
+
 				</div>
 			</div>
 	        
@@ -181,6 +174,14 @@ $(function(){
 				    <a href="${pageContext.request.contextPath}/attn/admin/manage">
 			        	<i class="fa-solid fa-sliders"></i>
 			        	<span>근무제도</span>
+			        </a>
+			        <a href="/admin/vacList">
+			        	<i class="fa-solid fa-calendar-plus"></i>
+			        	<span>연차 지급</span>
+			        </a>
+			        <a href="/admin/leaveList">
+			        	<i class="fa-solid fa-calendar-plus"></i>
+			        	<span>휴가 지급</span>
 			        </a>
 				</div>
 			</div>

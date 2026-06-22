@@ -100,6 +100,16 @@ public class EmpController {
 		//부서장인지
 		session.setAttribute("isManager", empDao.isManager(findEmpDto.getEmpNo()));
 		
+		
+		if(findEmpDto.getEmpPwChange() != null) {
+		    LocalDateTime pwChangeTime = findEmpDto.getEmpPwChange().toLocalDateTime();
+		    LocalDateTime limitTime = pwChangeTime.plusDays(30);
+
+		    if(!limitTime.isAfter(LocalDateTime.now())) {
+		        return "redirect:/emp/change_pw?reason=expired";
+		    }
+		}
+		
 
 		return "redirect:/";
 	}
@@ -218,11 +228,12 @@ public class EmpController {
 		//다음 페이지에 넘겨주고 자동 삭제되는 세션?
 		redirectAttributes.addFlashAttribute("empId", findId);
 		
-		return "redirect:./change_pw";
+		return "redirect:./change_pw?reason=find";
 	}
 	
 	@GetMapping("/change_pw")
-	public String change_pw() {
+	public String change_pw(@RequestParam(required = false) String reason, Model model) {
+		model.addAttribute("reason", reason);
 		return "emp/change_pw";
 	}
 	
