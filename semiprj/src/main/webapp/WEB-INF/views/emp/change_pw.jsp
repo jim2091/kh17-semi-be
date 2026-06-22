@@ -120,10 +120,17 @@
 	<div class="password-title">
 		비밀번호 변경이 필요합니다
 	</div>
-	<div class="password-desc mb-30">
-		마지막 비밀번호 변경 후 30일이 경과했습니다.<br>
-    	계정 보안을 위해 새로운 비밀번호를 설정해주세요.
-	</div>
+	<c:if test="${reason == 'expired'}">
+		<div class="password-desc mb-30">
+			마지막 비밀번호 변경 후 30일이 경과했습니다.<br>
+	    	계정 보안을 위해 새로운 비밀번호를 설정해주세요.
+		</div>
+	</c:if>
+	<c:if test="${reason == 'find'}">
+		<div class="password-desc mb-30">
+			본인 확인이 완료되었습니다. 새 비밀번호를 설정해주세요.
+		</div>
+	</c:if>
 	
     <form action="./change_pw" method="post" autocomplete="off" class="form-check">
     	<input type="hidden" name="empId" value="${empId}">

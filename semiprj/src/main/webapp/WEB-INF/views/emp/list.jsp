@@ -128,7 +128,7 @@ $(function(){
 				
 				<c:if test="${empty list}">
 			    <tr>
-			        <td colspan="7"
+			        <td colspan="5"
 			            style="padding:40px;text-align:center;color:#aaa;">
 			            검색 결과가 없습니다.
 			        </td>
