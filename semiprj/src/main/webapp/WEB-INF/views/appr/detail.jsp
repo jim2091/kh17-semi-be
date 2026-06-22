@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-<%-- 💡 [스타일 통합] 모든 인라인 스타일을 클래스로 추출하여 묶어줌 --%>
+<%-- [스타일 통합] 모든 인라인 스타일을 클래스로 추출하여 묶어줌 --%>
 <style>
 /* 메인 컨테이너 및 헤더 */
 .appr-detail-container {
@@ -140,17 +140,19 @@
 .appr-line-thead-tr {
 	border-bottom: 2px solid var(--main-color, #22c55e) !important;
 }
-.appr-line-th {
-	padding: 12px 16px; 
-	text-align: left; 
+
+/* 💡 [UX 교정] 결재선 테이블 헤더와 바디의 정렬, 패딩 가두리 완비 */
+.appr-line-table-header th {
+	padding: 12px 10px; 
+	text-align: center; /* 헤더 텍스트도 전부 무조건 정가운데 정렬 */
 	color: var(--main-color, #22c55e); 
 	font-weight: 600;
+	font-size: 14px;
 }
-.appr-line-th-center {
-	padding: 12px 16px; 
-	text-align: center; 
-	color: var(--main-color, #22c55e); 
-	font-weight: 600;
+.appr-line-tbody-tr td {
+	vertical-align: middle !important;
+	text-align: center; /* 💡 바디 데이터도 전부 무조건 정가운데 정렬하여 대칭 구축 */
+	padding: 14px 10px;
 }
 
 /* 액션 버튼 그룹 및 반려 팝업 모달 */
@@ -392,24 +394,25 @@
 		<h3 class="appr-card-title">결재선</h3>
 		<table class="appr-detail-table">
 			<thead>
-				<tr class="appr-line-thead-tr">
-					<th class="appr-line-th">순서</th>
-					<th class="appr-line-th">결재자</th>
-					<th class="appr-line-th">부서</th>
-					<th class="appr-line-th">직급</th>
-					<th class="appr-line-th-center">상태</th>
-					<th class="appr-line-th">결재일</th>
-					<th class="appr-line-th">반려사유</th>
+				<%-- 💡 [리팩토링] 각 th 컬럼에 고정 너비(%)와 가운데 정렬 통합 스킨 매핑 --%>
+				<tr class="appr-line-thead-tr appr-line-table-header">
+					<th style="width: 8%;">순서</th>
+					<th style="width: 15%;">결재자</th>
+					<th style="width: 17%;">부서</th>
+					<th style="width: 12%;">직급</th>
+					<th style="width: 13%;">상태</th>
+					<th style="width: 20%;">결재일</th>
+					<th style="width: 15%;">반려사유</th>
 				</tr>
 			</thead>
 			<tbody>
 				<c:forEach var="line" items="${lineList}">
-					<tr>
+					<tr class="appr-line-tbody-tr" style="border-bottom: 1px solid #f0f0f0;">
 						<td>${line.appLineOrder}</td>
-						<td>${line.empName}</td>
-						<td style="color: #888;">${line.empDept}</td>
-						<td style="color: #888;">${line.empPosition}</td>
-						<td style="text-align: center;">
+						<td style="font-weight: 600;">${line.empName}</td>
+						<td style="color: #666;">${line.empDept}</td>
+						<td style="color: #666;">${line.empPosition}</td>
+						<td>
 							<c:choose>
 								<c:when test="${line.appLineStatus == '완료'}">
 									<span class="status-pill approve">완료</span>
@@ -425,8 +428,9 @@
 								</c:otherwise>
 							</c:choose>
 						</td>
-						<td style="color: #888;">${line.appLineDate}</td>
-						<td style="color: #c62828;">${line.appLineRej}</td>
+						<%-- 💡 공백 유지를 위해 인라인 스타일 정리 --%>
+						<td style="color: #666; font-size: 13.5px; white-space: nowrap;">${line.appLineDate}</td>
+						<td style="color: #c62828;">${line.appLineRej != null ? line.appLineRej : '-'}</td>
 					</tr>
 				</c:forEach>
 				<c:if test="${empty lineList}">

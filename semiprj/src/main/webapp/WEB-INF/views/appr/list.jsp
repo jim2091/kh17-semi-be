@@ -125,7 +125,6 @@
 						<option value="">전체 결재 상태</option>
 						<option value="진행중" ${searchAppStatus == '진행중' ? 'selected' : ''}>진행중</option>
 						<option value="완료" ${searchAppStatus == '완료' ? 'selected' : ''}>완료</option>
-						<option value="반려" ${searchAppStatus == '반려' ? 'selected' : ''}>반려</option>
 					</select> 
 				</div>
 			</div>
