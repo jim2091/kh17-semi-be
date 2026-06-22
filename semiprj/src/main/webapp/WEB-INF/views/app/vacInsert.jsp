@@ -770,7 +770,7 @@
 			<div class="btn-group">
 				<button class="btn-submit" type="submit">기안하기</button>
 				<button class="btn-cancel" type="button"
-					onclick="location.href='./list';">취소</button>
+					onclick="location.href='./selectType';">취소</button>
 			</div>
 		</form>
 	</div>

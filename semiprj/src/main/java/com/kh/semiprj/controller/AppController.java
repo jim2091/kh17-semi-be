@@ -641,5 +641,20 @@ public class AppController {
 
 			return approverList;
 		}
+		
+		// ===== 💡 전자결재 기안 선택 중간 페이지 이동 =====
+	    @RequestMapping("/selectType")
+	    public String selectType(HttpSession session, Model model) {
+	        String loginId = (String) session.getAttribute("loginId");
+	        if (loginId == null) {
+	            return "redirect:/login";
+	        }
+	        
+	        String empName = appDao.selectEmpNameById(loginId);
+	        model.addAttribute("empName", empName);
+	        model.addAttribute("currentTab", "app"); // 전자결재 탭 활성화 상태 유지
+	        
+	        return "/app/selectType"; // jsp 경로 지정
+	    }
 
 }

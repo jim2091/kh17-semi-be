@@ -154,16 +154,6 @@
 					style="font-size: 13px; color: #64748b; margin-top: 2px;">총
 					${list.size()}개의 문서</div>
 			</div>
-			<div class="gw-table-actions"
-				style="margin-left: auto; display: flex; gap: 8px;">
-				<a href="./vacInsert" class="btn-appr-type"> <i
-					class="fa-solid fa-umbrella-beach"></i> 휴가신청서
-				</a> <a href="./expInsert" class="btn-appr-type"> <i
-					class="fa-solid fa-coins"></i> 품의서
-				</a> <a href="./dftInsert" class="btn-appr-type"> <i
-					class="fa-solid fa-file-signature"></i> 업무기안서
-				</a>
-			</div>
 		</div>
 
 		<table class="gw-table"
