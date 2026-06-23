@@ -39,12 +39,19 @@ public class FileDownloadController {
 	
 	@RequestMapping("/modern")
 	public ResponseEntity<ByteArrayResource> download(@RequestParam int attachNo, HttpSession session) throws IOException{
+		System.out.println("uploadPath = " + uploadPath);
+	    System.out.println("attachNo = " + attachNo);
 		
 		AttachDto attachDto = attachDao.selectOne(attachNo);
 		if(attachDto == null) throw new TargetNotfoundException("존재하지 않는 파일");
 		
 		File dir = new File(uploadPath);
 		File target = new File(dir, String.valueOf(attachNo));
+		System.out.println("target = " + target.getAbsolutePath());
+		System.out.println("exists = " + target.exists());
+		System.out.println("isFile = " + target.isFile());
+
+		
 		if(!target.isFile()) throw new TargetNotfoundException("존재하지 않는 파일");
 		
 		byte[] data = FileCopyUtils.copyToByteArray(target);
