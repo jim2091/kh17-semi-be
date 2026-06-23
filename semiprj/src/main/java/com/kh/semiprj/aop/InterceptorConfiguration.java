@@ -62,7 +62,7 @@ public class InterceptorConfiguration implements WebMvcConfigurer{
 						,"/emp/cert_id"
 						,"/emp/cert_pw"
 						,"/emp/change_pw"
-						,"/emp/change_pw_change"
+						,"/emp/change_pw_complete"
 						,"/emp/find_id"
 						,"/emp/find_id_complete"
 						,"/emp/find_pw"
