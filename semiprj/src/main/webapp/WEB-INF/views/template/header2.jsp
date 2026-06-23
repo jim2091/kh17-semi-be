@@ -193,11 +193,24 @@
 		            </a>
 				</c:if>
 	            
-	
-	            <a href="/emp/mypage" class="gw-user">
+				<a href="/emp/mypage" class="gw-user">
+				    <c:choose>
+				        <c:when test="${not empty sessionScope.loginNo}">
+				            <img src="/emp/profile?empNo=${sessionScope.loginNo}"
+				                 onerror="this.src='/images/no_profile.jpg';">
+				        </c:when>
+				        <c:otherwise>
+				            <img src="/images/no_profile.jpg">
+				        </c:otherwise>
+				    </c:choose>
+				
+				    <span>${loginUser.empName} ${loginUser.empPosition}</span>
+				    <i class="fa-solid fa-angle-down"></i>
+				</a>
+	           <!-- <a href="/emp/mypage" class="gw-user">
 	                <img src="/emp/profile?empNo=${sessionScope.loginNo}">
 	                <span>${loginUser.empName} ${loginUser.empPosition}</span>
 	                <i class="fa-solid fa-angle-down"></i>
-	            </a>
+	            </a> -->
 	        </div>
 	    </div>
