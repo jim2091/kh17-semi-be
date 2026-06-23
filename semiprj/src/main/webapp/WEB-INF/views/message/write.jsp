@@ -153,9 +153,9 @@ $(function(){
 	                    }
 
 	                    var html = "";
-
-	                    html += "<span class='receiver-tag'>";
-	                    html += emp.empName;
+	                    html += "<span class='receiver-tag' ";
+	                    html += "data-dept='" + emp.empDeptName + "'>";
+	                    html += emp.empName + " (" + emp.empDeptName + ")";
 
 	                    html += "<button type='button' class='delete-tag'>";
 	                    html += "✕";
